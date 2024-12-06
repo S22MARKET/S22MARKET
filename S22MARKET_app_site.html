@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحميل التطبيق</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        img {
+            width: 80%;
+            max-width: 200px;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .button {
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            color: #fff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            width: 100%;
+            max-width: 150px;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .button:active {
+            transform: scale(0.95);
+        }
+
+        .copy-message {
+            font-size: 14px;
+            color: #4CAF50;
+            margin-top: 10px;
+            visibility: hidden;
+        }
+
+        footer {
+            background: linear-gradient(135deg, #007bff, #66ccff);
+            color: #fff;
+            text-align: center;
+            padding: 1rem 0;
+            box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            position: relative;
+        }
+
+        footer .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        footer .social-links a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #fff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        footer .social-links a:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        footer .social-links a img {
+            width: 35px;
+            height: 35px;
+            margin-bottom: 5px;
+            background-color: transparent;
+            border-radius: 50%;
+            padding: 8px;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 1rem;
+            color: #b2dfdb;
+        }
+
+        footer p span {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            img {
+                max-width: 150px;
+            }
+
+            .button {
+                font-size: 14px;
+                padding: 12px;
+                width: auto;
+                max-width: 120px;
+            }
+
+            footer .social-links a img {
+                width: 30px;
+                height: 30px;
+            }
+
+            footer p {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="S22MARKET-APP.jpg" alt="QR Code">
+        <div class="button-container">
+            <a href="S22MARKET.apk" download><button class="button">تحميل التطبيق</button></a>
+            <button class="button" id="copy-link">نسخ رابط الصفحة</button>
+        </div>
+        <div class="button-container">
+            <button class="button" id="share-link">مشاركة الرابط</button>
+            <button class="button" id="contact-us">اتصل بنا</button>
+        </div>
+        <span class="copy-message" id="copy-message">تم نسخ الرابط!</span>
+    </div>
+
+    <footer>
+        <div class="social-links">
+            <a href="https://instagram.com/s22mcs" target="_blank" class="instagram">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/instagram-new.png" alt="Instagram">
+                <span>إنستغرام</span>
+            </a>
+
+            <a href="https://t.me/S22MCS" target="_blank" class="telegram">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/telegram-app.png" alt="Telegram">
+                <span>تيليجراف </span>
+            </a>
+            <a href="https://www.facebook.com/profile.php?id=61552919247921" target="_blank" class="facebook">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/facebook-new.png" alt="Facebook">
+                <span>فيسبوك</span>
+            </a>
+        </div>
+        <p><span> S22MARKET</span> - جميع الحقوق محفوظة &copy; 2025</p>
+    </footer>
+
+    <script>
+        document.getElementById('copy-link').addEventListener('click', function () {
+            const link = window.location.href;
+            navigator.clipboard.writeText(link).then(() => {
+                const message = document.getElementById('copy-message');
+                message.style.visibility = 'visible';
+                setTimeout(() => {
+                    message.style.visibility = 'hidden';
+                }, 2000);
+            });
+        });
+
+        document.getElementById('share-link').addEventListener('click', function () {
+            const link = window.location.href;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'تحميل التطبيق',
+                    url: link
+                }).catch((error) => console.log('Error sharing:', error));
+            } else {
+                alert('مشاركة الرابط غير مدعومة في هذا المتصفح');
+            }
+        });
+
+        document.getElementById('contact-us').addEventListener('click', function () {
+            window.location.href = "mailto:contact@s22market.com";
+        });
+    </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
