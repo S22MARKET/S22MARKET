@@ -1,332 +1,510 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
+
 <head>
-    <!-- basic -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- site metas -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+
     <title>S22MARKET</title>
-    <meta name="keywords" content="">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <!-- bootstrap css -->
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
-    <!-- style css -->
-    <link rel="stylesheet" type="text/css" href="css/style.css">
-    <!-- Responsive-->
-    <link rel="stylesheet" href="css/responsive.css">
-    <!-- fevicon -->
-    <link rel="icon" href="images/fevicon.png" type="image/gif" />
-    <!-- Scrollbar Custom CSS -->
-    <link rel="stylesheet" href="css/jquery.mCustomScrollbar.min.css">
-    <!-- Tweaks for older IEs-->
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
-    <!-- fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet">
-    <!-- font awesome -->
-    <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <!-- owl stylesheets -->
-    <link href="https://fonts.googleapis.com/css?family=Great+Vibes|Poppins:400,700&display=swap&subset=latin-ext" rel="stylesheet">
-    <link rel="stylesheet" href="css/owl.carousel.min.css">
-    <link rel="stylesheet" href="css/owl.theme.default.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" media="screen">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4caf50;
+            --secondary-color: #81c784;
+            --background-dark: #ffffff;
+            --text-light: #000000;
+            --highlight-color: #ff5722;
+            --transition-speed: 0.5s;
+        }
+
+        [data-theme="dark"] {
+            --background-dark: #121212;
+            --text-light: #ffffff;
+            --primary-color: #bb86fc;
+            --highlight-color: #03dac5;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: url('header-bg.jpg') no-repeat center/cover;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        .menu {
+            list-style: none;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: var(--text-light);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            transition: background var(--transition-speed);
+        }
+
+        .menu a:hover {
+            background: var(--highlight-color);
+        }
+
+        .theme-toggle {
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            border: none;
+            background: var(--primary-color);
+            color: var(--text-light);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color var(--transition-speed);
+        }
+
+        .theme-toggle:hover {
+            background: var(--highlight-color);
+        }
+
+        .section {
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .top-products {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .product-card {
+            background: var(--background-dark);
+            border: 1px solid var(--primary-color);
+            border-radius: 10px;
+            width: 300px;
+            padding: 1rem;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .product-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-icons a {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            color: var(--highlight-color);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: var(--background-dark);
+            margin-top: 2rem;
+        }
+
+
+
+
+
+
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown a {
+    text-decoration: none;
+    color: var(--text-light); /* نص باللون الأبيض */
+    padding: 0.8rem 1.2rem;
+    font-size: 1.1rem;
+    border-radius: 5px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); /* تدرج لوني بين الأساسي والثانوي */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dropdown a:hover {
+    background: linear-gradient(135deg, var(--highlight-color), var(--primary-color)); /* تدرج لوني عند التفاعل */
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 150px;
+    background-color: var(--background-dark); /* الخلفية الداكنة للقائمة */
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 1000;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.dropdown-menu li {
+    transform: translateY(20px);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.dropdown-menu li a {
+    padding: 10px 15px;
+    margin: 0;
+    color: var(--text-light); /* النص باللون الأبيض */
+    text-decoration: none;
+    display: block;
+    border-radius: 5px;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    font-size: 1rem;
+}
+
+.dropdown-menu li a:hover {
+    background-color: var(--highlight-color); /* تلوين الخلفية عند التفاعل */
+    transform: translateX(5px);
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+}
+
+.dropdown:hover .dropdown-menu li {
+    transform: translateY(0);
+    opacity: 1;
+    transition-delay: 0.1s;
+}
+
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <img src="images/banner-bg1.png" alt="شعار">
+         
+    <span style="font-weight: bold; font-size: 1.5em; background: linear-gradient(90deg, black, white, green, red); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        🛒🛍️🏪 S22MARKET  🏪🛍️🛒 
+</span>
+
+              
+        </div>
+        <ul class="menu">
+            <li><a href="index.html">الرئيسية</a></li>
+            <li><a href="#">منتجاتنا</a></li>
+            <li><a href="#">الأكثر مبيعًا</a></li>
+
+
+
+     
+            <li class="dropdown">
+                <a href="#">الأكثر مبيعًا</a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">منتج 1</a></li>
+                    <li><a href="#">منتج 2</a></li>
+                    <li><a href="#">منتج 3</a></li>
+                    <li><a href="#">منتج 4</a></li>
+                </ul>
+            </li>
+            
+           
+             
+    
+            <li><a href="#">تواصل معنا</a></li>
+        </ul>
+        <button class="theme-toggle" id="themeToggle">وضع داكن</button>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         
+          
+    </header>
+
+
+
+
+
 
     <style>
-        /* CSS لتحسين الاستجابة */
-        body {
-            font-family: 'Poppins', sans-serif;
+        /* الأنماط الخاصة بالكتابة المشعة على خلفية سوداء */
+        .advertisement {
+            background-color: #121212;
+            padding: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 150px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            position: relative;
         }
-        .container {
-            max-width: 1200px;
-            margin: auto;
+
+        .advertisement-text {
+            font-family: 'Cairo', sans-serif;
+            font-size: 2.5rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            white-space: nowrap;
+            background: linear-gradient(90deg, #ff0000, #ffffff, #000000, #008000);
+            background-size: 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: flag-colors 5s linear infinite;
         }
-        .banner_section h1 {
-            font-size: 2.5em;
-        }
-        @media (max-width: 768px) {
-            .banner_section h1 {
-                font-size: 1.5em;
+
+        /* تأثير حركة الألوان */
+        @keyframes flag-colors {
+            0% {
+                background-position: 0% 50%;
             }
-            .btn_main {
-                text-align: center;
-            }
-            .input-group {
-                flex-direction: column;
-            }
-            .input-group .form-control {
-                margin-bottom: 10px;
+            100% {
+                background-position: 100% 50%;
             }
         }
     </style>
 </head>
+
 <body>
-    <!-- banner bg main start -->
-    <div class="banner_bg_main">
-        <!-- header top section start -->
-        <div class="container">
-            <div class="header_section_top">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="custom_menu">
-                            <ul>
-                                <li><a href="#">افضل المبيعات </a></li>
-                                <li><a href="#">التخفيضات</a></li>
-                                <li><a href="#">المضافات الحديثة </a></li>
-                                <li><a href="#">الرائجة</a></li>
-                                <li><a href="#">خدمات العملاء </a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- header top section end -->
-        <!-- logo section start -->
-        <div class="logo_section">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="logo"><a href="index.html"> </a></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- logo section end -->
-        <!-- header section start -->
-        <div class="header_section">
-            <div class="container">
-                <div class="containt_main">
-                    <div id="mySidenav" class="sidenav">
-                        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-                        <a href="index.html">الصفحة الرئيسية</a>
-                        <a href="html/CART_SKILS_SERVICES.html">الخدمات والمهارات </a>
-                        <a href="electronic.html">الدورات الحضورية والالكترونية </a>
-                        <a href="jewellery.html"> التخفيضات </a>
-                    </div>
-                    <span class="toggle_icon" onclick="openNav()"><img src="images/toggle-icon.png" alt="قائمة"></span>
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">التصنيفات</button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <a class="dropdown-item" href="#">بطاقات الخدمات والمهارات </a>
-                            <a class="dropdown-item" href="#">الدورات الحضورية</a>
-                            <a class="dropdown-item" href="#">الدورات عن بعد</a>
-                            <a class="dropdown-item" href="#">المستلزمات الطبية </a>
-                            <a class="dropdown-item" href="#">الملابس</a>
-                        </div>
-                    </div>
-                    <div class="main">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Search this blog">
-                            <div class="input-group-append">
-                                <button class="btn btn-secondary" type="button" style="background-color: #f26522; border-color:#f26522">
-                                    <i class="fa fa-search"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- header section end -->
-
-        <!-- banner section start -->
-        <div class="banner_section layout_padding">
-            <div class="container">
-                <div id="my_slider" class="carousel slide" data-ride="carousel">
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <h1 class="banner_taital"><br>سارع بالتسوق المفضل لديك </h1>
-                                    <div class="buynow_bt"><a href="#">ابدا الان </a></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="carousel-item">
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <h1 class="banner_taital"><br>سارع بالتعلم دوراتنا متوفرة الان </h1>
-                                    <div class="buynow_bt"><a href="#">تعلم الان </a></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="carousel-item">
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <h1 class="banner_taital"><br>سارع بالتخفيضات على الخدمات الرعايةالصحية </h1>
-                                    <div class="buynow_bt"><a href="#">استفد الان </a></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <a class="carousel-control-prev" href="#my_slider" role="button" data-slide="prev">
-                        <i class="fa fa-angle-left"></i>
-                    </a>
-                    <a class="carousel-control-next" href="#my_slider" role="button" data-slide="next">
-                        <i class="fa fa-angle-right"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-        <!-- banner section end -->
-    </div>
-    <!-- banner bg main end -->
-
-    <!-- electronic section start -->
-    <div class="fashion_section">
-        <div id="electronic_main_slider" class="carousel slide" data-ride="carousel">
-            <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <div class="container">
-                        <h1 class="fashion_taital">ما نقدمه</h1>
-                        <div class="fashion_section_2">
-                            <div class="row">
-                                <div class="col-lg-4 col-sm-12">
-                                    <div class="box_main">
-                                        <h4 class="shirt_text">دورة تعلم الخياطة الطبية والاسعافات الاولية</h4>
-                                        <p class="price_text">الدورات التعليمية</p>
-                                        <div class="electronic_img"><img src="images/AMINE.png" class="img-fluid" alt="دورة تعلم الخياطة"></div>
-                                        <div class="btn_main">
-                                            <div class="buy_bt"><a href="#contactusindex">راسلنا الان على صفحاتنا لمعلومات اكثر</a></div>
-                                            <div class="seemore_bt"><a href="#"></a></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-4 col-sm-12">
-                                    <div class="box_main">
-                                        <h4 class="shirt_text">دورة تعلم كانفا</h4>
-                                        <p class="price_text">الدورات التعليمة</p>
-                                        <div class="electronic_img"><img src="images/canva.jpg" class="img-fluid" alt="دورة تعلم كانفا"></div>
-                                        <div class="btn_main">
-                                            <p><a href="https://www.facebook.com/Bouamama.Djawed">FACBOOK</a></p>
-                                            <p><a href="https://t.me/Bd_djawed">TELEGRAM</a></p>
-                                            <div class="buy_bt"><a href="#contactusindex">صفحاتنا</a></div>
-                                            <div class="seemore_bt"><a href="#"></a></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-4 col-sm-12">
-                                    <div class="box_main">
-                                        <h4 class="shirt_text">العقارات</h4>
-                                        <p class="price_text">ابدا الان</p>
-                                        <div class="electronic_img"><img src="images/agreement.jpg" class="img-fluid" alt="العقارات"></div>
-                                        <div class="btn_main">
-                                            <div class="buy_bt"><a href="realestate-main/real_estate.html">انتقل الان</a></div>
-                                            <div class="seemore_bt"><a href="#">See More</a></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-4 col-sm-12">
-                                    <div class="box_main">
-                                        <h4 class="shirt_text">خدمات ورعاية صحية</h4>
-                                        <p class="price_text">الحجامة</p>
-                                        <div class="electronic_img"><img src="images/HIJAMA.jpg" class="img-fluid" alt="خدمات ورعاية صحية"></div>
-                                        <div class="btn_main">
-                                            <p><a href="https://www.facebook.com/share/p/LmLHyijvUjhX7KKs/">FACBOOK</a></p>
-                                            <p><a href="https://www.instagram.com/p/DCdoY4cImIX/?igsh=MWlwdW5idXJyMjllOQ==">INSTAGRAM</a></p>
-                                            <p><a href="https://t.me/S22MARKET/161">TELEGRAM</a></p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-4 col-sm-12">
-                                    <div class="box_main">
-                                        <h4 class="shirt_text">ملابس والقبعات والاكسوارات</h4>
-                                        <p class="price_text">المنتجات العامة</p>
-                                        <div class="electronic_img"><img src="QR/SOON.jpg" class="img-fluid" alt="ملابس والقبعات والاكسوارات"></div>
-                                        <div class="btn_main">
-                                            <div class="seemore_bt"><a href="#"></a></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <a class="carousel-control-prev" href="#electronic_main_slider" role="button" data-slide="prev">
-                <i class="fa fa-angle-left"></i>
-            </a>
-            <a class="carousel-control-next" href="#electronic_main_slider" role="button" data-slide="next">
-                <i class="fa fa-angle-right"></i>
-            </a>
+    <!-- قسم الكتابة المشعة -->
+    <div class="advertisement">
+        <div class="advertisement-text">
+            مرحباً بكم في S22MARKET
         </div>
     </div>
-    <!-- electronic section end -->
-    
-.
-<!-- QR start -->
-<div style="text-align: center;">
-    <h3>مسح رمز الاستجابة السريع لتحميل التطبيق</h3>
-    
-    <!-- رمز الاستجابة السريع أعلى الأزرار -->
-    <img src="QR/QR.jpg" alt="QR Code" style="width: 900px; height: auto; margin-bottom: 90px;"> <!-- إضافة مسافة أسفل الصورة -->
-    
-    <!-- ترك سطر فارغ -->
-    <div style="height: 20px;"></div> <!-- سطر فارغ بين الصورة والأزرار -->
-    <a href="S22MARKET.apk" class="button" download>تحميل التطبيق مباشرة   (APK)</a>
-    <a href="S22MARKET_app_site.html" class="button">تحميل التطبيق (APK)</a>
-    <a href="https://s22market.github.io/S22MARKET/" class="button" id="copyLinkButton">نسخ الرابط</a>
-    
-    <div class="footer" style="margin-top: 20px;">
-        <p>لأي استفسارات، يرجى الاتصال بنا.</p>
-    </div>
-</div>
-<!-- QR section end -->
-   
-
-    <!-- footer section start -->
-    <div class="footer_section layout_padding">
-        <div class="container">
-            <div class="footer_logo"><a href="index.html"><img src="images/banner-bg.png" alt="شعار الموقع"></a></div>
-            <div class="input_bt">
-                <input type="text" class="mail_bt" placeholder="Your Email" name="Your Email">
-                <span class="subscribe_bt" id="basic-addon2"><a href="#">Subscribe</a></span>
-            </div>
-            <p id="contactusindex"></p>
-            <div class="footer_menu">
-                <ul>
-                    <li><a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250">INSTEGRAM</a></li>
-                    <li><a href="https://www.facebook.com/profile.php?id=61563869504735">FACBOOK</a></li>
-                    <li><a href="https://t.me/S22MARKET">TELEGRAM</a></li>
-                    <li><a href="#">TELEGRAM_bot</a></li>
-                    <li><a href="#">خدمة العملاء الفورية قريبا</a></li>
-                </ul>
-            </div>
-            <div class="location_main">Help Line Number: <a href="#">+ قريبا</a></div>
-        </div>
-    </div>
-    <!-- footer section end -->
-
-    <!-- copyright section start -->
-    <div class="copyright_section">
-        <div class="container">
-            <p class="copyright_text">© 2024 All Rights Reserved. Design by</p>
-        </div>
-    </div>
-    <!-- copyright section end -->
-
-    <!-- Javascript files-->
-    <script src="js/jquery.min.js"></script>
-    <script src="js/popper.min.js"></script>
-    <script src="js/bootstrap.bundle.min.js"></script>
-    <script src="js/jquery-3.0.0.min.js"></script>
-    <script src="js/plugin.js"></script>
-    <!-- sidebar -->
-    <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
-    <script src="js/custom.js"></script>
-    <script>
-        function openNav() {
-            document.getElementById("mySidenav").style.width = "250px";
-        }
-        
-        function closeNav() {
-            document.getElementById("mySidenav").style.width = "0";
-        }
-    </script>
 </body>
+
+
+
+
+
+
+    <section class="section">
+        <h2>منتجاتنا المميزة</h2>
+        <div class="top-products">
+            <!-- بطاقة المنتج الأولى -->
+            <div class="product-card">
+                <img src="electronic1.jpg" alt="لابتوب">
+                <h3>لابتوب</h3>
+                <p>أفضل منتج في فئته.</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://t.me" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="https://www.tiktok.com" target="_blank"><i class="fab fa-tiktok"></i></a>
+                    <a href="tel:+123456789"><i class="fas fa-phone"></i></a>
+                </div>
+            </div>
+
+            <!-- بطاقة المنتج الثانية -->
+            <div class="product-card">
+                <img src="electronic2.jpg" alt="هاتف">
+                <h3>هاتف</h3>
+                <p>أداء رائع وسعر ممتاز.</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://t.me" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="https://www.tiktok.com" target="_blank"><i class="fab fa-tiktok"></i></a>
+                    <a href="tel:+123456789"><i class="fas fa-phone"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+    <section class="section">
+        <h2>الدورات التعليمية </h2>
+        <div class="top-products">
+            <!-- بطاقة المنتج الأولى -->
+            <div class="product-card">
+                <img src="image/AMINE.png" alt="لابتوب">
+                <h3>لابتوب</h3>
+                <p>دورة تعلم الخياطة الطبية والاسعافات الاولية</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://t.me" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="https://www.tiktok.com" target="_blank"><i class="fab fa-tiktok"></i></a>
+                    <a href="tel:+123456789"><i class="fas fa-phone"></i></a>
+                </div>
+            </div>
+
+            <!-- بطاقة المنتج الثانية -->
+            <div class="product-card">
+                <img src="electronic2.jpg" alt="هاتف">
+                <h3>هاتف</h3>
+                <p>أداء رائع وسعر ممتاز.</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://t.me" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="https://www.tiktok.com" target="_blank"><i class="fab fa-tiktok"></i></a>
+                    <a href="tel:+123456789"><i class="fas fa-phone"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+
+
+    <footer>
+        <p>&copy; 2024 S22MARKET. جميع الحقوق محفوظة.</p>
+        <div class="footer-icons">
+            <a href="https://www.instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.facebook.com" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="https://t.me" target="_blank" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+            <a href="https://www.tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+            <a href="https://t.me/bot_username" target="_blank" aria-label="Telegram Bot"><i class="fab fa-telegram-plane"></i></a>
+        </div>
+    </footer>
+    
+
+
+
+    <style>
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: var(--background-dark);
+            margin-top: 2rem;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+        }
+    
+        .footer-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+    
+        .footer-icons a {
+            color: var(--primary-color);
+            font-size: 2rem;
+            transition: color 0.3s ease;
+        }
+    
+        .footer-icons a:hover {
+            color: var(--highlight-color);
+        }
+    </style>
+    
+
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const root = document.documentElement;
+    
+        // وظيفة لضبط الوضع بناءً على التوقيت
+        const setThemeByTime = () => {
+            const hour = new Date().getHours();
+            if (hour >= 6 && hour < 18) {
+                // النهار
+                root.removeAttribute('data-theme');
+                themeToggle.innerHTML = '🌙 الوضع الداكن🌙';
+            } else {
+                // الليل
+                root.setAttribute('data-theme', 'dark');
+                themeToggle.innerHTML = '🌞 الوضع النهاري🌞';
+            }
+        };
+    
+        // استدعاء الوظيفة عند التحميل
+        setThemeByTime();
+    
+        // السماح بتغيير الوضع يدويًا
+        themeToggle.addEventListener('click', () => {
+            if (root.hasAttribute('data-theme')) {
+                root.removeAttribute('data-theme');
+                themeToggle.innerHTML = '🌙 الوضع الداكن🌙';
+            } else {
+                root.setAttribute('data-theme', 'dark');
+                themeToggle.innerHTML ='🌞 الوضع النهاري🌞';
+            }
+        });
+    </script>
+    
+    
+</body>
+
 </html>
