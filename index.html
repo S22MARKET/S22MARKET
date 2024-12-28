@@ -194,6 +194,9 @@
                 font-size: 0.9rem;
             }
         }
+
+
+
     </style>
 </head>
 
@@ -224,10 +227,18 @@
 
 
 
+
+
+
+
+
+
+
+
+
          
           
     </header>
-
 
 
 
@@ -283,38 +294,226 @@
 
 
 
+<section style="
+    background-color: var(--background-dark); 
+    padding: 20px; 
+    border-radius: 15px; 
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6); 
+    margin: 20px;">
+    <header>
+        <nav style="margin-bottom: 20px;">
+            <ul style="
+                list-style: none; 
+                padding: 0; 
+                display: flex; 
+                flex-wrap: wrap; 
+                gap: 20px; 
+                justify-content: center;">
+                <!-- الدورات  التعليمية الجامعية -->
+                <li>
+                    <a href="#year1" style="
+                        background-color: var(--primary-color); 
+                        color: var(--text-light); 
+                        text-decoration: none; 
+                        padding: 15px 25px; 
+                        border-radius: 50px; 
+                        font-weight: bold; 
+                        font-size: 1rem; 
+                        display: inline-block; 
+                        transition: all 0.3s; 
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
+                          الدورات  التعليمية  الجامعية 
+                    </a>
+                </li>
+
+
+              <!-- الدورات  التعليمية  الطور الثانوي -->
+                <li>
+                    <a href="#year2" style="
+                        background-color: var(--primary-color); 
+                        color: var(--text-light); 
+                        text-decoration: none; 
+                        padding: 15px 25px; 
+                        border-radius: 50px; 
+                        font-weight: bold; 
+                        font-size: 1rem; 
+                        display: inline-block; 
+                        transition: all 0.3s; 
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
+                     الدورات  التعليمية  الطور الثانوي 
+                    </a>
+                </li>
+
+
+                <!-- العقارات-->
+                <li>
+                    <a href="#year3" style="
+                        background-color: var(--primary-color); 
+                        color: var(--text-light); 
+                        text-decoration: none; 
+                        padding: 15px 25px; 
+                        border-radius: 50px; 
+                        font-weight: bold; 
+                        font-size: 1rem; 
+                        display: inline-block; 
+                        transition: all 0.3s; 
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
+                        العقارات
+                    </a>
+                </li>
 
 
 
-    <section class="section">
-        <h2>منتجاتنا المميزة</h2>
-        <div class="top-products">
-            <!-- بطاقة المنتج الأولى -->
+
+
+
+
+
+
+            </ul>
+        </nav>
+    </header>
+</section>
+
+<style>
+    /* تأثيرات الأزرار */
+    a:hover {
+        background-color: var(--highlight-color);
+        color: var(--background-dark);
+        transform: scale(1.1);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    a:active {
+        transform: scale(0.95);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    /* تأثير التحميل */
+    ul li a {
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<script>
+    // تأثير تمرير الصفحة بسلاسة عند اختيار رابط
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section class="section">
+    <h2>العقارات  </h2>
+    <div class="top-products">
+
+
+
+        <!-- بطاقة المنتج الأولى -->
+
             <div class="product-card">
-                <img src="electronic1.jpg" alt="لابتوب">
-                <h3>لابتوب</h3>
-                <p>أفضل منتج في فئته.</p>
-                <div class="social-icons">
-                    <a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
-                    <a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
-                    <a href="https://t.me" target="_blank"><i class="fab fa-telegram"></i></a>
-                    <a href="https://www.tiktok.com" target="_blank"><i class="fab fa-tiktok"></i></a>
-                    <a href="tel:+123456789"><i class="fas fa-phone"></i></a>
-                </div>
-            </div>
+                <img src="image/agreement.jpg" alt="العقارات">
+                <h3>العقارات </h3>
+                <p></p>
 
-            <!-- بطاقة المنتج الثانية -->
-            <div class="product-card">
-                <img src="electronic2.jpg" alt="هاتف">
-                <h3>هاتف</h3>
-                <p>أداء رائع وسعر ممتاز.</p>
-                <div class="social-icons">
-                    <a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
-                    <a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
-                    <a href="https://t.me" target="_blank"><i class="fab fa-telegram"></i></a>
-                    <a href="https://www.tiktok.com" target="_blank"><i class="fab fa-tiktok"></i></a>
-                    <a href="tel:+123456789"><i class="fas fa-phone"></i></a>
-                </div>
+                <section style="
+                background-color: #f4f4f9; 
+                padding: 1.5rem; 
+                text-align: center; 
+                border-radius: 0.75rem; 
+                margin: 1.5rem auto; 
+                max-width: 350px; 
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+                position: relative;
+                border: 1px solid rgba(0, 0, 0, 0.1);">
+                <h3 style="
+                    color: #333; 
+                    font-size: 1.2rem; 
+                    font-weight: bold; 
+                    margin-bottom: 1rem; 
+                    letter-spacing: 0.5px;">
+                    اكتشف عروضنا العقارية 🏘️🌍
+                </h3>
+                <p style="
+                    color: #555; 
+                    font-size: 0.9rem; 
+                    margin-bottom: 1rem;">
+                    شراء الأراضي 🏞️ | كراء المنازل 🏠 | بيع العقارات 🏢
+                </p>
+                <a href="https://example.com" style="
+                    display: inline-block; 
+                    background-color: #FF6F61; 
+                    color: white; 
+                    padding: 0.8rem 1.5rem; 
+                    font-size: 1rem; 
+                    font-weight: bold; 
+                    border-radius: 50px; 
+                    text-decoration: none; 
+                    box-shadow: 0 4px 10px rgba(255, 111, 97, 0.4); 
+                    transition: transform 0.3s ease, background-color 0.3s ease;">
+                    🌍 انتقل إلى العروض الآن 🏡
+                </a>
+            </section>
+            
+            <style>
+                a:hover {
+                    background-color: #E65C50; /* لون داكن أثناء التمرير */
+                    transform: scale(1.1); /* تكبير الزر أثناء التمرير */
+                }
+            
+                /* تحسين النص العام */
+                section h3, section p {
+                    font-family: 'Arial', sans-serif;
+                    text-align: center;
+                }
+            </style>
+            
+
+
+
             </div>
         </div>
     </section>
@@ -329,9 +528,24 @@
 
 
 
-    <section class="section">
-        <h2>الدورات التعليمية </h2>
-        <div class="top-products">
+
+
+
+
+
+
+
+
+<section class="section">
+    <h2>الدورات التعليمية </h2>
+    <div class="top-products">
+
+
+
+
+
+
+        
             <!-- بطاقة المنتج الأولى -->
             <div class="product-card">
                 <img src="image/AMINE.png" alt="لابتوب">
@@ -344,21 +558,228 @@
                     <a href="https://www.tiktok.com" target="_blank"><i class="fab fa-tiktok"></i></a>
                     <a href="tel:+123456789"><i class="fas fa-phone"></i></a>
                 </div>
+                <section style="
+                background-color: var(--background-dark); 
+                padding: 1rem; 
+                text-align: center; 
+                border-radius: 0.75rem; 
+                margin: 1.5rem auto; 
+                max-width: 300px; 
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
+                position: relative; 
+                overflow: hidden; 
+                border: 1px solid rgba(255, 255, 255, 0.1);">
+                <h3 style="
+                    color: var(--text-light); 
+                    margin-bottom: 1rem; 
+                    font-size: 1rem; 
+                    font-weight: bold; 
+                    letter-spacing: 0.5px;">
+                    أو تواصل معنا عبر صفحاتنا
+                </h3>
+                <div style="
+                    display: flex; 
+                    flex-wrap: wrap; 
+                    justify-content: center; 
+                    gap: 0.5rem;">
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank" class="social-icon">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" loading="lazy">
+                    </a>
+                    <!-- TikTok -->
+                    <a href="https://www.tiktok.com" target="_blank" class="social-icon">
+                        <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" loading="lazy">
+                    </a>
+                    <!-- Telegram -->
+                    <a href="https://t.me/S22MARKET" target="_blank" class="social-icon">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" loading="lazy">
+                    </a>
+                    <!-- Facebook -->
+                    <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank" class="social-icon">
+                        <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" loading="lazy">
+                    </a>
+                    <!-- Bot TELEGRAM -->
+                    <a href="http://t.me/THE_S22MARKET_BOT" target="_blank" class="social-icon">
+                        <img src="image/robot.png" alt="Bot" loading="lazy">
+                    </a>
+                </div>
+            </section>
+            
+            <style>
+                .social-icons a {
+                    text-decoration: none;
+                    margin: 0 10px;
+                    font-size: 34px; /* تصغير حجم الأيقونات */
+                }
+            
+                .social-icon {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: 2.5rem;
+                    height: 2.5rem;
+                    transition: transform 0.3s ease, filter 0.3s ease;
+                }
+            
+                .social-icon img {
+                    width: 2rem;
+                    height: 2rem;
+                    transition: transform 0.3s ease, filter 0.3s ease;
+                    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4));
+                    border-radius: 50%;
+                }
+            
+                .social-icon:hover img {
+                    transform: scale(1.25);
+                    filter: drop-shadow(0 0 8px var(--glow-color));
+                }
+            
+                /* Glow colors for hover effects */
+                .social-icon:nth-child(1) img {
+                    --glow-color: #E1306C; /* Instagram */
+                }
+                .social-icon:nth-child(2) img {
+                    --glow-color: #69C9D0; /* TikTok */
+                }
+                .social-icon:nth-child(3) img {
+                    --glow-color: #0088cc; /* Telegram */
+                }
+                .social-icon:nth-child(4) img {
+                    --glow-color: #1877F2; /* Facebook */
+                }
+                .social-icon:nth-child(5) img {
+                    --glow-color: #1DA1F2; /* Bot Telegram */
+                }
+            </style>
+        
             </div>
 
-            <!-- بطاقة المنتج الثانية -->
+
+        
+            <!-- بطاقة المنتج الثاني -->
             <div class="product-card">
-                <img src="electronic2.jpg" alt="هاتف">
-                <h3>هاتف</h3>
+                <img src="image/canva.jpg" alt="دورة تعلم كانفا">
+                <h3>
+                    دورة تعلم كانفا      </h3>
                 <p>أداء رائع وسعر ممتاز.</p>
+       
                 <div class="social-icons">
-                    <a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
-                    <a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
-                    <a href="https://t.me" target="_blank"><i class="fab fa-telegram"></i></a>
-                    <a href="https://www.tiktok.com" target="_blank"><i class="fab fa-tiktok"></i></a>
-                    <a href="tel:+123456789"><i class="fas fa-phone"></i></a>
+                        <a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.facebook.com/Bouamama.Djawed" target="_blank"><i class="fab fa-facebook"></i></a>
+                        <a href="https://t.me/Bd_djawed" target="_blank"><i class="fab fa-telegram"></i></a>
+                    </div>
                 </div>
+    
+    
+    
+
+
+                </div>
+                <section style="
+                background-color: var(--background-dark); 
+                padding: 1rem; 
+                text-align: center; 
+                border-radius: 0.75rem; 
+                margin: 1.5rem auto; 
+                max-width: 300px; 
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
+                position: relative; 
+                overflow: hidden; 
+                border: 1px solid rgba(255, 255, 255, 0.1);">
+                <h3 style="
+                    color: var(--text-light); 
+                    margin-bottom: 1rem; 
+                    font-size: 1rem; 
+                    font-weight: bold; 
+                    letter-spacing: 0.5px;">
+                    أو تواصل معنا عبر صفحاتنا
+                </h3>
+                <div style="
+                    display: flex; 
+                    flex-wrap: wrap; 
+                    justify-content: center; 
+                    gap: 0.5rem;">
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank" class="social-icon">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" loading="lazy">
+                    </a>
+                    <!-- TikTok -->
+                    <a href="https://www.tiktok.com" target="_blank" class="social-icon">
+                        <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" loading="lazy">
+                    </a>
+                    <!-- Telegram -->
+                    <a href="https://t.me/S22MARKET" target="_blank" class="social-icon">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" loading="lazy">
+                    </a>
+                    <!-- Facebook -->
+                    <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank" class="social-icon">
+                        <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" loading="lazy">
+                    </a>
+                    <!-- Bot TELEGRAM -->
+                    <a href="http://t.me/THE_S22MARKET_BOT" target="_blank" class="social-icon">
+                        <img src="image/robot.png" alt="Bot" loading="lazy">
+                    </a>
+                </div>
+            </section>
+            
+            <style>
+                .social-icons a {
+                    text-decoration: none;
+                    margin: 0 10px;
+                    font-size: 34px; /* تصغير حجم الأيقونات */
+                }
+            
+                .social-icon {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: 2.5rem;
+                    height: 2.5rem;
+                    transition: transform 0.3s ease, filter 0.3s ease;
+                }
+            
+                .social-icon img {
+                    width: 2rem;
+                    height: 2rem;
+                    transition: transform 0.3s ease, filter 0.3s ease;
+                    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4));
+                    border-radius: 50%;
+                }
+            
+                .social-icon:hover img {
+                    transform: scale(1.25);
+                    filter: drop-shadow(0 0 8px var(--glow-color));
+                }
+            
+                /* Glow colors for hover effects */
+                .social-icon:nth-child(1) img {
+                    --glow-color: #E1306C; /* Instagram */
+                }
+                .social-icon:nth-child(2) img {
+                    --glow-color: #69C9D0; /* TikTok */
+                }
+                .social-icon:nth-child(3) img {
+                    --glow-color: #0088cc; /* Telegram */
+                }
+                .social-icon:nth-child(4) img {
+                    --glow-color: #1877F2; /* Facebook */
+                }
+                .social-icon:nth-child(5) img {
+                    --glow-color: #1DA1F2; /* Bot Telegram */
+                }
+            </style>
+        
             </div>
+
+
+
+
+
+
+
+
+
+
         </div>
     </section>
 
@@ -366,17 +787,99 @@
 
 
 
-    <footer>
-        <p>&copy; 2024 S22MARKET. جميع الحقوق محفوظة.</p>
-        <div class="footer-icons">
-            <a href="https://www.instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="https://www.facebook.com" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-            <a href="https://t.me" target="_blank" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
-            <a href="https://www.tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
-            <a href="https://t.me/bot_username" target="_blank" aria-label="Telegram Bot"><i class="fab fa-telegram-plane"></i></a>
-        </div>
-    </footer>
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <footer style="
+    background-color: var(--background-dark); 
+    color: var(--text-light); 
+    text-align: center; 
+    padding: 1.5rem; 
+    border-top: 1px solid rgba(255, 255, 255, 0.1); 
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;">
+    <p style="margin: 0; font-size: 0.9rem; letter-spacing: 0.5px;">
+        &copy; 2024 S22MARKET. جميع الحقوق محفوظة.
+    </p>
+    <div class="footer-icons" style="
+        margin-top: 1rem; 
+        display: flex; 
+        justify-content: center; 
+        gap: 1rem;">
+        <a href="https://www.instagram.com" target="_blank" aria-label="Instagram" class="footer-icon">
+            <i class="fab fa-instagram"></i>
+        </a>
+        <a href="https://www.facebook.com" target="_blank" aria-label="Facebook" class="footer-icon">
+            <i class="fab fa-facebook"></i>
+        </a>
+        <a href="https://t.me" target="_blank" aria-label="Telegram" class="footer-icon">
+            <i class="fab fa-telegram"></i>
+        </a>
+        <a href="https://www.tiktok.com" target="_blank" aria-label="TikTok" class="footer-icon">
+            <i class="fab fa-tiktok"></i>
+        </a>
+        <a href="https://t.me/bot_username" target="_blank" aria-label="Telegram Bot" class="footer-icon">
+            <i class="fas fa-robot"></i>
+        </a>
+    </div>
+</footer>
+
+<style>
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+    .footer-icon {
+        color: var(--text-light);
+        font-size: 1.2rem;
+        transition: transform 0.3s ease, color 0.3s ease;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        text-decoration: none;
+    }
+
+    .footer-icon:hover {
+        color: var(--hover-color);
+        transform: scale(1.2);
+    }
+
+    /* Glow colors for hover effects */
+    .footer-icon:nth-child(1) {
+        --hover-color: #E1306C; /* Instagram */
+    }
+    .footer-icon:nth-child(2) {
+        --hover-color: #1877F2; /* Facebook */
+    }
+    .footer-icon:nth-child(3) {
+        --hover-color: #0088cc; /* Telegram */
+    }
+    .footer-icon:nth-child(4) {
+        --hover-color: #69C9D0; /* TikTok */
+    }
+    .footer-icon:nth-child(5) {
+        --hover-color: #00C853; /* Bot */
+    }
+</style>
+
+
+
+
+
+
+
+
 
 
 
