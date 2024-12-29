@@ -203,58 +203,72 @@
 <body>
     <header>
         <div class="logo">
-            <img src="images/banner-bg1.png" alt="شعار">
+            <img src="image/S22MARKET LOGO.ico" alt="شعار" style="width: 100px; height: 100px;">
             <span style="font-weight: bold; font-size: 1.2em; background: linear-gradient(90deg, black, white, green, red); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                 🛒🛍️🏪 S22MARKET 🏪🛍️🛒
             </span>
         </div>
         <ul class="menu">
-            <li><a href="index.html">الرئيسية</a></li>
+            <a href="#" onclick="window.scrollTo(0, 0); location.reload();">الرئيسية</a>
+
+
           
 
 
-              <a href="#" class="palestine-button">منتجاتنا</a>
+
+             
           
-              <a href="#" style="
-    display: inline-block;
-    padding: 10px 30px;
-    font-size: 16px;
-    font-weight: bold;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 50px;
-    background: linear-gradient(135deg, #ff0000, #ffffff, #007a3d, #000000);
-    background-size: 300% 300%;
-    transition: all 0.4s ease-in-out;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-    position: relative;
-    overflow: hidden;
-    margin-left: 1rem;
-">
-    <span style="
-        position: absolute;
-        left: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 18px;
-        animation: bounce 1s infinite;
-        color: #ffd700;
-    ">⚡</span>
-    منتجاتنا
-</a>
-
-<style>
-    @keyframes bounce {
-        0%, 100% {
-            transform: translateY(-50%) scale(1);
-        }
-        50% {
-            transform: translateY(-60%) scale(1.2);
-        }
-    }
-</style>
-
-
+            <a href="#" style="
+            display: inline-block;
+            padding: 8px 25px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #ff0000, #ffffff, #007a3d, #000000);
+            background-size: 300% 300%;
+            transition: all 0.4s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            margin: 5px 0; /* تقليل الهامش لتحريك الزر للأعلى */
+            top: -5px; /* رفع الزر للأعلى */
+        ">
+            <span style="
+                position: absolute;
+                left: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 18px;
+                animation: emojiBounce 1.5s infinite ease-in-out;
+                color: #ffd700;
+            ">⚡</span>
+            <span style="margin-left: 20px;">منتجاتنا</span>
+        </a>
+        
+        <style>
+            @keyframes emojiBounce {
+                0%, 100% {
+                    transform: translateY(-50%);
+                }
+                50% {
+                    transform: translateY(-60%);
+                }
+            }
+        
+            a:hover {
+                background-position: 100% 0;
+                transform: scale(1.1);
+                box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+            }
+        
+            a:hover span {
+                color: #ffdd00;
+            }
+        </style>
+        
+                           
 
             <li><a href="#">الأكثر مبيعًا</a></li>
             <li><a href="#qr-code"> تحميل التطبيق</a></li>
@@ -362,7 +376,7 @@
 
         
 
-<section style="
+<section id="PRODUCTS" style="
     background-color: var(--background-dark); 
     padding: 20px; 
     border-radius: 15px; 
@@ -440,7 +454,7 @@
 
               <!-- الدورات  التعليمية  الطور الثانوي -->
                 <li>
-                    <a href="#year2" style="
+                    <a href="#dawrat altawr althaanawii" style="
                         background-color: var(--primary-color); 
                         color: var(--text-light); 
                         text-decoration: none; 
@@ -1214,7 +1228,11 @@
                                     margin-bottom: 1rem;">
                                     شراء الأراضي 🏞️ | كراء المنازل 🏠 | بيع العقارات 🏢
                                 </p>
-                                <a href="realestate-main/real_estate.html" style="
+                                <a  id="pagesforapp"  href="realestate-main/real_estate.html" target="_self"
+
+
+
+                                style="
                                     display: inline-block; 
                                     background-color: #FF6F61; 
                                     color: white; 
@@ -1545,5 +1563,19 @@
     
     
 </body>
+
+
+
+
+
+
+<script>
+    document.querySelector('#pagesforapp').addEventListener('click', function(event) {
+        event.preventDefault(); // يمنع السلوك الافتراضي للرابط
+        window.location.href = this.href; // ينقلك إلى الرابط المحدد
+    });
+</script>
+
+
 
 </html>
