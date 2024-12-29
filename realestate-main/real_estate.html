@@ -286,7 +286,7 @@
                         <li>
                             <div class="property-card">
                                 <figure class="card-banner">
-                                    <a href="">
+                                    <a id="refreshButton" href="#"></a>
                                         <img src="img\property-1.jpg" class="w-100" alt="new apertament view">
                                     </a>
                                     <div class="card-badge green">للكراء </div>
@@ -377,7 +377,8 @@
 
                             <div class="property-card">
                                 <figure class="card-banner">
-                                    <a href="#">
+                                    <a id="refreshButton" href="#"></a>
+
                                         <img src="img/KACIJA.jpg" class="w-100" alt="new apertament view">
                                     </a>
                                     <div class="card-badge orange">للبيع</div>
@@ -472,7 +473,8 @@
                         <li>
                              <div class="property-card">
                                 <figure class="card-banner">
-                                    <a href="PAGES/p_real_estatea">
+                                    <a id="refreshButton" href="#"></a>
+
                                         <img src="img/CHAT.jpg" class="w-100" alt="new apertament view">
                                     </a>
                                     <div class="card-badge orange">للبيع</div>
@@ -676,4 +678,19 @@
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 </body>
+
+
+
+
+
+
+
+
+<script>
+    document.querySelector('#refreshButton').addEventListener('click', function(event) {
+        event.preventDefault(); // منع السلوك الافتراضي للرابط
+        location.reload(); // تحديث الصفحة
+    });
+</script>
+
 </html>
