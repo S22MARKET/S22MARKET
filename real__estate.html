@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عقارات تفاعلية</title>
+    <style>
+        /* إعدادات أساسية */
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 2rem;
+            text-align: center;
+            width: 100%;
+            border-bottom: 5px solid #388e3c;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin: 0;
+        }
+
+        header p {
+            margin: 0.5rem 0;
+            font-size: 1.4rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #fff;
+            padding: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #4caf50;
+            margin: 0 1.5rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.05rem;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        nav a:hover {
+            color: #388e3c;
+            transform: translateY(-2px);
+        }
+
+        .hero {
+            background: url('https://via.placeholder.com/1920x600') no-repeat center center/cover;
+            height: 400px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            position: relative;
+            margin-top: 2rem;
+        }
+
+        .hero h2 {
+            font-size: 3rem;
+            margin: 0;
+        }
+
+        .container {
+            padding: 2rem 1rem;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .properties {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .property {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .property:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .property img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .property h3 {
+            font-size: 1.8rem;
+            color: #4caf50;
+            margin: 1rem;
+        }
+
+        .property p {
+            font-size: 1.1rem;
+            color: #555;
+            margin: 0 1rem 1rem 1rem;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        /* تحسين الأيقونات داخل عنصر المنتج */
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #fff;
+            background-color: #4caf50;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-links a:hover {
+            background-color: #388e3c;
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        footer {
+            background: #2e7d32;
+            color: #fff;
+            text-align: center;
+            padding: 2rem 1rem;
+            width: 100%;
+            margin-top: 2rem;
+        }
+
+        footer .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        footer .social-links a {
+            color: #fff;
+            font-size: 1.6rem;
+            transition: color 0.3s;
+        }
+
+        footer .social-links a:hover {
+            color: #4caf50;
+        }
+
+        /* تحسين المظهر على الأجهزة الصغيرة */
+        @media (max-width: 768px) {
+            .social-links a {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+            }
+
+            .property h3 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <h1>عقارات تفاعلية</h1>
+        <p>استكشف أفضل الخيارات العقارية بكل سهولة</p>
+    </header>
+
+    <nav>
+        <a href="#">الرئيسية</a>
+        <a href="#">العقارات</a>
+        <a href="#">من نحن</a>
+        <a href="#">اتصل بنا</a>
+    </nav>
+
+    <div class="container">
+      
+       
+    
+    </div>
+   
+
+
+
+
+
+ <div class="property">
+    <img src="image/KIRAKACI.jpg" alt="Property Image">
+    <h3>🏡 شقة للكراء</h3>
+    <p>📍 <strong>الموقع:</strong> في سيدي قاسي (بن مهيدي) ولاية طارف  بالجزائر            <br>📐 <strong>المساحة:</strong> 430 م² <br>📞 <strong>رقم الهاتف:  </strong> <a href="tel:+213669724855" style="color: #4caf50; text-decoration: none; font-weight: bold;">0669724855</a></p>
+    <div class="social-links">
+        <a href="https://t.me/S22MARKET/154" target="_blank" title="تيليجرام">
+            <i class="fab fa-telegram-plane"></i>
+        </a>
+        <a href="tel:+21369724855" title="اتصل الآن">
+            <i class="fas fa-phone-alt"></i>
+        </a>
+        <a href="https://www.facebook.com/share/p/1UQnxEJ7x4egCDkg/" target="_blank" title="فيسبوك">
+            <i class="fab fa-facebook-f"></i>
+        </a>
+        <a href="https://www.instagram.com/p/DCb7M1KgG6S/?igsh=eWFpNjk1dTA1OHN2" target="_blank" title="إنستجرام">
+            <i class="fab fa-instagram"></i>
+        </a>
+    </div>
+</div> 
+</div>
+
+<br> 
+<br>
+
+    <div class="property">
+        <img src="image/KACIJA.jpg" alt="Property Image">
+        <h3>🏡 قطعة أرض للبيع</h3>
+        <p>📍 <strong>الموقع:</strong> في سيدي قاسي (بن مهيدي) ولاية طارف  بالجزائر            <br>📐 <strong>المساحة:</strong> 430 م² <br>📞 <strong>رقم الهاتف:  </strong> <a href="tel:+213669724855" style="color: #4caf50; text-decoration: none; font-weight: bold;">0669724855</a></p>
+        <div class="social-links">
+            <a href="https://t.me/S22MARKET/170" target="_blank" title="تيليجرام">
+                <i class="fab fa-telegram-plane"></i>
+            </a>
+            <a href="tel:+21369724855" title="اتصل الآن">
+                <i class="fas fa-phone-alt"></i>
+            </a>
+            <a href="https://www.facebook.com/share/p/tdRw4ApFuNjqHdo6/" target="_blank" title="فيسبوك">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="https://www.instagram.com/p/DCd_TnCAU3f/?igsh=MW9wNGFiZDZ1cXF3cg==" target="_blank" title="إنستجرام">
+                <i class="fab fa-instagram"></i>
+            </a>
+        </div>
+    </div> 
+  </div>
+
+  <br> 
+  <br>
+            <div class="property">
+                <img src="image/CHAT.jpg" alt="Property Image">
+                <h3>🏡 قطعة أرض للبيع</h3>
+                <p>📍 <strong>الموقع:</strong> الشط، ولاية الطارف بالجزائر <br>📐 <strong>المساحة:</strong> 280 م² <br>📞 <strong>رقم الهاتف:</strong> <a href="tel:+213669724855" style="color: #4caf50; text-decoration: none; font-weight: bold;">0669724855</a></p>
+                <div class="social-links">
+                    <a href="https://t.me/S22MARKET/173" target="_blank" title="تيليجرام">
+                        <i class="fab fa-telegram-plane"></i>
+                    </a>
+                    <a href="tel:+21369724855" title="اتصل الآن">
+                        <i class="fas fa-phone-alt"></i>
+                    </a>
+                    <a href="https://www.facebook.com/share/p/tFFAGnMM71siZhqK/" target="_blank" title="فيسبوك">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.instagram.com/p/DCfFMIWguY1/?igsh=OWx5MW05Z2xkZjgx" target="_blank" title="إنستجرام">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+    <footer id="footer" style="background-color:#333;color:#fff;text-align:center;padding:2rem;border-top:1px solid rgba(255,255,255,0.1);box-shadow:0 -4px 6px rgba(0,0,0,0.3);position:relative;">
+        <p style="margin:0;font-size:1.1rem;letter-spacing:0.5px;">&copy; 2024 S22MARKET. جميع الحقوق محفوظة.</p>
+        <div style="margin-top:1rem;display:flex;justify-content:center;gap:2rem;">
+            <a href="http://t.me/THE_S22MARKET_BOT" target="_blank" aria-label="Telegram Bot" style="color:#fff;font-size:2rem;transition:transform 0.3s ease;color:#00C853;text-decoration:none;">
+                <i class="fas fa-robot"></i>
+            </a>
+            <a href="https://www.tiktok.com/@s22market?_t=ZM-8sbJ7s4RWq6&_r=1" target="_blank" aria-label="TikTok" style="color:#fff;font-size:2rem;transition:transform 0.3s ease;color:#69C9D0;text-decoration:none;">
+                <i class="fab fa-tiktok"></i>
+            </a>
+            <a href="https://t.me/S22MARKET" target="_blank" aria-label="Telegram" style="color:#fff;font-size:2rem;transition:transform 0.3s ease;color:#0088cc;text-decoration:none;">
+                <i class="fab fa-telegram"></i>
+            </a>
+            <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank" aria-label="Facebook" style="color:#fff;font-size:2rem;transition:transform 0.3s ease;color:#1877F2;text-decoration:none;">
+                <i class="fab fa-facebook"></i>
+            </a>
+            <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank" aria-label="Instagram" style="color:#fff;font-size:2rem;transition:transform 0.3s ease;color:#E1306C;text-decoration:none;">
+                <i class="fab fa-instagram"></i>
+            </a>
+        </div>
+    </footer>
+    
+    <style>
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+        footer a:hover {
+            transform: scale(1.3); /* تكبير الأيقونة عند التمرير */
+        }
+    </style>
+    
+</body>
+</html>
