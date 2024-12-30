@@ -1,3 +1,9 @@
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="ar">
 <head>
@@ -127,17 +133,11 @@
             margin: 0 1rem 1rem 1rem;
         }
 
-        .buttons {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            padding: 1rem 0;
-        }
-
         .social-links {
             display: flex;
             justify-content: center;
             gap: 1rem;
+            padding: 1rem 0;
         }
 
         /* تحسين الأيقونات داخل عنصر المنتج */
@@ -148,18 +148,18 @@
             text-decoration: none;
             color: #fff;
             background-color: #4caf50;
-            width: 45px;
-            height: 45px;
+            width: 50px; /* تكبير الأيقونات قليلاً */
+            height: 50px;
             border-radius: 50%;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .social-links a:hover {
             background-color: #388e3c;
-            transform: scale(1.1);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            transform: scale(1.2); /* تكبير الأيقونات عند التمرير */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
         }
 
         footer {
@@ -190,13 +190,17 @@
         /* تحسين المظهر على الأجهزة الصغيرة */
         @media (max-width: 768px) {
             .social-links a {
-                width: 40px;
+                width: 40px; /* تقليل حجم الأيقونات للشاشات الصغيرة */
                 height: 40px;
-                font-size: 1.1rem;
+                font-size: 1.2rem;
             }
 
             .property h3 {
                 font-size: 1.5rem;
+            }
+
+            .property p {
+                font-size: 1rem;
             }
         }
     </style>
@@ -212,89 +216,133 @@
     <nav>
         <a href="#">الرئيسية</a>
         <a href="#">العقارات</a>
-        <a href="#">من نحن</a>
-        <a href="#">اتصل بنا</a>
+        <a href="#footer">اتصل بنا</a>
     </nav>
 
     <div class="container">
-      
-       
-    
-    </div>
-   
 
 
-
-
-
- <div class="property">
-    <img src="image/KIRAKACI.jpg" alt="Property Image">
-    <h3>🏡 شقة للكراء</h3>
-    <p>📍 <strong>الموقع:</strong> في سيدي قاسي (بن مهيدي) ولاية طارف  بالجزائر            <br>📐 <strong>المساحة:</strong> 430 م² <br>📞 <strong>رقم الهاتف:  </strong> <a href="tel:+213669724855" style="color: #4caf50; text-decoration: none; font-weight: bold;">0669724855</a></p>
-    <div class="social-links">
-        <a href="https://t.me/S22MARKET/154" target="_blank" title="تيليجرام">
-            <i class="fab fa-telegram-plane"></i>
-        </a>
-        <a href="tel:+21369724855" title="اتصل الآن">
-            <i class="fas fa-phone-alt"></i>
-        </a>
-        <a href="https://www.facebook.com/share/p/1UQnxEJ7x4egCDkg/" target="_blank" title="فيسبوك">
-            <i class="fab fa-facebook-f"></i>
-        </a>
-        <a href="https://www.instagram.com/p/DCb7M1KgG6S/?igsh=eWFpNjk1dTA1OHN2" target="_blank" title="إنستجرام">
-            <i class="fab fa-instagram"></i>
-        </a>
-    </div>
-</div> 
-</div>
-
-<br> 
-<br>
-
-    <div class="property">
-        <img src="image/KACIJA.jpg" alt="Property Image">
-        <h3>🏡 قطعة أرض للبيع</h3>
-        <p>📍 <strong>الموقع:</strong> في سيدي قاسي (بن مهيدي) ولاية طارف  بالجزائر            <br>📐 <strong>المساحة:</strong> 430 م² <br>📞 <strong>رقم الهاتف:  </strong> <a href="tel:+213669724855" style="color: #4caf50; text-decoration: none; font-weight: bold;">0669724855</a></p>
-        <div class="social-links">
-            <a href="https://t.me/S22MARKET/170" target="_blank" title="تيليجرام">
-                <i class="fab fa-telegram-plane"></i>
-            </a>
-            <a href="tel:+21369724855" title="اتصل الآن">
-                <i class="fas fa-phone-alt"></i>
-            </a>
-            <a href="https://www.facebook.com/share/p/tdRw4ApFuNjqHdo6/" target="_blank" title="فيسبوك">
-                <i class="fab fa-facebook-f"></i>
-            </a>
-            <a href="https://www.instagram.com/p/DCd_TnCAU3f/?igsh=MW9wNGFiZDZ1cXF3cg==" target="_blank" title="إنستجرام">
-                <i class="fab fa-instagram"></i>
-            </a>
-        </div>
-    </div> 
-  </div>
-
-  <br> 
-  <br>
+        <div class="properties">
             <div class="property">
-                <img src="image/CHAT.jpg" alt="Property Image">
-                <h3>🏡 قطعة أرض للبيع</h3>
-                <p>📍 <strong>الموقع:</strong> الشط، ولاية الطارف بالجزائر <br>📐 <strong>المساحة:</strong> 280 م² <br>📞 <strong>رقم الهاتف:</strong> <a href="tel:+213669724855" style="color: #4caf50; text-decoration: none; font-weight: bold;">0669724855</a></p>
+                <img src="image/KIRAKACI.jpg" alt="شقة للكراء">
+                <h3>🏡 شقة للكراء</h3>
+                <p>🗺️ <strong>الموقع:</strong> سيدي قاسي، الطارف، الجزائر<br>📐 <strong>المساحة:</strong> <br>📞 <strong>الهاتف:</strong> <a href="tel:+213669724855">0669724855</a></p>
                 <div class="social-links">
+                    <a href="https://t.me/S22MARKET/154"><i class="fab fa-telegram-plane"></i></a>
+                    <a href="#"><i class="fas fa-phone-alt"></i></a>
+
+
+                    <a href="https://www.facebook.com/share/p/nHQtqTUfwE1q7N2z/"><i class="fab fa-facebook-f"></i></a>
+                    <a href=" https://www.instagram.com/p/DCb7M1KgG6S/?igsh=ZHlidWRkZ2VneWh0" target="_blank" title="إنستغرام">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    
+          
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <div class="properties">
+
+            <div class="property">
+                <img src="image/KACIJA.jpg" alt="Property Image">
+                <h3>🏡 🏡   قطعة ارض للبيع </h3> 
+     
+                <p>🗺️ <strong>الموقع:</strong> سيدي قاسي، الطارف، الجزائر<br>📐 <strong>المساحة:</strong> 430 م²<br>📞 <strong>الهاتف:</strong> <a href="tel:+213669724855">0669724855</a></p>
+                <div class="social-links">
+                    <a href="https://t.me/S22MARKET/166" target="_blank" title="تيليجرام">
+                        <i class="fab fa-telegram-plane"></i>
+                    </a>
+                    <a href="tel:+21369724855" title="اتصل الآن">
+                        <i class="fas fa-phone-alt"></i>
+                    </a>
+                    <a href="https://www.facebook.com/share/p/iPnpEis1byxeR2Er/" target="_blank" title="فيسبوك">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.instagram.com/p/DCd_TnCAU3f/?igsh=bmg5b2t3Ymt2b2o=" target="_blank" title="إنستجرام">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+        <div class="properties">
+            <div class="property">
+                <img src="image/CHAT.jpg" alt="قطعة ارض للبيع ">
+                <h3>🏡   قطعة ارض للبيع  </h3>
+                <p>🗺️ <strong>الموقع:</strong> سيدي قاسي، الطارف، الجزائر<br>📐 <strong>المساحة:</strong> 235 م²<br>📞 <strong>الهاتف:</strong> <a href="tel:+213669724855">0669724855</a></p>
+                <div class="social-links">
+
                     <a href="https://t.me/S22MARKET/173" target="_blank" title="تيليجرام">
                         <i class="fab fa-telegram-plane"></i>
                     </a>
                     <a href="tel:+21369724855" title="اتصل الآن">
                         <i class="fas fa-phone-alt"></i>
                     </a>
-                    <a href="https://www.facebook.com/share/p/tFFAGnMM71siZhqK/" target="_blank" title="فيسبوك">
+                    <a href="https://www.facebook.com/share/p/9zkdRqqPshMFGi8o/" target="_blank" title="فيسبوك">
                         <i class="fab fa-facebook-f"></i>
                     </a>
-                    <a href="https://www.instagram.com/p/DCfFMIWguY1/?igsh=OWx5MW05Z2xkZjgx" target="_blank" title="إنستجرام">
+                    <a href="https://www.instagram.com/p/DCfFMIWguY1/?igsh=MTB3dTUyd2RzMGZpcw==" target="_blank" title="إنستجرام">
                         <i class="fab fa-instagram"></i>
                     </a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 </div>
             </div>
         </div>
+
+
+
+
+
+
+
+
+
+
+
     </div>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
