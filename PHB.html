@@ -3,95 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>عرض وتحميل ملفات وورد</title>
+    <title>ملفات العلوم الطبيعية</title>
     <style>
+        /* خلفية أسطورية نفسية */
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #6a11cb, #2575fc);
-            color: #fff;
             margin: 0;
             padding: 0;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            position: relative;
+            background: linear-gradient(45deg, rgba(45, 40, 122, 1), rgba(82, 53, 144, 0.8)), url('https://source.unsplash.com/1600x900/?mystical,space,stars') no-repeat center center fixed;
+            background-size: cover;
+            animation: fadeInBackground 2s ease-in-out;
         }
+
+        @keyframes fadeInBackground {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* تأثير النجوم المتناثرة */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/stardust.png');
+            pointer-events: none;
+            animation: moveStars 20s linear infinite;
+        }
+
+        @keyframes moveStars {
+            0% { background-position: 0 0; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* تنسيق الإطار الرئيسي */
         .container {
             background-color: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             border-radius: 12px;
-            padding: 20px 30px;
+            padding: 30px;
             text-align: center;
             width: 90%;
-            max-width: 400px;
+            max-width: 500px;
+            z-index: 2;
+            position: relative;
+            transform: translateY(20px);
+            animation: slideIn 1s ease-out;
         }
+
+        @keyframes slideIn {
+            0% { transform: translateY(50px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
         h1 {
-            font-size: 1.8rem;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        p {
-            color: #555;
-            font-size: 1rem;
+            font-size: 2.5rem;
+            color: #fff;
             margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: bounceIn 1s ease-out;
         }
+
+        @keyframes bounceIn {
+            0% { transform: translateY(-100px); opacity: 0; }
+            60% { transform: translateY(30px); opacity: 1; }
+            100% { transform: translateY(0); }
+        }
+
+        p {
+            color: #ddd;
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+        }
+
         .file-list {
-            margin: 15px 0;
-            text-align: left;
+            margin-top: 20px;
         }
+
         .file-item {
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #f4f4f4;
+            margin: 15px 0;
+            padding: 15px;
+            background-color: rgba(45, 45, 45, 0.7);
             border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
         }
-        .file-item span {
-            font-size: 1rem;
-            color: #555;
+
+        .file-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            background-color: rgba(82, 53, 144, 0.9);
         }
+
+        .file-name {
+            font-size: 1.2rem;
+            color: #fff;
+            flex: 1;
+            text-align: right;
+        }
+
         .download-btn {
-            padding: 5px 10px;
-            background-color: #007BFF;
+            padding: 12px 18px;
+            background-color: #3a86ff;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            font-size: 1.1rem;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
         }
+
         .download-btn:hover {
-            background-color: #0056b3;
+            background-color: #1d4edd;
+            transform: scale(1.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
+
         footer {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #333;
+            margin-top: 25px;
+            font-size: 1rem;
+            color: #ccc;
+            animation: fadeIn 1.5s ease-out;
         }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .emoji {
+            font-size: 2rem;
+            display: inline-block;
+            margin-left: 5px;
+            transition: transform 0.2s;
+        }
+
+        .emoji:hover {
+            transform: rotate(10deg);
+        }
+
     </style>
 </head>
 <body>
+    <!-- تأثير النجوم المتناثرة -->
+    <div class="stars"></div>
+
     <div class="container">
-        <h1>عرض وتحميل ملفات وورد</h1>
-        <p>يمكنك تحميل الملفات المتوفرة أدناه:</p>
+        <h1>ملفات العلوم الطبيعية <span class="emoji">📚</span></h1>
+        <p>استمتع بالاستكشاف وتحميل الملفات المهمة في مادة العلوم الطبيعية!</p>
+
         <div class="file-list">
-            <!-- هنا يتم إضافة ملفات الوورد -->
-           
             <div class="file-item">
-                <span>بحث_السنة_الرابعة.doc</span>
-                <button class="download-btn" onclick="downloadFile('phb/ارساء المورد.docx')">تحميل</button>
+                <span class="file-name">إرساء المورد.docx</span>
+                <button class="download-btn" onclick="downloadFile()">تحميل <span class="emoji">⬇️</span></button>
             </div>
-            <!-- إضافة المزيد من الملفات هنا -->
         </div>
-        <footer>تم بواسطة الطالبة H.B - السنة الرابعة</footer>
+
+        <footer>تم التصميم بواسطة تلميذة - السنة الرابعة متوسط</footer>
     </div>
 
     <script>
-        function downloadFile(filePath) {
+        // دالة لتحميل الملف مباشرة
+        function downloadFile() {
             const link = document.createElement('a');
-            link.href = filePath;
-            link.download = filePath.split('/').pop();
+            link.href = 'phb/ارساء المورد.docx'; // المسار الصحيح للملف
+            link.download = 'إرساء المورد.docx';  // اسم الملف عند التحميل
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
