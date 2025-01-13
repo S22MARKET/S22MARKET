@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عرض وتحميل ملفات وورد</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 20px 30px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+        h1 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #555;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        .file-list {
+            margin: 15px 0;
+            text-align: left;
+        }
+        .file-item {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f4f4f4;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file-item span {
+            font-size: 1rem;
+            color: #555;
+        }
+        .download-btn {
+            padding: 5px 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .download-btn:hover {
+            background-color: #0056b3;
+        }
+        footer {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>عرض وتحميل ملفات وورد</h1>
+        <p>يمكنك تحميل الملفات المتوفرة أدناه:</p>
+        <div class="file-list">
+            <!-- هنا يتم إضافة ملفات الوورد -->
+           
+            <div class="file-item">
+                <span>بحث_السنة_الرابعة.doc</span>
+                <button class="download-btn" onclick="downloadFile('phb/ارساء المورد.docx')">تحميل</button>
+            </div>
+            <!-- إضافة المزيد من الملفات هنا -->
+        </div>
+        <footer>تم بواسطة الطالبة H.B - السنة الرابعة</footer>
+    </div>
+
+    <script>
+        function downloadFile(filePath) {
+            const link = document.createElement('a');
+            link.href = filePath;
+            link.download = filePath.split('/').pop();
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
