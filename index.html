@@ -2016,17 +2016,18 @@
 
 
 
-
-
-
-
- 
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             overflow: hidden;
+            font-family: Arial, sans-serif;
         }
 
         #overlay {
@@ -2052,11 +2053,19 @@
             border-radius: 10px;
         }
 
+        h2 {
+            font-size: 1.2em;
+        }
+
+        p {
+            font-size: 0.9em;
+        }
+
         button {
-            padding: 10px 20px;
-            font-size: 1em;
+            padding: 5px 10px;
+            font-size: 0.7em;
             cursor: pointer;
-            margin: 10px;
+            margin: 5px;
             border: none;
             color: white;
         }
@@ -2075,13 +2084,21 @@
 
         @media (max-width: 600px) {
             #overlay {
-                font-size: 1.2em;
+                font-size: 1em;
                 padding: 10vh 2.5vw;
             }
 
-            button {
+            h2 {
+                font-size: 1em;
+            }
+
+            p {
                 font-size: 0.8em;
-                padding: 8px 16px;
+            }
+
+            button {
+                font-size: 0.6em;
+                padding: 4px 8px;
             }
         }
     </style>
@@ -2099,7 +2116,7 @@
             <br><br>
             وَإِذَا رَأَوۡاْ تِجَٰرَةً أَوۡ لَهۡوًا ٱنفَضُّوٓاْ إِلَيۡهَا وَتَرَكُوكَ قَآئِمٗاۚ قُلۡ مَا عِندَ ٱللَّهِ خَيۡرٞ مِّنَ ٱللَّهۡوِ وَمِنَ ٱلتِّجَٰرَةِۚ وَٱللَّهُ خَيۡرُ ٱلرَّٰزِقِينَ (11)
             <br><br>
-            [ سورة الجمعة: 9  10 11]
+            [ سورة الجمعة:   9  -  10  -  11]
         </p>
 
         <audio id="audio">
@@ -2116,6 +2133,10 @@
     </div>
 
     <script>
+        var overlay = document.getElementById('overlay');
+        var audio = document.getElementById('audio');
+        var manuallyClosed = false;
+
         function checkPrayerTime() {
             var now = new Date();
             var day = now.getDay(); // 5 for Friday
@@ -2125,19 +2146,28 @@
             var startHour = 14;
             var startMinute = 0;
             var endHour = 14;
-            var endMinute = 29;
+            var endMinute = 38;
 
             if (day === 5 && (
                 (hours > startHour || (hours === startHour && minutes >= startMinute)) &&
                 (hours < endHour || (hours === endHour && minutes < endMinute))
             )) {
-                document.getElementById('overlay').style.display = 'block';
-                document.getElementById('audio').play();
+                overlay.style.display = 'block';
+                if (!audio.paused) {
+                    audio.play();
+                }
             } else {
-                document.getElementById('overlay').style.display = 'none';
-                document.getElementById('audio').pause();
+                overlay.style.display = 'none';
+                if (manuallyClosed || audio.paused) {
+                    audio.pause();
+                }
             }
         }
+
+        document.getElementById('closeButton').onclick = function() {
+            overlay.style.display = 'none';
+            manuallyClosed = true;
+        };
 
         setInterval(checkPrayerTime, 1000);
         checkPrayerTime();
