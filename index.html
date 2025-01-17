@@ -1918,6 +1918,28 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <style>
         footer {
             text-align: center;
@@ -1991,4 +2013,111 @@
 
 
 
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <style>
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            color: white;
+            text-align: center;
+            font-size: 2em;
+            padding-top: 20%;
+            z-index: 9999;
+        }
+        #closeButton {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+
+<div id="overlay">
+    مغلق للصلاة
+    <button id="closeButton">إغلاق</button>
+</div>
+
+<script>
+    var manuallyClosed = false;
+
+    function checkPrayerTime() {
+        var now = new Date();
+        var day = now.getDay(); // 5 for Friday
+        var hours = now.getHours();
+        var minutes = now.getMinutes();
+
+        // Set the time range for the prayer (e.g., 12:00 to 13:00)
+        var startHour = 5;
+        var startMinute = 5;
+        var endHour = 8;
+        var endMinute = 6;
+
+        // Check if current time is within the prayer time
+        if (day === 5 && (
+            (hours > startHour || (hours === startHour && minutes >= startMinute)) &&
+            (hours < endHour || (hours === endHour && minutes < endMinute))
+        )) {
+            if (!manuallyClosed) {
+                document.getElementById('overlay').style.display = 'block';
+                document.getElementById('closeButton').style.display = 'none';
+            }
+        } else {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('closeButton').style.display = 'block';
+            manuallyClosed = false; // Reset the manual close after prayer time ends
+        }
+    }
+
+    document.getElementById('closeButton').onclick = function() {
+        document.getElementById('overlay').style.display = 'none';
+        manuallyClosed = true;
+    };
+
+    // Check every second for smoother experience
+    setInterval(checkPrayerTime, 1000);
+
+    // Initial check
+    checkPrayerTime();
+</script>
+
+</body>
 </html>
