@@ -2020,13 +2020,15 @@
 
 
 
-
-
-
-
-
-
+ 
     <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
         #overlay {
             display: none;
             position: fixed;
@@ -2037,36 +2039,58 @@
             background-color: black;
             color: white;
             text-align: center;
-            font-size: 2em;
-            padding-top: 20%;
+            padding: 5vh 5vw;
+            box-sizing: border-box;
             z-index: 9999;
         }
-        #closeButton, #redirectButton {
-            display: none;
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: red;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 1em;
-            margin: 10px;
+
+        h2, p {
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            display: inline-block;
+            margin-bottom: 20px;
+            border-radius: 10px;
         }
-        #redirectButton {
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px;
+            border: none;
+            color: white;
+        }
+
+        #closeButton {
+            background-color: red;
+        }
+
+        #playButton {
             background-color: green;
-            right: auto;
-            left: 20px;
+        }
+
+        #pauseButton {
+            background-color: blue;
+        }
+
+        @media (max-width: 600px) {
+            #overlay {
+                font-size: 1.2em;
+                padding: 10vh 2.5vw;
+            }
+
+            button {
+                font-size: 0.8em;
+                padding: 8px 16px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div id="overlay" style="text-align: center; padding: 20px; background-image: url('path/to/your/image.jpg'); background-size: cover; color: white; position: fixed; top: 0; left: 0; width: 100%; height: 100%;">
-        <h2 style="margin-bottom: 20px; background-color: rgba(0, 0, 0, 0.5); display: inline-block; padding: 10px;">مغلق للصلاة الجمعة</h2>
-    
-        <p style="font-size: 18px; margin-bottom: 30px; background-color: rgba(0, 0, 0, 0.5); display: inline-block; padding: 10px;">
+    <div id="overlay">
+        <h2>مغلق للصلاة الجمعة</h2>
+        <p>
             ﴿ بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ﴾
             <br><br>
             يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوٓاْ إِذَا نُودِيَ لِلصَّلَوٰةِ مِن يَوۡمِ ٱلۡجُمُعَةِ فَٱسۡعَوۡاْ إِلَىٰ ذِكۡرِ ٱللَّهِ وَذَرُواْ ٱلۡبَيۡعَۚ ذَٰلِكُمۡ خَيۡرٞ لَّكُمۡ إِن كُنتُمۡ تَعۡلَمُونَ (9)
@@ -2077,66 +2101,47 @@
             <br><br>
             [ سورة الجمعة: 9  10 11]
         </p>
-    
+
         <audio id="audio">
             <source src="JOMAA.mp3" type="audio/mpeg">
             متصفحك لا يدعم تشغيل الصوت.
         </audio>
-    
-        <div style="margin-top: 20px;">
-            <button onclick="document.getElementById('audio').play()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">تشغيل</button>
-         
+
+        <div>
+            <button id="playButton" onclick="document.getElementById('audio').play()">تشغيل</button>
+            <button id="pauseButton" onclick="document.getElementById('audio').pause()">إيقاف</button>
         </div>
-    
-        <button id="closeButton" style="margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer;">إغلاق</button>
+
+        <button id="closeButton" onclick="document.getElementById('overlay').style.display = 'none'">إغلاق</button>
     </div>
-    
-    
 
+    <script>
+        function checkPrayerTime() {
+            var now = new Date();
+            var day = now.getDay(); // 5 for Friday
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
 
-<script>
-    var manuallyClosed = false;
+            var startHour = 14;
+            var startMinute = 0;
+            var endHour = 14;
+            var endMinute = 29;
 
-    function checkPrayerTime() {
-        var now = new Date();
-        var day = now.getDay(); // 5 for Friday
-        var hours = now.getHours();
-        var minutes = now.getMinutes();
-
-        // Set the time range for the prayer (e.g., 12:00 to 13:00)
-        var startHour = 14;
-        var startMinute = 0;
-        var endHour = 14;
-        var endMinute = 26;
-
-        if (day === 5 && (
-            (hours > startHour || (hours === startHour && minutes >= startMinute)) &&
-            (hours < endHour || (hours === endHour && minutes < endMinute))
-        )) {
-            document.getElementById('overlay').style.display = 'block';
-            document.getElementById('closeButton').style.display = 'none';
-            document.getElementById('redirectButton').style.display = 'none';
-            document.getElementById('prayerAudio').play();
-        } else {
-            document.getElementById('overlay').style.display = 'none';
-            document.getElementById('closeButton').style.display = 'block';
-            document.getElementById('redirectButton').style.display = 'block';
-            document.getElementById('prayerAudio').pause();
-            manuallyClosed = false;
+            if (day === 5 && (
+                (hours > startHour || (hours === startHour && minutes >= startMinute)) &&
+                (hours < endHour || (hours === endHour && minutes < endMinute))
+            )) {
+                document.getElementById('overlay').style.display = 'block';
+                document.getElementById('audio').play();
+            } else {
+                document.getElementById('overlay').style.display = 'none';
+                document.getElementById('audio').pause();
+            }
         }
-    }
 
-    document.getElementById('closeButton').onclick = function() {
-        document.getElementById('overlay').style.display = 'none';
-        manuallyClosed = true;
-    };
-
-     // Check every second for smoother experience
-    setInterval(checkPrayerTime, 1000);
-
-    // Initial check
-    checkPrayerTime();
-</script>
+        setInterval(checkPrayerTime, 1000);
+        checkPrayerTime();
+    </script>
 
 </body>
 </html>
