@@ -213,9 +213,6 @@
 
 
           
-
-
-
              
           
             <a href="#PRODUCTS" style="
@@ -2029,39 +2026,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مغلق للصلاة الجمعة</title>
     <style>
         #overlay {
             display: none;
@@ -2099,15 +2063,36 @@
 </head>
 <body>
 
-<div id="overlay">
-    مغلق للصلاة الجمعة
-    <audio id="prayerAudio" loop>
-        <source src="JOMAA.mp3" type="audio/mpeg">
-        متصفحك لا يدعم تشغيل الصوت.
-    </audio>
-    <button id="closeButton">إغلاق</button>
-    <button id="redirectButton">الانتقال إلى صفحة الحكم</button>
-</div>
+    <div id="overlay" style="text-align: center; padding: 20px; background-image: url('path/to/your/image.jpg'); background-size: cover; color: white; position: fixed; top: 0; left: 0; width: 100%; height: 100%;">
+        <h2 style="margin-bottom: 20px; background-color: rgba(0, 0, 0, 0.5); display: inline-block; padding: 10px;">مغلق للصلاة الجمعة</h2>
+    
+        <p style="font-size: 18px; margin-bottom: 30px; background-color: rgba(0, 0, 0, 0.5); display: inline-block; padding: 10px;">
+            ﴿ بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ﴾
+            <br><br>
+            يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوٓاْ إِذَا نُودِيَ لِلصَّلَوٰةِ مِن يَوۡمِ ٱلۡجُمُعَةِ فَٱسۡعَوۡاْ إِلَىٰ ذِكۡرِ ٱللَّهِ وَذَرُواْ ٱلۡبَيۡعَۚ ذَٰلِكُمۡ خَيۡرٞ لَّكُمۡ إِن كُنتُمۡ تَعۡلَمُونَ (9)
+            <br><br>
+            فَإِذَا قُضِيَتِ ٱلصَّلَوٰةُ فَٱنتَشِرُواْ فِي ٱلۡأَرۡضِ وَٱبۡتَغُواْ مِن فَضۡلِ ٱللَّهِ وَٱذۡكُرُواْ ٱللَّهَ كَثِيرٗا لَّعَلَّكُمۡ تُفۡلِحُونَ (10)
+            <br><br>
+            وَإِذَا رَأَوۡاْ تِجَٰرَةً أَوۡ لَهۡوًا ٱنفَضُّوٓاْ إِلَيۡهَا وَتَرَكُوكَ قَآئِمٗاۚ قُلۡ مَا عِندَ ٱللَّهِ خَيۡرٞ مِّنَ ٱللَّهۡوِ وَمِنَ ٱلتِّجَٰرَةِۚ وَٱللَّهُ خَيۡرُ ٱلرَّٰزِقِينَ (11)
+            <br><br>
+            [ سورة الجمعة: 9  10 11]
+        </p>
+    
+        <audio id="audio">
+            <source src="JOMAA.mp3" type="audio/mpeg">
+            متصفحك لا يدعم تشغيل الصوت.
+        </audio>
+    
+        <div style="margin-top: 20px;">
+            <button onclick="document.getElementById('audio').play()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">تشغيل</button>
+         
+        </div>
+    
+        <button id="closeButton" style="margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer;">إغلاق</button>
+    </div>
+    
+    
+
 
 <script>
     var manuallyClosed = false;
@@ -2119,10 +2104,10 @@
         var minutes = now.getMinutes();
 
         // Set the time range for the prayer (e.g., 12:00 to 13:00)
-        var startHour = 12;
+        var startHour = 14;
         var startMinute = 0;
-        var endHour = 13;
-        var endMinute = 0;
+        var endHour = 14;
+        var endMinute = 26;
 
         if (day === 5 && (
             (hours > startHour || (hours === startHour && minutes >= startMinute)) &&
@@ -2146,11 +2131,7 @@
         manuallyClosed = true;
     };
 
-    document.getElementById('redirectButton').onclick = function() {
-        window.location.href = 'path/to/your/redirect/page.html'; // ضع هنا رابط صفحة الحكم
-    };
-
-    // Check every second for smoother experience
+     // Check every second for smoother experience
     setInterval(checkPrayerTime, 1000);
 
     // Initial check
