@@ -1,278 +1,300 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <title>S22MARKET</title>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-        <style>
-            :root {
-                --primary-color: #4caf50;
-                --secondary-color: #81c784;
-                --background-dark: #ffffff;
-                --text-light: #000000;
-                --highlight-color: #ff5722;
-                --transition-speed: 0.5s;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>S22MARKET</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4caf50;
+            --secondary-color: #81c784;
+            --background-dark: #ffffff;
+            --text-light: #000000;
+            --highlight-color: #ff5722;
+            --transition-speed: 0.3s;
+            --header-height: 80px;
+        }
+
+        [data-theme="dark"] {
+            --background-dark: #121212;
+            --text-light: #ffffff;
+            --primary-color: #bb86fc;
+            --highlight-color: #03dac5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            padding-top: var(--header-height);
+        }
+
+        /* تحسينات الهيدر للهواتف */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            padding: 0.5rem 1rem;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            height: var(--header-height);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all var(--transition-speed);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1001;
+        }
+
+        .logo img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--highlight-color);
+        }
+
+        .logo-text {
+            font-weight: bold;
+            font-size: 1.1rem;
+            background: linear-gradient(90deg, black, white, green, red);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+
+        /* تحسينات القائمة للهواتف */
+        .menu-container {
+            position: relative;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 1002;
+            padding: 0.5rem;
+        }
+
+        .menu {
+            list-style: none;
+            display: flex;
+            gap: 0.5rem;
+            margin: 0;
+            padding: 0;
+            transition: all var(--transition-speed);
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: var(--text-light);
+            padding: 0.5rem 0.8rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: all var(--transition-speed);
+            display: block;
+            white-space: nowrap;
+        }
+
+        .menu a:hover, .menu a:focus {
+            background: var(--highlight-color);
+            transform: translateY(-2px);
+        }
+
+        .theme-toggle {
+            font-size: 1rem;
+            padding: 0.5rem 0.8rem;
+            border: none;
+            background: var(--primary-color);
+            color: var(--text-light);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            margin-right: 0.5rem;
+        }
+
+        .theme-toggle:hover {
+            background: var(--highlight-color);
+            transform: scale(1.05);
+        }
+
+        /* تحسينات القائمة عند تصغير الشاشة */
+        @media (max-width: 992px) {
+            .menu {
+                position: fixed;
+                top: var(--header-height);
+                right: -100%;
+                width: 80%;
+                max-width: 300px;
+                height: calc(100vh - var(--header-height));
+                background: linear-gradient(135deg, #2c3e50, #4ca1af);
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1rem;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+                overflow-y: auto;
+                z-index: 999;
             }
-    
-            [data-theme="dark"] {
-                --background-dark: #121212;
-                --text-light: #ffffff;
-                --primary-color: #bb86fc;
-                --highlight-color: #03dac5;
+
+            .menu.active {
+                right: 0;
             }
-    
-            body {
-                margin: 0;
-                font-family: 'Arial', sans-serif;
-                background-color: var(--background-dark);
-                color: var(--text-light);
-                line-height: 1.6;
-                overflow-x: hidden;
-                transition: background-color var(--transition-speed), color var(--transition-speed);
+
+            .menu a {
+                width: 100%;
+                padding: 0.8rem;
+                margin-bottom: 0.5rem;
+                font-size: 1rem;
             }
-    
-            header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                background: url('header-bg.jpg') no-repeat center/cover;
-                padding: 1rem 2rem;
-                position: sticky;
-                top: 0;
-                z-index: 1000;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-                flex-wrap: wrap;
+
+            .menu-toggle {
+                display: block;
             }
-    
-            .logo {
-                display: flex;
-                align-items: center;
-                gap: 1rem;
+
+            .theme-toggle {
+                margin-right: auto;
+                margin-left: 0.5rem;
             }
-    
+        }
+
+        @media (max-width: 768px) {
+            .logo-text {
+                display: none;
+            }
+            
             .logo img {
                 width: 40px;
                 height: 40px;
-                border-radius: 50%;
             }
-    
-            .menu {
-                list-style: none;
-                display: flex;
-                gap: 1rem;
-                margin: 0;
-                padding: 0;
-                flex-wrap: wrap;
-                justify-content: center;
+            
+            :root {
+                --header-height: 70px;
             }
-    
-            .menu a {
-                text-decoration: none;
-                color: var(--text-light);
-                padding: 0.5rem 1rem;
-                border-radius: 5px;
-                font-size: 1rem;
-                transition: background var(--transition-speed);
-            }
-    
-            .menu a:hover {
-                background: var(--highlight-color);
-            }
-    
-            .theme-toggle {
-                font-size: 1rem;
+        }
+
+        @media (max-width: 480px) {
+            header {
                 padding: 0.5rem;
-                border: none;
-                background: var(--primary-color);
-                color: var(--text-light);
-                border-radius: 5px;
-                cursor: pointer;
-                transition: background-color var(--transition-speed);
             }
-    
-            .theme-toggle:hover {
-                background: var(--highlight-color);
+            
+            .logo img {
+                width: 36px;
+                height: 36px;
             }
-    
-            .section {
-                margin: 1rem;
-                text-align: center;
+            
+            .theme-toggle {
+                font-size: 0.9rem;
+                padding: 0.4rem 0.7rem;
             }
-    
-            .top-products {
-                display: flex;
-                justify-content: center;
-                gap: 1rem;
-                flex-wrap: wrap;
+            
+            :root {
+                --header-height: 60px;
             }
-    
-            .product-card {
-                background: var(--background-dark);
-                border: 1px solid var(--primary-color);
-                border-radius: 10px;
-                width: 100%;
-                max-width: 300px;
-                padding: 1rem;
-                text-align: center;
-                transition: transform 0.3s, box-shadow 0.3s;
-            }
-    
-            .product-card:hover {
-                transform: scale(1.05);
-                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-            }
-    
-            .product-card img {
-                width: 100%;
-                height: auto;
-                object-fit: cover;
-                border-radius: 10px;
-                margin-bottom: 1rem;
-            }
-    
-            .social-icons {
-                display: flex;
-                justify-content: center;
-                gap: 0.5rem;
-                margin-top: 1rem;
-            }
-    
-            .social-icons a {
-                color: var(--primary-color);
-                font-size: 1.5rem;
-                transition: color 0.3s ease;
-            }
-    
-            .social-icons a:hover {
-                color: var(--highlight-color);
-            }
-    
-            footer {
-                text-align: center;
-                padding: 1rem;
-                background: var(--background-dark);
-                margin-top: 1rem;
-            }
-    
-            .footer-icons {
-                display: flex;
-                justify-content: center;
-                gap: 0.5rem;
-            }
-    
-            .footer-icons a {
-                color: var(--primary-color);
-                font-size: 1.5rem;
-                transition: color 0.3s ease;
-            }
-    
-            .footer-icons a:hover {
-                color: var(--highlight-color);
-            }
-    
-            @media (max-width: 768px) {
-                header {
-                    flex-direction: column;
-                    padding: 1rem;
-                    align-items: flex-start;
-                }
-    
-                .menu {
-                    flex-direction: column;
-                    gap: 0.5rem;
-                    align-items: flex-start;
-                }
-    
-                .logo img {
-                    width: 30px;
-                    height: 30px;
-                }
-    
-                .product-card {
-                    width: 90%;
-                }
-    
-                .theme-toggle {
-                    font-size: 0.9rem;
-                }
-    
-                .menu a {
-                    padding: 0.5rem;
-                    font-size: 0.9rem;
-                }
-    
-                .logo span {
-                    font-size: 1em;
-                    text-align: center;
-                }
-            }
-    
-            @media (max-width: 480px) {
-                header {
-                    padding: 0.5rem;
-                }
-    
-                .logo img {
-                    width: 25px;
-                    height: 25px;
-                }
-    
-                .menu a {
-                    padding: 0.4rem;
-                    font-size: 0.8rem;
-                }
-    
-                .theme-toggle {
-                    font-size: 0.8rem;
-                }
-            }
-    
-        </style>
-    </head>
-    
-    <body>
-        <header>
-            <div class="logo">
-                <img src="image/S22MARKET LOGO.ico" alt="شعار" style="width: 100px; height: 100px;">
-                <span style="font-weight: bold; font-size: 1.2em; background: linear-gradient(90deg, black, white, green, red); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                    🛒🛍️🏪 S22MARKET 🏪🛍️🛒
-                </span>
-            </div>
-            <ul class="menu">
-                <a href="#" onclick="window.scrollTo(0, 0); location.reload();">الرئيسية</a>
-                <a href="#PRODUCTS">منتجاتنا</a>
-                <li><a href="#">الأكثر مبيعًا</a></li>
-                <li><a href="#qr-code"> تحميل التطبيق</a></li>
-                <li><a href="#footer">تواصل معنا</a></li>
-            </ul>
-            <button class="theme-toggle" id="themeToggle">🌙 الوضع الداكن</button>
-        </header>
-    
-    </body>
-      
-   
+        }
 
+        /* باقي أنماط الموقع */
+        .section {
+            margin: 1.5rem;
+            text-align: center;
+        }
 
+        .top-products {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            padding: 1rem;
+        }
 
+        .product-card {
+            background: var(--background-dark);
+            border: 1px solid var(--primary-color);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 320px;
+            padding: 1.2rem;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
 
+        .product-card img {
+            width: 100%;
+            height: auto;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
 
+        .product-card h3 {
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
 
+        .product-card p {
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
 
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
 
+        .social-icons a {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+        }
 
+        .social-icons a:hover {
+            color: var(--highlight-color);
+            transform: scale(1.1);
+            background: rgba(0, 0, 0, 0.1);
+        }
 
-
-
-
-
-
-    <style>
-        /* الأنماط الخاصة بالكتابة المشعة على خلفية سوداء */
+        /* قسم الإعلان المتحرك */
         .advertisement {
             background-color: #121212;
-            padding: 10px 0;
+            padding: 1rem 0;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -280,14 +302,14 @@
             overflow: hidden;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
             position: relative;
-            width: 100%; /* تأكد من أن العنصر يحتل عرض الشاشة */
+            width: 100%;
+            margin: 1rem 0;
         }
-    
+
         .advertisement-text {
-            font-family: 'Cairo', sans-serif;
-            font-size: 2.5rem;
+            font-family: 'Arial', sans-serif;
+            font-size: 1.8rem;
             font-weight: bold;
-            letter-spacing: 2px;
             white-space: nowrap;
             background: linear-gradient(90deg, #ff0000, #ffffff, #000000, #008000);
             background-size: 300%;
@@ -295,1755 +317,522 @@
             -webkit-text-fill-color: transparent;
             animation: flag-colors 5s linear infinite;
             text-align: center;
-            padding: 0 10px; /* إضافة مسافات صغيرة على الجانبين */
+            padding: 0 1rem;
         }
-    
-        /* تأثير حركة الألوان */
+
         @keyframes flag-colors {
-            0% {
-                background-position: 0% 50%;
-            }
-            100% {
-                background-position: 100% 50%;
-            }
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
-    
-        /* استعلامات الوسائط لتحسين العرض على الشاشات الصغيرة */
+
+        /* تحسينات للهواتف */
         @media (max-width: 768px) {
             .advertisement-text {
-                font-size: 2rem;
-                letter-spacing: 1.5px;
+                font-size: 1.5rem;
+                white-space: normal;
             }
-            .advertisement {
-                padding: 15px 0;
-                min-height: 90px;
+            
+            .section {
+                margin: 1rem;
+            }
+            
+            .product-card {
+                padding: 1rem;
             }
         }
-    
+
         @media (max-width: 480px) {
             .advertisement-text {
-                font-size: 1.5rem;
-                letter-spacing: 1px;
+                font-size: 1.2rem;
             }
-            .advertisement {
-                min-height: 80px;
-                padding: 10px 0;
+            
+            .product-card {
+                max-width: 100%;
             }
+        }
+
+        /* تذييل الصفحة */
+        footer {
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            text-align: center;
+            padding: 2rem 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .footer-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-icons a {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .footer-icons a:hover {
+            color: var(--highlight-color);
+            transform: scale(1.2);
+        }
+
+        /* تأثيرات الأزرار */
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background-color: var(--highlight-color);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        /* تأثيرات التحميل */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* QR Code Section */
+        .qr-section {
+            text-align: center;
+            padding: 1.5rem;
+            max-width: 400px;
+            margin: 2rem auto;
+            background: var(--background-dark);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .qr-section h3 {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .qr-section .qr-code {
+            width: 200px;
+            height: auto;
+            margin: 0 auto 1.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin: 1.5rem 0;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+            color: #fff;
+            background-color: #007bff;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer p {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            opacity: 0.8;
         }
     </style>
-    </head>
-    
-    <body>
-        <!-- قسم الكتابة المشعة -->
-        <div class="advertisement">
-            <div class="advertisement-text">
-                <span class="emoji">👋</span> 
-                <span>    مرحباً بكم في  </span> 
-                <span>S22MARKET</span> 
-                <span class="emoji">🎉</span> 
-                <span class="emoji">  🛍️ </span> 
-                <span class="emoji">🛒</span> 
-                <span class="emoji">⚡</span>
-            </div>
-        </div>
-    </body>
-    
+</head>
 
-     
-
-
-        
-
-<section id="PRODUCTS" style="
-    background-color: var(--background-dark); 
-    padding: 20px; 
-    border-radius: 15px; 
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6); 
-    margin: 20px;">
+<body>
+    <!-- الهيدر المحسن للهواتف -->
     <header>
-        <nav style="margin-bottom: 20px;">
-            <ul style="
-                list-style: none; 
-                padding: 0; 
-                display: flex; 
-                flex-wrap: wrap; 
-                gap: 20px; 
-                justify-content: center;">
-
-
-
-
-
-
-
-     <!-- الدورات  التعليمية   -->
-     <li>
-        <a href="#dawrattaelimia" style="
-            background-color: var(--primary-color); 
-            color: var(--text-light); 
-            text-decoration: none; 
-            padding: 15px 25px; 
-            border-radius: 50px; 
-            font-weight: bold; 
-            font-size: 1rem; 
-            display: inline-block; 
-            transition: all 0.3s; 
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
-              الدورات  التعليمية 
-        </a>
-    </li>
-
-
-       <!-- الدورات  التعليمية الجامعية   -->
-       <li>
-        <a href="#year1" style="
-            background-color: var(--primary-color); 
-            color: var(--text-light); 
-            text-decoration: none; 
-            padding: 15px 25px; 
-            border-radius: 50px; 
-            font-weight: bold; 
-            font-size: 1rem; 
-            display: inline-block; 
-            transition: all 0.3s; 
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
-              الدورات  التعليمية  الجامعية 
-        </a>
-    </li>
-
-
-                <!-- الدورات  التعليمية الجامعية -->
-                <li>
-                    <a href="#year1" style="
-                        background-color: var(--primary-color); 
-                        color: var(--text-light); 
-                        text-decoration: none; 
-                        padding: 15px 25px; 
-                        border-radius: 50px; 
-                        font-weight: bold; 
-                        font-size: 1rem; 
-                        display: inline-block; 
-                        transition: all 0.3s; 
-                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
-                          الدورات  التعليمية  الجامعية 
-                    </a>
-                </li>
-                
-
-              <!-- الدورات  التعليمية  الطور الثانوي -->
-                <li>
-                    <a href="#dawrataltawralthaanawii" style="
-                        background-color: var(--primary-color); 
-                        color: var(--text-light); 
-                        text-decoration: none; 
-                        padding: 15px 25px; 
-                        border-radius: 50px; 
-                        font-weight: bold; 
-                        font-size: 1rem; 
-                        display: inline-block; 
-                        transition: all 0.3s; 
-                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
-                     الدورات  التعليمية  الطور الثانوي 
-                    </a>
-                </li>
-
-
-
-
-               <!-- الخدمات الصحية  المتاحة   -->
-               <li>
-                <a href="#khadamwriayasihiya" style="
-                    background-color: var(--primary-color); 
-                    color: var(--text-light); 
-                    text-decoration: none; 
-                    padding: 15px 25px; 
-                    border-radius: 50px; 
-                    font-weight: bold; 
-                    font-size: 1rem; 
-                    display: inline-block; 
-                    transition: all 0.3s; 
-                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
-         
-         <h>🩺 الرعاية الصحية وخدماتها ✨❤️</h>
-                </a>
-            </li>
+        <div class="logo">
+            <img src="image/S22MARKET LOGO.ico" alt="شعار S22MARKET">
+            <span class="logo-text">🛒 S22MARKET 🛒</span>
+        </div>
         
-        
-
-
-
+        <div class="menu-container">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
             
-                   <!-- الخدمات المتوفرة   -->
-       <li>
-        <a href="#year1" style="
-            background-color: var(--primary-color); 
-            color: var(--text-light); 
-            text-decoration: none; 
-            padding: 15px 25px; 
-            border-radius: 50px; 
-            font-weight: bold; 
-            font-size: 1rem; 
-            display: inline-block; 
-            transition: all 0.3s; 
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
- 
-                 الخدمات المتوفرة  
-        </a>
-    </li>
-
-
-                <!-- العقارات-->
-                <li>
-                    <a href="#realestate" style="
-                        background-color: var(--primary-color); 
-                        color: var(--text-light); 
-                        text-decoration: none; 
-                        padding: 15px 25px; 
-                        border-radius: 50px; 
-                        font-weight: bold; 
-                        font-size: 1rem; 
-                        display: inline-block; 
-                        transition: all 0.3s; 
-                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
-                        العقارات
-                    </a>
-                </li>
-
-
-
-
-
-
-
-
-
+            <ul class="menu" id="mainMenu">
+                <li><a href="#" onclick="window.scrollTo(0, 0); location.reload();">الرئيسية</a></li>
+                <li><a href="#PRODUCTS">منتجاتنا</a></li>
+                <li><a href="#">الأكثر مبيعًا</a></li>
+                <li><a href="#qr-code">تحميل التطبيق</a></li>
+                <li><a href="#footer">تواصل معنا</a></li>
             </ul>
-        </nav>
+        </div>
+        
+        <button class="theme-toggle" id="themeToggle">🌙 الوضع الداكن</button>
     </header>
-</section>
 
-<style>
-    /* تأثيرات الأزرار */
-    a:hover {
-        background-color: var(--highlight-color);
-        color: var(--background-dark);
-        transform: scale(1.1);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-    }
+    <!-- قسم الإعلان المتحرك -->
+    <div class="advertisement">
+        <div class="advertisement-text">
+            <span class="emoji">👋</span> 
+            <span>مرحباً بكم في</span> 
+            <span>S22MARKET</span> 
+            <span class="emoji">🎉</span> 
+            <span class="emoji">🛍️</span> 
+            <span class="emoji">🛒</span>
+        </div>
+    </div>
 
-    a:active {
-        transform: scale(0.95);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    }
+    <!-- قسم المنتجات -->
+    <section id="PRODUCTS" class="section">
+        <div style="background-color: var(--background-dark); padding: 1.5rem; border-radius: 15px; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); margin: 1.5rem 0;">
+            <nav>
+                <ul style="list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center;">
+                    <li><a href="#dawrattaelimia" class="btn">الدورات التعليمية</a></li>
+                    <li><a href="#year1" class="btn">الدورات الجامعية</a></li>
+                    <li><a href="#dawrataltawralthaanawii" class="btn">الطور الثانوي</a></li>
+                    <li><a href="#khadamwriayasihiya" class="btn">الرعاية الصحية</a></li>
+                    <li><a href="#realestate" class="btn">العقارات</a></li>
+                </ul>
+            </nav>
+        </div>
+    </section>
 
-    /* تأثير التحميل */
-    ul li a {
-        animation: fadeIn 0.6s ease-out;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-</style>
-
-<script>
-    // تأثير تمرير الصفحة بسلاسة عند اختيار رابط
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.querySelector(this.getAttribute('href')).scrollIntoView({
-                behavior: 'smooth'
-            });
-        });
-    });
-</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<br>
-
-  
-<section id="dawrattaelimia" class="section"></section>
-    <h2 style="display: flex; justify-content: center;">الدورات التعليمية</h2>
-    <div class="top-products">
-
-
-
-
-
-
-
-
-              
+    <!-- قسم الدورات التعليمية -->
+    <section id="dawrattaelimia" class="section">
+        <h2>الدورات التعليمية</h2>
+        <div class="top-products">
+            
             <!-- بطاقة المنتج الأولى -->
-            <div class="product-card">
-                <img src="image/AMINE.png" alt="لابتوب">
-               
-                <h3>🩺 ✂️ <span style="color: #FF5733;">دورة تعلم الخياطة الطبية والإسعافات الأولية</span> 🩹💉</h3>
+            <div class="product-card fade-in">
+                <img src="image/AMINE.png" alt="دورة الخياطة الطبية">
+                <h3>🩺 دورة تعلم الخياطة الطبية والإسعافات الأولية 🩹</h3>
                 <p>
                     <span style="color: #2ECC71;">🔹 تعلم أساسيات الخياطة الطبية</span> بخطوات عملية مبسطة.<br>
-                    <span style="color: #3498DB;">🔹 اكتسب مهارات الإسعافات الأولية</span> لإنقاذ الأرواح في المواقف الحرجة.<br>
+                    <span style="color: #3498DB;">🔹 اكتسب مهارات الإسعافات الأولية</span> لإنقاذ الأرواح.<br>
                     <span style="color: #9B59B6;">🔹 بإشراف متخصصين</span> وبتقنيات حديثة.<br>
-                    <span style="color: #E74C3C;">🔹 سجل الآن</span> لتبدأ رحلتك في مجال الرعاية الصحية! ✨🩺
+                    <span style="color: #E74C3C;">🔹 سجل الآن</span> لتبدأ رحلتك في مجال الرعاية الصحية!
                 </p>
                 
-
                 <div>
-                    <section style="
-                    background-color: #f4f4f9; 
-                    padding: 1rem; 
-                    text-align: center; 
-                    border-radius: 0.75rem; 
-                    margin: 1.5rem auto; 
-                    max-width: 320px; 
-                    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); 
-                    position: relative; 
-                    border: 1px solid rgba(0, 0, 0, 0.1);">
-                    <h3 style="
-                        color: #2C3E50; 
-                        font-size: 1.2rem; 
-                        font-weight: bold; 
-                        margin-bottom: 0.8rem; 
-                        letter-spacing: 0.5px; 
-                        line-height: 1.4;">
-                        📚 دورة مفيدة في الخياطة الطبية والإسعافات الأولية 🩺💉🩹💊🩸
-                    </h3>
-                    <p style="
-                        color: #34495E; 
-                        font-size: 0.95rem; 
-                        margin-bottom: 1.2rem; 
-                        line-height: 1.5;">
-                        🇩🇿 انضم الآن إلى الدورة المقدمة من طرف أستاذ أمين 👨‍🏫، وتعلّم مهارات قيّمة في ولاية عنابة بالجزائر 🏙️.  
-                        الدورة تشمل: 💉 تعلم تقنيات الإسعاف الأولي 🩹 | 🧵 أساسيات الخياطة الطبية 🏥 | 🩺
-                    </p>
-                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSfzv4AOur018rrg4uxRJYT4Iv70rKFhR6ZPpWuy-9qE6ytn3g/viewform?usp=header" target="_self"
-                        style="
-                            display: inline-block; 
-                            background-color: #2980B9; 
-                            color: white; 
-                            padding: 0.8rem 1.8rem; 
-                            font-size: 1rem; 
-                            font-weight: bold; 
-                            border-radius: 50px; 
-                            text-decoration: none; 
-                            box-shadow: 0 8px 20px rgba(41, 128, 185, 0.4); 
-                            transition: transform 0.3s ease, background-color 0.3s ease;
-                            line-height: 1.4;">
-                        🌟 اطلع عليها الآن 🩺💉🩹
-                    </a>
-                </section>
-                
-
+                    <section style="background-color: #f4f4f9; padding: 1rem; text-align: center; border-radius: 0.75rem; margin: 1.5rem auto; max-width: 320px; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);">
+                        <h3 style="color: #2C3E50; font-size: 1.2rem; margin-bottom: 0.8rem;">
+                            📚 دورة الخياطة الطبية والإسعافات الأولية
+                        </h3>
+                        <a href="https://docs.google.com/forms/d/e/1FAIpQLSfzv4AOur018rrg4uxRJYT4Iv70rKFhR6ZPpWuy-9qE6ytn3g/viewform?usp=header" 
+                           target="_self" class="btn">
+                            🌟 اطلع عليها الآن
+                        </a>
+                    </section>
                 </div>
 
-
-
-
-
-                <section style="
-                background-color: var(--background-dark); 
-                padding: 1rem; 
-                text-align: center; 
-                border-radius: 0.75rem; 
-                margin: 1.5rem auto; 
-                max-width: 300px; 
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
-                position: relative; 
-                overflow: hidden; 
-                border: 1px solid rgba(255, 255, 255, 0.1);">
-                <h3 style="
-                    color: var(--text-light); 
-                    margin-bottom: 1rem; 
-                    font-size: 1rem; 
-                    font-weight: bold; 
-                    letter-spacing: 0.5px;">
-                    أو تواصل معنا عبر صفحاتنا
-                </h3>
-                <div style="
-                    display: flex; 
-                    flex-wrap: wrap; 
-                    justify-content: center; 
-                    gap: 0.5rem;">
-                  
-
-                  
-                        <!-- Instagram -->
-                        <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" loading="lazy">
-                        </a>
-                       <!-- Facebook -->
-                        <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" loading="lazy">
-                        </a>
-
-                         <!-- TikTok -->
-                         <a href="https://www.tiktok.com/@s22market?_t=ZM-8sbJ7s4RWq6&_r=1" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" loading="lazy">
-                        </a>
-
-                        <!-- Telegram -->
-                        <a href="https://t.me/S22MARKET" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" loading="lazy">
-                        </a>
-
-                        <!-- Bot TELEGRAM -->
-                        <a href="http://t.me/THE_S22MARKET_BOT" target="_blank" class="social-icon">
-                            <img src="image/robot.png" alt="Bot" loading="lazy">
-                        </a>
-
-                   
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://t.me/S22MARKET" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="http://t.me/THE_S22MARKET_BOT" target="_blank"><i class="fas fa-robot"></i></a>
                 </div>
-            </section>
-            
-            <style>
-                .social-icons a {
-                    text-decoration: none;
-                    margin: 0 10px;
-                    font-size: 34px; /* تصغير حجم الأيقونات */
-                }
-            
-                .social-icon {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    width: 2.5rem;
-                    height: 2.5rem;
-                    transition: transform 0.3s ease, filter 0.3s ease;
-                }
-            
-                .social-icon img {
-                    width: 2rem;
-                    height: 2rem;
-                    transition: transform 0.3s ease, filter 0.3s ease;
-                    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4));
-                    border-radius: 50%;
-                }
-            
-                .social-icon:hover img {
-                    transform: scale(1.25);
-                    filter: drop-shadow(0 0 8px var(--glow-color));
-                }
-            
-                /* Glow colors for hover effects */
-                .social-icon:nth-child(1) img {
-                    --glow-color: #E1306C; /* Instagram */
-                }
-                .social-icon:nth-child(2) img {
-                    --glow-color: #69C9D0; /* TikTok */
-                }
-                .social-icon:nth-child(3) img {
-                    --glow-color: #0088cc; /* Telegram */
-                }
-                .social-icon:nth-child(4) img {
-                    --glow-color: #1877F2; /* Facebook */
-                }
-                .social-icon:nth-child(5) img {
-                    --glow-color: #1DA1F2; /* Bot Telegram */
-                }
-            </style>
-        
             </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-        
-            <!-- بطاقة المنتج الثاني -->
-            <div class="product-card">
+            <!-- بطاقة المنتج الثانية -->
+            <div class="product-card fade-in">
                 <img src="image/canva.jpg" alt="دورة تعلم كانفا">
-                <h3>🎨 <span style="color: #FF5733;">دورة تعلم تصميم كانفا</span> 🎨</h3>
+                <h3>🎨 دورة تعلم تصميم كانفا 🎨</h3>
                 <p>
-                    <span style="color: #2ECC71;">🔹 تعلم أسرار التصميم</span> باستخدام أداة كانفا بأسلوب بسيط وممتع.<br>
-                    <span style="color: #3498DB;">🔹 احترف الإبداع</span> في تصميم المحتوى الجذاب بسهولة.<br>
+                    <span style="color: #2ECC71;">🔹 تعلم أسرار التصميم</span> باستخدام أداة كانفا.<br>
+                    <span style="color: #3498DB;">🔹 احترف الإبداع</span> في تصميم المحتوى الجذاب.<br>
                     <span style="color: #9B59B6;">🔹 سعر مميز</span> وأداء استثنائي مضمون!<br>
-                    <span style="color: #E74C3C;">🔹 انضم الآن</span> وابدأ رحلتك مع التصميم الاحترافي! ✨💻
+                    <span style="color: #E74C3C;">🔹 انضم الآن</span> وابدأ رحلتك مع التصميم!
                 </p>
                 
-                
                 <div class="social-icons">
-                        <a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
-                        <a href="https://www.facebook.com/Bouamama.Djawed" target="_blank"><i class="fab fa-facebook"></i></a>
-                        <a href="https://t.me/Bd_djawed" target="_blank"><i class="fab fa-telegram"></i></a>
-                    </div>
-                    <section style="
-                    background-color: var(--background-dark); 
-                    padding: 1rem; 
-                    text-align: center; 
-                    border-radius: 0.75rem; 
-                    margin: 1.5rem auto; 
-                    max-width: 300px; 
-                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
-                    position: relative; 
-                    overflow: hidden; 
-                    border: 1px solid rgba(255, 255, 255, 0.1);">
-                    <h3 style="
-                        color: var(--text-light); 
-                        margin-bottom: 1rem; 
-                        font-size: 1rem; 
-                        font-weight: bold; 
-                        letter-spacing: 0.5px;">
-                        أو تواصل معنا عبر صفحاتنا
-                    </h3>
-                    <div style="
-                        display: flex; 
-                        flex-wrap: wrap; 
-                        justify-content: center; 
-                        gap: 0.5rem;">
-                      
-                        <!-- Instagram -->
-                        <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" loading="lazy">
-                        </a>
-                       <!-- Facebook -->
-                        <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" loading="lazy">
-                        </a>
-
-                         <!-- TikTok -->
-                         <a href="https://www.tiktok.com/@s22market?_t=ZM-8sbJ7s4RWq6&_r=1" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" loading="lazy">
-                        </a>
-
-                        <!-- Telegram -->
-                        <a href="https://t.me/S22MARKET" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" loading="lazy">
-                        </a>
-
-                        <!-- Bot TELEGRAM -->
-                        <a href="http://t.me/THE_S22MARKET_BOT" target="_blank" class="social-icon">
-                            <img src="image/robot.png" alt="Bot" loading="lazy">
-                        </a>
-
-
-
-                    </div>
-                </section>
-                
-                <style>
-                    .social-icons a {
-                        text-decoration: none;
-                        margin: 0 10px;
-                        font-size: 34px; /* تصغير حجم الأيقونات */
-                    }
-                
-                    .social-icon {
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        width: 2.5rem;
-                        height: 2.5rem;
-                        transition: transform 0.3s ease, filter 0.3s ease;
-                    }
-                
-                    .social-icon img {
-                        width: 2rem;
-                        height: 2rem;
-                        transition: transform 0.3s ease, filter 0.3s ease;
-                        filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4));
-                        border-radius: 50%;
-                    }
-                
-                    .social-icon:hover img {
-                        transform: scale(1.25);
-                        filter: drop-shadow(0 0 8px var(--glow-color));
-                    }
-                
-                    /* Glow colors for hover effects */
-                    .social-icon:nth-child(1) img {
-                        --glow-color: #E1306C; /* Instagram */
-                    }
-                    .social-icon:nth-child(2) img {
-                        --glow-color: #69C9D0; /* TikTok */
-                    }
-                    .social-icon:nth-child(3) img {
-                        --glow-color: #0088cc; /* Telegram */
-                    }
-                    .social-icon:nth-child(4) img {
-                        --glow-color: #1877F2; /* Facebook */
-                    }
-                    .social-icon:nth-child(5) img {
-                        --glow-color: #1DA1F2; /* Bot Telegram */
-                    }
-                </style>
-            
+                    <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://t.me/S22MARKET" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="http://t.me/THE_S22MARKET_BOT" target="_blank"><i class="fas fa-robot"></i></a>
                 </div>
-    
+            </div>
 
-
-
-                 
-            <!-- بطاقة المنتج الثالث  -->
-            <div class="product-card">
-                <img src="image/HIJAMA.jpg" alt="دورة تعلم الحجامة ">
-             
+            <!-- بطاقة المنتج الثالثة -->
+            <div class="product-card fade-in">
+                <img src="image/HIJAMA.jpg" alt="دورة تعلم الحجامة">
+                
                 <div style="border: 2px solid #FF5733; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                    <h3>✨ <span style="color: #FF5733;">حصص علاجية متخصصة بالحجامة</span> ✨</h3>
+                    <h3>✨ حصص علاجية متخصصة بالحجامة ✨</h3>
                     <p>
-                        🔹 <strong>أنواع الحجامة المتوفرة:</strong>
-                        <ul style="margin-top: 10px;">
-                            <li>🌿 <strong>الحجامة الطبية:</strong> لتحسين الأداء البدني والصحي.</li>
-                            <li>🔍 <strong>الحجامة الوقائية:</strong> لتعزيز المناعة والوقاية من الأمراض.</li>
-                            <li>💪 <strong>الحجامة العلاجية:</strong> لتخفيف الألم وتحسين الدورة الدموية.</li>
-                            <li>🩸 <strong>الحجامة الاستكشافية:</strong> للكشف عن المشكلات الصحية المحتملة.</li>
-                            <li>🛡️ <strong>الحجامة التحصينية:</strong> لحماية الجسم من الإجهاد والتوتر.</li>
-                            <li>💉 <strong>الحجامة التجميلية:</strong> بالكولاجين والفيتامين E لتحسين مظهر البشرة.</li>
+                        <strong>🔹 أنواع الحجامة المتوفرة:</strong>
+                        <ul style="margin-top: 10px; text-align: right; padding-right: 1rem;">
+                            <li>🌿 الحجامة الطبية: لتحسين الأداء البدني والصحي.</li>
+                            <li>🔍 الحجامة الوقائية: لتعزيز المناعة والوقاية.</li>
+                            <li>💪 الحجامة العلاجية: لتخفيف الألم وتحسين الدورة الدموية.</li>
                         </ul>
                         <span style="color: #2ECC71;">🔹 جلسات احترافية</span> تلبي احتياجاتك الصحية.<br>
                         <span style="color: #3498DB;">🔹 فوائد مثبتة</span> للعناية بالجسم والعقل.<br>
-                        <span style="color: #9B59B6;">🔹 سعر الجلسة:</span> 1500 دج (مية وخمسين ألف).<br>
-                        <span style="color: #E74C3C;">🔹 احجز الآن</span> واستمتع برحلة علاجية فريدة! 🌿💆‍♂️
+                        <span style="color: #E74C3C;">🔹 احجز الآن</span> واستمتع برحلة علاجية فريدة!
                     </p>
                 </div>
                 
                 <div style="border: 2px dashed #9B59B6; padding: 15px; border-radius: 10px;">
-                    <h3>✨ <span style="color: #9B59B6;">كما تتوفر دورة تعلم فن الحجامة</span> ✨</h3>
+                    <h3>✨ دورة تعلم فن الحجامة ✨</h3>
                     <p>
-                        <span style="color: #2ECC71;">🔹 تعلم الحجامة:</span> بأسلوب علمي وعملي يشمل تقنيات احترافية.<br>
-                        <span style="color: #3498DB;">🔹 فوائد شاملة:</span> تحت إشراف خبراء معتمدين لضمان أفضل النتائج.<br>
-                        <span style="color: #9B59B6;">🔹 سعر الدورة:</span> 9000 دج (تسعة مية ألف).<br>
-                        <span style="color: #E74C3C;">🔹 احجز الآن:</span> وابدأ رحلتك الاحترافية في مجال الحجامة! 💪⚡
+                        <span style="color: #2ECC71;">🔹 تعلم الحجامة:</span> بأسلوب علمي وعملي.<br>
+                        <span style="color: #3498DB;">🔹 فوائد شاملة:</span> تحت إشراف خبراء معتمدين.<br>
+                        <span style="color: #E74C3C;">🔹 احجز الآن:</span> وابدأ رحلتك الاحترافية!
                     </p>
                 </div>
                 
-                
-
-                <a href="https://forms.gle/JKyUYoqPYDMPpBCg7" target="_self"
-                style="
-                    display: inline-block; 
-                    background-color: #2980B9; 
-                    color: white; 
-                    padding: 0.8rem 1.8rem; 
-                    font-size: 1rem; 
-                    font-weight: bold; 
-                    border-radius: 50px; 
-                    text-decoration: none; 
-                    box-shadow: 0 8px 20px rgba(41, 128, 185, 0.4); 
-                    transition: transform 0.3s ease, background-color 0.3s ease;
-                    line-height: 1.4;">
-                🌟💆‍♂️🌿اطلع عليهما الآن 🌿💆‍♂️🌟  
-            </a>
-        </section>
-
-
-
-
-
-                    <section style="
-                    background-color: var(--background-dark); 
-                    padding: 1rem; 
-                    text-align: center; 
-                    border-radius: 0.75rem; 
-                    margin: 1.5rem auto; 
-                    max-width: 300px; 
-                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
-                    position: relative; 
-                    overflow: hidden; 
-                    border: 1px solid rgba(255, 255, 255, 0.1);">
-                    <h3 style="
-                        color: var(--text-light); 
-                        margin-bottom: 1rem; 
-                        font-size: 1rem; 
-                        font-weight: bold; 
-                        letter-spacing: 0.5px;">
-                        أو تواصل معنا عبر صفحاتنا
-                    </h3>
-                    <div style="
-                        display: flex; 
-                        flex-wrap: wrap; 
-                        justify-content: center; 
-                        gap: 0.5rem;">
-
-
-                        <!-- Instagram -->
-                        <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" loading="lazy">
-                        </a>
-                       <!-- Facebook -->
-                        <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" loading="lazy">
-                        </a>
-
-                         <!-- TikTok -->
-                         <a href="https://www.tiktok.com/@s22market?_t=ZM-8sbJ7s4RWq6&_r=1" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" loading="lazy">
-                        </a>
-
-                        <!-- Telegram -->
-                        <a href="https://t.me/S22MARKET" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" loading="lazy">
-                        </a>
-
-                        <!-- Bot TELEGRAM -->
-                        <a href="http://t.me/THE_S22MARKET_BOT" target="_blank" class="social-icon">
-                            <img src="image/robot.png" alt="Bot" loading="lazy">
-                        </a>
-
-
-                    </div>
-                </section>
-                
-                <style>
-                    .social-icons a {
-                        text-decoration: none;
-                        margin: 0 10px;
-                        font-size: 34px; /* تصغير حجم الأيقونات */
-                    }
-                
-                    .social-icon {
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        width: 2.5rem;
-                        height: 2.5rem;
-                        transition: transform 0.3s ease, filter 0.3s ease;
-                    }
-                
-                    .social-icon img {
-                        width: 2rem;
-                        height: 2rem;
-                        transition: transform 0.3s ease, filter 0.3s ease;
-                        filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4));
-                        border-radius: 50%;
-                    }
-                
-                    .social-icon:hover img {
-                        transform: scale(1.25);
-                        filter: drop-shadow(0 0 8px var(--glow-color));
-                    }
-                
-                    /* Glow colors for hover effects */
-                    .social-icon:nth-child(1) img {
-                        --glow-color: #E1306C; /* Instagram */
-                    }
-                    .social-icon:nth-child(2) img {
-                        --glow-color: #69C9D0; /* TikTok */
-                    }
-                    .social-icon:nth-child(3) img {
-                        --glow-color: #0088cc; /* Telegram */
-                    }
-                    .social-icon:nth-child(4) img {
-                        --glow-color: #1877F2; /* Facebook */
-                    }
-                    .social-icon:nth-child(5) img {
-                        --glow-color: #1DA1F2; /* Bot Telegram */
-                    }
-                </style>
-            
-                </div>
-    
-
-            </div>
-        </div>
-    </section>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <br>
-
-  
-                     
-                <!-- بطاقة المنتج الثالث  -->
-                <div class="product-card">
-                    <img src="image/HIJAMA.jpg" alt="دورة تعلم الحجامة ">
-                 
-                    <div style="background-color: #FFF3E0; border: 2px solid #FF5733; padding: 20px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
-                        <h3 style="text-align: center; font-size: 24px;">✨ <span style="color: #FF5733;">حصص علاجية متخصصة بالحجامة</span> ✨</h3>
-                        <p style="line-height: 1.8; font-size: 16px; color: #555;">
-                            <strong>🔹 أنواع الحجامة المتوفرة:</strong>
-                            <ul style="margin: 15px 0 15px 20px; list-style-type: none;">
-                                <li>🌿 <strong style="color: #2ECC71;">الحجامة الطبية:</strong> لتحسين الأداء البدني والصحي.</li>
-                                <li>🔍 <strong style="color: #3498DB;">الحجامة الوقائية:</strong> لتعزيز المناعة والوقاية من الأمراض.</li>
-                                <li>💪 <strong style="color: #9B59B6;">الحجامة العلاجية:</strong> لتخفيف الألم وتحسين الدورة الدموية.</li>
-                                <li>🩸 <strong style="color: #FF5733;">الحجامة الاستكشافية:</strong> للكشف عن المشكلات الصحية المحتملة.</li>
-                                <li>🛡️ <strong style="color: #F1C40F;">الحجامة التحصينية:</strong> لحماية الجسم من الإجهاد والتوتر.</li>
-                                <li>💉 <strong style="color: #E74C3C;">الحجامة التجميلية:</strong> بالكولاجين والفيتامين E لتحسين مظهر البشرة.</li>
-                            </ul>
-                            <span style="color: #2ECC71; font-weight: bold;">🔹 جلسات احترافية:</span> تلبي احتياجاتك الصحية بأعلى جودة.<br>
-                            <span style="color: #3498DB; font-weight: bold;">🔹 فوائد مثبتة:</span> للعناية بالجسم والعقل.<br>
-                            <span style="color: #9B59B6; font-weight: bold;">🔹 سعر الجلسة:</span> <span style="background-color: #FFF; padding: 5px 10px; border-radius: 5px;">1500 دج (مية وخمسين ألف)</span>.<br>
-                            <span style="color: #E74C3C; font-weight: bold;">🔹 احجز الآن:</span> واستمتع برحلة علاجية فريدة! 🌿💆‍♂️
-                        </p>
-                    </div>
-                    
-                    <div style="background-color: #F5F5F5; border: 2px dashed #9B59B6; padding: 20px; border-radius: 15px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
-                        <h3 style="text-align: center; font-size: 24px;">✨ <span style="color: #9B59B6;">كما تتوفر دورة تعلم فن الحجامة</span> ✨</h3>
-                        <p style="line-height: 1.8; font-size: 16px; color: #555;">
-                            <span style="color: #2ECC71; font-weight: bold;">🔹 تعلم الحجامة:</span> بأسلوب علمي وعملي يشمل تقنيات احترافية.<br>
-                            <span style="color: #3498DB; font-weight: bold;">🔹 فوائد شاملة:</span> تحت إشراف خبراء معتمدين لضمان أفضل النتائج.<br>
-                            <span style="color: #9B59B6; font-weight: bold;">🔹 سعر الدورة:</span> <span style="background-color: #FFF; padding: 5px 10px; border-radius: 5px;">9000 دج (تسعة مية ألف)</span>.<br>
-                            <span style="color: #E74C3C; font-weight: bold;">🔹 احجز الآن:</span> وابدأ رحلتك الاحترافية في مجال الحجامة! 💪⚡
-                        </p>
-                    </div>
-                    
-                    <a href="https://forms.gle/JKyUYoqPYDMPpBCg7" target="_self"
-                    style="
-                        display: inline-block; 
-                        background-color: #2980B9; 
-                        color: white; 
-                        padding: 0.8rem 1.8rem; 
-                        font-size: 1rem; 
-                        font-weight: bold; 
-                        border-radius: 50px; 
-                        text-decoration: none; 
-                        box-shadow: 0 8px 20px rgba(41, 128, 185, 0.4); 
-                        transition: transform 0.3s ease, background-color 0.3s ease;
-                        line-height: 1.4;">
-                    🌟💆‍♂️🌿اطلع عليهما الآن 🌿💆‍♂️🌟  
+                <a href="https://forms.gle/JKyUYoqPYDMPpBCg7" target="_self" class="btn" style="margin-top: 1rem;">
+                    🌟 اطلع عليهما الآن
                 </a>
-            </section>
-    
-    
-    
-    
-    
-                        <section style="
-                        background-color: var(--background-dark); 
-                        padding: 1rem; 
-                        text-align: center; 
-                        border-radius: 0.75rem; 
-                        margin: 1.5rem auto; 
-                        max-width: 300px; 
-                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
-                        position: relative; 
-                        overflow: hidden; 
-                        border: 1px solid rgba(255, 255, 255, 0.1);">
-                        <h3 style="
-                            color: var(--text-light); 
-                            margin-bottom: 1rem; 
-                            font-size: 1rem; 
-                            font-weight: bold; 
-                            letter-spacing: 0.5px;">
-                            أو تواصل معنا عبر صفحاتنا
-                        </h3>
-                        <div style="
-                            display: flex; 
-                            flex-wrap: wrap; 
-                            justify-content: center; 
-                            gap: 0.5rem;">
-    
-    
-                            <!-- Instagram -->
-                            <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank" class="social-icon">
-                                <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" loading="lazy">
-                            </a>
-                           <!-- Facebook -->
-                            <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank" class="social-icon">
-                                <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" loading="lazy">
-                            </a>
-    
-                             <!-- TikTok -->
-                             <a href="https://www.tiktok.com/@s22market?_t=ZM-8sbJ7s4RWq6&_r=1" target="_blank" class="social-icon">
-                                <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" loading="lazy">
-                            </a>
-    
-                            <!-- Telegram -->
-                            <a href="https://t.me/S22MARKET" target="_blank" class="social-icon">
-                                <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" loading="lazy">
-                            </a>
-    
-                            <!-- Bot TELEGRAM -->
-                            <a href="http://t.me/THE_S22MARKET_BOT" target="_blank" class="social-icon">
-                                <img src="image/robot.png" alt="Bot" loading="lazy">
-                            </a>
-    
-    
-                        </div>
-                    </section>
-                    
-                    <style>
-                        .social-icons a {
-                            text-decoration: none;
-                            margin: 0 10px;
-                            font-size: 34px; /* تصغير حجم الأيقونات */
-                        }
-                    
-                        .social-icon {
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            width: 2.5rem;
-                            height: 2.5rem;
-                            transition: transform 0.3s ease, filter 0.3s ease;
-                        }
-                    
-                        .social-icon img {
-                            width: 2rem;
-                            height: 2rem;
-                            transition: transform 0.3s ease, filter 0.3s ease;
-                            filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4));
-                            border-radius: 50%;
-                        }
-                    
-                        .social-icon:hover img {
-                            transform: scale(1.25);
-                            filter: drop-shadow(0 0 8px var(--glow-color));
-                        }
-                    
-                        /* Glow colors for hover effects */
-                        .social-icon:nth-child(1) img {
-                            --glow-color: #E1306C; /* Instagram */
-                        }
-                        .social-icon:nth-child(2) img {
-                            --glow-color: #69C9D0; /* TikTok */
-                        }
-                        .social-icon:nth-child(3) img {
-                            --glow-color: #0088cc; /* Telegram */
-                        }
-                        .social-icon:nth-child(4) img {
-                            --glow-color: #1877F2; /* Facebook */
-                        }
-                        .social-icon:nth-child(5) img {
-                            --glow-color: #1DA1F2; /* Bot Telegram */
-                        }
-                    </style>
-                
-                    </div>
-        
-    
+
+                <div class="social-icons" style="margin-top: 1.5rem;">
+                    <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://t.me/S22MARKET" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="http://t.me/THE_S22MARKET_BOT" target="_blank"><i class="fas fa-robot"></i></a>
                 </div>
             </div>
-        </section>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-        
-            
-    <section id="khadamwriayasihiya" class="section"></section>
-    <h2 style="display: flex; justify-content: center;">
-        
-        🩺🚑🌿💆‍♂️🩹💉🩺 الرعاية الصحية وخدماتها  🩺💉🩹💆‍♂️🌿🚑🩺
-          </h2>
-    <div class="top-products">
-
-
-
-        
-            <!-- بطاقة المنتج الأولى -->
-            <div class="product-card">
-                <img src="image/AMINE.png" alt="لابتوب">
-               
-                <h3>🩺 ✂️ <span style="color: #FF5733;">دورة تعلم الخياطة الطبية والإسعافات الأولية</span> 🩹💉</h3>
-                <p>
-                    <span style="color: #2ECC71;">🔹 تعلم أساسيات الخياطة الطبية</span> بخطوات عملية مبسطة.<br>
-                    <span style="color: #3498DB;">🔹 اكتسب مهارات الإسعافات الأولية</span> لإنقاذ الأرواح في المواقف الحرجة.<br>
-                    <span style="color: #9B59B6;">🔹 بإشراف متخصصين</span> وبتقنيات حديثة.<br>
-                    <span style="color: #E74C3C;">🔹 سجل الآن</span> لتبدأ رحلتك في مجال الرعاية الصحية! ✨🩺
-                </p>
-                
-
-                <div>
-                    <section style="
-                    background-color: #f4f4f9; 
-                    padding: 1rem; 
-                    text-align: center; 
-                    border-radius: 0.75rem; 
-                    margin: 1.5rem auto; 
-                    max-width: 320px; 
-                    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); 
-                    position: relative; 
-                    border: 1px solid rgba(0, 0, 0, 0.1);">
-                    <h3 style="
-                        color: #2C3E50; 
-                        font-size: 1.2rem; 
-                        font-weight: bold; 
-                        margin-bottom: 0.8rem; 
-                        letter-spacing: 0.5px; 
-                        line-height: 1.4;">
-                        📚 دورة مفيدة في الخياطة الطبية والإسعافات الأولية 🩺💉🩹💊🩸
-                    </h3>
-                    <p style="
-                        color: #34495E; 
-                        font-size: 0.95rem; 
-                        margin-bottom: 1.2rem; 
-                        line-height: 1.5;">
-                        🇩🇿 انضم الآن إلى الدورة المقدمة من طرف أستاذ أمين 👨‍🏫، وتعلّم مهارات قيّمة في ولاية عنابة بالجزائر 🏙️.  
-                        الدورة تشمل: 💉 تعلم تقنيات الإسعاف الأولي 🩹 | 🧵 أساسيات الخياطة الطبية 🏥 | 🩺
-                    </p>
-                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSfzv4AOur018rrg4uxRJYT4Iv70rKFhR6ZPpWuy-9qE6ytn3g/viewform?usp=header" target="_self"
-                        style="
-                            display: inline-block; 
-                            background-color: #2980B9; 
-                            color: white; 
-                            padding: 0.8rem 1.8rem; 
-                            font-size: 1rem; 
-                            font-weight: bold; 
-                            border-radius: 50px; 
-                            text-decoration: none; 
-                            box-shadow: 0 8px 20px rgba(41, 128, 185, 0.4); 
-                            transition: transform 0.3s ease, background-color 0.3s ease;
-                            line-height: 1.4;">
-                        🌟 اطلع عليها الآن 🩺💉🩹
-                    </a>
-                </section>
-                
-
-                </div>
-
-
-
-
-
-                <section style="
-                background-color: var(--background-dark); 
-                padding: 1rem; 
-                text-align: center; 
-                border-radius: 0.75rem; 
-                margin: 1.5rem auto; 
-                max-width: 300px; 
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
-                position: relative; 
-                overflow: hidden; 
-                border: 1px solid rgba(255, 255, 255, 0.1);">
-                <h3 style="
-                    color: var(--text-light); 
-                    margin-bottom: 1rem; 
-                    font-size: 1rem; 
-                    font-weight: bold; 
-                    letter-spacing: 0.5px;">
-                    أو تواصل معنا عبر صفحاتنا
-                </h3>
-                <div style="
-                    display: flex; 
-                    flex-wrap: wrap; 
-                    justify-content: center; 
-                    gap: 0.5rem;">
-                  
-
-                  
-                        <!-- Instagram -->
-                        <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" loading="lazy">
-                        </a>
-                       <!-- Facebook -->
-                        <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" loading="lazy">
-                        </a>
-
-                         <!-- TikTok -->
-                         <a href="https://www.tiktok.com/@s22market?_t=ZM-8sbJ7s4RWq6&_r=1" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" loading="lazy">
-                        </a>
-
-                        <!-- Telegram -->
-                        <a href="https://t.me/S22MARKET" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" loading="lazy">
-                        </a>
-
-                        <!-- Bot TELEGRAM -->
-                        <a href="http://t.me/THE_S22MARKET_BOT" target="_blank" class="social-icon">
-                            <img src="image/robot.png" alt="Bot" loading="lazy">
-                        </a>
-
-                   
-                </div>
-            </section>
-            
-            <style>
-                .social-icons a {
-                    text-decoration: none;
-                    margin: 0 10px;
-                    font-size: 34px; /* تصغير حجم الأيقونات */
-                }
-            
-                .social-icon {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    width: 2.5rem;
-                    height: 2.5rem;
-                    transition: transform 0.3s ease, filter 0.3s ease;
-                }
-            
-                .social-icon img {
-                    width: 2rem;
-                    height: 2rem;
-                    transition: transform 0.3s ease, filter 0.3s ease;
-                    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4));
-                    border-radius: 50%;
-                }
-            
-                .social-icon:hover img {
-                    transform: scale(1.25);
-                    filter: drop-shadow(0 0 8px var(--glow-color));
-                }
-            
-                /* Glow colors for hover effects */
-                .social-icon:nth-child(1) img {
-                    --glow-color: #E1306C; /* Instagram */
-                }
-                .social-icon:nth-child(2) img {
-                    --glow-color: #69C9D0; /* TikTok */
-                }
-                .social-icon:nth-child(3) img {
-                    --glow-color: #0088cc; /* Telegram */
-                }
-                .social-icon:nth-child(4) img {
-                    --glow-color: #1877F2; /* Facebook */
-                }
-                .social-icon:nth-child(5) img {
-                    --glow-color: #1DA1F2; /* Bot Telegram */
-                }
-            </style>
-        
-            </div>
-
-            
-                 
-          
         </div>
     </section>
 
-
-    
-    
-    
-
-
-
-   
-
-
-    <section id="dawrataltawralthaanawii" class="section">
-        <h2> دورات الطور الثانوي</h2>
+    <!-- قسم الرعاية الصحية -->
+    <section id="khadamwriayasihiya" class="section">
+        <h2>🩺 الرعاية الصحية وخدماتها 🩺</h2>
         <div class="top-products">
-    
-
-
-        
-            <!-- بطاقة المنتج الأولى -->
-            <div class="product-card">
-                <img src="image/younesbacmathdawal500DA.jpg" alt="دورات الطور الثانوي">
-               
-                <h3>📚✨ <span style="color: #FF5733;">دروس خصوصية في مادة الرياضيات</span> ✨📚</h3>
+            <!-- يمكنك إضافة منتجات الرعاية الصحية هنا -->
+            <div class="product-card fade-in">
+                <img src="image/healthcare.jpg" alt="الرعاية الصحية">
+                <h3>خدمات الرعاية الصحية المتكاملة</h3>
                 <p>
-                    <span style="color: #2ECC71;">🔹 دورة شاملة</span> مصممة خصيصًا لمناهج <strong>الباك الجزائري</strong>.<br>
-                    <span style="color: #3498DB;">🔹 حل تمارين</span> وأسئلة متوقعة لتحقيق أفضل النتائج.<br>
-                    <span style="color: #9B59B6;">🔹 دراسة الدوال المعقدة</span> بأسلوب مبسط ومباشر.<br>
-                    <span style="color: #F1C40F;">🔹 هدفنا</span> أن تتخرج فاهمًا وواثقًا في قدراتك! 💪🧮<br>
-                    <span style="color: #E74C3C;">🔹 لا تفوت الفرصة</span>، سجل الآن وابدأ رحلتك نحو التفوق في الباك! 🚀✨
+                    نقدم مجموعة متكاملة من خدمات الرعاية الصحية التي تلبي جميع احتياجاتك.<br>
+                    <span style="color: #2ECC71;">🔹 استشارات طبية متخصصة</span><br>
+                    <span style="color: #3498DB;">🔹 جلسات علاجية</span><br>
+                    <span style="color: #9B59B6;">🔹 متابعة دورية</span><br>
+                    <span style="color: #E74C3C;">🔹 احجز الآن</span> واحصل على أفضل رعاية صحية!
                 </p>
                 
+                <a href="#" class="btn">تعرف على المزيد</a>
+                
+                <div class="social-icons" style="margin-top: 1.5rem;">
+                    <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://t.me/S22MARKET" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="http://t.me/THE_S22MARKET_BOT" target="_blank"><i class="fas fa-robot"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
 
+    <!-- قسم الطور الثانوي -->
+    <section id="dawrataltawralthaanawii" class="section">
+        <h2>دورات الطور الثانوي</h2>
+        <div class="top-products">
+            <div class="product-card fade-in">
+                <img src="image/younesbacmathdawal500DA.jpg" alt="دورات الطور الثانوي">
+                <h3>📚 دروس خصوصية في مادة الرياضيات ✨</h3>
+                <p>
+                    <span style="color: #2ECC71;">🔹 دورة شاملة</span> مصممة لمناهج الباك الجزائري.<br>
+                    <span style="color: #3498DB;">🔹 حل تمارين</span> وأسئلة متوقعة لتحقيق أفضل النتائج.<br>
+                    <span style="color: #9B59B6;">🔹 دراسة الدوال المعقدة</span> بأسلوب مبسط.<br>
+                    <span style="color: #E74C3C;">🔹 سجل الآن</span> وابدأ رحلتك نحو التفوق!
+                </p>
+                
                 <div class="social-icons">
                     <a href="https://www.facebook.com/profile.php?id=61569283967449&mibextid=ZbWKwL" target="_blank"><i class="fab fa-facebook"></i></a>
                     <a href="https://t.me/deikb" target="_blank"><i class="fab fa-telegram"></i></a>
                     <a href="tel:+0779778457"><i class="fas fa-phone"></i></a>
                 </div>
-                <section style="
-                background-color: var(--background-dark); 
-                padding: 1rem; 
-                text-align: center; 
-                border-radius: 0.75rem; 
-                margin: 1.5rem auto; 
-                max-width: 300px; 
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
-                position: relative; 
-                overflow: hidden; 
-                border: 1px solid rgba(255, 255, 255, 0.1);">
-                <h3 style="
-                    color: var(--text-light); 
-                    margin-bottom: 1rem; 
-                    font-size: 1rem; 
-                    font-weight: bold; 
-                    letter-spacing: 0.5px;">
-                    أو تواصل معنا عبر صفحاتنا
-                </h3>
-                <div style="
-                    display: flex; 
-                    flex-wrap: wrap; 
-                    justify-content: center; 
-                    gap: 0.5rem;">
-                  
-
-                  
-                        <!-- Instagram -->
-                        <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" loading="lazy">
-                        </a>
-                       <!-- Facebook -->
-                        <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" loading="lazy">
-                        </a>
-
-                         <!-- TikTok -->
-                         <a href="https://www.tiktok.com/@s22market?_t=ZM-8sbJ7s4RWq6&_r=1" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" loading="lazy">
-                        </a>
-
-                        <!-- Telegram -->
-                        <a href="https://t.me/S22MARKET" target="_blank" class="social-icon">
-                            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" loading="lazy">
-                        </a>
-
-                        <!-- Bot TELEGRAM -->
-                        <a href="http://t.me/THE_S22MARKET_BOT" target="_blank" class="social-icon">
-                            <img src="image/robot.png" alt="Bot" loading="lazy">
-                        </a>
-
-                   
-                </div>
-            </section>
-            
-            <style>
-                .social-icons a {
-                    text-decoration: none;
-                    margin: 0 10px;
-                    font-size: 34px; /* تصغير حجم الأيقونات */
-                }
-            
-                .social-icon {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    width: 2.5rem;
-                    height: 2.5rem;
-                    transition: transform 0.3s ease, filter 0.3s ease;
-                }
-            
-                .social-icon img {
-                    width: 2rem;
-                    height: 2rem;
-                    transition: transform 0.3s ease, filter 0.3s ease;
-                    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4));
-                    border-radius: 50%;
-                }
-            
-                .social-icon:hover img {
-                    transform: scale(1.25);
-                    filter: drop-shadow(0 0 8px var(--glow-color));
-                }
-            
-                /* Glow colors for hover effects */
-                .social-icon:nth-child(1) img {
-                    --glow-color: #E1306C; /* Instagram */
-                }
-                .social-icon:nth-child(2) img {
-                    --glow-color: #69C9D0; /* TikTok */
-                }
-                .social-icon:nth-child(3) img {
-                    --glow-color: #0088cc; /* Telegram */
-                }
-                .social-icon:nth-child(4) img {
-                    --glow-color: #1877F2; /* Facebook */
-                }
-                .social-icon:nth-child(5) img {
-                    --glow-color: #1DA1F2; /* Bot Telegram */
-                }
-            </style>
-        
             </div>
-
-
-        
-            
-
-                 
-          
         </div>
     </section>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-                <section id="realestate" class="section">
-                    <h2>العقارات  </h2>
-                    <div class="top-products">
+    <!-- قسم العقارات -->
+    <section id="realestate" class="section">
+        <h2>العقارات</h2>
+        <div class="top-products">
+            <div class="product-card fade-in">
+                <img src="image/agreement.jpg" alt="العقارات">
+                <h3>عروض عقارية متنوعة</h3>
+                <p>
+                    اكتشف مجموعة واسعة من العروض العقارية التي تناسب جميع الاحتياجات.<br>
+                    <span style="color: #2ECC71;">🔹 شراء الأراضي</span><br>
+                    <span style="color: #3498DB;">🔹 كراء المنازل</span><br>
+                    <span style="color: #9B59B6;">🔹 بيع العقارات</span><br>
+                    <span style="color: #E74C3C;">🔹 تواصل معنا</span> لمعرفة التفاصيل!
+                </p>
                 
-                
-                
-                        <!-- بطاقة المنتج الأولى -->
-                
-                            <div class="product-card">
-                                <img src="image/agreement.jpg" alt="العقارات">
-                                <h3>العقارات </h3>
-                                <p></p>
-                
-                                <section style="
-                                background-color: #f4f4f9; 
-                                padding: 1.5rem; 
-                                text-align: center; 
-                                border-radius: 0.75rem; 
-                                margin: 1.5rem auto; 
-                                max-width: 350px; 
-                                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-                                position: relative;
-                                border: 1px solid rgba(0, 0, 0, 0.1);">
-                                <h3 style="
-                                    color: #333; 
-                                    font-size: 1.2rem; 
-                                    font-weight: bold; 
-                                    margin-bottom: 1rem; 
-                                    letter-spacing: 0.5px;">
-                                    اكتشف عروضنا العقارية 🏘️🌍
-                                </h3>
-                                <p style="
-                                    color: #555; 
-                                    font-size: 0.9rem; 
-                                    margin-bottom: 1rem;">
-                                    شراء الأراضي 🏞️ | كراء المنازل 🏠 | بيع العقارات 🏢
-                                </p>
-                                <a href="#" target="_self"
-
-
-
-                                style="
-                                    display: inline-block; 
-                                    background-color: #FF6F61; 
-                                    color: white; 
-                                    padding: 0.8rem 1.5rem; 
-                                    font-size: 1rem; 
-                                    font-weight: bold; 
-                                    border-radius: 50px; 
-                                    text-decoration: none; 
-                                    box-shadow: 0 4px 10px rgba(255, 111, 97, 0.4); 
-                                    transition: transform 0.3s ease, background-color 0.3s ease;">
-
-                                    <strong>قريبا</strong>
-                                    🌍 انتقل إلى العروض الآن 🏡
-                                </a>
-                            </section>
-                            
-                            <style>
-                                a:hover {
-                                    background-color: #E65C50; /* لون داكن أثناء التمرير */
-                                    transform: scale(1.1); /* تكبير الزر أثناء التمرير */
-                                }
-                            
-                                /* تحسين النص العام */
-                                section h3, section p {
-                                    font-family: 'Arial', sans-serif;
-                                    text-align: center;
-                                }
-                            </style>
-                            
-            
-                
-                            </div>
-                        </div>
-                    </section>
-                
-                
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                <section style="background-color: #f4f4f9; padding: 1.5rem; text-align: center; border-radius: 0.75rem; margin: 1.5rem auto; max-width: 350px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
+                    <h3 style="color: #333; font-size: 1.2rem; margin-bottom: 1rem;">
+                        اكتشف عروضنا العقارية 🏘️
+                    </h3>
+                    <a href="#" class="btn">قريبًا 🌍</a>
+                </section>
+            </div>
         </div>
     </section>
 
-
-
-
-
-
-
-
-
-
-    <section id="qr-code">
-        <!-- QR start -->
+    <!-- قسم تحميل التطبيق -->
+    <section id="qr-code" class="section">
         <div class="qr-section">
             <h3>مسح رمز الاستجابة السريع لتحميل التطبيق</h3>
-            
-            <!-- رمز الاستجابة السريع أعلى الأزرار -->
             <img src="QR/QR.jpg" alt="QR Code" class="qr-code">
             
-            <!-- الأزرار -->
             <div class="button-container">
                 <a href="S22MARKET.apk" class="button" download>تحميل التطبيق مباشرة (APK)</a>
                 <a href="S22MARKET_app_site.html" class="button">تحميل التطبيق (APK)</a>
                 <a href="https://s22market.github.io/S22MARKET/" class="button" id="copyLinkButton">نسخ الرابط</a>
             </div>
             
-            <!-- نص أسفل الأزرار -->
             <div class="footer">
                 <p>لأي استفسارات، يرجى الاتصال بنا.</p>
             </div>
         </div>
-        <!-- QR section end -->
-    
-        <style>
-            .qr-section {
-                text-align: center;
-                padding: 10px; /* تقليل المسافة الداخلية */
-                max-width: 400px; /* تقليل العرض */
-                margin: 10px auto; /* تقليل المسافة الخارجية */
-            }
-    
-            .qr-section h3 {
-                font-size: 20px; /* تصغير الخط */
-                color: #333;
-                margin-bottom: 10px; /* تقليل المسافة السفلية */
-            }
-    
-            .qr-section .qr-code {
-                width: 200px; /* تصغير حجم الكود */
-                height: auto;
-                margin-bottom: 15px;
-            }
-    
-            .qr-section .button-container {
-                margin: 10px 0; /* تقليل المسافات */
-            }
-    
-            .qr-section .button {
-                display: inline-block;
-                padding: 8px 15px; /* تقليل الحواف */
-                margin: 3px; /* تقليل المسافة بين الأزرار */
-                font-size: 14px; /* تصغير الخط */
-                color: #fff;
-                background-color: #007bff;
-                text-decoration: none;
-                border-radius: 4px; /* تقليل الانحناء */
-                transition: background-color 0.3s;
-            }
-    
-            .qr-section .button:hover {
-                background-color: #0056b3;
-            }
-    
-            .qr-section .footer {
-                margin-top: 10px; /* تقليل المسافة العليا */
-                font-size: 12px; /* تصغير الخط */
-                color: #666;
-            }
-        </style>
-    
-        <script>
-            document.getElementById('copyLinkButton').addEventListener('click', function(event) {
-                event.preventDefault(); // منع إعادة التوجيه
-                const link = this.href; // الحصول على الرابط
-                navigator.clipboard.writeText(link) // نسخ الرابط إلى الحافظة
-                    .then(() => {
-                        alert('تم نسخ الرابط إلى الحافظة!');
-                    })
-                    .catch(() => {
-                        alert('حدث خطأ أثناء نسخ الرابط. يرجى المحاولة مرة أخرى.');
-                    });
-            });
-        </script>
     </section>
-    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <footer  id="footer" style="
-    background-color: var(--background-dark); 
-    color: var(--text-light); 
-    text-align: center; 
-    padding: 1.5rem; 
-    border-top: 1px solid rgba(255, 255, 255, 0.1); 
-    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.3);
-    position: relative;
-    overflow: hidden;">
-    <p style="margin: 0; font-size: 0.9rem; letter-spacing: 0.5px;">
-        &copy; 2024 S22MARKET. جميع الحقوق محفوظة.
-    </p>
-    <div class="footer-icons" style="
-        margin-top: 1rem; 
-        display: flex; 
-        justify-content: center; 
-        gap: 1rem;">
-
-
-         <a href="http://t.me/THE_S22MARKET_BOT" target="_blank" aria-label="Telegram Bot" class="footer-icon">
-            <i class="fas fa-robot"></i>
-        </a>
-
-
-        <a href="https://www.tiktok.com/@s22market?_t=ZM-8sbJ7s4RWq6&_r=1" target="_blank" aria-label="TikTok" class="footer-icon">
-            <i class="fab fa-tiktok"></i>
-        </a>
-      
-
-        <a href="https://t.me/S22MARKET" target="_blank" aria-label="Telegram" class="footer-icon">
-            <i class="fab fa-telegram"></i>
-        </a>
-
-        <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank" aria-label="Facebook" class="footer-icon">
-            <i class="fab fa-facebook"></i>
-        </a>
-
-        <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank" aria-label="Instagram" class="footer-icon">
-            <i class="fab fa-instagram"></i>
-        </a>
-        
-      
-
-
-
-
-    </div>
-</footer>
-
-<style>
-    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
-
-    .footer-icon {
-        color: var(--text-light);
-        font-size: 1.2rem;
-        transition: transform 0.3s ease, color 0.3s ease;
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        width: 2.5rem;
-        height: 2.5rem;
-        text-decoration: none;
-    }
-
-    .footer-icon:hover {
-        color: var(--hover-color);
-        transform: scale(1.2);
-    }
-
-    /* Glow colors for hover effects */
-    .footer-icon:nth-child(1) {
-        --hover-color: #E1306C; /* Instagram */
-    }
-    .footer-icon:nth-child(2) {
-        --hover-color: #1877F2; /* Facebook */
-    }
-    .footer-icon:nth-child(3) {
-        --hover-color: #0088cc; /* Telegram */
-    }
-    .footer-icon:nth-child(4) {
-        --hover-color: #69C9D0; /* TikTok */
-    }
-    .footer-icon:nth-child(5) {
-        --hover-color: #00C853; /* Bot */
-    }
-</style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <style>
-        footer {
-            text-align: center;
-            padding: 2rem;
-            background: var(--background-dark);
-            margin-top: 2rem;
-            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
-        }
-    
-        .footer-icons {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-    
-        .footer-icons a {
-            color: var(--primary-color);
-            font-size: 2rem;
-            transition: color 0.3s ease;
-        }
-    
-        .footer-icons a:hover {
-            color: var(--highlight-color);
-        }
-    </style>
-    
-
+    <!-- تذييل الصفحة -->
+    <footer id="footer">
+        <p>&copy; 2024 S22MARKET. جميع الحقوق محفوظة.</p>
+        <div class="footer-icons">
+            <a href="http://t.me/THE_S22MARKET_BOT" target="_blank" aria-label="Telegram Bot"><i class="fas fa-robot"></i></a>
+            <a href="https://www.tiktok.com/@s22market?_t=ZM-8sbJ7s4RWq6&_r=1" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+            <a href="https://t.me/S22MARKET" target="_blank" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+            <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        </div>
+    </footer>
 
     <script>
+        // تبديل القائمة للهواتف
+        const menuToggle = document.getElementById('menuToggle');
+        const mainMenu = document.getElementById('mainMenu');
+        
+        menuToggle.addEventListener('click', () => {
+            mainMenu.classList.toggle('active');
+            menuToggle.innerHTML = mainMenu.classList.contains('active') ? 
+                '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        });
+        
+        // إغلاق القائمة عند النقر على رابط
+        document.querySelectorAll('.menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 992) {
+                    mainMenu.classList.remove('active');
+                    menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                }
+            });
+        });
+        
+        // تبديل الوضع الداكن/الفاتح
         const themeToggle = document.getElementById('themeToggle');
         const root = document.documentElement;
-    
-        // وظيفة لضبط الوضع بناءً على التوقيت
+        
         const setThemeByTime = () => {
             const hour = new Date().getHours();
             if (hour >= 6 && hour < 18) {
-                // النهار
                 root.removeAttribute('data-theme');
-                themeToggle.innerHTML = '🌙 الوضع الداكن🌙';
+                themeToggle.innerHTML = '🌙 الوضع الداكن';
             } else {
-                // الليل
                 root.setAttribute('data-theme', 'dark');
-                themeToggle.innerHTML = '🌞 الوضع النهاري🌞';
+                themeToggle.innerHTML = '🌞 الوضع النهاري';
             }
         };
-    
-        // استدعاء الوظيفة عند التحميل
+        
         setThemeByTime();
-    
-        // السماح بتغيير الوضع يدويًا
+        
         themeToggle.addEventListener('click', () => {
             if (root.hasAttribute('data-theme')) {
                 root.removeAttribute('data-theme');
-                themeToggle.innerHTML = '🌙 الوضع الداكن🌙';
+                themeToggle.innerHTML = '🌙 الوضع الداكن';
             } else {
                 root.setAttribute('data-theme', 'dark');
-                themeToggle.innerHTML ='🌞 الوضع النهاري🌞';
+                themeToggle.innerHTML = '🌞 الوضع النهاري';
             }
         });
+        
+        // التمرير السلس
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // نسخ الرابط
+        document.getElementById('copyLinkButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            const link = this.href;
+            navigator.clipboard.writeText(link)
+                .then(() => {
+                    alert('تم نسخ الرابط إلى الحافظة!');
+                })
+                .catch(() => {
+                    alert('حدث خطأ أثناء نسخ الرابط. يرجى المحاولة مرة أخرى.');
+                });
+        });
+        
+        // تأثير التحميل التدريجي للعناصر
+        document.addEventListener('DOMContentLoaded', () => {
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            const fadeInOnScroll = () => {
+                fadeElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const windowHeight = window.innerHeight;
+                    
+                    if (elementTop < windowHeight - 100) {
+                        element.style.opacity = '1';
+                        element.style.transform = 'translateY(0)';
+                    }
+                });
+            };
+            
+            // تعيين الخصائص الأولية
+            fadeElements.forEach(element => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            });
+            
+            // تشغيل عند التحميل وعند التمرير
+            fadeInOnScroll();
+            window.addEventListener('scroll', fadeInOnScroll);
+        });
     </script>
-    
-    
 </body>
-
-
-
-
-
-
-
-
-
 </html>
+
 
 
 
@@ -2101,11 +890,15 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>إشعارات هامة</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
         }
         .custom-modal {
             display: flex;
@@ -2115,20 +908,26 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(255, 255, 255, 0.1);
             justify-content: center;
             align-items: center;
             padding: 10px;
+            box-sizing: border-box;
         }
         .custom-modal-content {
-            background-color: white;
-            padding: 20px;
+            background-color: #1a1a1a;
+            color: #fff;
+            padding: 15px;
             border-radius: 15px;
-            width: 90%;
+            width: 95%;
             max-width: 350px;
+            max-height: 90vh;
+            overflow-y: auto;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
             animation: fadeIn 0.3s ease-in-out;
+            box-sizing: border-box;
+            margin: 10px;
         }
         .custom-button {
             padding: 10px;
@@ -2138,6 +937,9 @@
             cursor: pointer;
             border: none;
             transition: background 0.3s, transform 0.2s;
+            width: 100%;
+            margin: 5px 0;
+            box-sizing: border-box;
         }
         .btn-close {
             background-color: #d9534f;
@@ -2147,6 +949,37 @@
             background-color: #c9302c;
             transform: scale(1.05);
         }
+        h1 {
+            font-size: 1.3rem;
+            margin-top: 0;
+        }
+        p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 480px) {
+            .custom-modal-content {
+                padding: 12px;
+                width: 98%;
+            }
+            h1 {
+                font-size: 1.2rem;
+            }
+            p {
+                font-size: 0.85rem;
+            }
+            .custom-button {
+                padding: 8px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -2154,53 +987,34 @@
     <!-- إشعار سورة الكهف -->
     <div id="kahfModal" class="custom-modal" style="display: none;">
         <div class="custom-modal-content">
-            <h1> فضل سورة الكهف </h1>
+            <h1>فضل سورة الكهف</h1>
             <p>من قرأ سورةَ ( الكهفِ ) في يومِ الجمعةِ أضاء له من النورِ ما بين الجمُعَتَين
               الراوي : أبو سعيد الخدري | المحدث : الألباني | المصدر : صحيح الترغيب | الصفحة أو الرقم : 736 | خلاصة حكم المحدث : صحيح | التخريج : أخرجه البيهقي (6209) واللفظ له، وأخرجه الحاكم (3392) باختلاف يسير</p>
            
-
-
-
-
             <button onclick="window.location.href='سورة الكهف مكتوبة.html'" class="custom-button">انتقل إليها الآن</button>
-           <br><br>
-           <button class="custom-button btn-close" onclick="closeModal('kahfModal')">إغلاق</button>
+            <button class="custom-button btn-close" onclick="closeModal('kahfModal')">إغلاق</button>
         </div>
     </div>
     
     <!-- إشعار صلاة الجمعة -->
     <div id="jumaaModal" class="custom-modal" style="display: none;">
         <div class="custom-modal-content">
-            <h1> فضل صلاة الجمعة </h1>
+            <h1>فضل صلاة الجمعة</h1>
             <audio id="jumaaAudio">
                 <source src="SALAT JOMOAA/JOMAA.mp3" type="audio/mpeg">
                 متصفحك لا يدعم تشغيل الصوت.
             </audio>
 
-
-
-
-            <p>
-            
-من غسَّلَ يومَ الجمعةِ واغتسلَ ثمَّ بَكَّرَ وابتَكرَ ومشى ولم يرْكب ودنا منَ الإمامِ فاستمعَ ولم يلغُ كانَ لَهُ بِكلِّ خطوةٍ عملُ سنةٍ أجرُ صيامِها وقيامِها
-الراوي : أوس بن أبي أوس وقيل أوس بن أوس والد عمرو | المحدث : الألباني | المصدر : صحيح أبي داود
-الصفحة أو الرقم: 345 | خلاصة حكم المحدث : صحيح
-
-</p>
-       
-
-              الصَّلَوَاتُ الخَمْسُ، وَالْجُمْعَةُ إلى الجُمْعَةِ، وَرَمَضَانُ إلى رَمَضَانَ، مُكَفِّرَاتٌ ما بيْنَهُنَّ إِذَا اجْتَنَبَ الكَبَائِرَ.
-  الراوي : أبو هريرة | المحدث : مسلم | المصدر : صحيح مسلم
-  الصفحة أو الرقم: 233 | خلاصة حكم المحدث : [صحيح]
-  </p>
-
+            <p>من غسَّلَ يومَ الجمعةِ واغتسلَ ثمَّ بَكَّرَ وابتَكرَ ومشى ولم يرْكب ودنا منَ الإمامِ فاستمعَ ولم يلغُ كانَ لَهُ بِكلِّ خطوةٍ عملُ سنةٍ أجرُ صيامِها وقيامِها
+            الراوي : أوس بن أبي أوس وقيل أوس بن أوس والد عمرو | المحدث : الألباني | المصدر : صحيح أبي داود
+            الصفحة أو الرقم: 345 | خلاصة حكم المحدث : صحيح</p>
+           
+            <p>الصَّلَوَاتُ الخَمْسُ، وَالْجُمْعَةُ إلى الجُمْعَةِ، وَرَمَضَانُ إلى رَمَضَانَ، مُكَفِّرَاتٌ ما بيْنَهُنَّ إِذَا اجْتَنَبَ الكَبَائِرَ.
+            الراوي : أبو هريرة | المحدث : مسلم | المصدر : صحيح مسلم
+            الصفحة أو الرقم: 233 | خلاصة حكم المحدث : [صحيح]</p>
 
             <p>قال رسول الله ﷺ: "أفضلُ يومٍ طلعتْ فيه الشمسُ يومُ الجمعةِ، فيه خُلِقَ آدمُ، وفيه أُدخلَ الجنةَ، وفيه أُخرجَ منها"
-              .   [صحيح] - [رواه مسلم] - [صحيح مسلم - 854]
-            </p>
-
-
-        
+            . [صحيح] - [رواه مسلم] - [صحيح مسلم - 854]</p>
 
             <button class="custom-button btn-close" onclick="closeModal('jumaaModal')">إغلاق</button>
         </div>
@@ -2209,251 +1023,75 @@
     <!-- الإشعار العام -->
     <div id="generalModal" class="custom-modal" style="display: none;">
         <div class="custom-modal-content">
-            
-        
-            <h1>S22MARKET</h1>
-            <p>يمنع التسجيل او يلغى  وقد يحذف   الذي يكون   يوم الجمعة من الساعة 11:00 الى الساعة 14:00   وقد لا يتم التواصل مع صاحبه وشكرا لكم </p>
+            <h1>⚡ أَدَاة عِلْم ⚡</h1>
             <p>نحن نعمل باستمرار على تطوير وتحسين موقعنا لنقدم لك أفضل تجربة ممكنة.</p>
-            <p>المزيد قادم  والتحديثات يومية ان شاء الله </p>
+            <p>المزيد قادم والتحديثات يومية ان شاء الله</p>
             <button class="custom-button btn-close" onclick="closeModal('generalModal')">إغلاق</button>
         </div>
     </div>
-    
+
     <script>
-      function closeModal(modalId) {
-          document.getElementById(modalId).style.display = "none";
-      }
-  
-      function showModals() {
-          let today = new Date();
-          let dayOfWeek = today.getDay();
-          let hours = today.getHours();
-  
-          // ✅ عرض الإشعار العام فورًا
-          document.getElementById("generalModal").style.display = "flex";
-  
-          if (dayOfWeek === 5) { // الجمعة فقط
-              document.getElementById("kahfModal").style.display = "flex"; // إشعار سورة الكهف
-  
-              if (hours < 14) { // قبل 14:00 فقط
-                  document.getElementById("jumaaModal").style.display = "flex"; // إشعار صلاة الجمعة
-                  
-                  let audio = document.getElementById("jumaaAudio");
-                  if (audio && !audio.dataset.played) { // تشغيل الصوت عند ظهور الإشعار
-                      let playAudio = () => {
-                          audio.play().then(() => {
-                              audio.dataset.played = "true"; // منع التكرار
-                              console.log("تم تشغيل صوت صلاة الجمعة.");
-                          }).catch(error => console.log("تشغيل الصوت يتطلب تفاعل المستخدم", error));
-                      };
-  
-                      if (document.hasFocus()) {
-                          playAudio();
-                      } else {
-                          document.addEventListener("click", playAudio, { once: true });
-                          document.addEventListener("touchstart", playAudio, { once: true });
-                      }
-  
-                      audio.onended = function () {
-                          console.log("انتهى تشغيل ملف الصوت.");
-                      };
-                  }
-              }
-          }
-      }
-  
-      document.addEventListener("DOMContentLoaded", function() {
-          let today = new Date();
-          let dayOfWeek = today.getDay();
-          let hours = today.getHours();
-  
-          if (dayOfWeek === 5 && hours < 14) { // تشغيل الصوت فقط يوم الجمعة قبل 14:00
-              let audio = document.getElementById("jumaaAudio");
-              if (audio) {
-                  document.body.addEventListener("click", function() {
-                      if (audio.paused) {
-                          audio.play().catch(error => console.log("تشغيل الصوت يتطلب تفاعل المستخدم", error));
-                      }
-                  }, { once: true });
-              }
-          }
-      });
-  
-      // ✅ تشغيل `showModals` دائمًا لإظهار الإشعار العام مباشرةً
-      window.onload = showModals;
-  </script>
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+    
+        function showModals() {
+            let today = new Date();
+            let dayOfWeek = today.getDay();
+            let hours = today.getHours();
+    
+            // ✅ عرض الإشعار العام فورًا
+            document.getElementById("generalModal").style.display = "flex";
+    
+            if (dayOfWeek === 5) { // الجمعة فقط
+                document.getElementById("kahfModal").style.display = "flex"; // إشعار سورة الكهف
+    
+                if (hours < 14) { // قبل 14:00 فقط
+                    document.getElementById("jumaaModal").style.display = "flex"; // إشعار صلاة الجمعة
+                    
+                    let audio = document.getElementById("jumaaAudio");
+                    if (audio && !audio.dataset.played) { // تشغيل الصوت عند ظهور الإشعار
+                        let playAudio = () => {
+                            audio.play().then(() => {
+                                audio.dataset.played = "true"; // منع التكرار
+                                console.log("تم تشغيل صوت صلاة الجمعة.");
+                            }).catch(error => console.log("تشغيل الصوت يتطلب تفاعل المستخدم", error));
+                        };
+    
+                        if (document.hasFocus()) {
+                            playAudio();
+                        } else {
+                            document.addEventListener("click", playAudio, { once: true });
+                            document.addEventListener("touchstart", playAudio, { once: true });
+                        }
+    
+                        audio.onended = function () {
+                            console.log("انتهى تشغيل ملف الصوت.");
+                        };
+                    }
+                }
+            }
+        }
+    
+        document.addEventListener("DOMContentLoaded", function() {
+            let today = new Date();
+            let dayOfWeek = today.getDay();
+            let hours = today.getHours();
+    
+            if (dayOfWeek === 5 && hours < 14) { // تشغيل الصوت فقط يوم الجمعة قبل 14:00
+                let audio = document.getElementById("jumaaAudio");
+                if (audio) {
+                    document.body.addEventListener("click", function() {
+                        if (audio.paused) {
+                            audio.play().catch(error => console.log("تشغيل الصوت يتطلب تفاعل المستخدم", error));
+                        }
+                    }, { once: true });
+                }
+            }
+        });
+    
+        // ✅ تشغيل `showModals` دائمًا لإظهار الإشعار العام مباشرةً
+        window.onload = showModals;
+    </script>
+</body>
+</html>
