@@ -868,169 +868,316 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>إشعارات هامة</title>
+    <title>إشعارات هامة | S22MARKET</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #4caf50;
+            --secondary-color: #81c784;
+            --background-dark: #121212;
+            --text-light: #ffffff;
+            --highlight-color: #03dac5;
+            --danger-color: #ff5722;
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="light"] {
+            --background-dark: #ffffff;
+            --text-light: #000000;
+            --primary-color: #4caf50;
+            --highlight-color: #ff5722;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #000;
-            color: #fff;
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-dark);
+            color: var(--text-light);
             margin: 0;
             padding: 0;
+            line-height: 1.6;
         }
+
         .custom-modal {
             display: flex;
             position: fixed;
-            z-index: 1000;
+            z-index: 10000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(0, 0, 0, 0.7);
             justify-content: center;
             align-items: center;
             padding: 10px;
             box-sizing: border-box;
+            backdrop-filter: blur(5px);
         }
+
         .custom-modal-content {
-            background-color: #1a1a1a;
-            color: #fff;
-            padding: 15px;
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            padding: 20px;
             border-radius: 15px;
             width: 95%;
-            max-width: 350px;
+            max-width: 400px;
             max-height: 90vh;
             overflow-y: auto;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
-            animation: fadeIn 0.3s ease-in-out;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.4s ease-out;
             box-sizing: border-box;
             margin: 10px;
+            border: 1px solid var(--primary-color);
+            position: relative;
         }
+
+        .modal-header {
+            position: relative;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--primary-color);
+        }
+
+        .modal-header h1 {
+            font-size: 1.4rem;
+            margin: 0;
+            color: var(--highlight-color);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .modal-body p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .modal-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         .custom-button {
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 1rem;
             text-align: center;
             cursor: pointer;
             border: none;
-            transition: background 0.3s, transform 0.2s;
+            transition: all var(--transition-speed);
             width: 100%;
-            margin: 5px 0;
             box-sizing: border-box;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        .btn-close {
-            background-color: #d9534f;
+
+        .btn-primary {
+            background-color: var(--primary-color);
             color: white;
         }
+
+        .btn-primary:hover {
+            background-color: var(--highlight-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-close {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
         .btn-close:hover {
-            background-color: #c9302c;
-            transform: scale(1.05);
+            background-color: #e53935;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        h1 {
-            font-size: 1.3rem;
-            margin-top: 0;
+
+        .audio-control {
+            margin: 15px 0;
+            width: 100%;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.2);
         }
-        p {
-            font-size: 0.9rem;
-            line-height: 1.5;
-            margin-bottom: 15px;
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
         }
-        
+
+        .close-btn:hover {
+            opacity: 1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            background-color: var(--highlight-color);
+            color: #000;
+            margin-right: 5px;
+        }
+
         @media (max-width: 480px) {
             .custom-modal-content {
-                padding: 12px;
+                padding: 15px;
                 width: 98%;
             }
-            h1 {
+            
+            .modal-header h1 {
                 font-size: 1.2rem;
             }
-            p {
+            
+            .modal-body p {
                 font-size: 0.85rem;
             }
+            
             .custom-button {
-                padding: 8px;
+                padding: 10px;
                 font-size: 0.9rem;
             }
         }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* تحسينات الوضع الداكن/الفاتح */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 9999;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-speed);
+        }
+
+        .theme-toggle:hover {
+            background: var(--highlight-color);
+            transform: scale(1.1);
         }
     </style>
 </head>
 <body>
 
+    
     <!-- إشعار سورة الكهف -->
     <div id="kahfModal" class="custom-modal" style="display: none;">
         <div class="custom-modal-content">
-            <h1>فضل سورة الكهف</h1>
-            <p>من قرأ سورةَ ( الكهفِ ) في يومِ الجمعةِ أضاء له من النورِ ما بين الجمُعَتَين
-              الراوي : أبو سعيد الخدري | المحدث : الألباني | المصدر : صحيح الترغيب | الصفحة أو الرقم : 736 | خلاصة حكم المحدث : صحيح | التخريج : أخرجه البيهقي (6209) واللفظ له، وأخرجه الحاكم (3392) باختلاف يسير</p>
-           
-            <button onclick="window.location.href='سورة الكهف مكتوبة.html'" class="custom-button">انتقل إليها الآن</button>
-            <button class="custom-button btn-close" onclick="closeModal('kahfModal')">إغلاق</button>
+            <button class="close-btn" onclick="closeModal('kahfModal')">✕</button>
+            <div class="modal-header">
+                <h1><i class="fas fa-book-quran"></i> فضل سورة الكهف</h1>
+            </div>
+            <div class="modal-body">
+                <p><span class="badge">حديث صحيح</span> من قرأ سورةَ ( الكهفِ ) في يومِ الجمعةِ أضاء له من النورِ ما بين الجمُعَتَين</p>
+                <p style="color: var(--highlight-color); font-size: 0.8rem;">الراوي: أبو سعيد الخدري | المحدث: الألباني | المصدر: صحيح الترغيب</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="window.location.href='سورة الكهف مكتوبة.html'" class="custom-button btn-primary">
+                    <i class="fas fa-external-link-alt"></i> انتقل إليها الآن
+                </button>
+                <button class="custom-button btn-close" onclick="closeModal('kahfModal')">
+                    <i class="fas fa-times"></i> إغلاق
+                </button>
+            </div>
         </div>
     </div>
     
     <!-- إشعار صلاة الجمعة -->
     <div id="jumaaModal" class="custom-modal" style="display: none;">
         <div class="custom-modal-content">
-            <h1>فضل صلاة الجمعة</h1>
-            <audio id="jumaaAudio">
-                <source src="SALAT JOMOAA/JOMAA.mp3" type="audio/mpeg">
-                متصفحك لا يدعم تشغيل الصوت.
-            </audio>
+            <button class="close-btn" onclick="closeModal('jumaaModal')">✕</button>
+            <div class="modal-header">
+                <h1><i class="fas fa-mosque"></i> فضل صلاة الجمعة</h1>
+            </div>
+            <div class="modal-body">
+                <audio id="jumaaAudio" controls class="audio-control">
+                    <source src="SALAT JOMOAA/JOMAA.mp3" type="audio/mpeg">
+                    متصفحك لا يدعم تشغيل الصوت.
+                </audio>
 
-            <p>من غسَّلَ يومَ الجمعةِ واغتسلَ ثمَّ بَكَّرَ وابتَكرَ ومشى ولم يرْكب ودنا منَ الإمامِ فاستمعَ ولم يلغُ كانَ لَهُ بِكلِّ خطوةٍ عملُ سنةٍ أجرُ صيامِها وقيامِها
-            الراوي : أوس بن أبي أوس وقيل أوس بن أوس والد عمرو | المحدث : الألباني | المصدر : صحيح أبي داود
-            الصفحة أو الرقم: 345 | خلاصة حكم المحدث : صحيح</p>
-           
-            <p>الصَّلَوَاتُ الخَمْسُ، وَالْجُمْعَةُ إلى الجُمْعَةِ، وَرَمَضَانُ إلى رَمَضَانَ، مُكَفِّرَاتٌ ما بيْنَهُنَّ إِذَا اجْتَنَبَ الكَبَائِرَ.
-            الراوي : أبو هريرة | المحدث : مسلم | المصدر : صحيح مسلم
-            الصفحة أو الرقم: 233 | خلاصة حكم المحدث : [صحيح]</p>
+                <p><span class="badge">حديث صحيح</span> من غسَّلَ يومَ الجمعةِ واغتسلَ ثمَّ بَكَّرَ وابتَكرَ ومشى ولم يرْكب ودنا منَ الإمامِ فاستمعَ ولم يلغُ كانَ لَهُ بِكلِّ خطوةٍ عملُ سنةٍ أجرُ صيامِها وقيامِها</p>
+                <p style="color: var(--highlight-color); font-size: 0.8rem;">الراوي: أوس بن أبي أوس | المحدث: الألباني | المصدر: صحيح أبي داود</p>
+                
+                <p><span class="badge">حديث صحيح</span> الصَّلَوَاتُ الخَمْسُ، وَالْجُمْعَةُ إلى الجُمْعَةِ، وَرَمَضَانُ إلى رَمَضَانَ، مُكَفِّرَاتٌ ما بيْنَهُنَّ إِذَا اجْتَنَبَ الكَبَائِرَ.</p>
+                <p style="color: var(--highlight-color); font-size: 0.8rem;">الراوي: أبو هريرة | المحدث: مسلم | المصدر: صحيح مسلم</p>
 
-            <p>قال رسول الله ﷺ: "أفضلُ يومٍ طلعتْ فيه الشمسُ يومُ الجمعةِ، فيه خُلِقَ آدمُ، وفيه أُدخلَ الجنةَ، وفيه أُخرجَ منها"
-            . [صحيح] - [رواه مسلم] - [صحيح مسلم - 854]</p>
-
-            <button class="custom-button btn-close" onclick="closeModal('jumaaModal')">إغلاق</button>
+                <p><span class="badge">حديث صحيح</span> قال رسول الله ﷺ: "أفضلُ يومٍ طلعتْ فيه الشمسُ يومُ الجمعةِ، فيه خُلِقَ آدمُ، وفيه أُدخلَ الجنةَ، وفيه أُخرجَ منها"</p>
+                <p style="color: var(--highlight-color); font-size: 0.8rem;">[صحيح مسلم]</p>
+            </div>
+            <div class="modal-footer">
+                <button class="custom-button btn-close" onclick="closeModal('jumaaModal')">
+                    <i class="fas fa-times"></i> إغلاق
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- الإشعار العام -->
     <div id="generalModal" class="custom-modal" style="display: none;">
         <div class="custom-modal-content">
-            <h1>⚡ أَدَاة عِلْم ⚡</h1>
-            <p>نحن نعمل باستمرار على تطوير وتحسين موقعنا لنقدم لك أفضل تجربة ممكنة.</p>
-            <p>المزيد قادم والتحديثات يومية ان شاء الله</p>
-            <button class="custom-button btn-close" onclick="closeModal('generalModal')">إغلاق</button>
+            <button class="close-btn" onclick="closeModal('generalModal')">✕</button>
+            <div class="modal-header">
+                <h1><i class="fas fa-bell"></i> إشعار هام</h1>
+            </div>
+            <div class="modal-body">
+                <p>مرحبًا بك في <span style="color: var(--highlight-color);">S22MARKET</span></p>
+                <p>نحن نعمل باستمرار على تطوير وتحسين موقعنا لنقدم لك أفضل تجربة ممكنة.</p>
+                <p>المزيد من الميزات والتحديثات قادمة إن شاء الله</p>
+            </div>
+            <div class="modal-footer">
+                <button class="custom-button btn-primary" onclick="window.location.href='https://s22market.github.io/S22MARKET/'">
+                    <i class="fas fa-home"></i> الانتقال للصفحة الرئيسية
+                </button>
+                <button class="custom-button btn-close" onclick="closeModal('generalModal')">
+                    <i class="fas fa-times"></i> إغلاق
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
+      
+      
+        
+        // تعيين الوضع الأولي
+        setThemeByTime();
+
+        // إدارة الإشعارات
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = "none";
         }
@@ -1040,21 +1187,21 @@
             let dayOfWeek = today.getDay();
             let hours = today.getHours();
     
-            // ✅ عرض الإشعار العام فورًا
+            // عرض الإشعار العام فورًا
             document.getElementById("generalModal").style.display = "flex";
     
             if (dayOfWeek === 5) { // الجمعة فقط
-                document.getElementById("kahfModal").style.display = "flex"; // إشعار سورة الكهف
+                document.getElementById("kahfModal").style.display = "flex";
     
                 if (hours < 14) { // قبل 14:00 فقط
-                    document.getElementById("jumaaModal").style.display = "flex"; // إشعار صلاة الجمعة
+                    document.getElementById("jumaaModal").style.display = "flex";
                     
                     let audio = document.getElementById("jumaaAudio");
-                    if (audio && !audio.dataset.played) { // تشغيل الصوت عند ظهور الإشعار
+                    if (audio && !audio.dataset.played) {
                         let playAudio = () => {
+                            audio.volume = 0.5; // تخفيض الصوت لتجربة أفضل
                             audio.play().then(() => {
-                                audio.dataset.played = "true"; // منع التكرار
-                                console.log("تم تشغيل صوت صلاة الجمعة.");
+                                audio.dataset.played = "true";
                             }).catch(error => console.log("تشغيل الصوت يتطلب تفاعل المستخدم", error));
                         };
     
@@ -1064,25 +1211,23 @@
                             document.addEventListener("click", playAudio, { once: true });
                             document.addEventListener("touchstart", playAudio, { once: true });
                         }
-    
-                        audio.onended = function () {
-                            console.log("انتهى تشغيل ملف الصوت.");
-                        };
                     }
                 }
             }
         }
     
+        // تشغيل الصوت عند التفاعل يوم الجمعة
         document.addEventListener("DOMContentLoaded", function() {
             let today = new Date();
             let dayOfWeek = today.getDay();
             let hours = today.getHours();
     
-            if (dayOfWeek === 5 && hours < 14) { // تشغيل الصوت فقط يوم الجمعة قبل 14:00
+            if (dayOfWeek === 5 && hours < 14) {
                 let audio = document.getElementById("jumaaAudio");
                 if (audio) {
                     document.body.addEventListener("click", function() {
                         if (audio.paused) {
+                            audio.volume = 0.5;
                             audio.play().catch(error => console.log("تشغيل الصوت يتطلب تفاعل المستخدم", error));
                         }
                     }, { once: true });
@@ -1090,8 +1235,19 @@
             }
         });
     
-        // ✅ تشغيل `showModals` دائمًا لإظهار الإشعار العام مباشرةً
-        window.onload = showModals;
+        // عرض الإشعارات عند تحميل الصفحة
+        window.onload = function() {
+            setTimeout(showModals, 1000); // تأخير بسيط لتحسين تجربة المستخدم
+        };
+
+        // إغلاق النافذة عند النقر خارج المحتوى
+        document.querySelectorAll('.custom-modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                }
+            });
+        });
     </script>
 </body>
 </html>
