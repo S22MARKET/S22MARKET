@@ -11,8 +11,9 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         .preview-container {
-            width: 150px;
-            height: 150px;
+            width: 100%;
+            padding-top: 100%; /* 1:1 Aspect Ratio */
+            position: relative;
             border: 2px dashed #d1d5db;
             border-radius: 0.5rem;
             display: flex;
@@ -22,10 +23,18 @@
             cursor: pointer;
             overflow: hidden;
         }
-        .preview-container img {
+        .preview-container img, .preview-container span {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+         .preview-container span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
@@ -33,36 +42,36 @@
 
     <header class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-gray-800">إضافة منتج جديد</h1>
-            <a href="profile.html" class="text-gray-600 hover:text-indigo-600 mx-2">العودة للملف الشخصي</a>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">إضافة منتج جديد</h1>
+            <a href="profile.html" class="text-sm sm:text-base text-gray-600 hover:text-indigo-600 mx-2">العودة للملف الشخصي</a>
         </div>
     </header>
 
-    <main class="max-w-2xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        <div class="bg-white p-8 rounded-2xl shadow-md">
+    <main class="max-w-2xl mx-auto py-6 sm:py-10 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-md">
             <form id="add-product-form" class="space-y-6">
 
                 <div>
                     <label for="product-name" class="block text-sm font-medium text-gray-700">اسم المنتج</label>
-                    <input type="text" id="product-name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                    <input type="text" id="product-name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
 
                 <div>
                     <label for="product-description" class="block text-sm font-medium text-gray-700">وصف المنتج</label>
-                    <textarea id="product-description" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></textarea>
+                    <textarea id="product-description" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"></textarea>
                 </div>
 
                 <div>
                     <label for="product-price" class="block text-sm font-medium text-gray-700">السعر (د.ج)</label>
-                    <input type="number" id="product-price" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                    <input type="number" id="product-price" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">صورة المنتج</label>
                     <div class="mt-2">
-                        <input type="file" id="product-image-input" accept="image/*" class="hidden">
+                        <input type="file" id="product-image-input" accept="image/*" class="hidden" required>
                         <div id="image-preview-container" class="preview-container">
-                            <span class="text-gray-500">اختر صورة</span>
+                            <span class="text-gray-500 text-center p-4">انقر هنا لاختيار صورة</span>
                         </div>
                     </div>
                     <div id="upload-progress-container" class="w-full bg-gray-200 rounded-full h-2.5 mt-2 hidden">
@@ -71,7 +80,7 @@
                 </div>
 
                 <div class="pt-4">
-                    <button type="submit" id="submit-button" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                    <button type="submit" id="submit-button" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         إضافة المنتج
                     </button>
                     <div id="form-spinner" class="text-center hidden mt-2">
@@ -119,7 +128,6 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                // Fetch seller name
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists()) {
                     sellerName = userDoc.data().fullName;
@@ -188,7 +196,8 @@
                                 imagePath: filePath,
                                 sellerId: currentUser.uid,
                                 sellerName: sellerName,
-                                status: 'pending', // Product status is pending for admin review
+                                status: 'pending', 
+                                isSold: false, // Default to not sold
                                 createdAt: serverTimestamp()
                             });
                             alert("تمت إضافة المنتج بنجاح! سيتم مراجعته من قبل الإدارة.");

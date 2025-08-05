@@ -9,17 +9,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .hidden {
-            display: none;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .hidden { display: none; }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 m-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 sm:p-8 m-4">
 
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold text-gray-800">S22<span class="text-indigo-600">MARKET</span></h1>
@@ -30,6 +26,7 @@
             <span class="font-medium"></span> <span id="alert-text"></span>
         </div>
 
+        <!-- Login Form -->
         <form id="login-form" class="space-y-6">
             <div>
                 <label for="login-email" class="block text-sm font-medium text-gray-700">البريد الإلكتروني</label>
@@ -43,12 +40,13 @@
                 <a href="#" id="forgot-password" class="text-sm text-indigo-600 hover:text-indigo-500">هل نسيت كلمة المرور؟</a>
             </div>
             <div>
-                <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <button type="submit" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     تسجيل الدخول
                 </button>
             </div>
         </form>
 
+        <!-- Register Form -->
         <form id="register-form" class="hidden space-y-4">
             <div>
                 <label for="register-name" class="block text-sm font-medium text-gray-700">الاسم الكامل</label>
@@ -66,16 +64,9 @@
                 <label for="register-password" class="block text-sm font-medium text-gray-700">كلمة المرور</label>
                 <input type="password" id="register-password" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
+            <!-- Role selection is removed. It will be 'both' by default. -->
             <div>
-                <label for="user-role" class="block text-sm font-medium text-gray-700">أنا أريد أن أكون</label>
-                <select id="user-role" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    <option value="buyer">مشتري</option>
-                    <option value="seller">تاجر</option>
-                    <option value="both">كلاهما</option>
-                </select>
-            </div>
-            <div>
-                <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <button type="submit" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     إنشاء حساب
                 </button>
             </div>
@@ -170,8 +161,7 @@
             const email = document.getElementById('register-email').value;
             const phone = document.getElementById('register-phone').value;
             const password = document.getElementById('register-password').value;
-            const role = document.getElementById('user-role').value;
-
+            
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
@@ -181,10 +171,11 @@
                     fullName: name,
                     email: email,
                     phone: phone,
-                    role: role,
+                    role: 'both', // <-- Role is now 'both' by default
                     isVerified: false,
                     adminRating: 0,
-                    isAdmin: false, // Default user is not an admin
+                    isAdmin: false,
+                    deletionRequested: false,
                     createdAt: new Date()
                 });
 
@@ -223,10 +214,11 @@
                         fullName: user.displayName,
                         email: user.email,
                         phone: user.phoneNumber || '',
-                        role: 'buyer', // Default role for Google sign-in
+                        role: 'both', // <-- Role is now 'both' by default
                         isVerified: false,
                         adminRating: 0,
                         isAdmin: false,
+                        deletionRequested: false,
                         createdAt: new Date()
                     });
                 }
@@ -267,7 +259,6 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // If the user is already logged in, redirect to the profile page
                  window.location.href = 'profile.html';
             }
         });
