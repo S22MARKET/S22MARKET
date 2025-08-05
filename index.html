@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الدخول / إنشاء حساب - S22MARKET</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -22,19 +20,16 @@
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
     <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 m-4">
-        
-        <!-- شعار المنصة -->
+
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold text-gray-800">S22<span class="text-indigo-600">MARKET</span></h1>
             <p id="form-title" class="text-gray-500 mt-2">قم بتسجيل الدخول للمتابعة</p>
         </div>
 
-        <!-- رسائل التنبيه -->
         <div id="alert-message" class="hidden p-4 mb-4 text-sm rounded-lg" role="alert">
             <span class="font-medium"></span> <span id="alert-text"></span>
         </div>
 
-        <!-- نموذج تسجيل الدخول -->
         <form id="login-form" class="space-y-6">
             <div>
                 <label for="login-email" class="block text-sm font-medium text-gray-700">البريد الإلكتروني</label>
@@ -54,7 +49,6 @@
             </div>
         </form>
 
-        <!-- نموذج إنشاء حساب جديد -->
         <form id="register-form" class="hidden space-y-4">
             <div>
                 <label for="register-name" class="block text-sm font-medium text-gray-700">الاسم الكامل</label>
@@ -87,7 +81,6 @@
             </div>
         </form>
 
-        <!-- فاصل أو -->
         <div class="mt-6">
             <div class="relative">
                 <div class="absolute inset-0 flex items-center">
@@ -99,7 +92,6 @@
             </div>
         </div>
 
-        <!-- تسجيل الدخول عبر وسائل التواصل الاجتماعي -->
         <div class="mt-6 grid grid-cols-1 gap-3">
              <button id="google-signin" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 48 48">
@@ -107,10 +99,8 @@
                 </svg>
                 المتابعة باستخدام جوجل
             </button>
-            <!-- يمكنك إضافة أزرار فيسبوك وتسجيل الدخول بالهاتف هنا بنفس الطريقة -->
         </div>
 
-        <!-- رابط للتبديل بين النماذج -->
         <div class="mt-6 text-center">
             <a href="#" id="toggle-form" class="text-sm text-indigo-600 hover:text-indigo-500">
                 ليس لديك حساب؟ قم بإنشاء واحد
@@ -118,29 +108,28 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { 
-            getAuth, 
-            createUserWithEmailAndPassword, 
-            signInWithEmailAndPassword, 
-            signInWithPopup, 
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signInWithPopup,
             GoogleAuthProvider,
             sendPasswordResetEmail,
             onAuthStateChanged
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = { 
-           apiKey: "AIzaSyAxEq-nkLDc3_HM38xb3mhb8ekSXmuFQ7I", 
-           authDomain: "s22market-4bdb9.firebaseapp.com", 
-           projectId: "s22market-4bdb9", 
-           storageBucket: "s22market-4bdb9.firebasestorage.app", 
-           messagingSenderId: "1029564929614", 
-           appId: "1:1029564929614:web:2866722c34cf1fb2b8951f", 
-           measurementId: "G-VH16M3Q33V" 
-        }; 
+        const firebaseConfig = {
+           apiKey: "AIzaSyAxEq-nkLDc3_HM38xb3mhb8ekSXmuFQ7I",
+           authDomain: "s22market-4bdb9.firebaseapp.com",
+           projectId: "s22market-4bdb9",
+           storageBucket: "s22market-4bdb9.firebasestorage.app",
+           messagingSenderId: "1029564929614",
+           appId: "1:1029564929614:web:2866722c34cf1fb2b8951f",
+           measurementId: "G-VH16M3Q33V"
+        };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -193,11 +182,12 @@
                     email: email,
                     phone: phone,
                     role: role,
-                    isVerified: false, // قيمة مبدئية للتاجر الموثق
-                    adminRating: 0, // تقييم مبدئي
+                    isVerified: false,
+                    adminRating: 0,
+                    isAdmin: false, // Default user is not an admin
                     createdAt: new Date()
                 });
-                
+
                 showAlert('تم إنشاء الحساب بنجاح! سيتم توجيهك الآن.', false);
                 setTimeout(() => window.location.href = 'profile.html', 2000);
 
@@ -219,7 +209,7 @@
                 showAlert(getFirebaseErrorMessage(error));
             }
         });
-        
+
         googleSignInButton.addEventListener('click', async () => {
             try {
                 const result = await signInWithPopup(auth, googleProvider);
@@ -233,13 +223,14 @@
                         fullName: user.displayName,
                         email: user.email,
                         phone: user.phoneNumber || '',
-                        role: 'buyer',
+                        role: 'buyer', // Default role for Google sign-in
                         isVerified: false,
                         adminRating: 0,
+                        isAdmin: false,
                         createdAt: new Date()
                     });
                 }
-                
+
                 showAlert('تم تسجيل الدخول بنجاح عبر جوجل!', false);
                 setTimeout(() => window.location.href = 'profile.html', 2000);
 
@@ -276,7 +267,7 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // إذا كان المستخدم مسجلاً دخوله بالفعل، يتم توجيهه لصفحة الملف الشخصي
+                // If the user is already logged in, redirect to the profile page
                  window.location.href = 'profile.html';
             }
         });

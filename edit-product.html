@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعديل المنتج - S22MARKET</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .preview-container {
+            width: 150px;
+            height: 150px;
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f9fafb;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .preview-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800">تعديل المنتج</h1>
+            <a href="profile.html" class="text-gray-600 hover:text-indigo-600 mx-2">العودة للملف الشخصي</a>
+        </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <div id="loading-spinner" class="text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
+            <p class="mt-4 text-gray-600">جاري تحميل بيانات المنتج...</p>
+        </div>
+        <div id="product-form-container" class="hidden bg-white p-8 rounded-2xl shadow-md">
+            <form id="edit-product-form" class="space-y-6">
+                <input type="hidden" id="product-id">
+                <input type="hidden" id="original-image-path">
+
+                <div>
+                    <label for="product-name" class="block text-sm font-medium text-gray-700">اسم المنتج</label>
+                    <input type="text" id="product-name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+
+                <div>
+                    <label for="product-description" class="block text-sm font-medium text-gray-700">وصف المنتج</label>
+                    <textarea id="product-description" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></textarea>
+                </div>
+
+                <div>
+                    <label for="product-price" class="block text-sm font-medium text-gray-700">السعر (د.ج)</label>
+                    <input type="number" id="product-price" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">صورة المنتج (اختياري لتغيير الصورة الحالية)</label>
+                    <div class="mt-2">
+                        <input type="file" id="product-image-input" accept="image/*" class="hidden">
+                        <div id="image-preview-container" class="preview-container">
+                             <span class="text-gray-500">اختر صورة جديدة</span>
+                        </div>
+                    </div>
+                     <div id="upload-progress-container" class="w-full bg-gray-200 rounded-full h-2.5 mt-2 hidden">
+                        <div id="upload-progress-bar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" id="submit-button" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                        حفظ التعديلات
+                    </button>
+                    <div id="form-spinner" class="text-center hidden mt-2">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+                        <p>جاري حفظ التعديلات...</p>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
+        const firebaseConfig = {
+           apiKey: "AIzaSyAxEq-nkLDc3_HM38xb3mhb8ekSXmuFQ7I",
+           authDomain: "s22market-4bdb9.firebaseapp.com",
+           projectId: "s22market-4bdb9",
+           storageBucket: "s22market-4bdb9.firebasestorage.app",
+           messagingSenderId: "1029564929614",
+           appId: "1:1029564929614:web:2866722c34cf1fb2b8951f",
+           measurementId: "G-VH16M3Q33V"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        const ADMIN_UID = "PLACE_YOUR_ADMIN_UID_HERE"; // <--- غير هذا
+
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const formContainer = document.getElementById('product-form-container');
+        const form = document.getElementById('edit-product-form');
+        const imageInput = document.getElementById('product-image-input');
+        const previewContainer = document.getElementById('image-preview-container');
+        const submitButton = document.getElementById('submit-button');
+        const formSpinner = document.getElementById('form-spinner');
+        const progressContainer = document.getElementById('upload-progress-container');
+        const progressBar = document.getElementById('upload-progress-bar');
+
+        let currentUser = null;
+        let productId = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const urlParams = new URLSearchParams(window.location.search);
+                productId = urlParams.get('id');
+                if (!productId) {
+                    alert('لم يتم العثور على معرّف المنتج.');
+                    window.location.href = 'profile.html';
+                    return;
+                }
+                await loadProductData();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        async function loadProductData() {
+            const productDocRef = doc(db, "products", productId);
+            const productDoc = await getDoc(productDocRef);
+
+            if (productDoc.exists()) {
+                const productData = productDoc.data();
+
+                // Security check: ensure the user owns this product or is an admin
+                const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+                const isAdmin = userDoc.exists() && userDoc.data().isAdmin === true;
+
+                if (productData.sellerId !== currentUser.uid && !isAdmin) {
+                    alert('ليس لديك صلاحية لتعديل هذا المنتج.');
+                    window.location.href = 'profile.html';
+                    return;
+                }
+
+                document.getElementById('product-id').value = productId;
+                document.getElementById('original-image-path').value = productData.imagePath;
+                document.getElementById('product-name').value = productData.name;
+                document.getElementById('product-description').value = productData.description;
+                document.getElementById('product-price').value = productData.price;
+                previewContainer.innerHTML = `<img src="${productData.imageUrl}" alt="Product image preview">`;
+
+                loadingSpinner.classList.add('hidden');
+                formContainer.classList.remove('hidden');
+            } else {
+                alert('المنتج غير موجود.');
+                window.location.href = 'profile.html';
+            }
+        }
+
+        previewContainer.addEventListener('click', () => imageInput.click());
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    previewContainer.innerHTML = `<img src="${event.target.result}" alt="New image preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            submitButton.classList.add('hidden');
+            formSpinner.classList.remove('hidden');
+
+            const newFile = imageInput.files[0];
+            const updatedData = {
+                name: document.getElementById('product-name').value,
+                description: document.getElementById('product-description').value,
+                price: Number(document.getElementById('product-price').value),
+                status: 'pending' // Reset status to pending on edit for re-approval
+            };
+
+            if (newFile) {
+                // If a new image is uploaded
+                const originalImagePath = document.getElementById('original-image-path').value;
+                const filePath = `products/${currentUser.uid}/${Date.now()}_${newFile.name}`;
+                const storageRef = ref(storage, filePath);
+                const uploadTask = uploadBytesResumable(storageRef, newFile);
+
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        progressContainer.classList.remove('hidden');
+                        progressBar.style.width = progress + '%';
+                    },
+                    (error) => {
+                        console.error("Upload failed:", error);
+                        alert("فشل رفع الصورة الجديدة.");
+                        submitButton.classList.remove('hidden');
+                        formSpinner.classList.add('hidden');
+                    },
+                    async () => {
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                        updatedData.imageUrl = downloadURL;
+                        updatedData.imagePath = filePath;
+
+                        // Delete old image from Storage
+                        if (originalImagePath) {
+                            const oldImageRef = ref(storage, originalImagePath);
+                            await deleteObject(oldImageRef).catch(err => console.error("Could not delete old image", err));
+                        }
+
+                        await updateProductInFirestore(updatedData);
+                    }
+                );
+            } else {
+                // If no new image, just update Firestore
+                await updateProductInFirestore(updatedData);
+            }
+        });
+
+        async function updateProductInFirestore(data) {
+            const productDocRef = doc(db, "products", productId);
+            try {
+                await updateDoc(productDocRef, data);
+                alert("تم تحديث المنتج بنجاح! سيتم إعادة مراجعته من قبل الإدارة.");
+                window.location.href = 'profile.html';
+            } catch (error) {
+                console.error("Error updating document: ", error);
+                alert("فشل تحديث المنتج.");
+                submitButton.classList.remove('hidden');
+                formSpinner.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

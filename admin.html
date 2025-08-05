@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ملفي الشخصي - S22MARKET</title>
+    <title>لوحة التحكم - S22MARKET</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,18 +12,22 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
         .hidden { display: none; }
-        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 40; }
-        .modal-content { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 50; }
+        .tab-button.active {
+            border-color: #4f46e5;
+            color: #4f46e5;
+            background-color: #eef2ff;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
 
     <header class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-gray-800">S22<span class="text-indigo-600">MARKET</span></h1>
+             <a href="market.html" class="text-2xl font-bold text-gray-800">S22<span class="text-indigo-600">MARKET</span></a>
             <div>
                 <a href="market.html" class="text-gray-600 hover:text-indigo-600 mx-2">السوق</a>
-                <a href="admin.html" id="admin-panel-link" class="text-gray-600 hover:text-indigo-600 mx-2 hidden">لوحة التحكم</a>
+                <a href="profile.html" class="text-gray-600 hover:text-indigo-600 mx-2">ملفي الشخصي</a>
+                <a href="admin.html" class="text-indigo-600 font-bold mx-2">لوحة التحكم</a>
                 <button id="logout-button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">تسجيل الخروج</button>
             </div>
         </div>
@@ -32,213 +36,254 @@
     <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         <div id="loading-spinner" class="text-center">
              <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
-             <p class="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+             <p class="mt-4 text-gray-600">جاري التحقق من الصلاحيات...</p>
         </div>
 
-        <div id="profile-content" class="hidden grid grid-cols-1 md:grid-cols-3 gap-8">
-            
-            <div class="md:col-span-1">
+        <div id="admin-content" class="hidden">
+            <h1 class="text-3xl font-bold text-gray-900 mb-8">لوحة تحكم المدير</h1>
+
+            <div class="border-b border-gray-200 mb-6">
+                <nav class="-mb-px flex space-x-6 space-x-reverse" aria-label="Tabs">
+                    <button id="products-tab-button" class="tab-button active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        مراجعة المنتجات
+                    </button>
+                    <button id="users-tab-button" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        إدارة المستخدمين
+                    </button>
+                </nav>
+            </div>
+
+            <div id="products-panel">
                 <div class="bg-white p-6 rounded-2xl shadow-md">
-                    <div class="text-center">
-                        <img id="profile-pic" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-indigo-200" src="https://placehold.co/100x100/E2E8F0/4A5568?text=User" alt="صورة الملف الشخصي">
-                        <div class="flex items-center justify-center">
-                            <h2 id="profile-name" class="text-2xl font-bold text-gray-800"></h2>
-                            <i id="verified-badge" class="fas fa-check-circle text-blue-500 ml-2 hidden" title="تاجر موثق"></i>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">المنتجات قيد المراجعة</h2>
+                    <div id="pending-products-list" class="space-y-4">
                         </div>
-                        <p id="profile-email" class="text-gray-500"></p>
-                        <p id="profile-role" class="mt-2 text-sm font-semibold text-indigo-600 bg-indigo-100 px-3 py-1 rounded-full inline-block"></p>
-                        <div id="rating-display" class="mt-2 flex items-center justify-center text-yellow-500 hidden"></div>
+                     <div id="no-pending-products" class="text-center py-10 text-gray-500 hidden">
+                        <i class="fas fa-check-double fa-3x text-gray-400"></i>
+                        <p class="mt-4">لا توجد منتجات جديدة لمراجعتها.</p>
                     </div>
-                    <hr class="my-6">
-                    <div>
-                        <h3 class="font-bold text-gray-700 mb-2">نبذة تعريفية</h3>
-                        <p id="profile-bio" class="text-gray-600 text-sm mb-4">لم تتم إضافة نبذة تعريفية.</p>
-                        <h3 class="font-bold text-gray-700 mb-3">معلومات التواصل</h3>
-                        <div id="website-display" class="mb-3"></div>
-                        <div id="social-links-display" class="flex justify-center space-x-4 space-x-reverse text-2xl text-gray-600"></div>
-                        <p id="no-socials-message" class="text-center text-gray-400 hidden">لم تتم إضافة روابط تواصل.</p>
-                    </div>
-                    <button id="edit-profile-button" class="mt-6 w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition">تعديل الملف الشخصي</button>
                 </div>
             </div>
 
-            <div class="md:col-span-2">
-                <div class="bg-white p-6 rounded-2xl shadow-md">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800">منتجاتي</h2>
-                        <a href="add-product.html" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition"><i class="fas fa-plus mr-2"></i> إضافة منتج جديد</a>
+            <div id="users-panel" class="hidden">
+                 <div class="bg-white p-6 rounded-2xl shadow-md">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">قائمة المستخدمين</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="text-right py-3 px-4 font-semibold text-sm">المستخدم</th>
+                                    <th class="text-right py-3 px-4 font-semibold text-sm">الدور</th>
+                                    <th class="text-right py-3 px-4 font-semibold text-sm">التوثيق</th>
+                                    <th class="text-right py-3 px-4 font-semibold text-sm">التقييم</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-list" class="text-gray-700">
+                                </tbody>
+                        </table>
                     </div>
-                    <div id="products-list" class="space-y-4">
-                        <div id="no-products-message" class="text-center py-10 text-gray-500 hidden"><p>لم تقم بإضافة أي منتجات بعد.</p></div>
+                    <div id="no-users" class="text-center py-10 text-gray-500 hidden">
+                        <i class="fas fa-users-slash fa-3x text-gray-400"></i>
+                        <p class="mt-4">لا يوجد مستخدمون لعرضهم.</p>
                     </div>
                 </div>
             </div>
+        </div>
+         <div id="auth-error" class="hidden text-center py-20">
+            <i class="fas fa-exclamation-triangle fa-3x text-red-500"></i>
+            <h2 class="mt-4 text-2xl font-bold text-red-700">وصول مرفوض</h2>
+            <p class="text-gray-600">هذه الصفحة متاحة للمدير فقط.</p>
+            <a href="market.html" class="mt-6 inline-block bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg">العودة للسوق</a>
         </div>
     </main>
 
-    <div id="edit-profile-modal" class="hidden">
-        <div class="modal-backdrop"></div>
-        <div class="modal-content bg-white w-full max-w-lg p-6 rounded-2xl shadow-xl">
-            <h3 class="text-2xl font-bold mb-6">تعديل الملف الشخصي</h3>
-            <form id="edit-profile-form" class="space-y-4">
-                <div><label class="block text-sm font-medium text-gray-700">الاسم الكامل</label><input type="text" id="edit-name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></div>
-                <div><label class="block text-sm font-medium text-gray-700">نبذة تعريفية</label><textarea id="edit-bio" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></textarea></div>
-                <h4 class="font-semibold pt-4">روابط التواصل</h4>
-                <div><label class="block text-sm font-medium text-gray-700">الموقع الإلكتروني</label><input type="url" id="edit-website" placeholder="https://example.com" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></div>
-                <div><label class="block text-sm font-medium text-gray-700">فيسبوك</label><input type="url" id="edit-facebook" placeholder="https://facebook.com/username" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></div>
-                <div><label class="block text-sm font-medium text-gray-700">انستغرام</label><input type="url" id="edit-instagram" placeholder="https://instagram.com/username" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></div>
-                <div class="flex justify-end space-x-3 space-x-reverse pt-6">
-                    <button type="button" id="cancel-edit-button" class="bg-gray-200 text-gray-800 py-2 px-6 rounded-lg hover:bg-gray-300">إلغاء</button>
-                    <button type="submit" class="bg-indigo-600 text-white py-2 px-6 rounded-lg hover:bg-indigo-700">حفظ</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-        const firebaseConfig = { 
-           apiKey: "AIzaSyAxEq-nkLDc3_HM38xb3mhb8ekSXmuFQ7I", 
-           authDomain: "s22market-4bdb9.firebaseapp.com", 
-           projectId: "s22market-4bdb9", 
-           storageBucket: "s22market-4bdb9.firebasestorage.app", 
-           messagingSenderId: "1029564929614", 
-           appId: "1:1029564929614:web:2866722c34cf1fb2b8951f", 
-           measurementId: "G-VH16M3Q33V" 
+        const firebaseConfig = {
+           apiKey: "AIzaSyAxEq-nkLDc3_HM38xb3mhb8ekSXmuFQ7I",
+           authDomain: "s22market-4bdb9.firebaseapp.com",
+           projectId: "s22market-4bdb9",
+           storageBucket: "s22market-4bdb9.firebasestorage.app",
+           messagingSenderId: "1029564929614",
+           appId: "1:1029564929614:web:2866722c34cf1fb2b8951f",
+           measurementId: "G-VH16M3Q33V"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const ADMIN_UID = "ضع هنا الـ UID الخاص بحساب المدير"; // هام: استبدل هذا
+        const storage = getStorage(app);
+        const ADMIN_UID = "PLACE_YOUR_ADMIN_UID_HERE"; // <--- غير هذا
 
-        let currentUser = null;
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const adminContent = document.getElementById('admin-content');
+        const authError = document.getElementById('auth-error');
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                currentUser = user;
-                if(user.uid === ADMIN_UID) {
-                    document.getElementById('admin-panel-link').classList.remove('hidden');
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists() && userDoc.data().isAdmin === true) {
+                    loadingSpinner.classList.add('hidden');
+                    adminContent.classList.remove('hidden');
+                    setupTabs();
+                    await loadPendingProducts();
+                    await loadUsers();
+                } else {
+                    loadingSpinner.classList.add('hidden');
+                    authError.classList.remove('hidden');
                 }
-                await loadUserProfile(user.uid);
-                await loadUserProducts(user.uid);
-                document.getElementById('loading-spinner').classList.add('hidden');
-                document.getElementById('profile-content').classList.remove('hidden');
             } else {
                 window.location.href = 'index.html';
             }
         });
 
-        async function loadUserProfile(uid) {
-            const userDocRef = doc(db, "users", uid);
-            const userDoc = await getDoc(userDocRef);
+        // --- TABS LOGIC ---
+        function setupTabs() {
+            const productsTab = document.getElementById('products-tab-button');
+            const usersTab = document.getElementById('users-tab-button');
+            const productsPanel = document.getElementById('products-panel');
+            const usersPanel = document.getElementById('users-panel');
 
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                document.getElementById('profile-name').textContent = userData.fullName || 'مستخدم جديد';
-                document.getElementById('profile-email').textContent = userData.email;
-                document.getElementById('profile-pic').src = userData.photoURL || `https://placehold.co/100x100/E2E8F0/4A5568?text=${(userData.fullName || 'U').charAt(0)}`;
-                
-                const roleTranslations = { 'buyer': 'مشتري', 'seller': 'تاجر', 'both': 'تاجر ومشتري' };
-                document.getElementById('profile-role').textContent = roleTranslations[userData.role] || userData.role;
+            productsTab.addEventListener('click', () => {
+                productsTab.classList.add('active');
+                usersTab.classList.remove('active');
+                productsPanel.classList.remove('hidden');
+                usersPanel.classList.add('hidden');
+            });
 
-                document.getElementById('profile-bio').textContent = userData.bio || 'لم تتم إضافة نبذة تعريفية.';
-                
-                const websiteDisplay = document.getElementById('website-display');
-                if(userData.website) {
-                    websiteDisplay.innerHTML = `<a href="${userData.website}" target="_blank" class="text-indigo-600 hover:underline"><i class="fas fa-globe ml-2"></i>موقعي الإلكتروني</a>`;
-                } else {
-                    websiteDisplay.innerHTML = '';
-                }
-
-                // عرض علامة التوثيق والتقييم
-                document.getElementById('verified-badge').classList.toggle('hidden', !userData.isVerified);
-                const ratingDisplay = document.getElementById('rating-display');
-                if(userData.adminRating > 0) {
-                    ratingDisplay.classList.remove('hidden');
-                    let stars = '';
-                    for(let i=0; i<5; i++) {
-                        stars += `<i class="fa-star ${i < userData.adminRating ? 'fas' : 'far'}"></i>`;
-                    }
-                    ratingDisplay.innerHTML = stars;
-                } else {
-                    ratingDisplay.classList.add('hidden');
-                }
-
-
-                const socialLinksContainer = document.getElementById('social-links-display');
-                socialLinksContainer.innerHTML = '';
-                let hasSocials = false;
-                if (userData.facebook) { socialLinksContainer.innerHTML += `<a href="${userData.facebook}" target="_blank" class="hover:text-indigo-600"><i class="fab fa-facebook"></i></a>`; hasSocials = true; }
-                if (userData.instagram) { socialLinksContainer.innerHTML += `<a href="${userData.instagram}" target="_blank" class="hover:text-indigo-600"><i class="fab fa-instagram"></i></a>`; hasSocials = true; }
-                document.getElementById('no-socials-message').classList.toggle('hidden', hasSocials);
-
-                // Populate edit form
-                document.getElementById('edit-name').value = userData.fullName || '';
-                document.getElementById('edit-bio').value = userData.bio || '';
-                document.getElementById('edit-website').value = userData.website || '';
-                document.getElementById('edit-facebook').value = userData.facebook || '';
-                document.getElementById('edit-instagram').value = userData.instagram || '';
-            }
+            usersTab.addEventListener('click', () => {
+                usersTab.classList.add('active');
+                productsTab.classList.remove('active');
+                usersPanel.classList.remove('hidden');
+                productsPanel.classList.add('hidden');
+            });
         }
 
-        async function loadUserProducts(uid) {
-            const productsList = document.getElementById('products-list');
-            productsList.innerHTML = '';
-            const q = query(collection(db, "products"), where("sellerId", "==", uid));
+        // --- PRODUCTS LOGIC ---
+        async function loadPendingProducts() {
+            const listContainer = document.getElementById('pending-products-list');
+            const noProductsMsg = document.getElementById('no-pending-products');
+            listContainer.innerHTML = '';
+            const q = query(collection(db, "products"), where("status", "==", "pending"));
             const querySnapshot = await getDocs(q);
-            
-            document.getElementById('no-products-message').classList.toggle('hidden', !querySnapshot.empty);
+
+            noProductsMsg.classList.toggle('hidden', !querySnapshot.empty);
 
             querySnapshot.forEach((doc) => {
                 const product = doc.data();
                 const productCard = `
-                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg border">
+                    <div id="product-card-${doc.id}" class="flex items-center justify-between bg-gray-50 p-4 rounded-lg border">
                         <div class="flex items-center">
-                            <img src="${product.imageUrl || 'https://placehold.co/80x80'}" alt="${product.name}" class="w-20 h-20 rounded-md object-cover ml-4">
+                            <img src="${product.imageUrl}" alt="${product.name}" class="w-20 h-20 rounded-md object-cover ml-4">
                             <div>
                                 <h4 class="font-bold text-lg">${product.name}</h4>
-                                <p class="text-indigo-600 font-semibold">${product.price} ريال</p>
+                                <p class="text-sm text-gray-500">بواسطة: ${product.sellerName}</p>
+                                <p class="text-indigo-600 font-semibold">${product.price} د.ج</p>
                             </div>
                         </div>
-                        <div class="flex items-center space-x-2">
-                           <a href="edit-product.html?id=${doc.id}" class="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"><i class="fas fa-edit"></i></a>
-                           <button data-id="${doc.id}" class="delete-product-button text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"><i class="fas fa-trash"></i></button>
+                        <div class="flex items-center space-x-2 space-x-reverse">
+                           <button data-id="${doc.id}" class="approve-button text-sm bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"><i class="fas fa-check mr-1"></i> قبول</button>
+                           <button data-id="${doc.id}" data-image-path="${product.imagePath}" class="reject-button text-sm bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"><i class="fas fa-times mr-1"></i> رفض</button>
                         </div>
                     </div>
                 `;
-                productsList.innerHTML += productCard;
+                listContainer.innerHTML += productCard;
             });
+
+            document.querySelectorAll('.approve-button').forEach(btn => btn.onclick = handleProductApproval);
+            document.querySelectorAll('.reject-button').forEach(btn => btn.onclick = handleProductRejection);
+        }
+
+        async function handleProductApproval(e) {
+            const productId = e.currentTarget.dataset.id;
+            const productRef = doc(db, "products", productId);
+            await updateDoc(productRef, { status: 'approved' });
+            document.getElementById(`product-card-${productId}`).remove();
+             if (document.getElementById('pending-products-list').children.length === 0) {
+                document.getElementById('no-pending-products').classList.remove('hidden');
+            }
+        }
+
+        async function handleProductRejection(e) {
+            const productId = e.currentTarget.dataset.id;
+            const imagePath = e.currentTarget.dataset.imagePath;
+            if (confirm('هل أنت متأكد من رفض هذا المنتج؟ سيتم حذفه نهائياً.')) {
+                await deleteDoc(doc(db, "products", productId));
+                if (imagePath) {
+                    await deleteObject(ref(storage, imagePath)).catch(err => console.error(err));
+                }
+                document.getElementById(`product-card-${productId}`).remove();
+                 if (document.getElementById('pending-products-list').children.length === 0) {
+                    document.getElementById('no-pending-products').classList.remove('hidden');
+                }
+            }
+        }
+
+        // --- USERS LOGIC ---
+        async function loadUsers() {
+            const listContainer = document.getElementById('users-list');
+            const noUsersMsg = document.getElementById('no-users');
+            listContainer.innerHTML = '';
+            const querySnapshot = await getDocs(collection(db, "users"));
+
+            noUsersMsg.classList.toggle('hidden', !querySnapshot.empty);
+
+            querySnapshot.forEach((doc) => {
+                const user = doc.data();
+                if (user.uid === ADMIN_UID) return; // Skip admin account
+
+                 const roleTranslations = { 'buyer': 'مشتري', 'seller': 'تاجر', 'both': 'تاجر ومشتري' };
+
+                const userRow = `
+                    <tr class="border-b">
+                        <td class="py-3 px-4">
+                            <div class="font-semibold">${user.fullName}</div>
+                            <div class="text-xs text-gray-500">${user.email}</div>
+                        </td>
+                        <td class="py-3 px-4">${roleTranslations[user.role] || user.role}</td>
+                        <td class="py-3 px-4">
+                            <label class="inline-flex items-center cursor-pointer">
+                              <input type="checkbox" data-uid="${user.uid}" class="verify-toggle sr-only peer" ${user.isVerified ? 'checked' : ''}>
+                              <div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </td>
+                         <td class="py-3 px-4">
+                            <div class="flex items-center">
+                                <input type="number" min="0" max="5" value="${user.adminRating}" data-uid="${user.uid}" class="rating-input w-16 p-1 border rounded-md">
+                                <i class="fas fa-star text-yellow-400 ml-2"></i>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                listContainer.innerHTML += userRow;
+            });
+
+            document.querySelectorAll('.verify-toggle').forEach(toggle => toggle.onchange = handleVerification);
+            document.querySelectorAll('.rating-input').forEach(input => input.onchange = handleRating);
+        }
+
+        async function handleVerification(e) {
+            const uid = e.currentTarget.dataset.uid;
+            const isVerified = e.currentTarget.checked;
+            await updateDoc(doc(db, "users", uid), { isVerified: isVerified });
+        }
+
+        async function handleRating(e) {
+            const uid = e.currentTarget.dataset.uid;
+            const rating = Number(e.currentTarget.value);
+            if(rating >= 0 && rating <= 5) {
+                 await updateDoc(doc(db, "users", uid), { adminRating: rating });
+            } else {
+                alert("التقييم يجب أن يكون بين 0 و 5.");
+            }
         }
 
         document.getElementById('logout-button').addEventListener('click', () => {
             signOut(auth).then(() => { window.location.href = 'index.html'; });
-        });
-
-        const editProfileModal = document.getElementById('edit-profile-modal');
-        document.getElementById('edit-profile-button').addEventListener('click', () => editProfileModal.classList.remove('hidden'));
-        document.getElementById('cancel-edit-button').addEventListener('click', () => editProfileModal.classList.add('hidden'));
-
-        document.getElementById('edit-profile-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const userDocRef = doc(db, "users", currentUser.uid);
-            try {
-                await updateDoc(userDocRef, {
-                    fullName: document.getElementById('edit-name').value,
-                    bio: document.getElementById('edit-bio').value,
-                    website: document.getElementById('edit-website').value,
-                    facebook: document.getElementById('edit-facebook').value,
-                    instagram: document.getElementById('edit-instagram').value,
-                });
-                editProfileModal.classList.add('hidden');
-                await loadUserProfile(currentUser.uid);
-                alert('تم تحديث الملف الشخصي بنجاح!');
-            } catch (error) {
-                alert('حدث خطأ أثناء تحديث الملف الشخصي.');
-            }
         });
     </script>
 </body>
