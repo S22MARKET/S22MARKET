@@ -2,265 +2,1253 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول / إنشاء حساب - S22MARKET</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>S22MARKET</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .hidden { display: none; }
+        :root {
+            --primary-color: #4caf50;
+            --secondary-color: #81c784;
+            --background-dark: #ffffff;
+            --text-light: #000000;
+            --highlight-color: #ff5722;
+            --transition-speed: 0.3s;
+            --header-height: 80px;
+        }
+
+        [data-theme="dark"] {
+            --background-dark: #121212;
+            --text-light: #ffffff;
+            --primary-color: #bb86fc;
+            --highlight-color: #03dac5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            padding-top: var(--header-height);
+        }
+
+        /* تحسينات الهيدر للهواتف */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            padding: 0.5rem 1rem;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            height: var(--header-height);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all var(--transition-speed);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1001;
+        }
+
+        .logo img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--highlight-color);
+        }
+
+        .logo-text {
+            font-weight: bold;
+            font-size: 1.1rem;
+            background: linear-gradient(90deg, black, white, green, red);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+
+        /* تحسينات القائمة للهواتف */
+        .menu-container {
+            position: relative;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 1002;
+            padding: 0.5rem;
+        }
+
+        .menu {
+            list-style: none;
+            display: flex;
+            gap: 0.5rem;
+            margin: 0;
+            padding: 0;
+            transition: all var(--transition-speed);
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: var(--text-light);
+            padding: 0.5rem 0.8rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: all var(--transition-speed);
+            display: block;
+            white-space: nowrap;
+        }
+
+        .menu a:hover, .menu a:focus {
+            background: var(--highlight-color);
+            transform: translateY(-2px);
+        }
+
+        .theme-toggle {
+            font-size: 1rem;
+            padding: 0.5rem 0.8rem;
+            border: none;
+            background: var(--primary-color);
+            color: var(--text-light);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            margin-right: 0.5rem;
+        }
+
+        .theme-toggle:hover {
+            background: var(--highlight-color);
+            transform: scale(1.05);
+        }
+
+        /* تحسينات القائمة عند تصغير الشاشة */
+        @media (max-width: 992px) {
+            .menu {
+                position: fixed;
+                top: var(--header-height);
+                right: -100%;
+                width: 80%;
+                max-width: 300px;
+                height: calc(100vh - var(--header-height));
+                background: linear-gradient(135deg, #2c3e50, #4ca1af);
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1rem;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+                overflow-y: auto;
+                z-index: 999;
+            }
+
+            .menu.active {
+                right: 0;
+            }
+
+            .menu a {
+                width: 100%;
+                padding: 0.8rem;
+                margin-bottom: 0.5rem;
+                font-size: 1rem;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .theme-toggle {
+                margin-right: auto;
+                margin-left: 0.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .logo-text {
+                display: none;
+            }
+            
+            .logo img {
+                width: 40px;
+                height: 40px;
+            }
+            
+            :root {
+                --header-height: 70px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 0.5rem;
+            }
+            
+            .logo img {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .theme-toggle {
+                font-size: 0.9rem;
+                padding: 0.4rem 0.7rem;
+            }
+            
+            :root {
+                --header-height: 60px;
+            }
+        }
+
+        /* باقي أنماط الموقع */
+        .section {
+            margin: 1.5rem;
+            text-align: center;
+        }
+
+        .top-products {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            padding: 1rem;
+        }
+
+        .product-card {
+            background: var(--background-dark);
+            border: 1px solid var(--primary-color);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 320px;
+            padding: 1.2rem;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: auto;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .product-card h3 {
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .product-card p {
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .social-icons a {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .social-icons a:hover {
+            color: var(--highlight-color);
+            transform: scale(1.1);
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        /* قسم الإعلان المتحرك */
+        .advertisement {
+            background-color: #121212;
+            padding: 1rem 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            position: relative;
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        .advertisement-text {
+            font-family: 'Arial', sans-serif;
+            font-size: 1.8rem;
+            font-weight: bold;
+            white-space: nowrap;
+            background: linear-gradient(90deg, #ff0000, #ffffff, #000000, #008000);
+            background-size: 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: flag-colors 5s linear infinite;
+            text-align: center;
+            padding: 0 1rem;
+        }
+
+        @keyframes flag-colors {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        /* تحسينات للهواتف */
+        @media (max-width: 768px) {
+            .advertisement-text {
+                font-size: 1.5rem;
+                white-space: normal;
+            }
+            
+            .section {
+                margin: 1rem;
+            }
+            
+            .product-card {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .advertisement-text {
+                font-size: 1.2rem;
+            }
+            
+            .product-card {
+                max-width: 100%;
+            }
+        }
+
+        /* تذييل الصفحة */
+        footer {
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            text-align: center;
+            padding: 2rem 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .footer-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-icons a {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .footer-icons a:hover {
+            color: var(--highlight-color);
+            transform: scale(1.2);
+        }
+
+        /* تأثيرات الأزرار */
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background-color: var(--highlight-color);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        /* تأثيرات التحميل */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* QR Code Section */
+        .qr-section {
+            text-align: center;
+            padding: 1.5rem;
+            max-width: 400px;
+            margin: 2rem auto;
+            background: var(--background-dark);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .qr-section h3 {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .qr-section .qr-code {
+            width: 200px;
+            height: auto;
+            margin: 0 auto 1.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin: 1.5rem 0;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+            color: #fff;
+            background-color: #007bff;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer p {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            opacity: 0.8;
+        }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 sm:p-8 m-4">
-
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-800">S22<span class="text-indigo-600">MARKET</span></h1>
-            <p id="form-title" class="text-gray-500 mt-2">قم بتسجيل الدخول للمتابعة</p>
+<body>
+    <!-- الهيدر المحسن للهواتف -->
+    <header>
+        <div class="logo">
+            <img src="image/S22MARKET LOGO.ico" alt="شعار S22MARKET">
+            <span class="logo-text">🛒 S22MARKET 🛒</span>
         </div>
-
-        <div id="alert-message" class="hidden p-4 mb-4 text-sm rounded-lg" role="alert">
-            <span class="font-medium"></span> <span id="alert-text"></span>
-        </div>
-
-        <!-- Login Form -->
-        <form id="login-form" class="space-y-6">
-            <div>
-                <label for="login-email" class="block text-sm font-medium text-gray-700">البريد الإلكتروني</label>
-                <input type="email" id="login-email" name="email" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-            <div>
-                <label for="login-password" class="block text-sm font-medium text-gray-700">كلمة المرور</label>
-                <input type="password" id="login-password" name="password" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-            <div class="flex items-center justify-between">
-                <a href="#" id="forgot-password" class="text-sm text-indigo-600 hover:text-indigo-500">هل نسيت كلمة المرور؟</a>
-            </div>
-            <div>
-                <button type="submit" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    تسجيل الدخول
-                </button>
-            </div>
-        </form>
-
-        <!-- Register Form -->
-        <form id="register-form" class="hidden space-y-4">
-            <div>
-                <label for="register-name" class="block text-sm font-medium text-gray-700">الاسم الكامل</label>
-                <input type="text" id="register-name" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-            <div>
-                <label for="register-email" class="block text-sm font-medium text-gray-700">البريد الإلكتروني</label>
-                <input type="email" id="register-email" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-             <div>
-                <label for="register-phone" class="block text-sm font-medium text-gray-700">رقم الهاتف</label>
-                <input type="tel" id="register-phone" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-            <div>
-                <label for="register-password" class="block text-sm font-medium text-gray-700">كلمة المرور</label>
-                <input type="password" id="register-password" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-            <!-- Role selection is removed. It will be 'both' by default. -->
-            <div>
-                <button type="submit" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    إنشاء حساب
-                </button>
-            </div>
-        </form>
-
-        <div class="mt-6">
-            <div class="relative">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-gray-300"></div>
-                </div>
-                <div class="relative flex justify-center text-sm">
-                    <span class="px-2 bg-white text-gray-500">أو</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="mt-6 grid grid-cols-1 gap-3">
-             <button id="google-signin" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 48 48">
-                    <path d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/>
-                </svg>
-                المتابعة باستخدام جوجل
+        
+        <div class="menu-container">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
             </button>
+            
+            <ul class="menu" id="mainMenu">
+                <li><a href="#" onclick="window.scrollTo(0, 0); location.reload();">الرئيسية</a></li>
+                <li><a href="#PRODUCTS">منتجاتنا</a></li>
+                <li><a href="#">الأكثر مبيعًا</a></li>
+                <li><a href="#qr-code">تحميل التطبيق</a></li>
+                <li><a href="#footer">تواصل معنا</a></li>
+            </ul>
         </div>
+        
+        <button class="theme-toggle" id="themeToggle">🌙 الوضع الداكن</button>
+    </header>
 
-        <div class="mt-6 text-center">
-            <a href="#" id="toggle-form" class="text-sm text-indigo-600 hover:text-indigo-500">
-                ليس لديك حساب؟ قم بإنشاء واحد
-            </a>
+    <!-- قسم الإعلان المتحرك -->
+    <div class="advertisement">
+        <div class="advertisement-text">
+            <span class="emoji">👋</span> 
+            <span>مرحباً بكم في</span> 
+            <span>S22MARKET</span> 
+            <span class="emoji">🎉</span> 
+            <span class="emoji">🛍️</span> 
+            <span class="emoji">🛒</span>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import {
-            getAuth,
-            createUserWithEmailAndPassword,
-            signInWithEmailAndPassword,
-            signInWithPopup,
-            GoogleAuthProvider,
-            sendPasswordResetEmail,
-            onAuthStateChanged
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- قسم المنتجات -->
+    <section id="PRODUCTS" class="section">
+        <div style="background-color: var(--background-dark); padding: 1.5rem; border-radius: 15px; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); margin: 1.5rem 0;">
+            <nav>
+                <ul style="list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center;">
+                    <li><a href="#dawrattaelimia" class="btn">الدورات التعليمية</a></li>
+                    <li><a href="#year1" class="btn">الدورات الجامعية</a></li>
+                    <li><a href="#dawrataltawralthaanawii" class="btn">الطور الثانوي</a></li>
+                    <li><a href="#khadamwriayasihiya" class="btn">الرعاية الصحية</a></li>
+                    <li><a href="#clothespage" class="btn">الملابس والاكسسورات</a></li>
+                    <li><a href="#realestate" class="btn">العقارات</a></li>
+                </ul>
+            </nav>
+        </div>
+    </section>
 
-        const firebaseConfig = {
-           apiKey: "AIzaSyAxEq-nkLDc3_HM38xb3mhb8ekSXmuFQ7I",
-           authDomain: "s22market-4bdb9.firebaseapp.com",
-           projectId: "s22market-4bdb9",
-           storageBucket: "s22market-4bdb9.firebasestorage.app",
-           messagingSenderId: "1029564929614",
-           appId: "1:1029564929614:web:2866722c34cf1fb2b8951f",
-           measurementId: "G-VH16M3Q33V"
+    <!-- قسم الدورات التعليمية -->
+    <section id="dawrattaelimia" class="section">
+        <h2>الدورات التعليمية</h2>
+        <div class="top-products">
+            
+            <!-- بطاقة المنتج الأولى -->
+            <div class="product-card fade-in">
+                <img src="image/AMINE.png" alt="دورة الخياطة الطبية">
+                <h3>🩺 دورة تعلم الخياطة الطبية والإسعافات الأولية 🩹</h3>
+                <p>
+                    <span style="color: #2ECC71;">🔹 تعلم أساسيات الخياطة الطبية</span> بخطوات عملية مبسطة.<br>
+                    <span style="color: #3498DB;">🔹 اكتسب مهارات الإسعافات الأولية</span> لإنقاذ الأرواح.<br>
+                    <span style="color: #9B59B6;">🔹 بإشراف متخصصين</span> وبتقنيات حديثة.<br>
+                    <span style="color: #E74C3C;">🔹 سجل الآن</span> لتبدأ رحلتك في مجال الرعاية الصحية!
+                </p>
+                
+                <div>
+                    <section style="background-color: #f4f4f9; padding: 1rem; text-align: center; border-radius: 0.75rem; margin: 1.5rem auto; max-width: 320px; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);">
+                        <h3 style="color: #2C3E50; font-size: 1.2rem; margin-bottom: 0.8rem;">
+                            📚 دورة الخياطة الطبية والإسعافات الأولية
+                        </h3>
+                        <a href="https://docs.google.com/forms/d/e/1FAIpQLSfzv4AOur018rrg4uxRJYT4Iv70rKFhR6ZPpWuy-9qE6ytn3g/viewform?usp=header" 
+                           target="_self" class="btn">
+                            🌟 اطلع عليها الآن
+                        </a>
+                    </section>
+                </div>
+
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://t.me/S22MARKET" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="http://t.me/THE_S22MARKET_BOT" target="_blank"><i class="fas fa-robot"></i></a>
+                </div>
+            </div>
+
+            <!-- بطاقة المنتج الثانية -->
+            <div class="product-card fade-in">
+                <img src="image/canva.jpg" alt="دورة تعلم كانفا">
+                <h3>🎨 دورة تعلم تصميم كانفا 🎨</h3>
+                <p>
+                    <span style="color: #2ECC71;">🔹 تعلم أسرار التصميم</span> باستخدام أداة كانفا.<br>
+                    <span style="color: #3498DB;">🔹 احترف الإبداع</span> في تصميم المحتوى الجذاب.<br>
+                    <span style="color: #9B59B6;">🔹 سعر مميز</span> وأداء استثنائي مضمون!<br>
+                    <span style="color: #E74C3C;">🔹 انضم الآن</span> وابدأ رحلتك مع التصميم!
+                </p>
+                
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://t.me/S22MARKET" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="http://t.me/THE_S22MARKET_BOT" target="_blank"><i class="fas fa-robot"></i></a>
+                </div>
+            </div>
+
+            <!-- بطاقة المنتج الثالثة -->
+            <div class="product-card fade-in">
+                <img src="image/HIJAMA.jpg" alt="دورة تعلم الحجامة">
+                
+                <div style="border: 2px solid #FF5733; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3>✨ حصص علاجية متخصصة بالحجامة ✨</h3>
+                    <p>
+                        <strong>🔹 أنواع الحجامة المتوفرة:</strong>
+                        <ul style="margin-top: 10px; text-align: right; padding-right: 1rem;">
+                            <li>🌿 الحجامة الطبية: لتحسين الأداء البدني والصحي.</li>
+                            <li>🔍 الحجامة الوقائية: لتعزيز المناعة والوقاية.</li>
+                            <li>💪 الحجامة العلاجية: لتخفيف الألم وتحسين الدورة الدموية.</li>
+                        </ul>
+                        <span style="color: #2ECC71;">🔹 جلسات احترافية</span> تلبي احتياجاتك الصحية.<br>
+                        <span style="color: #3498DB;">🔹 فوائد مثبتة</span> للعناية بالجسم والعقل.<br>
+                        <span style="color: #E74C3C;">🔹 احجز الآن</span> واستمتع برحلة علاجية فريدة!
+                    </p>
+                </div>
+                
+                <div style="border: 2px dashed #9B59B6; padding: 15px; border-radius: 10px;">
+                    <h3>✨ دورة تعلم فن الحجامة ✨</h3>
+                    <p>
+                        <span style="color: #2ECC71;">🔹 تعلم الحجامة:</span> بأسلوب علمي وعملي.<br>
+                        <span style="color: #3498DB;">🔹 فوائد شاملة:</span> تحت إشراف خبراء معتمدين.<br>
+                        <span style="color: #E74C3C;">🔹 احجز الآن:</span> وابدأ رحلتك الاحترافية!
+                    </p>
+                </div>
+                
+                <a href="https://forms.gle/JKyUYoqPYDMPpBCg7" target="_self" class="btn" style="margin-top: 1rem;">
+                    🌟 اطلع عليهما الآن
+                </a>
+
+                <div class="social-icons" style="margin-top: 1.5rem;">
+                    <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://t.me/S22MARKET" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="http://t.me/THE_S22MARKET_BOT" target="_blank"><i class="fas fa-robot"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم الرعاية الصحية -->
+    <section id="khadamwriayasihiya" class="section">
+        <h2>🩺 الرعاية الصحية وخدماتها 🩺</h2>
+        <div class="top-products">
+            <!-- يمكنك إضافة منتجات الرعاية الصحية هنا -->
+            <div class="product-card fade-in">
+                <img src="image/healthcare.jpg" alt="الرعاية الصحية">
+                <h3>خدمات الرعاية الصحية المتكاملة</h3>
+                <p>
+                    نقدم مجموعة متكاملة من خدمات الرعاية الصحية التي تلبي جميع احتياجاتك.<br>
+                    <span style="color: #2ECC71;">🔹 استشارات طبية متخصصة</span><br>
+                    <span style="color: #3498DB;">🔹 جلسات علاجية</span><br>
+                    <span style="color: #9B59B6;">🔹 متابعة دورية</span><br>
+                    <span style="color: #E74C3C;">🔹 احجز الآن</span> واحصل على أفضل رعاية صحية!
+                </p>
+                
+                <a href="#" class="btn">تعرف على المزيد</a>
+                
+                <div class="social-icons" style="margin-top: 1.5rem;">
+                    <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://t.me/S22MARKET" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="http://t.me/THE_S22MARKET_BOT" target="_blank"><i class="fas fa-robot"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم الطور الثانوي -->
+    <section id="dawrataltawralthaanawii" class="section">
+        <h2>دورات الطور الثانوي</h2>
+        <div class="top-products">
+            <div class="product-card fade-in">
+                <img src="image/younesbacmathdawal500DA.jpg" alt="دورات الطور الثانوي">
+                <h3>📚 دروس خصوصية في مادة الرياضيات ✨</h3>
+                <p>
+                    <span style="color: #2ECC71;">🔹 دورة شاملة</span> مصممة لمناهج الباك الجزائري.<br>
+                    <span style="color: #3498DB;">🔹 حل تمارين</span> وأسئلة متوقعة لتحقيق أفضل النتائج.<br>
+                    <span style="color: #9B59B6;">🔹 دراسة الدوال المعقدة</span> بأسلوب مبسط.<br>
+                    <span style="color: #E74C3C;">🔹 سجل الآن</span> وابدأ رحلتك نحو التفوق!
+                </p>
+                
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/profile.php?id=61569283967449&mibextid=ZbWKwL" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://t.me/deikb" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="tel:+0779778457"><i class="fas fa-phone"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   <!-- قسم الملابس والإكسسوارات -->
+<section id="clothespage" class="section">
+    <h2>الموضة</h2>
+    <div class="top-products">
+        <div class="product-card fade-in">
+            <img src="image/fashion.jpg" alt="الموضة">
+            <h3>تشكيلة أنيقة ومميزة</h3>
+            <p>
+                اكتشف أحدث صيحات الموضة التي تضيف لمستك الخاصة لمظهرك.<br>
+                <span style="color: #E91E63;">🔹 ملابس رجالية ونسائية</span><br>
+                <span style="color: #3F51B5;">🔹 إكسسوارات أنيقة</span><br>
+                <span style="color: #FF9800;">🔹 قبعات بأنماط عصرية</span><br>
+                <span style="color: #009688;">🔹 تواصل معنا</span> للحصول على آخر العروض!
+            </p>
+            
+            <section style="background-color: #f9f9fc; padding: 1.5rem; text-align: center; border-radius: 0.75rem; margin: 1.5rem auto; max-width: 350px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
+                <h3 style="color: #333; font-size: 1.2rem; margin-bottom: 1rem;">
+                    استعرض تشكيلتنا المميزة 👗🧢👜
+                </h3>
+                <a href="#" class="btn">الان  </a>
+            </section>
+        </div>
+    </div>
+</section>
+
+
+    <!-- قسم تحميل التطبيق -->
+    <section id="qr-code" class="section">
+        <div class="qr-section">
+            <h3>مسح رمز الاستجابة السريع لتحميل التطبيق</h3>
+            <img src="QR/QR.jpg" alt="QR Code" class="qr-code">
+            
+            <div class="button-container">
+                <a href="S22MARKET.apk" class="button" download>تحميل التطبيق مباشرة (APK)</a>
+                <a href="S22MARKET_app_site.html" class="button">تحميل التطبيق (APK)</a>
+                <a href="https://s22market.github.io/S22MARKET/" class="button" id="copyLinkButton">نسخ الرابط</a>
+            </div>
+            
+            <div class="footer">
+                <p>لأي استفسارات، يرجى الاتصال بنا.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- تذييل الصفحة -->
+    <footer id="footer">
+        <p>&copy; 2024 S22MARKET. جميع الحقوق محفوظة.</p>
+        <div class="footer-icons">
+            <a href="http://t.me/THE_S22MARKET_BOT" target="_blank" aria-label="Telegram Bot"><i class="fas fa-robot"></i></a>
+            <a href="https://www.tiktok.com/@s22market?_t=ZM-8sbJ7s4RWq6&_r=1" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+            <a href="https://t.me/S22MARKET" target="_blank" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+            <a href="https://www.facebook.com/profile.php?id=61563869504735" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="https://www.instagram.com/s22market2?igsh=d2VtM3h4M3A5N250" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        </div>
+    </footer>
+
+    <script>
+        // تبديل القائمة للهواتف
+        const menuToggle = document.getElementById('menuToggle');
+        const mainMenu = document.getElementById('mainMenu');
+        
+        menuToggle.addEventListener('click', () => {
+            mainMenu.classList.toggle('active');
+            menuToggle.innerHTML = mainMenu.classList.contains('active') ? 
+                '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        });
+        
+        // إغلاق القائمة عند النقر على رابط
+        document.querySelectorAll('.menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 992) {
+                    mainMenu.classList.remove('active');
+                    menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                }
+            });
+        });
+        
+        // تبديل الوضع الداكن/الفاتح
+        const themeToggle = document.getElementById('themeToggle');
+        const root = document.documentElement;
+        
+        const setThemeByTime = () => {
+            const hour = new Date().getHours();
+            if (hour >= 6 && hour < 18) {
+                root.removeAttribute('data-theme');
+                themeToggle.innerHTML = '🌙 الوضع الداكن';
+            } else {
+                root.setAttribute('data-theme', 'dark');
+                themeToggle.innerHTML = '🌞 الوضع النهاري';
+            }
+        };
+        
+        setThemeByTime();
+        
+        themeToggle.addEventListener('click', () => {
+            if (root.hasAttribute('data-theme')) {
+                root.removeAttribute('data-theme');
+                themeToggle.innerHTML = '🌙 الوضع الداكن';
+            } else {
+                root.setAttribute('data-theme', 'dark');
+                themeToggle.innerHTML = '🌞 الوضع النهاري';
+            }
+        });
+        
+        // التمرير السلس
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // نسخ الرابط
+        document.getElementById('copyLinkButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            const link = this.href;
+            navigator.clipboard.writeText(link)
+                .then(() => {
+                    alert('تم نسخ الرابط إلى الحافظة!');
+                })
+                .catch(() => {
+                    alert('حدث خطأ أثناء نسخ الرابط. يرجى المحاولة مرة أخرى.');
+                });
+        });
+        
+        // تأثير التحميل التدريجي للعناصر
+        document.addEventListener('DOMContentLoaded', () => {
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            const fadeInOnScroll = () => {
+                fadeElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const windowHeight = window.innerHeight;
+                    
+                    if (elementTop < windowHeight - 100) {
+                        element.style.opacity = '1';
+                        element.style.transform = 'translateY(0)';
+                    }
+                });
+            };
+            
+            // تعيين الخصائص الأولية
+            fadeElements.forEach(element => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            });
+            
+            // تشغيل عند التحميل وعند التمرير
+            fadeInOnScroll();
+            window.addEventListener('scroll', fadeInOnScroll);
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>إشعارات هامة | S22MARKET</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4caf50;
+            --secondary-color: #81c784;
+            --background-dark: #121212;
+            --text-light: #ffffff;
+            --highlight-color: #03dac5;
+            --danger-color: #ff5722;
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="light"] {
+            --background-dark: #ffffff;
+            --text-light: #000000;
+            --primary-color: #4caf50;
+            --highlight-color: #ff5722;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .custom-modal {
+            display: flex;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            box-sizing: border-box;
+            backdrop-filter: blur(5px);
+        }
+
+        .custom-modal-content {
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            padding: 20px;
+            border-radius: 15px;
+            width: 95%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            text-align: center;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.4s ease-out;
+            box-sizing: border-box;
+            margin: 10px;
+            border: 1px solid var(--primary-color);
+            position: relative;
+        }
+
+        .modal-header {
+            position: relative;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--primary-color);
+        }
+
+        .modal-header h1 {
+            font-size: 1.4rem;
+            margin: 0;
+            color: var(--highlight-color);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .modal-body p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .modal-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .custom-button {
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            transition: all var(--transition-speed);
+            width: 100%;
+            box-sizing: border-box;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--highlight-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-close {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-close:hover {
+            background-color: #e53935;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .audio-control {
+            margin: 15px 0;
+            width: 100%;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .close-btn:hover {
+            opacity: 1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            background-color: var(--highlight-color);
+            color: #000;
+            margin-right: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .custom-modal-content {
+                padding: 15px;
+                width: 98%;
+            }
+            
+            .modal-header h1 {
+                font-size: 1.2rem;
+            }
+            
+            .modal-body p {
+                font-size: 0.85rem;
+            }
+            
+            .custom-button {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* تحسينات الوضع الداكن/الفاتح */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 9999;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-speed);
+        }
+
+        .theme-toggle:hover {
+            background: var(--highlight-color);
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+
+    
+    <!-- إشعار سورة الكهف -->
+    <div id="kahfModal" class="custom-modal" style="display: none;">
+        <div class="custom-modal-content">
+            <button class="close-btn" onclick="closeModal('kahfModal')">✕</button>
+            <div class="modal-header">
+                <h1><i class="fas fa-book-quran"></i> فضل سورة الكهف</h1>
+            </div>
+            <div class="modal-body">
+                <p><span class="badge">حديث صحيح</span> من قرأ سورةَ ( الكهفِ ) في يومِ الجمعةِ أضاء له من النورِ ما بين الجمُعَتَين</p>
+                <p style="color: var(--highlight-color); font-size: 0.8rem;">الراوي: أبو سعيد الخدري | المحدث: الألباني | المصدر: صحيح الترغيب</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="window.location.href='سورة الكهف مكتوبة.html'" class="custom-button btn-primary">
+                    <i class="fas fa-external-link-alt"></i> انتقل إليها الآن
+                </button>
+                <button class="custom-button btn-close" onclick="closeModal('kahfModal')">
+                    <i class="fas fa-times"></i> إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- إشعار صلاة الجمعة -->
+    <div id="jumaaModal" class="custom-modal" style="display: none;">
+        <div class="custom-modal-content">
+            <button class="close-btn" onclick="closeModal('jumaaModal')">✕</button>
+            <div class="modal-header">
+                <h1><i class="fas fa-mosque"></i> فضل صلاة الجمعة</h1>
+            </div>
+            <div class="modal-body">
+                <audio id="jumaaAudio" controls class="audio-control">
+                    <source src="SALAT JOMOAA/JOMAA.mp3" type="audio/mpeg">
+                    متصفحك لا يدعم تشغيل الصوت.
+                </audio>
+
+                <p><span class="badge">حديث صحيح</span> من غسَّلَ يومَ الجمعةِ واغتسلَ ثمَّ بَكَّرَ وابتَكرَ ومشى ولم يرْكب ودنا منَ الإمامِ فاستمعَ ولم يلغُ كانَ لَهُ بِكلِّ خطوةٍ عملُ سنةٍ أجرُ صيامِها وقيامِها</p>
+                <p style="color: var(--highlight-color); font-size: 0.8rem;">الراوي: أوس بن أبي أوس | المحدث: الألباني | المصدر: صحيح أبي داود</p>
+                
+                <p><span class="badge">حديث صحيح</span> الصَّلَوَاتُ الخَمْسُ، وَالْجُمْعَةُ إلى الجُمْعَةِ، وَرَمَضَانُ إلى رَمَضَانَ، مُكَفِّرَاتٌ ما بيْنَهُنَّ إِذَا اجْتَنَبَ الكَبَائِرَ.</p>
+                <p style="color: var(--highlight-color); font-size: 0.8rem;">الراوي: أبو هريرة | المحدث: مسلم | المصدر: صحيح مسلم</p>
+
+                <p><span class="badge">حديث صحيح</span> قال رسول الله ﷺ: "أفضلُ يومٍ طلعتْ فيه الشمسُ يومُ الجمعةِ، فيه خُلِقَ آدمُ، وفيه أُدخلَ الجنةَ، وفيه أُخرجَ منها"</p>
+                <p style="color: var(--highlight-color); font-size: 0.8rem;">[صحيح مسلم]</p>
+            </div>
+            <div class="modal-footer">
+                <button class="custom-button btn-close" onclick="closeModal('jumaaModal')">
+                    <i class="fas fa-times"></i> إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- الإشعار العام -->
+    <div id="generalModal" class="custom-modal" style="display: none;">
+        <div class="custom-modal-content">
+            <button class="close-btn" onclick="closeModal('generalModal')">✕</button>
+            <div class="modal-header">
+                <h1><i class="fas fa-bell"></i> إشعار هام</h1>
+            </div>
+            <div class="modal-body">
+                <p>مرحبًا بك في <span style="color: var(--highlight-color);">S22MARKET</span></p>
+                <p>نحن نعمل باستمرار على تطوير وتحسين موقعنا لنقدم لك أفضل تجربة ممكنة.</p>
+                <p>المزيد من الميزات والتحديثات قادمة إن شاء الله</p>
+            </div>
+            <div class="modal-footer">
+                <button class="custom-button btn-primary" onclick="window.location.href='https://s22market.github.io/S22MARKET/'">
+                    <i class="fas fa-home"></i> الانتقال للصفحة الرئيسية
+                </button>
+                <button class="custom-button btn-close" onclick="closeModal('generalModal')">
+                    <i class="fas fa-times"></i> إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+      
+      
+        
+        // تعيين الوضع الأولي
+        setThemeByTime();
+
+        // إدارة الإشعارات
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+    
+        function showModals() {
+            let today = new Date();
+            let dayOfWeek = today.getDay();
+            let hours = today.getHours();
+    
+            // عرض الإشعار العام فورًا
+            document.getElementById("generalModal").style.display = "flex";
+    
+            if (dayOfWeek === 5) { // الجمعة فقط
+                document.getElementById("kahfModal").style.display = "flex";
+    
+                if (hours < 14) { // قبل 14:00 فقط
+                    document.getElementById("jumaaModal").style.display = "flex";
+                    
+                    let audio = document.getElementById("jumaaAudio");
+                    if (audio && !audio.dataset.played) {
+                        let playAudio = () => {
+                            audio.volume = 0.5; // تخفيض الصوت لتجربة أفضل
+                            audio.play().then(() => {
+                                audio.dataset.played = "true";
+                            }).catch(error => console.log("تشغيل الصوت يتطلب تفاعل المستخدم", error));
+                        };
+    
+                        if (document.hasFocus()) {
+                            playAudio();
+                        } else {
+                            document.addEventListener("click", playAudio, { once: true });
+                            document.addEventListener("touchstart", playAudio, { once: true });
+                        }
+                    }
+                }
+            }
+        }
+    
+        // تشغيل الصوت عند التفاعل يوم الجمعة
+        document.addEventListener("DOMContentLoaded", function() {
+            let today = new Date();
+            let dayOfWeek = today.getDay();
+            let hours = today.getHours();
+    
+            if (dayOfWeek === 5 && hours < 14) {
+                let audio = document.getElementById("jumaaAudio");
+                if (audio) {
+                    document.body.addEventListener("click", function() {
+                        if (audio.paused) {
+                            audio.volume = 0.5;
+                            audio.play().catch(error => console.log("تشغيل الصوت يتطلب تفاعل المستخدم", error));
+                        }
+                    }, { once: true });
+                }
+            }
+        });
+    
+        // عرض الإشعارات عند تحميل الصفحة
+        window.onload = function() {
+            setTimeout(showModals, 1000); // تأخير بسيط لتحسين تجربة المستخدم
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const googleProvider = new GoogleAuthProvider();
-
-        const loginForm = document.getElementById('login-form');
-        const registerForm = document.getElementById('register-form');
-        const toggleLink = document.getElementById('toggle-form');
-        const formTitle = document.getElementById('form-title');
-        const googleSignInButton = document.getElementById('google-signin');
-        const forgotPasswordLink = document.getElementById('forgot-password');
-        const alertMessage = document.getElementById('alert-message');
-        const alertText = document.getElementById('alert-text');
-
-        function showAlert(message, isError = true) {
-            alertText.textContent = message;
-            alertMessage.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
-            if (isError) {
-                alertMessage.classList.add('bg-red-100', 'text-red-800');
-            } else {
-                alertMessage.classList.add('bg-green-100', 'text-green-800');
-            }
-        }
-
-        toggleLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            loginForm.classList.toggle('hidden');
-            registerForm.classList.toggle('hidden');
-            const isLoginFormVisible = !loginForm.classList.contains('hidden');
-            formTitle.textContent = isLoginFormVisible ? 'قم بتسجيل الدخول للمتابعة' : 'أنشئ حساباً جديداً في S22MARKET';
-            toggleLink.textContent = isLoginFormVisible ? 'ليس لديك حساب؟ قم بإنشاء واحد' : 'لديك حساب بالفعل؟ قم بتسجيل الدخول';
-        });
-
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('register-name').value;
-            const email = document.getElementById('register-email').value;
-            const phone = document.getElementById('register-phone').value;
-            const password = document.getElementById('register-password').value;
-            
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                await setDoc(doc(db, "users", user.uid), {
-                    uid: user.uid,
-                    fullName: name,
-                    email: email,
-                    phone: phone,
-                    role: 'both', // <-- Role is now 'both' by default
-                    isVerified: false,
-                    adminRating: 0,
-                    isAdmin: false,
-                    deletionRequested: false,
-                    createdAt: new Date()
-                });
-
-                showAlert('تم إنشاء الحساب بنجاح! سيتم توجيهك الآن.', false);
-                setTimeout(() => window.location.href = 'profile.html', 2000);
-
-            } catch (error) {
-                showAlert(getFirebaseErrorMessage(error));
-            }
-        });
-
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                showAlert('تم تسجيل الدخول بنجاح! جاري توجيهك...', false);
-                setTimeout(() => window.location.href = 'profile.html', 2000);
-            } catch (error) {
-                showAlert(getFirebaseErrorMessage(error));
-            }
-        });
-
-        googleSignInButton.addEventListener('click', async () => {
-            try {
-                const result = await signInWithPopup(auth, googleProvider);
-                const user = result.user;
-                const userDocRef = doc(db, "users", user.uid);
-                const userDoc = await getDoc(userDocRef);
-
-                if (!userDoc.exists()) {
-                    await setDoc(userDocRef, {
-                        uid: user.uid,
-                        fullName: user.displayName,
-                        email: user.email,
-                        phone: user.phoneNumber || '',
-                        role: 'both', // <-- Role is now 'both' by default
-                        isVerified: false,
-                        adminRating: 0,
-                        isAdmin: false,
-                        deletionRequested: false,
-                        createdAt: new Date()
-                    });
+        // إغلاق النافذة عند النقر خارج المحتوى
+        document.querySelectorAll('.custom-modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
                 }
-
-                showAlert('تم تسجيل الدخول بنجاح عبر جوجل!', false);
-                setTimeout(() => window.location.href = 'profile.html', 2000);
-
-            } catch (error) {
-                showAlert(getFirebaseErrorMessage(error));
-            }
-        });
-
-        forgotPasswordLink.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            if (!email) {
-                showAlert('الرجاء إدخال بريدك الإلكتروني أولاً في حقل البريد الإلكتروني.');
-                return;
-            }
-            try {
-                await sendPasswordResetEmail(auth, email);
-                showAlert('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.', false);
-            } catch (error) {
-                showAlert(getFirebaseErrorMessage(error));
-            }
-        });
-
-        function getFirebaseErrorMessage(error) {
-            switch (error.code) {
-                case 'auth/invalid-email': return 'البريد الإلكتروني غير صالح.';
-                case 'auth/user-not-found': return 'هذا الحساب غير موجود.';
-                case 'auth/wrong-password': return 'كلمة المرور غير صحيحة.';
-                case 'auth/email-already-in-use': return 'هذا البريد الإلكتروني مستخدم بالفعل.';
-                case 'auth/weak-password': return 'كلمة المرور ضعيفة جدًا. يجب أن تكون 6 أحرف على الأقل.';
-                default: return 'حدث خطأ غير متوقع. الرجاء المحاولة مرة أخرى.';
-            }
-        }
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                 window.location.href = 'profile.html';
-            }
+            });
         });
     </script>
 </body>
