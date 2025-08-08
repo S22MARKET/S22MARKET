@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Market - لوحة التحكم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.1/dist/browser-image-compression.js"></script>
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
+        .hidden { display: none; }
+        .active-tab { background-color: #1f2937; }
+        .dashboard-panel { animation: fadeIn 0.5s; }
+        .modal-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); z-index: 40;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background-color: white; padding: 2rem; border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%;
+            max-width: 600px; z-index: 50; max-height: 90vh; overflow-y: auto;
+        }
+        .loader {
+            border: 5px solid #f3f3f3; border-top: 5px solid #3b82f6;
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="login-page" class="min-h-screen flex items-center justify-center bg-gray-50">
+        <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-lg text-center">
+            <i class="fas fa-user-shield text-5xl text-blue-600 mb-4"></i>
+            <h2 class="text-3xl font-extrabold text-gray-900 mb-2">لوحة التحكم</h2>
+            <p class="text-gray-600 mb-6">الرجاء إدخال رمز الدخول للمتابعة.</p>
+            <form id="login-form">
+                <input type="password" id="access-code" class="w-full px-4 py-3 text-center text-lg tracking-[0.5em] bg-gray-100 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition" placeholder="••••••••">
+                <p id="login-error" class="hidden text-red-500 mt-3">الرمز غير صحيح. الرجاء المحاولة مرة أخرى.</p>
+                <button type="submit" class="w-full mt-6 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors text-lg">
+                    <i class="fas fa-sign-in-alt mr-2"></i> دخول
+                </button>
+            </form>
+             <a href="index.html" class="block w-full mt-4 bg-gray-200 text-gray-700 font-bold py-3 rounded-lg hover:bg-gray-300 transition-colors text-lg">
+                <i class="fas fa-arrow-left mr-2"></i> العودة للمتجر
+            </a>
+        </div>
+    </div>
+
+    <div id="dashboard-page" class="hidden">
+        <div class="flex h-screen bg-gray-100">
+            <aside class="w-64 bg-gray-800 text-white flex flex-col">
+                <div class="p-6 text-center border-b border-gray-700">
+                    <h2 class="text-2xl font-bold">S22 Market</h2>
+                </div>
+                <nav class="flex-1 p-4 space-y-2">
+                    <a href="#products" class="dashboard-tab active-tab flex items-center px-4 py-3 rounded-md hover:bg-gray-700"><i class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
+                    <a href="#categories" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-gray-700"><i class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
+                    <a href="#orders" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-gray-700"><i class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
+                </nav>
+                <div class="p-4 border-t border-gray-700">
+                    <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
+                </div>
+            </aside>
+
+            <main class="flex-1 p-8 overflow-y-auto">
+                <div id="products-panel" class="dashboard-panel"></div>
+                <div id="categories-panel" class="dashboard-panel hidden"></div>
+                <div id="orders-panel" class="dashboard-panel hidden"></div>
+            </main>
+        </div>
+    </div>
+
+    <div id="modal-container"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxEq-nkLDc3_HM38xb3mhb8ekSXmuFQ7I",
+            authDomain: "s22market-4bdb9.firebaseapp.com",
+            databaseURL: "https://s22market-4bdb9-default-rtdb.firebaseio.com",
+            projectId: "s22market-4bdb9",
+            storageBucket: "s22market-4bdb9.firebasestorage.app",
+            messagingSenderId: "1029564929614",
+            appId: "1:1029564929614:web:2866722c34cf1fb2b8951f",
+            measurementId: "G-VH16M3Q33V"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        const ACCESS_CODE = 'YACINEE474474';
+        let categoriesCache = [];
+        let unsubscribeProducts, unsubscribeCategories, unsubscribeOrders;
+        const modalContainer = document.getElementById('modal-container');
+
+        // --- Auth, Modals, and Basic Setup (same as before) ---
+        function checkLogin() {
+            if (sessionStorage.getItem('isAdmin') === 'true') {
+                document.getElementById('login-page').classList.add('hidden');
+                document.getElementById('dashboard-page').classList.remove('hidden');
+                initializeDashboard();
+            } else {
+                document.getElementById('login-page').classList.remove('hidden');
+                document.getElementById('dashboard-page').classList.add('hidden');
+            }
+        }
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (document.getElementById('access-code').value === ACCESS_CODE) {
+                sessionStorage.setItem('isAdmin', 'true');
+                checkLogin();
+            } else { document.getElementById('login-error').classList.remove('hidden'); }
+        });
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            sessionStorage.removeItem('isAdmin');
+            if(unsubscribeProducts) unsubscribeProducts();
+            if(unsubscribeCategories) unsubscribeCategories();
+            if(unsubscribeOrders) unsubscribeOrders();
+            checkLogin();
+        });
+        function showModal(title, content, onConfirm, confirmText = 'حفظ') {
+            const modalHTML = `<div class="modal-backdrop" id="modal-backdrop"><div class="modal-content"><h3 class="text-2xl font-bold mb-6">${title}</h3><div id="modal-body">${content}</div><div class="flex justify-end gap-4 mt-8"><button id="modal-cancel" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button><button id="modal-confirm" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">${confirmText}</button></div></div></div>`;
+            modalContainer.innerHTML = modalHTML;
+            document.getElementById('modal-cancel').addEventListener('click', closeModal);
+            document.getElementById('modal-backdrop').addEventListener('click', (e) => e.target.id === 'modal-backdrop' && closeModal());
+            document.getElementById('modal-confirm').addEventListener('click', onConfirm);
+        }
+        function closeModal() { modalContainer.innerHTML = ''; }
+        function showLoadingModal(text = 'جاري الحفظ...') {
+             modalContainer.innerHTML = `<div class="modal-backdrop"><div class="modal-content text-center"><div class="loader mx-auto"></div><p class="mt-4 text-lg font-semibold text-gray-700">${text}</p></div></div>`;
+        }
+
+        function initializeDashboard() {
+            const tabs = document.querySelectorAll('.dashboard-tab');
+            const panels = document.querySelectorAll('.dashboard-panel');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    tabs.forEach(t => t.classList.remove('active-tab'));
+                    tab.classList.add('active-tab');
+                    const targetPanelId = tab.getAttribute('href').substring(1) + '-panel';
+                    panels.forEach(panel => panel.classList.toggle('hidden', panel.id !== targetPanelId));
+                });
+            });
+            loadCategories();
+            loadProducts();
+            loadOrders();
+        }
+
+        // --- Category Management (Unchanged) ---
+        function loadCategories() {
+            const panel = document.getElementById('categories-panel');
+            panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة الأقسام</h1><button id="add-category-btn" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700"><i class="fas fa-plus mr-2"></i> إضافة قسم</button></div><div class="bg-white p-6 rounded-xl shadow-md"><div id="categories-loader" class="text-center py-10"><div class="loader mx-auto"></div></div><div id="categories-list" class="hidden space-y-4"></div></div>`;
+            document.getElementById('add-category-btn').addEventListener('click', () => showCategoryModal());
+            const loader = document.getElementById('categories-loader');
+            const list = document.getElementById('categories-list');
+            const q = query(collection(db, "categories"), orderBy("name"));
+            unsubscribeCategories = onSnapshot(q, (snapshot) => {
+                categoriesCache = [];
+                list.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const category = { id: doc.id, ...doc.data() };
+                    categoriesCache.push(category);
+                    const el = document.createElement('div');
+                    el.className = 'bg-gray-50 p-4 rounded-lg border flex justify-between items-center';
+                    el.innerHTML = `<div><h4 class="text-xl font-bold">${category.name}</h4><div class="mt-2 pl-4">${(category.subcategories || []).map(sub => `<span class="inline-block bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm mr-2 mb-2">${sub}</span>`).join('')}</div></div><div><button class="edit-category-btn text-blue-500 hover:text-blue-700 mr-4" data-id="${category.id}"><i class="fas fa-edit"></i></button><button class="delete-category-btn text-red-500 hover:text-red-700" data-id="${category.id}"><i class="fas fa-trash"></i></button></div>`;
+                    list.appendChild(el);
+                });
+                attachCategoryActionListeners();
+                loader.style.display = 'none';
+                list.classList.remove('hidden');
+            });
+        }
+        function showCategoryModal(category = null) {
+            const title = category ? 'تعديل القسم' : 'إضافة قسم جديد';
+            const content = `<div><label>اسم القسم</label><input type="text" id="category-name" class="mt-1 w-full p-2 border rounded" value="${category ? category.name : ''}"></div><div class="mt-4"><label>الفروع (افصل بفاصلة ,)</label><input type="text" id="category-subs" class="mt-1 w-full p-2 border rounded" value="${category && category.subcategories ? category.subcategories.join(', ') : ''}"></div>`;
+            showModal(title, content, async () => {
+                const name = document.getElementById('category-name').value.trim();
+                if (!name) return alert('اسم القسم مطلوب');
+                const subs = document.getElementById('category-subs').value.split(',').map(s => s.trim()).filter(Boolean);
+                showLoadingModal();
+                if (category) await updateDoc(doc(db, "categories", category.id), { name, subcategories: subs });
+                else await addDoc(collection(db, "categories"), { name, subcategories: subs });
+                closeModal();
+            });
+        }
+        function attachCategoryActionListeners() {
+            document.querySelectorAll('.edit-category-btn').forEach(btn => btn.onclick = (e) => {
+                const id = e.currentTarget.dataset.id;
+                const cat = categoriesCache.find(c => c.id === id); if (cat) showCategoryModal(cat);
+            });
+            document.querySelectorAll('.delete-category-btn').forEach(btn => btn.onclick = async (e) => {
+                const id = e.currentTarget.dataset.id;
+                if (confirm('هل أنت متأكد؟ سيتم حذف جميع المنتجات في هذا القسم.')) {
+                    showLoadingModal('جاري الحذف...');
+                    const q = query(collection(db, "products"), where("categoryId", "==", id));
+                    const productsSnapshot = await getDocs(q);
+                    const deletePromises = productsSnapshot.docs.map(pDoc => deleteProduct(pDoc.id, pDoc.data().imagePath, false));
+                    await Promise.all(deletePromises);
+                    await deleteDoc(doc(db, "categories", id));
+                    closeModal();
+                }
+            });
+        }
+
+        // --- Product Management (UPDATED) ---
+        function loadProducts() {
+            const panel = document.getElementById('products-panel');
+            panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات</h1><button id="add-product-btn" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div><div class="bg-white p-6 rounded-xl shadow-md"><div id="products-loader" class="text-center py-10"><div class="loader mx-auto"></div></div><div id="products-table-container" class="hidden overflow-x-auto"><table class="w-full text-right"><thead class="bg-gray-100"><tr><th class="p-3">الصورة</th><th class="p-3">الاسم</th><th class="p-3">القسم</th><th class="p-3">السعر</th><th class="p-3">إجراءات</th></tr></thead><tbody id="products-table-body"></tbody></table></div></div>`;
+            document.getElementById('add-product-btn').addEventListener('click', () => showProductModal());
+
+            const loader = document.getElementById('products-loader');
+            const container = document.getElementById('products-table-container');
+            const tableBody = document.getElementById('products-table-body');
+
+            const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+            unsubscribeProducts = onSnapshot(q, (snapshot) => {
+                tableBody.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const product = { id: doc.id, ...doc.data() };
+                    const catName = categoriesCache.find(c => c.id === product.categoryId)?.name || 'N/A';
+                    const row = tableBody.insertRow();
+                    row.className = 'border-b';
+                    row.innerHTML = `<td class="p-3"><img src="${product.imageUrl}" alt="${product.name}" class="w-16 h-16 object-cover rounded-md" onerror="this.style.display='none'"></td><td class="p-3 font-semibold">${product.name}</td><td class="p-3">${catName}</td><td class="p-3 font-mono">${product.price} د.ج</td><td class="p-3"><button class="edit-product-btn text-blue-500 mr-4" data-id="${product.id}"><i class="fas fa-edit"></i></button><button class="delete-product-btn text-red-500" data-id="${product.id}" data-path="${product.imagePath}"><i class="fas fa-trash"></i></button></td>`;
+                });
+                attachProductActionListeners();
+                loader.style.display = 'none';
+                container.classList.remove('hidden');
+            });
+        }
+
+        async function deleteProduct(id, path, confirmFirst = true) {
+            const doDelete = async () => {
+                showLoadingModal('جاري الحذف...');
+                if (path) { try { await deleteObject(ref(storage, path)); } catch (e) { console.error("Image delete failed:", e); } }
+                await deleteDoc(doc(db, "products", id));
+                closeModal();
+            };
+            if (confirmFirst && confirm('هل أنت متأكد من حذف هذا المنتج؟')) await doDelete();
+            else if (!confirmFirst) await doDelete();
+        }
+
+        function showProductModal(product = null) {
+            const title = product ? 'تعديل المنتج' : 'إضافة منتج جديد';
+            const catOptions = categoriesCache.map(c => `<option value="${c.id}" ${product && product.categoryId === c.id ? 'selected' : ''}>${c.name}</option>`).join('');
+            
+            const defaultMethods = [
+                { name: 'واتساب', icon: 'fab fa-whatsapp', url: `https://wa.me/213699443914?text=أريد طلب منتج: ${product ? product.name : ''}` },
+                { name: 'تيليجرام', icon: 'fab fa-telegram', url: 'https://t.me/S22MARKET' },
+                { name: 'فيسبوك', icon: 'fab fa-facebook', url: 'https://www.facebook.com/people/S22market/61563869504735/?_rdr' },
+                { name: 'انستقرام', icon: 'fab fa-instagram', url: 'https://www.instagram.com/s22market2/?igsh=d2VtM3h4M3A5N250' }
+            ];
+            const currentMethods = product?.contactMethods || defaultMethods;
+
+            const content = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div><label>اسم المنتج</label><input type="text" id="product-name" class="mt-1 w-full p-2 border rounded" value="${product?.name || ''}"></div>
+                        <div><label>الوصف</label><textarea id="product-description" rows="3" class="mt-1 w-full p-2 border rounded">${product?.description || ''}</textarea></div>
+                        <div class="grid grid-cols-2 gap-4">
+                           <div><label>السعر (د.ج)</label><input type="number" id="product-price" class="mt-1 w-full p-2 border rounded" value="${product?.price || ''}"></div>
+                           <div><label>القسم</label><select id="product-category" class="mt-1 w-full p-2 border rounded"><option value="">اختر</option>${catOptions}</select></div>
+                        </div>
+                        <div><label>صورة المنتج</label><input type="file" id="product-image" class="mt-1 w-full text-sm" accept="image/*">
+                            ${product ? `<p class="text-xs text-gray-500 mt-1">اترك فارغاً للاحتفاظ بالصورة الحالية.</p><img src="${product.imageUrl}" class="w-20 h-20 rounded mt-2">` : ''}
+                            <div id="p-progress" class="w-full bg-gray-200 rounded-full h-2.5 mt-2 hidden"><div id="p-bar" class="bg-blue-600 h-2.5 rounded-full" style="width:0%"></div></div>
+                        </div>
+                    </div>
+                    <div class="space-y-4 border-r pr-4">
+                        <label class="font-bold">طرق التواصل والطلب للمنتج</label>
+                        <div id="contact-methods-container" class="space-y-3">
+                           ${currentMethods.map((m, i) => `
+                            <div class="contact-method-item bg-gray-50 p-3 rounded-lg border">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                    <input type="text" placeholder="اسم الطريقة (واتساب)" value="${m.name}" class="contact-name p-1 border rounded text-sm">
+                                    <input type="text" placeholder="أيقونة (fab fa-whatsapp)" value="${m.icon}" class="contact-icon p-1 border rounded text-sm">
+                                </div>
+                                <input type="text" placeholder="الرابط URL" value="${m.url}" class="contact-url w-full mt-2 p-1 border rounded text-sm">
+                                <div class="flex items-center gap-2 mt-2">
+                                    <button class="move-up-btn ${i===0 ? 'opacity-50' : ''}" ${i===0 ? 'disabled' : ''}>▲</button>
+                                    <button class="move-down-btn ${i===currentMethods.length-1 ? 'opacity-50' : ''}" ${i===currentMethods.length-1 ? 'disabled' : ''}>▼</button>
+                                    <button class="remove-method-btn text-red-500 ml-auto">حذف</button>
+                                </div>
+                            </div>`).join('')}
+                        </div>
+                        <button id="add-method-btn" class="w-full text-sm bg-gray-200 hover:bg-gray-300 py-2 rounded-md">إضافة طريقة تواصل</button>
+                    </div>
+                </div>`;
+
+            showModal(title, content, async () => {
+                const data = {
+                    name: document.getElementById('product-name').value,
+                    description: document.getElementById('product-description').value,
+                    price: Number(document.getElementById('product-price').value),
+                    categoryId: document.getElementById('product-category').value,
+                };
+                const imageFile = document.getElementById('product-image').files[0];
+                if (!data.name || !data.price || !data.categoryId) return alert('الرجاء ملء كل الحقول.');
+                if (!product && !imageFile) return alert('الرجاء اختيار صورة.');
+
+                // Collect contact methods
+                const contactMethods = [];
+                document.querySelectorAll('.contact-method-item').forEach(item => {
+                    const name = item.querySelector('.contact-name').value.trim();
+                    const icon = item.querySelector('.contact-icon').value.trim();
+                    const url = item.querySelector('.contact-url').value.trim();
+                    if (name && url) contactMethods.push({ name, icon, url });
+                });
+                data.contactMethods = contactMethods;
+
+                showLoadingModal('جاري حفظ المنتج...');
+                
+                if (imageFile) {
+                    if (product && product.imagePath) { try { await deleteObject(ref(storage, product.imagePath)); } catch(e){} }
+                    
+                    // NEW: Compress image before upload
+                    console.log(`Original image size: ${(imageFile.size / 1024 / 1024).toFixed(2)} MB`);
+                    const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
+                    const compressedFile = await imageCompression(imageFile, options);
+                    console.log(`Compressed image size: ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB`);
+                    
+                    const newPath = `products/${Date.now()}_${compressedFile.name}`;
+                    const uploadTask = uploadBytesResumable(ref(storage, newPath), compressedFile);
+                    
+                    await new Promise((resolve, reject) => {
+                        uploadTask.on('state_changed', (snap) => {
+                            document.getElementById('p-progress').classList.remove('hidden');
+                            document.getElementById('p-bar').style.width = `${(snap.bytesTransferred / snap.totalBytes) * 100}%`;
+                        }, (err) => reject(err), async () => {
+                            data.imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                            data.imagePath = newPath;
+                            resolve();
+                        });
+                    });
+                }
+                
+                if (product) await updateDoc(doc(db, "products", product.id), data);
+                else await addDoc(collection(db, "products"), { ...data, createdAt: serverTimestamp() });
+                
+                closeModal();
+            });
+
+            // Logic for adding/removing/reordering contact methods
+            function updateMethodControls() {
+                const items = document.querySelectorAll('.contact-method-item');
+                items.forEach((item, i) => {
+                    const upBtn = item.querySelector('.move-up-btn');
+                    const downBtn = item.querySelector('.move-down-btn');
+                    upBtn.disabled = i === 0;
+                    downBtn.disabled = i === items.length - 1;
+                    upBtn.classList.toggle('opacity-50', i === 0);
+                    downBtn.classList.toggle('opacity-50', i === items.length - 1);
+                });
+            }
+            function attachMethodListeners(item) {
+                item.querySelector('.remove-method-btn').addEventListener('click', () => { item.remove(); updateMethodControls(); });
+                item.querySelector('.move-up-btn').addEventListener('click', () => { if (item.previousElementSibling) { item.parentNode.insertBefore(item, item.previousElementSibling); updateMethodControls(); }});
+                item.querySelector('.move-down-btn').addEventListener('click', () => { if (item.nextElementSibling) { item.parentNode.insertBefore(item.nextElementSibling, item); updateMethodControls(); }});
+            }
+            document.querySelectorAll('.contact-method-item').forEach(attachMethodListeners);
+            document.getElementById('add-method-btn').addEventListener('click', () => {
+                const container = document.getElementById('contact-methods-container');
+                const newItem = document.createElement('div');
+                newItem.className = 'contact-method-item bg-gray-50 p-3 rounded-lg border';
+                newItem.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-2"><input type="text" placeholder="اسم الطريقة" class="contact-name p-1 border rounded text-sm"><input type="text" placeholder="أيقونة" class="contact-icon p-1 border rounded text-sm"></div><input type="text" placeholder="الرابط URL" class="contact-url w-full mt-2 p-1 border rounded text-sm"><div class="flex items-center gap-2 mt-2"><button class="move-up-btn">▲</button><button class="move-down-btn">▼</button><button class="remove-method-btn text-red-500 ml-auto">حذف</button></div>`;
+                container.appendChild(newItem);
+                attachMethodListeners(newItem);
+                updateMethodControls();
+            });
+        }
+        
+        function attachProductActionListeners() {
+            document.querySelectorAll('.edit-product-btn').forEach(btn => btn.onclick = async (e) => {
+                const id = e.currentTarget.dataset.id;
+                const docSnap = await getDoc(doc(db, "products", id));
+                if (docSnap.exists()) showProductModal({ id, ...docSnap.data() });
+            });
+            document.querySelectorAll('.delete-product-btn').forEach(btn => btn.onclick = (e) => {
+                const { id, path } = e.currentTarget.dataset;
+                deleteProduct(id, path);
+            });
+        }
+
+        // --- Order Management (UPDATED) ---
+        function loadOrders() {
+            const panel = document.getElementById('orders-panel');
+            panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">الطلبات الواردة</h1><div class="bg-white p-6 rounded-xl shadow-md"><div id="orders-loader" class="text-center py-10"><div class="loader mx-auto"></div></div><div id="orders-table-container" class="hidden overflow-x-auto"><table class="w-full text-right"><thead class="bg-gray-100"><tr><th class="p-3">العميل</th><th class="p-3">الهاتف</th><th class="p-3">المنتج</th><th class="p-3">طريقة الطلب</th><th class="p-3">التاريخ</th><th class="p-3">الحالة</th></tr></thead><tbody id="orders-table-body"></tbody></table></div></div>`;
+            const tableBody = document.getElementById('orders-table-body');
+            const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+            unsubscribeOrders = onSnapshot(q, (snapshot) => {
+                tableBody.innerHTML = '';
+                if (snapshot.empty) {
+                    tableBody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-500">لا توجد طلبات حاليًا.</td></tr>';
+                } else {
+                    snapshot.forEach(doc => {
+                        const order = { id: doc.id, ...doc.data() };
+                        const date = order.createdAt?.toDate().toLocaleDateString('ar-EG-u-nu-latn') || 'N/A';
+                        const row = tableBody.insertRow();
+                        row.className = `border-b ${order.status === 'completed' ? 'bg-green-50' : ''}`;
+                        row.innerHTML = `
+                            <td class="p-3 font-semibold">${order.customerName}</td>
+                            <td class="p-3 font-mono" dir="ltr">${order.customerContact}</td>
+                            <td class="p-3">${order.productName}</td>
+                            <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${order.contactMethod === 'الموقع' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">${order.contactMethod}</span></td>
+                            <td class="p-3 font-mono">${date}</td>
+                            <td class="p-3"><button class="order-status-btn px-3 py-1 rounded-full text-sm font-semibold ${order.status === 'completed' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800'}" data-id="${order.id}" data-status="${order.status}">${order.status === 'completed' ? 'مكتمل' : 'جديد'}</button></td>`;
+                    });
+                }
+                attachOrderActionListeners();
+                document.getElementById('orders-loader').style.display = 'none';
+                document.getElementById('orders-table-container').classList.remove('hidden');
+            });
+        }
+        
+        function attachOrderActionListeners() {
+            document.querySelectorAll('.order-status-btn').forEach(btn => btn.onclick = async (e) => {
+                const { id, status } = e.currentTarget.dataset;
+                await updateDoc(doc(db, "orders", id), { status: status === 'completed' ? 'new' : 'completed' });
+            });
+        }
+
+        checkLogin();
+    </script>
+</body>
+</html>
