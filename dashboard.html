@@ -86,7 +86,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, getDocs, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, getDocs, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         const firebaseConfig = {
@@ -146,14 +146,30 @@
             await signOut(auth);
         });
 
-        function showModal(title, content, onConfirm, confirmText = 'حفظ') {
-            const modalHTML = `<div class="modal-backdrop" id="modal-backdrop"><div class="modal-content"><h3 class="text-2xl font-bold mb-6">${title}</h3><div id="modal-body">${content}</div><div class="flex justify-end gap-4 mt-8"><button id="modal-cancel" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button><button id="modal-confirm" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">${confirmText}</button></div></div></div>`;
+        function showModal(title, content, onConfirm, confirmText = 'حفظ', showCancel = true) {
+            const modalHTML = `
+                <div class="modal-backdrop" id="modal-backdrop">
+                    <div class="modal-content">
+                        <h3 class="text-2xl font-bold mb-6">${title}</h3>
+                        <div id="modal-body">${content}</div>
+                        <div class="flex justify-end gap-4 mt-8">
+                            ${showCancel ? `<button id="modal-cancel" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button>` : ''}
+                            <button id="modal-confirm" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">${confirmText}</button>
+                        </div>
+                    </div>
+                </div>`;
             modalContainer.innerHTML = modalHTML;
-            document.getElementById('modal-cancel').addEventListener('click', closeModal);
-            document.getElementById('modal-backdrop').addEventListener('click', (e) => e.target.id === 'modal-backdrop' && closeModal());
+            if (showCancel) {
+                document.getElementById('modal-cancel').addEventListener('click', closeModal);
+            }
+            document.getElementById('modal-backdrop').addEventListener('click', (e) => {
+                if (e.target.id === 'modal-backdrop' && showCancel) closeModal();
+            });
             document.getElementById('modal-confirm').addEventListener('click', onConfirm);
         }
+
         function closeModal() { modalContainer.innerHTML = ''; }
+        
         function showLoadingModal(text = 'جاري الحفظ...') {
              modalContainer.innerHTML = `<div class="modal-backdrop"><div class="modal-content text-center"><div class="loader mx-auto"></div><p class="mt-4 text-lg font-semibold text-gray-700">${text}</p></div></div>`;
         }
@@ -183,7 +199,7 @@
             document.getElementById('add-category-btn').addEventListener('click', () => showCategoryModal());
             const loader = document.getElementById('categories-loader');
             const list = document.getElementById('categories-list');
-            const q = query(collection(db, "categories"), orderBy("name"));
+            const q = query(collection(db, "categories"));
             unsubscribeCategories = onSnapshot(q, (snapshot) => {
                 categoriesCache = [];
                 list.innerHTML = '';
@@ -200,35 +216,50 @@
                 list.classList.remove('hidden');
             });
         }
+        
         function showCategoryModal(category = null) {
             const title = category ? 'تعديل القسم' : 'إضافة قسم جديد';
             const content = `<div><label>اسم القسم</label><input type="text" id="category-name" class="mt-1 w-full p-2 border rounded" value="${category ? category.name : ''}"></div><div class="mt-4"><label>الفروع (افصل بفاصلة ,)</label><input type="text" id="category-subs" class="mt-1 w-full p-2 border rounded" value="${category && category.subcategories ? category.subcategories.join(', ') : ''}"></div>`;
             showModal(title, content, async () => {
                 const name = document.getElementById('category-name').value.trim();
-                if (!name) return alert('اسم القسم مطلوب');
+                if (!name) {
+                    return showModal('خطأ', 'اسم القسم مطلوب.', closeModal, 'حسنًا', false);
+                }
                 const subs = document.getElementById('category-subs').value.split(',').map(s => s.trim()).filter(Boolean);
                 showLoadingModal();
-                if (category) await updateDoc(doc(db, "categories", category.id), { name, subcategories: subs });
-                else await addDoc(collection(db, "categories"), { name, subcategories: subs });
-                closeModal();
+                try {
+                    if (category) await updateDoc(doc(db, "categories", category.id), { name, subcategories: subs });
+                    else await addDoc(collection(db, "categories"), { name, subcategories: subs });
+                    closeModal();
+                } catch (error) {
+                    console.error("Error saving category:", error);
+                    showModal('خطأ في الحفظ', 'لم يتم حفظ القسم. يرجى التحقق من قواعد الأمان الخاصة بك واتصال الإنترنت.', closeModal, 'حسنًا', false);
+                }
             });
         }
+        
         function attachCategoryActionListeners() {
             document.querySelectorAll('.edit-category-btn').forEach(btn => btn.onclick = (e) => {
                 const id = e.currentTarget.dataset.id;
                 const cat = categoriesCache.find(c => c.id === id); if (cat) showCategoryModal(cat);
             });
-            document.querySelectorAll('.delete-category-btn').forEach(btn => btn.onclick = async (e) => {
+            document.querySelectorAll('.delete-category-btn').forEach(btn => btn.onclick = (e) => {
                 const id = e.currentTarget.dataset.id;
-                if (confirm('هل أنت متأكد؟ سيتم حذف جميع المنتجات في هذا القسم.')) {
+                const deleteAction = async () => {
                     showLoadingModal('جاري الحذف...');
-                    const q = query(collection(db, "products"), where("categoryId", "==", id));
-                    const productsSnapshot = await getDocs(q);
-                    const deletePromises = productsSnapshot.docs.map(pDoc => deleteProduct(pDoc.id, pDoc.data().imagePath, false));
-                    await Promise.all(deletePromises);
-                    await deleteDoc(doc(db, "categories", id));
-                    closeModal();
-                }
+                    try {
+                        const q = query(collection(db, "products"), where("categoryId", "==", id));
+                        const productsSnapshot = await getDocs(q);
+                        const deletePromises = productsSnapshot.docs.map(pDoc => deleteProduct(pDoc.id, pDoc.data().imagePath, false));
+                        await Promise.all(deletePromises);
+                        await deleteDoc(doc(db, "categories", id));
+                        closeModal();
+                    } catch (error) {
+                         console.error("Error deleting category:", error);
+                         showModal('خطأ في الحذف', 'لم يتم حذف القسم. يرجى التحقق من قواعد الأمان.', closeModal, 'حسنًا', false);
+                    }
+                };
+                showModal('تأكيد الحذف', 'هل أنت متأكد؟ سيتم حذف جميع المنتجات في هذا القسم.', deleteAction, 'نعم, احذف');
             });
         }
 
@@ -241,7 +272,7 @@
             const container = document.getElementById('products-table-container');
             const tableBody = document.getElementById('products-table-body');
 
-            const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+            const q = query(collection(db, "products"));
             unsubscribeProducts = onSnapshot(q, (snapshot) => {
                 tableBody.innerHTML = '';
                 snapshot.forEach(doc => {
@@ -249,7 +280,7 @@
                     const catName = categoriesCache.find(c => c.id === product.categoryId)?.name || 'N/A';
                     const row = tableBody.insertRow();
                     row.className = 'border-b';
-                    row.innerHTML = `<td class="p-3"><img src="${product.imageUrl}" alt="${product.name}" class="w-16 h-16 object-cover rounded-md" onerror="this.style.display='none'"></td><td class="p-3 font-semibold">${product.name}</td><td class="p-3">${catName}</td><td class="p-3 font-mono">${product.price} د.ج</td><td class="p-3"><button class="edit-product-btn text-blue-500 mr-4" data-id="${product.id}"><i class="fas fa-edit"></i></button><button class="delete-product-btn text-red-500" data-id="${product.id}" data-path="${product.imagePath}"><i class="fas fa-trash"></i></button></td>`;
+                    row.innerHTML = `<td class="p-3"><img src="${product.imageUrl}" alt="${product.name}" class="w-16 h-16 object-cover rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/64x64/e2e8f0/94a3b8?text=Error';"></td><td class="p-3 font-semibold">${product.name}</td><td class="p-3">${catName}</td><td class="p-3 font-mono">${product.price} د.ج</td><td class="p-3"><button class="edit-product-btn text-blue-500 mr-4" data-id="${product.id}"><i class="fas fa-edit"></i></button><button class="delete-product-btn text-red-500" data-id="${product.id}" data-path="${product.imagePath}"><i class="fas fa-trash"></i></button></td>`;
                 });
                 attachProductActionListeners();
                 loader.style.display = 'none';
@@ -260,12 +291,20 @@
         async function deleteProduct(id, path, confirmFirst = true) {
             const doDelete = async () => {
                 showLoadingModal('جاري الحذف...');
-                if (path) { try { await deleteObject(ref(storage, path)); } catch (e) { console.error("Image delete failed:", e); } }
-                await deleteDoc(doc(db, "products", id));
-                closeModal();
+                try {
+                    if (path) { try { await deleteObject(ref(storage, path)); } catch (e) { console.error("Image delete failed:", e); } }
+                    await deleteDoc(doc(db, "products", id));
+                    closeModal();
+                } catch (error) {
+                    console.error("Error deleting product:", error);
+                    showModal('خطأ في الحذف', 'لم يتم حذف المنتج. يرجى التحقق من قواعد الأمان.', closeModal, 'حسنًا', false);
+                }
             };
-            if (confirmFirst && confirm('هل أنت متأكد من حذف هذا المنتج؟')) await doDelete();
-            else if (!confirmFirst) await doDelete();
+            if (confirmFirst) {
+                showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا المنتج؟', doDelete, 'نعم, احذف');
+            } else {
+                await doDelete();
+            }
         }
 
         function showProductModal(product = null) {
@@ -291,7 +330,6 @@
                         </div>
                         <div><label>صورة المنتج</label><input type="file" id="product-image" class="mt-1 w-full text-sm" accept="image/*">
                             ${product ? `<p class="text-xs text-gray-500 mt-1">اترك فارغاً للاحتفاظ بالصورة الحالية.</p><img src="${product.imageUrl}" class="w-20 h-20 rounded mt-2">` : ''}
-                            <div id="p-progress" class="w-full bg-gray-200 rounded-full h-2.5 mt-2 hidden"><div id="p-bar" class="bg-blue-600 h-2.5 rounded-full" style="width:0%"></div></div>
                         </div>
                     </div>
                     <div class="space-y-4 border-r pr-4">
@@ -323,8 +361,9 @@
                     categoryId: document.getElementById('product-category').value,
                 };
                 const imageFile = document.getElementById('product-image').files[0];
-                if (!data.name || !data.price || !data.categoryId) return alert('الرجاء ملء كل الحقول.');
-                if (!product && !imageFile) return alert('الرجاء اختيار صورة.');
+                if (!data.name || !data.price || !data.categoryId) return showModal('خطأ', 'الرجاء ملء كل الحقول.', closeModal, 'حسنًا', false);
+                if (!product && !imageFile) return showModal('خطأ', 'الرجاء اختيار صورة للمنتج الجديد.', closeModal, 'حسنًا', false);
+                
                 const contactMethods = [];
                 document.querySelectorAll('.contact-method-item').forEach(item => {
                     const name = item.querySelector('.contact-name').value.trim();
@@ -336,31 +375,26 @@
 
                 showLoadingModal('جاري حفظ المنتج...');
                 
-                if (imageFile) {
-                    if (product && product.imagePath) { try { await deleteObject(ref(storage, product.imagePath)); } catch(e){} }
-                    const options = { maxSizeMB: 0.5, maxWidthOrHeight: 1280, useWebWorker: true };
-                    const compressedFile = await imageCompression(imageFile, options);
-                    const newPath = `products/${Date.now()}_${compressedFile.name}`;
-                    const uploadTask = uploadBytesResumable(ref(storage, newPath), compressedFile);
+                try {
+                    if (imageFile) {
+                        if (product && product.imagePath) { try { await deleteObject(ref(storage, product.imagePath)); } catch(e){} }
+                        const options = { maxSizeMB: 0.5, maxWidthOrHeight: 1280, useWebWorker: true };
+                        const compressedFile = await imageCompression(imageFile, options);
+                        const newPath = `products/${Date.now()}_${compressedFile.name}`;
+                        const uploadTask = uploadBytesResumable(ref(storage, newPath), compressedFile);
+                        
+                        data.imageUrl = await getDownloadURL((await uploadTask).ref);
+                        data.imagePath = newPath;
+                    }
                     
-                    await new Promise((resolve, reject) => {
-                        uploadTask.on('state_changed', (snap) => {
-                            const progressDiv = document.getElementById('p-progress');
-                            const bar = document.getElementById('p-bar');
-                            if(progressDiv) progressDiv.classList.remove('hidden');
-                            if(bar) bar.style.width = `${(snap.bytesTransferred / snap.totalBytes) * 100}%`;
-                        }, (err) => reject(err), async () => {
-                            data.imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-                            data.imagePath = newPath;
-                            resolve();
-                        });
-                    });
+                    if (product) await updateDoc(doc(db, "products", product.id), data);
+                    else await addDoc(collection(db, "products"), { ...data, createdAt: serverTimestamp() });
+                    
+                    closeModal();
+                } catch (error) {
+                    console.error("Error saving product:", error);
+                    showModal('خطأ في الحفظ', 'لم يتم حفظ المنتج. يرجى التحقق من قواعد الأمان.', closeModal, 'حسنًا', false);
                 }
-                
-                if (product) await updateDoc(doc(db, "products", product.id), data);
-                else await addDoc(collection(db, "products"), { ...data, createdAt: serverTimestamp() });
-                
-                closeModal();
             });
 
             function updateMethodControls() {
@@ -410,7 +444,7 @@
             const panel = document.getElementById('orders-panel');
             panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">الطلبات الواردة</h1><div class="bg-white p-6 rounded-xl shadow-md"><div id="orders-loader" class="text-center py-10"><div class="loader mx-auto"></div></div><div id="orders-table-container" class="hidden overflow-x-auto"><table class="w-full text-right"><thead class="bg-gray-100"><tr><th class="p-3">العميل</th><th class="p-3">الهاتف</th><th class="p-3">المنتج</th><th class="p-3">طريقة الطلب</th><th class="p-3">التاريخ</th><th class="p-3">الحالة</th></tr></thead><tbody id="orders-table-body"></tbody></table></div></div>`;
             const tableBody = document.getElementById('orders-table-body');
-            const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+            const q = query(collection(db, "orders"));
             unsubscribeOrders = onSnapshot(q, (snapshot) => {
                 tableBody.innerHTML = '';
                 if (snapshot.empty) {
