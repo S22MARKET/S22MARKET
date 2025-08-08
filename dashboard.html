@@ -40,10 +40,13 @@
         <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-lg text-center">
             <i class="fas fa-user-shield text-5xl text-blue-600 mb-4"></i>
             <h2 class="text-3xl font-extrabold text-gray-900 mb-2">لوحة التحكم</h2>
-            <p class="text-gray-600 mb-6">الرجاء إدخال رمز الدخول للمتابعة.</p>
+            <p class="text-gray-600 mb-6">الرجاء تسجيل الدخول للمتابعة.</p>
             <form id="login-form">
-                <input type="password" id="access-code" class="w-full px-4 py-3 text-center text-lg tracking-[0.5em] bg-gray-100 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition" placeholder="••••••••">
-                <p id="login-error" class="hidden text-red-500 mt-3">الرمز غير صحيح. الرجاء المحاولة مرة أخرى.</p>
+                <div class="space-y-4">
+                    <input type="email" id="admin-email" class="w-full px-4 py-3 bg-gray-100 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition" placeholder="البريد الإلكتروني" required>
+                    <input type="password" id="admin-password" class="w-full px-4 py-3 bg-gray-100 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition" placeholder="كلمة المرور" required>
+                </div>
+                <p id="login-error" class="hidden text-red-500 mt-3">البريد الإلكتروني أو كلمة المرور غير صحيحة.</p>
                 <button type="submit" class="w-full mt-6 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors text-lg">
                     <i class="fas fa-sign-in-alt mr-2"></i> دخول
                 </button>
@@ -82,7 +85,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, getDocs, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         const firebaseConfig = {
@@ -97,39 +101,51 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        const ACCESS_CODE = 'YACINEE474474';
         let categoriesCache = [];
         let unsubscribeProducts, unsubscribeCategories, unsubscribeOrders;
         const modalContainer = document.getElementById('modal-container');
+        
+        const loginPage = document.getElementById('login-page');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const logoutBtn = document.getElementById('logout-btn');
 
-        // --- Auth, Modals, and Basic Setup (same as before) ---
-        function checkLogin() {
-            if (sessionStorage.getItem('isAdmin') === 'true') {
-                document.getElementById('login-page').classList.add('hidden');
-                document.getElementById('dashboard-page').classList.remove('hidden');
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                loginPage.classList.add('hidden');
+                dashboardPage.classList.remove('hidden');
                 initializeDashboard();
             } else {
-                document.getElementById('login-page').classList.remove('hidden');
-                document.getElementById('dashboard-page').classList.add('hidden');
+                loginPage.classList.remove('hidden');
+                dashboardPage.classList.add('hidden');
+                if(unsubscribeProducts) unsubscribeProducts();
+                if(unsubscribeCategories) unsubscribeCategories();
+                if(unsubscribeOrders) unsubscribeOrders();
             }
-        }
-        document.getElementById('login-form').addEventListener('submit', (e) => {
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (document.getElementById('access-code').value === ACCESS_CODE) {
-                sessionStorage.setItem('isAdmin', 'true');
-                checkLogin();
-            } else { document.getElementById('login-error').classList.remove('hidden'); }
+            const email = document.getElementById('admin-email').value;
+            const password = document.getElementById('admin-password').value;
+            loginError.classList.add('hidden');
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                console.error("Login failed:", error);
+                loginError.classList.remove('hidden');
+            }
         });
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            sessionStorage.removeItem('isAdmin');
-            if(unsubscribeProducts) unsubscribeProducts();
-            if(unsubscribeCategories) unsubscribeCategories();
-            if(unsubscribeOrders) unsubscribeOrders();
-            checkLogin();
+
+        logoutBtn.addEventListener('click', async () => {
+            await signOut(auth);
         });
+
         function showModal(title, content, onConfirm, confirmText = 'حفظ') {
             const modalHTML = `<div class="modal-backdrop" id="modal-backdrop"><div class="modal-content"><h3 class="text-2xl font-bold mb-6">${title}</h3><div id="modal-body">${content}</div><div class="flex justify-end gap-4 mt-8"><button id="modal-cancel" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button><button id="modal-confirm" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">${confirmText}</button></div></div></div>`;
             modalContainer.innerHTML = modalHTML;
@@ -154,12 +170,13 @@
                     panels.forEach(panel => panel.classList.toggle('hidden', panel.id !== targetPanelId));
                 });
             });
-            loadCategories();
-            loadProducts();
-            loadOrders();
+             if (!categoriesCache.length) {
+                loadCategories();
+                loadProducts();
+                loadOrders();
+            }
         }
 
-        // --- Category Management (Unchanged) ---
         function loadCategories() {
             const panel = document.getElementById('categories-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة الأقسام</h1><button id="add-category-btn" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700"><i class="fas fa-plus mr-2"></i> إضافة قسم</button></div><div class="bg-white p-6 rounded-xl shadow-md"><div id="categories-loader" class="text-center py-10"><div class="loader mx-auto"></div></div><div id="categories-list" class="hidden space-y-4"></div></div>`;
@@ -215,7 +232,6 @@
             });
         }
 
-        // --- Product Management (UPDATED) ---
         function loadProducts() {
             const panel = document.getElementById('products-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات</h1><button id="add-product-btn" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div><div class="bg-white p-6 rounded-xl shadow-md"><div id="products-loader" class="text-center py-10"><div class="loader mx-auto"></div></div><div id="products-table-container" class="hidden overflow-x-auto"><table class="w-full text-right"><thead class="bg-gray-100"><tr><th class="p-3">الصورة</th><th class="p-3">الاسم</th><th class="p-3">القسم</th><th class="p-3">السعر</th><th class="p-3">إجراءات</th></tr></thead><tbody id="products-table-body"></tbody></table></div></div>`;
@@ -309,8 +325,6 @@
                 const imageFile = document.getElementById('product-image').files[0];
                 if (!data.name || !data.price || !data.categoryId) return alert('الرجاء ملء كل الحقول.');
                 if (!product && !imageFile) return alert('الرجاء اختيار صورة.');
-
-                // Collect contact methods
                 const contactMethods = [];
                 document.querySelectorAll('.contact-method-item').forEach(item => {
                     const name = item.querySelector('.contact-name').value.trim();
@@ -324,20 +338,17 @@
                 
                 if (imageFile) {
                     if (product && product.imagePath) { try { await deleteObject(ref(storage, product.imagePath)); } catch(e){} }
-                    
-                    // NEW: Compress image before upload
-                    console.log(`Original image size: ${(imageFile.size / 1024 / 1024).toFixed(2)} MB`);
-                    const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
+                    const options = { maxSizeMB: 0.5, maxWidthOrHeight: 1280, useWebWorker: true };
                     const compressedFile = await imageCompression(imageFile, options);
-                    console.log(`Compressed image size: ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB`);
-                    
                     const newPath = `products/${Date.now()}_${compressedFile.name}`;
                     const uploadTask = uploadBytesResumable(ref(storage, newPath), compressedFile);
                     
                     await new Promise((resolve, reject) => {
                         uploadTask.on('state_changed', (snap) => {
-                            document.getElementById('p-progress').classList.remove('hidden');
-                            document.getElementById('p-bar').style.width = `${(snap.bytesTransferred / snap.totalBytes) * 100}%`;
+                            const progressDiv = document.getElementById('p-progress');
+                            const bar = document.getElementById('p-bar');
+                            if(progressDiv) progressDiv.classList.remove('hidden');
+                            if(bar) bar.style.width = `${(snap.bytesTransferred / snap.totalBytes) * 100}%`;
                         }, (err) => reject(err), async () => {
                             data.imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
                             data.imagePath = newPath;
@@ -352,7 +363,6 @@
                 closeModal();
             });
 
-            // Logic for adding/removing/reordering contact methods
             function updateMethodControls() {
                 const items = document.querySelectorAll('.contact-method-item');
                 items.forEach((item, i) => {
@@ -384,8 +394,11 @@
         function attachProductActionListeners() {
             document.querySelectorAll('.edit-product-btn').forEach(btn => btn.onclick = async (e) => {
                 const id = e.currentTarget.dataset.id;
-                const docSnap = await getDoc(doc(db, "products", id));
-                if (docSnap.exists()) showProductModal({ id, ...docSnap.data() });
+                const docRef = doc(db, "products", id);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    showProductModal({ id: docSnap.id, ...docSnap.data() });
+                }
             });
             document.querySelectorAll('.delete-product-btn').forEach(btn => btn.onclick = (e) => {
                 const { id, path } = e.currentTarget.dataset;
@@ -393,7 +406,6 @@
             });
         }
 
-        // --- Order Management (UPDATED) ---
         function loadOrders() {
             const panel = document.getElementById('orders-panel');
             panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">الطلبات الواردة</h1><div class="bg-white p-6 rounded-xl shadow-md"><div id="orders-loader" class="text-center py-10"><div class="loader mx-auto"></div></div><div id="orders-table-container" class="hidden overflow-x-auto"><table class="w-full text-right"><thead class="bg-gray-100"><tr><th class="p-3">العميل</th><th class="p-3">الهاتف</th><th class="p-3">المنتج</th><th class="p-3">طريقة الطلب</th><th class="p-3">التاريخ</th><th class="p-3">الحالة</th></tr></thead><tbody id="orders-table-body"></tbody></table></div></div>`;
@@ -427,11 +439,10 @@
         function attachOrderActionListeners() {
             document.querySelectorAll('.order-status-btn').forEach(btn => btn.onclick = async (e) => {
                 const { id, status } = e.currentTarget.dataset;
-                await updateDoc(doc(db, "orders", id), { status: status === 'completed' ? 'new' : 'completed' });
+                const newStatus = status === 'completed' ? 'new' : 'completed';
+                await updateDoc(doc(db, "orders", id), { status: newStatus });
             });
         }
-
-        checkLogin();
     </script>
 </body>
 </html>
