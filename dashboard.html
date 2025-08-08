@@ -260,7 +260,7 @@
 
         function updateAnalytics() {
             document.getElementById('total-products').textContent = productsCache.length;
-            document.getElementById('total-categories').textContent = categoriesCache.length;
+            // document.getElementById('total-categories').textContent = categoriesCache.length; // This element doesn't exist in the HTML
             
             const completedOrders = ordersCache.filter(o => o.status === 'completed');
             
@@ -494,7 +494,7 @@
                     <div>
                         <label class="font-semibold">صورة المنتج</label>
                         <input type="file" id="product-image" class="mt-1 w-full p-2 border rounded" accept="image/*">
-                        ${product ? `<p class="text-sm text-gray-500 mt-1">اترك الحقل فارغاً لعدم تغيير الصورة الحالية.</p><img src="${product.imageUrl}" class="w-24 h-24 mt-2 rounded object-cover">` : ''}
+                        ${product ? `<p class="text-sm text-gray-500 mt-1">اترك الحقل فارغاً لعدم تغيير الصورة الحالية.</p><img src="${product.imageUrl}" class="w-24 h-24 mt-2 rounded object-cover" onerror="this.style.display='none'">` : '<p class="text-sm text-gray-500 mt-1">هذا الحقل اختياري. يمكن إضافة المنتج بدون صورة.</p>'}
                     </div>
                 </div>
             `;
@@ -515,10 +515,6 @@
                     return showModal('خطأ', 'يرجى اختيار الفرع لهذا القسم.', () => showProductModal(product), 'موافق', false);
                 }
 
-                if (!product && !imageFile) {
-                    return showModal('خطأ', 'يرجى اختيار صورة للمنتج الجديد.', () => showProductModal(product), 'موافق', false);
-                }
-
                 try {
                     if (imageFile) {
                         const compressedFile = await imageCompression(imageFile, { maxSizeMB: 1, maxWidthOrHeight: 1024 });
@@ -533,18 +529,29 @@
                             }
                             const productData = { name, price, categoryId, subCategoryName, imageUrl: downloadURL, imagePath, updatedAt: serverTimestamp() };
                             
-                            if (product) await updateDoc(doc(db, "products", product.id), productData);
-                            else {
+                            if (product) {
+                                await updateDoc(doc(db, "products", product.id), productData);
+                            } else {
                                 productData.createdAt = serverTimestamp();
                                 await addDoc(collection(db, "products"), productData);
                             }
                             closeModal();
                         });
 
-                    } else if (product) {
-                        showLoadingModal('جاري حفظ التعديلات...');
+                    } else {
+                        showLoadingModal('جاري حفظ البيانات...');
                         const productData = { name, price, categoryId, subCategoryName, updatedAt: serverTimestamp() };
-                        await updateDoc(doc(db, "products", product.id), productData);
+                        
+                        if (product) {
+                            // Editing an existing product without changing the image
+                            await updateDoc(doc(db, "products", product.id), productData);
+                        } else {
+                            // Creating a new product without an image
+                            productData.imageUrl = "";
+                            productData.imagePath = "";
+                            productData.createdAt = serverTimestamp();
+                            await addDoc(collection(db, "products"), productData);
+                        }
                         closeModal();
                     }
                 } catch (error) {
@@ -593,6 +600,7 @@
                 tableBody.innerHTML = '';
                 if (snapshot.empty) {
                     tableBody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-gray-500">لا توجد طلبات حاليًا.</td></tr>';
+                    updateAnalytics();
                     return;
                 }
 
