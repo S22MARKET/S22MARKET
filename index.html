@@ -14,16 +14,20 @@
             font-family: 'Tajawal', sans-serif;
             background-color: #f8fafc; /* Slate 50 */
         }
-        .modal-backdrop {
+        .modal-backdrop, .mobile-filter-backdrop {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background-color: rgba(0, 0, 0, 0.6); z-index: 40;
-            display: flex; align-items: center; justify-content: center;
             animation: fadeIn 0.3s;
+            display: flex; align-items: center; justify-content: center;
         }
         .modal-content {
-            background-color: white; padding: 1.5rem 2rem; border-radius: 0.75rem;
+            background-color: white; padding: 0; border-radius: 0.75rem;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%;
-            max-width: 500px; z-index: 50;
+            max-width: 800px; z-index: 50;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
         .loader {
             border: 5px solid #f3f3f3; border-top: 5px solid #2563eb; /* Blue 600 */
@@ -35,11 +39,17 @@
             border-radius: 50%; width: 20px; height: 20px;
             animation: spin 1s linear infinite;
         }
-        .category-filter-btn.active {
-            background-color: #dbeafe; /* Blue 100 */
-            color: #1e40af; /* Blue 800 */
-            font-weight: 700;
+        .filter-chip {
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #e5e7eb;
         }
+        .filter-chip.active {
+            background-color: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+        .horizontal-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        .horizontal-scroll::-webkit-scrollbar { display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
@@ -49,6 +59,15 @@
             animation-duration: 0.3s;
             animation-timing-function: ease-in-out;
         }
+        /* Style for quantity input */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
     </style>
 </head>
 <body class="bg-slate-50">
@@ -57,22 +76,31 @@
         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <h1 class="text-3xl font-bold text-gray-800">S22<span class="text-blue-600">MARKET</span></h1>
             <button id="mobile-filter-trigger" class="md:hidden bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition">
-                <i class="fas fa-filter mr-2"></i> فلترة
+                <i class="fas fa-search mr-2"></i> بحث
             </button>
         </div>
     </header>
+    
+    <div id="main-categories-bar" class="bg-white border-b border-gray-200 sticky top-[77px] z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div id="main-categories-container" class="flex items-center gap-3 py-3 overflow-x-auto horizontal-scroll"></div>
+        </div>
+    </div>
+    
+    <div id="sub-categories-wrapper" class="bg-slate-100 border-b border-gray-200 sticky top-[134px] z-20 hidden">
+         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div id="sub-categories-container" class="flex items-center gap-3 py-3 overflow-x-auto horizontal-scroll"></div>
+        </div>
+    </div>
 
     <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-            
-            <aside class="hidden md:block md:col-span-1 bg-white p-6 rounded-xl shadow-sm h-fit sticky top-24">
+            <aside class="hidden md:block md:col-span-1 bg-white p-6 rounded-xl shadow-sm h-fit sticky top-[146px]">
                 <div id="desktop-filters"></div>
             </aside>
-
             <div class="md:col-span-3">
                  <div id="store-loader" class="text-center py-20"><div class="loader mx-auto"></div><p class="mt-4 text-gray-600">جاري تحميل المنتجات...</p></div>
-                 <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                    </div>
+                 <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
                  <div id="load-more-container" class="text-center mt-8"></div>
                  <div id="no-products-msg" class="hidden text-center py-20 text-gray-500">
                     <i class="fas fa-store-slash fa-4x text-gray-400"></i>
@@ -82,11 +110,11 @@
         </div>
     </main>
 
-    <div id="mobile-filter-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+    <div id="mobile-filter-backdrop" class="mobile-filter-backdrop hidden"></div>
     <div id="mobile-filter-sidebar" class="fixed top-0 right-0 h-full w-4/5 max-w-sm bg-white shadow-xl z-50 transform translate-x-full">
         <div class="p-4 h-full overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold">الفلاتر</h3>
+                <h3 class="text-xl font-bold">بحث</h3>
                 <button id="close-filter-sidebar" class="text-2xl text-gray-500 hover:text-gray-800">&times;</button>
             </div>
             <div id="mobile-filters"></div>
@@ -101,7 +129,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, query, orderBy, serverTimestamp, limit, startAfter } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc, query, orderBy, serverTimestamp, limit, startAfter, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAxEq-nkLDc3_HM38xb3mhb8ekSXmuFQ7I",
@@ -113,61 +141,63 @@
             appId: "1:1029564929614:web:2866722c34cf1fb2b8951f",
             measurementId: "G-VH16M3Q33V"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        
+        // !!! هام: قم بتغيير هذا الرقم إلى رقم الواتساب الخاص بك مع رمز البلد
+        const CONTACT_PHONE_NUMBER = '213000000000'; // e.g., 213xxxxxxxx for Algeria
 
         let categoriesCache = [];
         let lastVisibleProduct = null;
         let isFetching = false;
         const PRODUCTS_PER_PAGE = 9;
+        
+        const elements = {
+            modalContainer: document.getElementById('modal-container'),
+            mobileFilterTrigger: document.getElementById('mobile-filter-trigger'),
+            mobileFilterSidebar: document.getElementById('mobile-filter-sidebar'),
+            mobileFilterBackdrop: document.getElementById('mobile-filter-backdrop'),
+            closeFilterSidebarBtn: document.getElementById('close-filter-sidebar'),
+            productsGrid: document.getElementById('products-grid'),
+            noProductsMsg: document.getElementById('no-products-msg'),
+            storeLoader: document.getElementById('store-loader'),
+            loadMoreContainer: document.getElementById('load-more-container'),
+            mainCategoriesContainer: document.getElementById('main-categories-container'),
+            subCategoriesWrapper: document.getElementById('sub-categories-wrapper'),
+            subCategoriesContainer: document.getElementById('sub-categories-container'),
+            desktopFilters: document.getElementById('desktop-filters'),
+            mobileFilters: document.getElementById('mobile-filters'),
+        };
 
-        const modalContainer = document.getElementById('modal-container');
-        const mobileFilterTrigger = document.getElementById('mobile-filter-trigger');
-        const mobileFilterSidebar = document.getElementById('mobile-filter-sidebar');
-        const mobileFilterBackdrop = document.getElementById('mobile-filter-backdrop');
-        const closeFilterSidebarBtn = document.getElementById('close-filter-sidebar');
-        const productsGrid = document.getElementById('products-grid');
-        const noProductsMsg = document.getElementById('no-products-msg');
-        const storeLoader = document.getElementById('store-loader');
-        const loadMoreContainer = document.getElementById('load-more-container');
-
-        // --- UI Functions ---
         function openFilterSidebar() {
-            mobileFilterBackdrop.classList.remove('hidden');
-            mobileFilterSidebar.style.animationName = 'slideIn';
-            mobileFilterSidebar.classList.remove('translate-x-full');
+            elements.mobileFilterBackdrop.classList.remove('hidden');
+            elements.mobileFilterSidebar.style.animationName = 'slideIn';
+            elements.mobileFilterSidebar.classList.remove('translate-x-full');
         }
 
         function closeFilterSidebar() {
-            mobileFilterBackdrop.classList.add('hidden');
-            mobileFilterSidebar.style.animationName = 'slideOut';
-            setTimeout(() => { mobileFilterSidebar.classList.add('translate-x-full'); }, 300);
+            elements.mobileFilterBackdrop.classList.add('hidden');
+            elements.mobileFilterSidebar.style.animationName = 'slideOut';
+            setTimeout(() => { elements.mobileFilterSidebar.classList.add('translate-x-full'); }, 300);
         }
 
-        function closeModal() { modalContainer.innerHTML = ''; }
-
-        // --- Data & Rendering Functions ---
-        function renderProducts(products, clearGrid) {
-            if (clearGrid) {
-                productsGrid.innerHTML = '';
-            }
-
-            if (products.length === 0 && clearGrid) {
-                noProductsMsg.classList.remove('hidden');
+        function closeModal() { elements.modalContainer.innerHTML = ''; }
+        
+        function renderProducts(products) {
+            if (products.length === 0 && elements.productsGrid.innerHTML === '') {
+                elements.noProductsMsg.classList.remove('hidden');
             } else {
-                noProductsMsg.classList.add('hidden');
+                elements.noProductsMsg.classList.add('hidden');
             }
 
             products.forEach(product => {
                 const category = categoriesCache.find(c => c.id === product.categoryId);
-                const categoryName = category ? category.name : '';
                 const card = document.createElement('div');
-                card.className = 'bg-white rounded-xl shadow-md overflow-hidden group transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer flex flex-col border border-gray-200';
+                card.className = 'bg-white rounded-xl shadow-md overflow-hidden group transform hover:-translate-y-1 transition-transform duration-300 flex flex-col border border-gray-200';
                 card.innerHTML = `
                     <div class="relative h-56 overflow-hidden">
                         <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null;this.src='https://placehold.co/600x400/e2e8f0/4a5568?text=Image+Not+Found';">
-                         ${categoryName ? `<span class="absolute top-3 right-3 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${categoryName}</span>` : ''}
+                        ${category ? `<span class="absolute top-3 right-3 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${category.name}</span>` : ''}
                     </div>
                     <div class="p-5 flex-grow flex flex-col">
                         <h3 class="text-lg font-bold text-gray-800 truncate">${product.name}</h3>
@@ -176,54 +206,43 @@
                            <p class="text-blue-600 text-2xl font-extrabold">${product.price.toLocaleString()}<span class="text-base font-medium"> د.ج</span></p>
                            <button class="bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold px-4 py-2 rounded-lg transition-colors text-sm">اطلب الآن</button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
                 card.addEventListener('click', () => showOrderModal(product));
-                productsGrid.appendChild(card);
+                elements.productsGrid.appendChild(card);
             });
         }
 
         async function loadProductsPage() {
             if (isFetching) return;
             isFetching = true;
-            
-            loadMoreContainer.innerHTML = `<div class="loader mx-auto"></div>`; // Show loader
+            elements.loadMoreContainer.innerHTML = `<div class="loader mx-auto"></div>`;
 
             try {
-                // Build Query based on filters
-                let productQuery = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(PRODUCTS_PER_PAGE));
-                
-                // Add pagination
-                if(lastVisibleProduct) {
-                    productQuery = query(collection(db, "products"), orderBy("createdAt", "desc"), startAfter(lastVisibleProduct), limit(PRODUCTS_PER_PAGE));
-                }
+                const activeMainCatBtn = document.querySelector('.main-category-btn.active');
+                const selectedMainCatId = activeMainCatBtn ? activeMainCatBtn.dataset.id : 'all';
+                const activeSubCatBtn = document.querySelector('.sub-category-btn.active');
+                const selectedSubCatName = activeSubCatBtn ? activeSubCatBtn.dataset.name : 'all';
+                const searchTerm = document.getElementById('search-input').value.toLowerCase();
 
+                let queryConstraints = [orderBy("createdAt", "desc")];
+                if (selectedMainCatId !== 'all') queryConstraints.push(where("categoryId", "==", selectedMainCatId));
+                if (selectedSubCatName !== 'all') queryConstraints.push(where("subCategoryName", "==", selectedSubCatName));
+                if (lastVisibleProduct) queryConstraints.push(startAfter(lastVisibleProduct));
+                queryConstraints.push(limit(PRODUCTS_PER_PAGE));
+                
+                const productQuery = query(collection(db, "products"), ...queryConstraints);
                 const documentSnapshots = await getDocs(productQuery);
                 
-                const newProducts = documentSnapshots.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                
-                // TODO: Client-side filtering is not ideal for large datasets, but necessary without complex backend.
-                // For a real large-scale app, filtering should be done via Firestore 'where' clauses.
-                const searchTerm = document.getElementById('search-input').value.toLowerCase();
-                const activeCategoryBtn = document.querySelector('.category-filter-btn.active');
-                const selectedCategoryId = activeCategoryBtn ? activeCategoryBtn.dataset.id : 'all';
+                let newProducts = documentSnapshots.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                let filteredProducts = newProducts;
-                if (selectedCategoryId !== 'all') {
-                    filteredProducts = filteredProducts.filter(p => p.categoryId === selectedCategoryId);
-                }
                 if (searchTerm) {
-                    filteredProducts = filteredProducts.filter(p => p.name.toLowerCase().includes(searchTerm));
+                    newProducts = newProducts.filter(p => p.name.toLowerCase().includes(searchTerm));
                 }
-                // Sorting is applied on the full client-side cache, so we ignore it here for pagination.
 
-                renderProducts(filteredProducts, lastVisibleProduct === null);
-                
-                // Update pagination state
+                renderProducts(newProducts);
                 lastVisibleProduct = documentSnapshots.docs[documentSnapshots.docs.length - 1];
-                loadMoreContainer.innerHTML = ''; // Clear loader
+                elements.loadMoreContainer.innerHTML = '';
 
-                // Add "Load More" button if there might be more products
                 if (documentSnapshots.docs.length === PRODUCTS_PER_PAGE) {
                     const loadMoreBtn = document.createElement('button');
                     loadMoreBtn.id = 'load-more-btn';
@@ -234,143 +253,248 @@
                         loadMoreBtn.disabled = true;
                         loadProductsPage();
                     };
-                    loadMoreContainer.appendChild(loadMoreBtn);
+                    elements.loadMoreContainer.appendChild(loadMoreBtn);
                 }
 
             } catch (error) {
                 console.error("Error fetching products: ", error);
-                loadMoreContainer.innerHTML = `<p class="text-red-500">حدث خطأ أثناء جلب المنتجات.</p>`;
+                elements.loadMoreContainer.innerHTML = `<p class="text-red-500">حدث خطأ. قد تحتاج لإنشاء فهرس في قاعدة البيانات.</p>`;
             } finally {
                 isFetching = false;
-                storeLoader.style.display = 'none';
+                elements.storeLoader.style.display = 'none';
             }
         }
         
         function handleFilterChange() {
-            lastVisibleProduct = null; // Reset pagination
-            productsGrid.innerHTML = ''; // Clear current products
-            noProductsMsg.classList.add('hidden'); // Hide no products message
-            loadProductsPage(); // Load first page with new filters
+            lastVisibleProduct = null;
+            elements.productsGrid.innerHTML = '';
+            elements.noProductsMsg.classList.add('hidden');
+            loadProductsPage();
+        }
+
+        function renderSubCategories(categoryId) {
+            elements.subCategoriesContainer.innerHTML = '';
+            const category = categoriesCache.find(c => c.id === categoryId);
+            const subCategories = category?.subcategories?.filter(s => s.active);
+
+            if (!subCategories || subCategories.length === 0) {
+                elements.subCategoriesWrapper.classList.add('hidden');
+                return;
+            }
+
+            const allButton = document.createElement('button');
+            allButton.className = 'sub-category-btn filter-chip active flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full';
+            allButton.textContent = `الكل في ${category.name}`;
+            allButton.dataset.name = 'all';
+            allButton.onclick = (e) => {
+                document.querySelectorAll('.sub-category-btn').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                handleFilterChange();
+            };
+            elements.subCategoriesContainer.appendChild(allButton);
+
+            subCategories.forEach(sub => {
+                const subCatButton = document.createElement('button');
+                subCatButton.className = 'sub-category-btn filter-chip flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full';
+                subCatButton.textContent = sub.name;
+                subCatButton.dataset.name = sub.name;
+                subCatButton.onclick = (e) => {
+                    document.querySelectorAll('.sub-category-btn').forEach(b => b.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    handleFilterChange();
+                };
+                elements.subCategoriesContainer.appendChild(subCatButton);
+            });
+            elements.subCategoriesWrapper.classList.remove('hidden');
         }
 
         async function initializeStore() {
-            storeLoader.style.display = 'block';
+            elements.storeLoader.style.display = 'block';
 
-            // Fetch categories once
             const catQuery = query(collection(db, "categories"), orderBy("name"));
             const catSnapshot = await getDocs(catQuery);
             categoriesCache = catSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-            // Build filter UI
-            const filtersHTML = `
-                <h3 class="text-xl font-bold mb-4 border-b pb-2">البحث والتصنيف</h3>
-                <div class="space-y-6">
-                    <div>
-                        <label for="search-input" class="font-semibold text-gray-800 flex items-center gap-2"><i class="fas fa-search text-gray-400"></i> ابحث عن منتج</label>
-                        <input type="text" id="search-input" placeholder="اسم المنتج..." class="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <h4 class="font-semibold mb-3 text-gray-800">الأقسام</h4>
-                        <div id="store-categories" class="space-y-2">
-                            <button class="category-filter-btn active w-full text-right p-2.5 rounded-md transition-colors" data-id="all">كل المنتجات</button>
-                            ${categoriesCache.map(cat => `<button class="category-filter-btn w-full text-right p-2.5 rounded-md hover:bg-gray-100 transition-colors" data-id="${cat.id}">${cat.name}</button>`).join('')}
-                        </div>
-                    </div>
-                </div>`;
-                
-            document.getElementById('desktop-filters').innerHTML = filtersHTML;
-            document.getElementById('mobile-filters').innerHTML = filtersHTML;
+            const allBtn = document.createElement('button');
+            allBtn.className = 'main-category-btn filter-chip active flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full';
+            allBtn.textContent = 'كل المنتجات';
+            allBtn.dataset.id = 'all';
+            allBtn.onclick = (e) => {
+                document.querySelectorAll('.main-category-btn').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                elements.subCategoriesWrapper.classList.add('hidden');
+                handleFilterChange();
+            };
+            elements.mainCategoriesContainer.appendChild(allBtn);
 
-            function setupEventListeners(containerId) {
-                const container = document.getElementById(containerId);
-                container.querySelectorAll('.category-filter-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const selectedId = e.currentTarget.dataset.id;
-                        document.querySelectorAll('.category-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.id === selectedId));
-                        handleFilterChange();
-                        if (window.innerWidth < 768) closeFilterSidebar();
-                    });
-                });
-                container.querySelector('#search-input').addEventListener('input', handleFilterChange);
-            }
+            categoriesCache.forEach(cat => {
+                const catButton = document.createElement('button');
+                catButton.className = 'main-category-btn filter-chip flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full';
+                catButton.textContent = cat.name;
+                catButton.dataset.id = cat.id;
+                catButton.onclick = (e) => {
+                    document.querySelectorAll('.main-category-btn').forEach(b => b.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    renderSubCategories(cat.id);
+                    handleFilterChange();
+                };
+                elements.mainCategoriesContainer.appendChild(catButton);
+            });
             
-            setupEventListeners('desktop-filters');
-            setupEventListeners('mobile-filters');
+            const searchFilterHTML = `
+                <h3 class="text-xl font-bold mb-4 border-b pb-2">بحث</h3>
+                <div>
+                    <label for="search-input" class="font-semibold text-gray-800 flex items-center gap-2"><i class="fas fa-search text-gray-400"></i> ابحث عن منتج</label>
+                    <input type="text" id="search-input" placeholder="اسم المنتج..." class="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
+                </div>`;
+            elements.desktopFilters.innerHTML = searchFilterHTML;
+            elements.mobileFilters.innerHTML = searchFilterHTML;
+            
+            document.querySelectorAll('#search-input').forEach(input => input.addEventListener('input', handleFilterChange));
+            elements.mobileFilterTrigger.addEventListener('click', openFilterSidebar);
+            elements.closeFilterSidebarBtn.addEventListener('click', closeFilterSidebar);
+            elements.mobileFilterBackdrop.addEventListener('click', closeFilterSidebar);
 
-            // Load initial page of products
             loadProductsPage();
         }
+        
+        // ===============================================
+        // == NEW: ADVANCED ORDER MODAL FUNCTION ==
+        // ===============================================
+        function showOrderModal(product) {
+            const modalId = `modal-${product.id}`;
+            const modalHTML = `
+            <div class="modal-backdrop" id="modal-backdrop-${modalId}">
+                <div class="modal-content">
+                    <button id="modal-close-btn-${modalId}" class="absolute top-3 left-3 text-white bg-black bg-opacity-40 rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-60 z-10">&times;</button>
+                    <div class="flex flex-col md:flex-row max-h-full">
+                        <div class="md:w-1/2 bg-gray-200">
+                             <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-64 md:h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x600/e2e8f0/4a5568?text=Image+Not+Found';">
+                        </div>
+                        <div id="modal-form-content-${modalId}" class="md:w-1/2 p-6 flex flex-col overflow-y-auto">
+                            <h2 class="text-3xl font-extrabold text-gray-900 mb-2">${product.name}</h2>
+                            <p id="total-price-display-${modalId}" class="text-blue-600 text-3xl font-bold mb-4">${product.price.toLocaleString()} د.ج</p>
+                            
+                            <div class="text-gray-600 space-y-2 mb-6 border-t pt-4">
+                                <h4 class="font-bold text-gray-800">الوصف:</h4>
+                                <p>${product.description ? product.description.replace(/\n/g, '<br>') : 'لا يوجد وصف متاح حاليا.'}</p>
+                            </div>
 
-        function showOrderModal(product) { /* This function remains unchanged */ 
-             const modalHTML = `
-                <div class="modal-backdrop" id="modal-backdrop">
-                    <div class="modal-content">
-                        <div class="flex justify-between items-start">
-                             <h3 class="text-xl font-bold mb-4 text-gray-900">طلب المنتج: ${product.name}</h3>
-                             <button id="modal-cancel" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-                        </div>
-                        <p class="font-semibold text-gray-700 mb-4">أدخل معلوماتك وسيتم التواصل معك لتأكيد الطلب.</p>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">الاسم الكامل</label>
-                                <input type="text" id="customer-name" class="mt-1 block w-full border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                            <div class="space-y-4 flex-grow">
+                                <div>
+                                    <label for="customer-name-${modalId}" class="font-semibold text-gray-700">الاسم الكامل</label>
+                                    <input type="text" id="customer-name-${modalId}" placeholder="أدخل اسمك" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label for="customer-contact-${modalId}" class="font-semibold text-gray-700">رقم الهاتف</label>
+                                    <input type="tel" id="customer-contact-${modalId}" placeholder="06xxxxxxxx" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label for="quantity-${modalId}" class="font-semibold text-gray-700">الكمية</label>
+                                    <div class="flex items-center mt-1">
+                                        <button id="decrease-qty-${modalId}" class="bg-gray-200 text-gray-800 font-bold w-10 h-12 rounded-r-lg text-xl">-</button>
+                                        <input type="number" id="quantity-${modalId}" value="1" min="1" class="w-full h-12 p-3 text-center font-bold text-lg border-t border-b border-gray-300 focus:outline-none">
+                                        <button id="increase-qty-${modalId}" class="bg-gray-200 text-gray-800 font-bold w-10 h-12 rounded-l-lg text-xl">+</button>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">رقم الهاتف</label>
-                                <input type="tel" id="customer-contact" class="mt-1 block w-full border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+
+                            <div class="mt-6">
+                                <p id="form-error-${modalId}" class="text-red-500 text-center mb-2 hidden"></p>
+                                <button id="confirm-order-btn-${modalId}" class="w-full bg-blue-600 text-white font-bold py-3 px-5 rounded-lg text-lg hover:bg-blue-700 transition flex items-center justify-center">
+                                    <i class="fas fa-check-circle mr-2"></i> تأكيد الطلب
+                                </button>
                             </div>
-                        </div>
-                        <div class="mt-6">
-                            <button id="website-order-btn" class="w-full bg-blue-600 text-white font-bold py-2.5 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2">
-                                <i class="fas fa-check-circle"></i> تأكيد الطلب
-                            </button>
                         </div>
                     </div>
                 </div>
-            `;
-            modalContainer.innerHTML = modalHTML;
+            </div>`;
+
+            elements.modalContainer.innerHTML = modalHTML;
+
+            // --- Event Listeners ---
+            const closeModalBtn = document.getElementById(`modal-close-btn-${modalId}`);
+            const backdrop = document.getElementById(`modal-backdrop-${modalId}`);
+            const confirmBtn = document.getElementById(`confirm-order-btn-${modalId}`);
+            const errorP = document.getElementById(`form-error-${modalId}`);
             
-            async function handleOrder(contactMethod) {
-                const customerName = document.getElementById('customer-name').value;
-                const customerContact = document.getElementById('customer-contact').value;
+            const qtyInput = document.getElementById(`quantity-${modalId}`);
+            const decreaseBtn = document.getElementById(`decrease-qty-${modalId}`);
+            const increaseBtn = document.getElementById(`increase-qty-${modalId}`);
+            const priceDisplay = document.getElementById(`total-price-display-${modalId}`);
 
+            const close = () => elements.modalContainer.innerHTML = '';
+            closeModalBtn.onclick = close;
+            backdrop.onclick = (e) => { if(e.target === backdrop) close(); };
+
+            // Quantity logic
+            const updateTotalPrice = () => {
+                const qty = parseInt(qtyInput.value) || 1;
+                const totalPrice = qty * product.price;
+                priceDisplay.textContent = `${totalPrice.toLocaleString()} د.ج`;
+            };
+            decreaseBtn.onclick = () => { if(qtyInput.value > 1) { qtyInput.value--; updateTotalPrice();} };
+            increaseBtn.onclick = () => { qtyInput.value++; updateTotalPrice(); };
+            qtyInput.oninput = updateTotalPrice;
+
+            // Order confirmation logic
+            confirmBtn.onclick = async () => {
+                const customerName = document.getElementById(`customer-name-${modalId}`).value.trim();
+                const customerContact = document.getElementById(`customer-contact-${modalId}`).value.trim();
+                const quantity = parseInt(qtyInput.value);
+                const price = quantity * product.price;
+
+                errorP.classList.add('hidden');
                 if (!customerName || !customerContact) {
-                    alert('الرجاء إدخال الاسم ورقم الهاتف أولاً لتسجيل الطلب.');
-                    return null;
+                    errorP.textContent = 'الرجاء إدخال الاسم ورقم الهاتف.';
+                    errorP.classList.remove('hidden');
+                    return;
                 }
                 
-                const modalContent = document.querySelector('.modal-content');
-                modalContent.innerHTML = `<div class="text-center py-4"><div class="loader mx-auto"></div><p class="mt-4 text-lg font-semibold text-gray-700">جاري تسجيل طلبك...</p></div>`;
-                
-                const orderData = { customerName, customerContact, productId: product.id, productName: product.name, price: product.price, status: 'new', contactMethod, createdAt: serverTimestamp() };
-                
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = `<div class="small-loader"></div> <span class="mr-2">جاري تسجيل الطلب...</span>`;
+
                 try {
-                    await addDoc(collection(db, "orders"), orderData);
-                    return true;
-                } catch(e) {
-                    console.error("Error adding document: ", e);
-                    alert("حدث خطأ أثناء تسجيل الطلب.");
-                    return false;
-                }
-            }
+                    await addDoc(collection(db, "orders"), {
+                        customerName,
+                        customerContact,
+                        productName: product.name,
+                        productId: product.id,
+                        price: price,
+                        quantity: quantity,
+                        profit: 0, // Admin will set this
+                        status: 'new', // New order status
+                        createdAt: serverTimestamp()
+                    });
 
-            document.getElementById('modal-cancel').addEventListener('click', closeModal);
-            document.getElementById('modal-backdrop').addEventListener('click', (e) => { if(e.target.id === 'modal-backdrop') closeModal(); });
-            document.getElementById('website-order-btn').addEventListener('click', async () => {
-                const success = await handleOrder('الموقع');
-                if (success) {
-                    closeModal();
-                    alert('تم إرسال طلبك بنجاح! سنتصل بك قريباً.');
+                    // Show success message and WhatsApp link
+                    const formContent = document.getElementById(`modal-form-content-${modalId}`);
+                    const whatsappMessage = encodeURIComponent(`أود تأكيد طلبي لـ: ${quantity}x ${product.name}`);
+                    const whatsappUrl = `https://wa.me/${CONTACT_PHONE_NUMBER}?text=${whatsappMessage}`;
+
+                    formContent.innerHTML = `
+                        <div class="text-center p-8 flex flex-col justify-center items-center h-full">
+                            <i class="fas fa-check-circle text-6xl text-green-500 mb-4"></i>
+                            <h3 class="text-2xl font-bold text-gray-800">تم استلام طلبك بنجاح!</h3>
+                            <p class="text-gray-600 mt-2 mb-6">الخطوة التالية هي تأكيد طلبك عبر واتساب. اضغط على الزر أدناه.</p>
+                            <a href="${whatsappUrl}" target="_blank" class="w-full bg-green-500 text-white font-bold py-4 px-5 rounded-lg text-lg hover:bg-green-600 transition flex items-center justify-center">
+                                <i class="fab fa-whatsapp mr-3 text-2xl"></i> متابعة عبر واتساب
+                            </a>
+                             <button id="finish-btn-${modalId}" class="mt-4 text-gray-500 hover:text-gray-800">إغلاق النافذة</button>
+                        </div>
+                    `;
+                    document.getElementById(`finish-btn-${modalId}`).onclick = close;
+
+                } catch (err) {
+                    console.error("Error adding order: ", err);
+                    errorP.textContent = 'حدث خطأ أثناء إرسال الطلب. حاول مرة أخرى.';
+                    errorP.classList.remove('hidden');
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = `<i class="fas fa-check-circle mr-2"></i> تأكيد الطلب`;
                 }
-            });
+            };
         }
-        
-        // --- Event Listeners ---
-        mobileFilterTrigger.addEventListener('click', openFilterSidebar);
-        closeFilterSidebarBtn.addEventListener('click', closeFilterSidebar);
-        mobileFilterBackdrop.addEventListener('click', closeFilterSidebar);
 
-        // --- Initial Load ---
         initializeStore();
     </script>
 </body>
