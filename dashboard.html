@@ -178,7 +178,6 @@
             try {
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
-                console.error("Login failed:", error.code, error.message);
                 loginError.textContent = "فشل الدخول. تحقق من البريد وكلمة المرور.";
                 loginError.classList.remove('hidden');
             }
@@ -415,11 +414,11 @@
         }
 
         // ===================================
-        // Products Section
+        // Products Section - NEW & IMPROVED
         // ===================================
-         function loadProducts() {
+        function loadProducts() {
             const panel = document.getElementById('products-panel');
-            panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات</h1><button id="add-product-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div><div class="overflow-x-auto"><table class="w-full text-right responsive-table"><thead class="bg-gray-100"><tr><th class="p-3">الصورة</th><th class="p-3">الاسم</th><th class="p-3">القسم</th><th class="p-3">السعر</th><th class="p-3">إجراءات</th></tr></thead><tbody id="products-table-body"></tbody></table></div>`;
+            panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات</h1><button id="add-product-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div><div class="overflow-x-auto"><table class="w-full text-right responsive-table"><thead class="bg-gray-100"><tr><th class="p-3">الصورة</th><th class="p-3">الاسم</th><th class="p-3">القسم</th><th class="p-3">الفرع</th><th class="p-3">السعر</th><th class="p-3">إجراءات</th></tr></thead><tbody id="products-table-body"></tbody></table></div>`;
             document.getElementById('add-product-btn').addEventListener('click', () => showProductModal());
             const tableBody = document.getElementById('products-table-body');
 
@@ -437,6 +436,7 @@
                         <td data-label="الصورة" class="p-3"><img src="${product.imageUrl}" alt="${product.name}" class="w-16 h-16 object-cover rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/64x64/e2e8f0/94a3b8?text=Error';"></td>
                         <td data-label="الاسم" class="p-3 font-semibold">${product.name}</td>
                         <td data-label="القسم" class="p-3">${catName}</td>
+                        <td data-label="الفرع" class="p-3">${product.subCategoryName || '---'}</td>
                         <td data-label="السعر" class="p-3 font-mono">${product.price.toLocaleString()} د.ج</td>
                         <td data-label="إجراءات" class="p-3 actions-cell">
                             <button class="edit-product-btn text-indigo-500 mr-4" data-id="${product.id}"><i class="fas fa-edit"></i></button>
@@ -448,7 +448,27 @@
             });
         }
 
-        // NEW: Function to show product modal
+        function populateSubcategories(categoryId, productSubCategory = null) {
+            const subCategoryContainer = document.getElementById('product-subcategory-container');
+            const subCategorySelect = document.getElementById('product-subcategory');
+            if (!subCategoryContainer || !subCategorySelect) return;
+
+            const selectedCategory = categoriesCache.find(c => c.id === categoryId);
+            const activeSubcategories = selectedCategory?.subcategories?.filter(s => s.active) || [];
+
+            if (activeSubcategories.length > 0) {
+                subCategorySelect.innerHTML = '<option value="">اختر فرع...</option>';
+                activeSubcategories.forEach(sub => {
+                    const isSelected = sub.name === productSubCategory ? 'selected' : '';
+                    subCategorySelect.innerHTML += `<option value="${sub.name}" ${isSelected}>${sub.name}</option>`;
+                });
+                subCategoryContainer.classList.remove('hidden');
+            } else {
+                subCategoryContainer.classList.add('hidden');
+                subCategorySelect.innerHTML = '';
+            }
+        }
+
         function showProductModal(product = null) {
             const title = product ? 'تعديل المنتج' : 'إضافة منتج جديد';
             
@@ -461,11 +481,15 @@
                     <div><label class="font-semibold">اسم المنتج</label><input type="text" id="product-name" class="mt-1 w-full p-2 border rounded" value="${product ? product.name : ''}"></div>
                     <div><label class="font-semibold">السعر (د.ج)</label><input type="number" id="product-price" class="mt-1 w-full p-2 border rounded" value="${product ? product.price : ''}"></div>
                     <div>
-                        <label class="font-semibold">القسم</label>
-                        <select id="product-category" class="mt-1 w-full p-2 border rounded bg-white">
+                        <label class="font-semibold">القسم الرئيسي</label>
+                        <select id="product-category-select" class="mt-1 w-full p-2 border rounded bg-white">
                             <option value="">اختر قسم...</option>
                             ${categoryOptions}
                         </select>
+                    </div>
+                    <div id="product-subcategory-container" class="hidden">
+                        <label class="font-semibold">الفرع</label>
+                        <select id="product-subcategory" class="mt-1 w-full p-2 border rounded bg-white"></select>
                     </div>
                     <div>
                         <label class="font-semibold">صورة المنتج</label>
@@ -478,47 +502,48 @@
             showModal(title, content, async () => {
                 const name = document.getElementById('product-name').value.trim();
                 const price = parseFloat(document.getElementById('product-price').value);
-                const categoryId = document.getElementById('product-category').value;
+                const categoryId = document.getElementById('product-category-select').value;
+                const subCategoryName = document.getElementById('product-subcategory').value;
                 const imageFile = document.getElementById('product-image').files[0];
 
                 if (!name || isNaN(price) || !categoryId) {
-                    return showModal('خطأ', 'يرجى ملء جميع الحقول: اسم المنتج، السعر، والقسم.', () => showProductModal(product), 'موافق', false);
+                    return showModal('خطأ', 'يرجى ملء الحقول: اسم المنتج، السعر، والقسم الرئيسي.', () => showProductModal(product), 'موافق', false);
+                }
+
+                const selectedCategory = categoriesCache.find(c => c.id === categoryId);
+                if (selectedCategory?.subcategories?.filter(s => s.active).length > 0 && !subCategoryName) {
+                    return showModal('خطأ', 'يرجى اختيار الفرع لهذا القسم.', () => showProductModal(product), 'موافق', false);
                 }
 
                 if (!product && !imageFile) {
                     return showModal('خطأ', 'يرجى اختيار صورة للمنتج الجديد.', () => showProductModal(product), 'موافق', false);
                 }
 
-                showLoadingModal('جاري حفظ المنتج...');
-
                 try {
-                    // If a new image is selected, upload it
                     if (imageFile) {
                         const compressedFile = await imageCompression(imageFile, { maxSizeMB: 1, maxWidthOrHeight: 1024 });
                         const imagePath = `products/${Date.now()}_${compressedFile.name}`;
                         const storageRef = ref(storage, imagePath);
                         const uploadTask = uploadBytesResumable(storageRef, compressedFile);
 
-                        uploadTask.on('state_changed', null, 
-                            (error) => { throw error; }, 
-                            async () => {
-                                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                                if (product && product.imagePath) {
-                                    await deleteObject(ref(storage, product.imagePath)).catch(e => console.warn("Old image not found, skipping delete:", e));
-                                }
-                                const productData = { name, price, categoryId, imageUrl: downloadURL, imagePath, updatedAt: serverTimestamp() };
-                                
-                                if (product) await updateDoc(doc(db, "products", product.id), productData);
-                                else {
-                                    productData.createdAt = serverTimestamp();
-                                    await addDoc(collection(db, "products"), productData);
-                                }
-                                closeModal();
+                        showProgressModal('جاري رفع الصورة...', uploadTask, async () => {
+                            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                            if (product && product.imagePath) {
+                                await deleteObject(ref(storage, product.imagePath)).catch(e => console.warn("Old image not found:", e));
                             }
-                        );
+                            const productData = { name, price, categoryId, subCategoryName, imageUrl: downloadURL, imagePath, updatedAt: serverTimestamp() };
+                            
+                            if (product) await updateDoc(doc(db, "products", product.id), productData);
+                            else {
+                                productData.createdAt = serverTimestamp();
+                                await addDoc(collection(db, "products"), productData);
+                            }
+                            closeModal();
+                        });
+
                     } else if (product) {
-                        // If no new image, just update the text fields
-                        const productData = { name, price, categoryId, updatedAt: serverTimestamp() };
+                        showLoadingModal('جاري حفظ التعديلات...');
+                        const productData = { name, price, categoryId, subCategoryName, updatedAt: serverTimestamp() };
                         await updateDoc(doc(db, "products", product.id), productData);
                         closeModal();
                     }
@@ -527,10 +552,19 @@
                     showModal('خطأ', `فشل حفظ المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
                 }
             });
+
+            const categorySelect = document.getElementById('product-category-select');
+            categorySelect.addEventListener('change', (e) => {
+                populateSubcategories(e.target.value);
+            });
+
+            if (product && product.categoryId) {
+                populateSubcategories(product.categoryId, product.subCategoryName);
+            }
         }
         
         // ===================================
-        // Orders Section - NEW & IMPROVED
+        // Orders Section
         // ===================================
         function loadOrders() {
             const panel = document.getElementById('orders-panel');
@@ -610,7 +644,8 @@
         
         // --- Modal & Listener Functions ---
         function showModal(title, content, onConfirm, confirmText = 'حفظ', showCancel = true) {
-            const modalHTML = `
+            const modalContainer = document.getElementById('modal-container');
+            modalContainer.innerHTML = `
                 <div class="modal-backdrop" id="modal-backdrop">
                     <div class="modal-content">
                         <div class="flex justify-between items-center mb-4">
@@ -624,7 +659,6 @@
                         </div>
                     </div>
                 </div>`;
-            document.getElementById('modal-container').innerHTML = modalHTML;
             if (showCancel) {
                 document.getElementById('modal-cancel').addEventListener('click', closeModal);
             }
@@ -640,25 +674,54 @@
         function showLoadingModal(text = 'جاري الحفظ...') {
              document.getElementById('modal-container').innerHTML = `<div class="modal-backdrop"><div class="modal-content text-center"><div class="loader mx-auto"></div><p class="mt-4 text-lg font-semibold text-gray-700">${text}</p></div></div>`;
         }
-        
-        // NEW: Full implementation of listener functions
+
+        function showProgressModal(title, uploadTask, onComplete) {
+            const modalHTML = `
+                <div class="modal-backdrop" id="modal-backdrop">
+                    <div class="modal-content text-center">
+                        <h3 class="text-xl font-bold mb-4">${title}</h3>
+                        <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
+                            <div id="progress-bar" class="bg-indigo-600 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <p id="progress-text" class="text-lg font-semibold text-gray-700">0%</p>
+                    </div>
+                </div>`;
+            document.getElementById('modal-container').innerHTML = modalHTML;
+            
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+
+            uploadTask.on('state_changed', 
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = Math.round(progress) + '%';
+                }, 
+                (error) => {
+                    closeModal();
+                    showModal('خطأ في الرفع', `فشل رفع الصورة: ${error.message}`, () => closeModal(), 'موافق', false);
+                }, 
+                () => {
+                    progressText.textContent = 'اكتمل الرفع، جاري الحفظ...';
+                    onComplete();
+                }
+            );
+        }
+
         function attachCategoryActionListeners() {
             document.querySelectorAll('.edit-category-btn').forEach(btn => {
                 btn.onclick = () => {
-                    const id = btn.dataset.id;
-                    const category = categoriesCache.find(c => c.id === id);
+                    const category = categoriesCache.find(c => c.id === btn.dataset.id);
                     if (category) showCategoryModal(category);
                 };
             });
             document.querySelectorAll('.delete-category-btn').forEach(btn => {
                 btn.onclick = () => {
-                    const id = btn.dataset.id;
-                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا القسم؟ لا يمكن التراجع عن هذا الإجراء.', async () => {
+                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا القسم؟', async () => {
                         try {
-                            await deleteDoc(doc(db, "categories", id));
+                            await deleteDoc(doc(db, "categories", btn.dataset.id));
                             closeModal();
                         } catch (error) {
-                            console.error("Error deleting category:", error);
                             showModal('خطأ', 'فشل حذف القسم.', () => closeModal(), 'موافق', false);
                         }
                     }, 'نعم, حذف', true);
@@ -669,16 +732,14 @@
          function attachProductActionListeners() {
             document.querySelectorAll('.edit-product-btn').forEach(btn => {
                 btn.onclick = () => {
-                    const id = btn.dataset.id;
-                    const product = productsCache.find(p => p.id === id);
+                    const product = productsCache.find(p => p.id === btn.dataset.id);
                     if (product) showProductModal(product);
                 };
             });
             document.querySelectorAll('.delete-product-btn').forEach(btn => {
                 btn.onclick = () => {
-                    const id = btn.dataset.id;
-                    const path = btn.dataset.path;
-                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا المنتج؟ سيتم حذف صورته أيضاً.', async () => {
+                    const { id, path } = btn.dataset;
+                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا المنتج؟', async () => {
                         showLoadingModal('جاري الحذف...');
                         try {
                             await deleteDoc(doc(db, "products", id));
@@ -687,7 +748,6 @@
                             }
                             closeModal();
                         } catch (error) {
-                            console.error("Error deleting product:", error);
                             showModal('خطأ', `فشل حذف المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
                         }
                     }, 'نعم, حذف', true);
@@ -698,9 +758,8 @@
          function attachOrderActionListeners() {
             document.querySelectorAll('.order-status-btn').forEach(btn => {
                 btn.onclick = async () => {
-                    const id = btn.dataset.id;
-                    const newStatus = btn.dataset.status === 'completed' ? 'new' : 'completed';
-                    await updateDoc(doc(db, "orders", id), { status: newStatus });
+                    const { id, status } = btn.dataset;
+                    await updateDoc(doc(db, "orders", id), { status: status === 'completed' ? 'new' : 'completed' });
                 };
             });
             
@@ -713,7 +772,6 @@
                         e.target.classList.add('bg-green-100');
                         setTimeout(() => e.target.classList.remove('bg-green-100'), 2000);
                     } catch (error) {
-                        console.error("Error updating profit:", error);
                         e.target.classList.add('bg-red-100');
                     }
                 };
