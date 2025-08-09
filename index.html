@@ -147,8 +147,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         
-        // !!! هام: قم بتغيير هذا الرقم إلى رقم الواتساب الخاص بك مع رمز البلد
-        const CONTACT_PHONE_NUMBER = '213000000000'; // e.g., 213xxxxxxxx for Algeria
+        const CONTACT_PHONE_NUMBER = '213000000000'; 
 
         let categoriesCache = [];
         let lastVisibleProduct = null;
@@ -194,11 +193,14 @@
 
             products.forEach(product => {
                 const category = categoriesCache.find(c => c.id === product.categoryId);
+                // NEW: Handle both new (imageUrls) and old (imageUrl) data structures for product card
+                const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : (product.imageUrl || 'https://placehold.co/600x400/e2e8f0/4a5568?text=Image+Not+Found');
+
                 const card = document.createElement('div');
                 card.className = 'bg-white rounded-xl shadow-md overflow-hidden group transform hover:-translate-y-1 transition-transform duration-300 flex flex-col border border-gray-200';
                 card.innerHTML = `
                     <div class="relative h-56 overflow-hidden">
-                        <img loading="lazy" src="${product.imageUrl}" alt="${product.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null;this.src='https://placehold.co/600x400/e2e8f0/4a5568?text=Image+Not+Found';">
+                        <img loading="lazy" src="${image}" alt="${product.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null;this.src='https://placehold.co/600x400/e2e8f0/4a5568?text=Image+Not+Found';">
                         ${category ? `<span class="absolute top-3 right-3 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${category.name}</span>` : ''}
                     </div>
                     <div class="p-5 flex-grow flex flex-col">
@@ -210,7 +212,7 @@
                         </div>
                     </div>`;
                 card.addEventListener('click', (e) => {
-                    if (e.target.tagName !== 'BUTTON') { // Prevent modal opening if button is clicked, useful for future "add to cart" buttons
+                    if (e.target.tagName !== 'BUTTON') {
                          showOrderModal(product);
                     }
                 });
@@ -224,14 +226,12 @@
             elements.loadMoreContainer.innerHTML = `<div class="loader mx-auto"></div>`;
 
             try {
-                // Get filter values from both desktop and mobile inputs
                 const activeMainCatBtn = document.querySelector('.main-category-btn.active');
                 const selectedMainCatId = activeMainCatBtn ? activeMainCatBtn.dataset.id : 'all';
                 
                 const activeSubCatBtn = document.querySelector('.sub-category-btn.active');
                 const selectedSubCatName = activeSubCatBtn ? activeSubCatBtn.dataset.name : 'all';
                 
-                // Use the visible search input
                 const desktopSearch = document.getElementById('desktop-search-input')?.value.toLowerCase();
                 const mobileSearch = document.getElementById('mobile-search-input')?.value.toLowerCase();
                 const searchTerm = window.innerWidth >= 768 ? desktopSearch : mobileSearch;
@@ -239,12 +239,8 @@
                 let productRef = collection(db, "products");
                 let queryConstraints = [orderBy("createdAt", "desc")];
 
-                // Build query based on filters
                 if (selectedMainCatId !== 'all') queryConstraints.push(where("categoryId", "==", selectedMainCatId));
                 if (selectedSubCatName !== 'all') queryConstraints.push(where("subCategoryName", "==", selectedSubCatName));
-                
-                // For text search, Firestore doesn't support native partial text search well with other filters.
-                // We'll fetch based on categories and then filter by text locally.
                 
                 if (lastVisibleProduct) queryConstraints.push(startAfter(lastVisibleProduct));
                 queryConstraints.push(limit(PRODUCTS_PER_PAGE));
@@ -254,7 +250,6 @@
                 
                 let newProducts = documentSnapshots.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                // Local text filtering
                 if (searchTerm) {
                     newProducts = newProducts.filter(p => p.name.toLowerCase().includes(searchTerm));
                 }
@@ -340,7 +335,6 @@
             const catSnapshot = await getDocs(catQuery);
             categoriesCache = catSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-            // Render Main Categories
             const allBtn = document.createElement('button');
             allBtn.className = 'main-category-btn filter-chip active flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full';
             allBtn.textContent = 'كل المنتجات';
@@ -367,7 +361,6 @@
                 elements.mainCategoriesContainer.appendChild(catButton);
             });
             
-            // Render Search Filters for both Desktop and Mobile
             const searchFilterHTML = (idPrefix) => `
                 <h3 class="text-xl font-bold mb-4 border-b pb-2">بحث بالاسم</h3>
                 <div>
@@ -377,7 +370,6 @@
             elements.desktopFilters.innerHTML = searchFilterHTML('desktop');
             elements.mobileFilters.innerHTML = searchFilterHTML('mobile');
             
-            // Event Listeners
             document.getElementById('desktop-search-input').addEventListener('input', handleFilterChange);
             elements.applyMobileFiltersBtn.addEventListener('click', () => {
                 handleFilterChange();
@@ -393,14 +385,32 @@
         
         function showOrderModal(product) {
             const modalId = `modal-${product.id}`;
+            
+            // NEW: Handle both new (imageUrls) and old (imageUrl) data structures for modal
+            let images = [];
+            if (product.imageUrls && product.imageUrls.length > 0) {
+                images = product.imageUrls;
+            } else if (product.imageUrl) {
+                images = [product.imageUrl];
+            } else {
+                images = ['https://placehold.co/600x600/e2e8f0/4a5568?text=Image+Not+Found'];
+            }
+
+            const mainImageSrc = images[0];
+
             const modalHTML = `
             <div class="modal-backdrop" id="modal-backdrop-${modalId}">
                 <div class="modal-content">
                     <button id="modal-close-btn-${modalId}" class="absolute top-3 left-3 text-white bg-black bg-opacity-40 rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-60 z-10 text-xl">&times;</button>
                     <div class="flex flex-col md:flex-row max-h-full">
-                        <div class="md:w-1/2 bg-gray-200">
-                             <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-64 md:h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x600/e2e8f0/4a5568?text=Image+Not+Found';">
+                        <div class="md:w-1/2 bg-gray-200 flex flex-col">
+                            <div class="flex-grow h-64 md:h-auto">
+                                <img id="main-product-image-${modalId}" src="${mainImageSrc}" alt="${product.name}" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x600/e2e8f0/4a5568?text=Error';">
+                            </div>
+                            <div id="thumbnail-container-${modalId}" class="p-2 flex gap-2 bg-white overflow-x-auto horizontal-scroll">
+                                </div>
                         </div>
+
                         <div id="modal-form-content-${modalId}" class="md:w-1/2 p-6 flex flex-col overflow-y-auto">
                             <h2 class="text-3xl font-extrabold text-gray-900 mb-2">${product.name}</h2>
                             <p id="total-price-display-${modalId}" class="text-blue-600 text-3xl font-bold mb-4">${product.price.toLocaleString()} د.ج</p>
@@ -441,6 +451,27 @@
             </div>`;
 
             elements.modalContainer.innerHTML = modalHTML;
+            
+            // --- NEW: Image Gallery Logic ---
+            const mainImage = document.getElementById(`main-product-image-${modalId}`);
+            const thumbnailContainer = document.getElementById(`thumbnail-container-${modalId}`);
+            if (images.length > 1) {
+                images.forEach((imgUrl, index) => {
+                    const thumb = document.createElement('img');
+                    thumb.src = imgUrl;
+                    thumb.className = `w-16 h-16 object-cover rounded-md cursor-pointer border-2 transition-all ${index === 0 ? 'border-blue-500' : 'border-transparent'}`;
+                    thumb.onclick = () => {
+                        mainImage.src = imgUrl;
+                        // Update active border on thumbnails
+                        thumbnailContainer.querySelectorAll('img').forEach(t => t.classList.remove('border-blue-500'));
+                        thumb.classList.add('border-blue-500');
+                    };
+                    thumbnailContainer.appendChild(thumb);
+                });
+            } else {
+                 thumbnailContainer.style.display = 'none'; // Hide thumbnail bar if only one image
+            }
+
 
             // --- Event Listeners ---
             const close = () => elements.modalContainer.innerHTML = '';
