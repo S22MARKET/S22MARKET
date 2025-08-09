@@ -59,7 +59,6 @@
             animation-duration: 0.3s;
             animation-timing-function: ease-in-out;
         }
-        /* Style for quantity input */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
             -webkit-appearance: none; 
@@ -68,6 +67,33 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
+        
+        /* NEW: Styles for the Image Slider in Product Modal */
+        .slider-container { position: relative; overflow: hidden; touch-action: pan-y; user-select: none; }
+        .slider-track { display: flex; transition: transform 0.3s ease-in-out; }
+        .slider-item { flex-shrink: 0; width: 100%; }
+        .slider-btn {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.4); color: white;
+            border-radius: 50%; width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: background-color 0.2s; z-index: 10;
+        }
+        .slider-btn:hover { background-color: rgba(0, 0, 0, 0.7); }
+        .slider-btn.prev { left: 10px; }
+        .slider-btn.next { right: 10px; }
+        .slider-dots {
+            position: absolute; bottom: 15px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; gap: 8px; z-index: 10;
+        }
+        .dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer; transition: background-color 0.2s;
+        }
+        .dot.active { background-color: white; }
+
     </style>
 </head>
 <body class="bg-slate-50">
@@ -193,7 +219,6 @@
 
             products.forEach(product => {
                 const category = categoriesCache.find(c => c.id === product.categoryId);
-                // NEW: Handle both new (imageUrls) and old (imageUrl) data structures for product card
                 const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : (product.imageUrl || 'https://placehold.co/600x400/e2e8f0/4a5568?text=Image+Not+Found');
 
                 const card = document.createElement('div');
@@ -385,8 +410,6 @@
         
         function showOrderModal(product) {
             const modalId = `modal-${product.id}`;
-            
-            // NEW: Handle both new (imageUrls) and old (imageUrl) data structures for modal
             let images = [];
             if (product.imageUrls && product.imageUrls.length > 0) {
                 images = product.imageUrls;
@@ -396,19 +419,29 @@
                 images = ['https://placehold.co/600x600/e2e8f0/4a5568?text=Image+Not+Found'];
             }
 
-            const mainImageSrc = images[0];
+            const sliderItemsHTML = images.map(imgUrl => `
+                <div class="slider-item">
+                    <img src="${imgUrl}" alt="${product.name}" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x600/e2e8f0/4a5568?text=Error';">
+                </div>
+            `).join('');
+            
+            const dotsHTML = images.map((_, index) => `<div class="dot ${index === 0 ? 'active' : ''}" data-index="${index}"></div>`).join('');
 
             const modalHTML = `
             <div class="modal-backdrop" id="modal-backdrop-${modalId}">
                 <div class="modal-content">
-                    <button id="modal-close-btn-${modalId}" class="absolute top-3 left-3 text-white bg-black bg-opacity-40 rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-60 z-10 text-xl">&times;</button>
+                    <button id="modal-close-btn-${modalId}" class="absolute top-3 left-3 bg-black bg-opacity-40 rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-60 z-20 text-xl text-white">&times;</button>
                     <div class="flex flex-col md:flex-row max-h-full">
-                        <div class="md:w-1/2 bg-gray-200 flex flex-col">
-                            <div class="flex-grow h-64 md:h-auto">
-                                <img id="main-product-image-${modalId}" src="${mainImageSrc}" alt="${product.name}" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x600/e2e8f0/4a5568?text=Error';">
+                        
+                        <div class="md:w-1/2 bg-gray-200 h-80 md:h-auto">
+                            <div id="slider-container-${modalId}" class="slider-container w-full h-full">
+                                <div id="slider-track-${modalId}" class="slider-track h-full">${sliderItemsHTML}</div>
+                                ${images.length > 1 ? `
+                                <div id="prev-btn-${modalId}" class="slider-btn prev"><i class="fas fa-chevron-right"></i></div>
+                                <div id="next-btn-${modalId}" class="slider-btn next"><i class="fas fa-chevron-left"></i></div>
+                                <div class="slider-dots">${dotsHTML}</div>
+                                ` : ''}
                             </div>
-                            <div id="thumbnail-container-${modalId}" class="p-2 flex gap-2 bg-white overflow-x-auto horizontal-scroll">
-                                </div>
                         </div>
 
                         <div id="modal-form-content-${modalId}" class="md:w-1/2 p-6 flex flex-col overflow-y-auto">
@@ -452,24 +485,49 @@
 
             elements.modalContainer.innerHTML = modalHTML;
             
-            // --- NEW: Image Gallery Logic ---
-            const mainImage = document.getElementById(`main-product-image-${modalId}`);
-            const thumbnailContainer = document.getElementById(`thumbnail-container-${modalId}`);
+            // --- NEW: Slider Logic ---
             if (images.length > 1) {
-                images.forEach((imgUrl, index) => {
-                    const thumb = document.createElement('img');
-                    thumb.src = imgUrl;
-                    thumb.className = `w-16 h-16 object-cover rounded-md cursor-pointer border-2 transition-all ${index === 0 ? 'border-blue-500' : 'border-transparent'}`;
-                    thumb.onclick = () => {
-                        mainImage.src = imgUrl;
-                        // Update active border on thumbnails
-                        thumbnailContainer.querySelectorAll('img').forEach(t => t.classList.remove('border-blue-500'));
-                        thumb.classList.add('border-blue-500');
-                    };
-                    thumbnailContainer.appendChild(thumb);
+                const sliderContainer = document.getElementById(`slider-container-${modalId}`);
+                const track = document.getElementById(`slider-track-${modalId}`);
+                const prevBtn = document.getElementById(`prev-btn-${modalId}`);
+                const nextBtn = document.getElementById(`next-btn-${modalId}`);
+                const dots = document.querySelectorAll(`#slider-container-${modalId} .dot`);
+                let currentIndex = 0;
+                let touchStartX = 0;
+                let touchEndX = 0;
+
+                function updateSlider() {
+                    track.style.transform = `translateX(${currentIndex * 100}%)`; // RTL means positive translate
+                    dots.forEach(dot => dot.classList.remove('active'));
+                    dots[currentIndex].classList.add('active');
+                }
+                
+                function showNext() {
+                    currentIndex = (currentIndex - 1 + images.length) % images.length;
+                    updateSlider();
+                }
+
+                function showPrev() {
+                    currentIndex = (currentIndex + 1) % images.length;
+                    updateSlider();
+                }
+
+                nextBtn.onclick = showNext;
+                prevBtn.onclick = showPrev;
+                
+                dots.forEach(dot => {
+                    dot.onclick = () => {
+                        currentIndex = parseInt(dot.dataset.index);
+                        updateSlider();
+                    }
                 });
-            } else {
-                 thumbnailContainer.style.display = 'none'; // Hide thumbnail bar if only one image
+
+                sliderContainer.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; });
+                sliderContainer.addEventListener('touchend', e => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    if (touchEndX < touchStartX - 50) showNext(); // Swiped left
+                    if (touchEndX > touchStartX + 50) showPrev(); // Swiped right
+                });
             }
 
 
