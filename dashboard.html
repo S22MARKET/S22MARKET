@@ -9,7 +9,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.1/dist/browser-image-compression.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
@@ -129,8 +128,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAxEq-nkLDc3_HM38xb3mhb8ekSXmuFQ7I",
@@ -146,11 +144,10 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
 
         let categoriesCache = [];
         let productsCache = [];
-        let ordersCache = []; 
+        let ordersCache = [];
         let myChart = null;
 
         const loginPage = document.getElementById('login-page');
@@ -202,7 +199,7 @@
                     tab.classList.add('active-tab');
                     const targetPanelId = tab.getAttribute('href').substring(1) + '-panel';
                     panels.forEach(panel => panel.classList.toggle('hidden', panel.id !== targetPanelId));
-                    if (!sidebar.classList.contains('translate-x-full')) {
+                    if (window.innerWidth < 768 && !sidebar.classList.contains('translate-x-full')) {
                         sidebar.classList.add('translate-x-full');
                     }
                 });
@@ -224,49 +221,32 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
                         <i class="fas fa-coins text-4xl text-yellow-400 mr-4"></i>
-                        <div>
-                            <p class="text-gray-500">إجمالي الإيرادات</p>
-                            <p id="total-revenue" class="text-2xl font-bold">0 د.ج</p>
-                        </div>
+                        <div><p class="text-gray-500">إجمالي الإيرادات</p><p id="total-revenue" class="text-2xl font-bold">0 د.ج</p></div>
                     </div>
                      <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
                         <i class="fas fa-hand-holding-usd text-4xl text-green-500 mr-4"></i>
-                        <div>
-                            <p class="text-gray-500">إجمالي الأرباح</p>
-                            <p id="total-profit" class="text-2xl font-bold">0 د.ج</p>
-                        </div>
+                        <div><p class="text-gray-500">إجمالي الأرباح</p><p id="total-profit" class="text-2xl font-bold">0 د.ج</p></div>
                     </div>
                      <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
                         <i class="fas fa-clipboard-list text-4xl text-blue-500 mr-4"></i>
-                        <div>
-                            <p class="text-gray-500">إجمالي الطلبات</p>
-                            <p id="total-orders" class="text-2xl font-bold">0</p>
-                        </div>
+                        <div><p class="text-gray-500">إجمالي الطلبات</p><p id="total-orders" class="text-2xl font-bold">0</p></div>
                     </div>
                      <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
                         <i class="fas fa-boxes text-4xl text-purple-500 mr-4"></i>
-                        <div>
-                            <p class="text-gray-500">المنتجات</p>
-                            <p id="total-products" class="text-2xl font-bold">0</p>
-                        </div>
+                        <div><p class="text-gray-500">المنتجات</p><p id="total-products" class="text-2xl font-bold">0</p></div>
                     </div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-md">
                     <h2 class="text-xl font-bold mb-4">الطلبات المكتملة (آخر 7 أيام)</h2>
                     <canvas id="ordersChart"></canvas>
-                </div>
-            `;
+                </div>`;
         }
 
         function updateAnalytics() {
             document.getElementById('total-products').textContent = productsCache.length;
-            // document.getElementById('total-categories').textContent = categoriesCache.length; // This element doesn't exist in the HTML
-            
             const completedOrders = ordersCache.filter(o => o.status === 'completed');
-            
             const totalRevenue = completedOrders.reduce((sum, order) => sum + (order.price || 0), 0);
             const totalProfit = completedOrders.reduce((sum, order) => sum + (order.profit || 0), 0);
-            
             document.getElementById('total-revenue').textContent = `${totalRevenue.toLocaleString()} د.ج`;
             document.getElementById('total-profit').textContent = `${totalProfit.toLocaleString()} د.ج`;
             document.getElementById('total-orders').textContent = ordersCache.length;
@@ -280,7 +260,7 @@
             }
 
             completedOrders.forEach(order => {
-                if (order.createdAt) {
+                if (order.createdAt?.toDate) {
                     const orderDate = order.createdAt.toDate().toISOString().split('T')[0];
                     if (last7Days.hasOwnProperty(orderDate)) {
                         last7Days[orderDate]++;
@@ -307,14 +287,10 @@
                         borderRadius: 5
                     }]
                 },
-                options: {
-                    responsive: true,
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
-                    plugins: { legend: { display: false } }
-                }
+                options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } }
             });
         }
-
+        
         // ===================================
         // Categories Section
         // ===================================
@@ -324,9 +300,9 @@
             document.getElementById('add-category-btn').addEventListener('click', () => showCategoryModal());
             const list = document.getElementById('categories-list');
             
-            onSnapshot(query(collection(db, "categories")), (snapshot) => {
+            onSnapshot(query(collection(db, "categories"), orderBy("name")), (snapshot) => {
                 categoriesCache = [];
-                list.innerHTML = '';
+                list.innerHTML = snapshot.empty ? '<p class="text-center text-gray-500">لا توجد أقسام. أضف قسماً جديداً للبدء.</p>' : '';
                 snapshot.forEach(doc => {
                     const category = { id: doc.id, ...doc.data() };
                     categoriesCache.push(category);
@@ -344,40 +320,39 @@
                             <h4 class="text-xl font-bold">${category.name}</h4>
                             <div class="mt-2 pl-4">${subcatHtml || '<p class="text-sm text-gray-500">لا توجد فروع</p>'}</div>
                         </div>
-                        <div class="mt-3 md:mt-0">
+                        <div class="mt-3 md:mt-0 flex-shrink-0">
                             <button class="edit-category-btn text-indigo-500 hover:text-indigo-700 mr-4" data-id="${category.id}"><i class="fas fa-edit"></i> تعديل</button>
                             <button class="delete-category-btn text-red-500 hover:text-red-700" data-id="${category.id}"><i class="fas fa-trash"></i> حذف</button>
                         </div>`;
                     list.appendChild(el);
                 });
                 attachCategoryActionListeners();
-                updateAnalytics();
             });
         }
-        
+
         function showCategoryModal(category = null) {
             const title = category ? 'تعديل القسم' : 'إضافة قسم جديد';
             const subcategories = category?.subcategories || [];
 
-            let subcategoriesHtml = subcategories.map((sub) => `
+            let subcategoriesHtml = subcategories.map((sub, index) => `
                 <div class="flex items-center gap-2 mb-2 subcategory-item">
-                    <input type="text" class="w-full p-2 border rounded sub-name" value="${sub.name || ''}">
-                    <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" class="sub-active" ${sub.active ? 'checked' : ''}> فعال</label>
-                    <button type="button" class="text-red-500 remove-sub-btn"><i class="fas fa-trash"></i></button>
+                    <input type="text" class="w-full p-2 border rounded sub-name" value="${sub.name || ''}" placeholder="اسم الفرع">
+                    <label class="flex items-center gap-1 cursor-pointer text-sm"><input type="checkbox" class="sub-active" ${sub.active ? 'checked' : ''}> فعال</label>
+                    <button type="button" class="text-red-500 remove-sub-btn"><i class="fas fa-times-circle"></i></button>
                 </div>
             `).join('');
 
             const content = `
-                <div><label class="font-semibold">اسم القسم الرئيسي</label><input type="text" id="category-name" class="mt-1 w-full p-2 border rounded" value="${category ? category.name : ''}"></div>
+                <div><label class="font-semibold">اسم القسم الرئيسي</label><input type="text" id="category-name" class="mt-1 w-full p-2 border rounded" value="${category ? category.name : ''}" required></div>
                 <div class="mt-4">
                     <label class="font-semibold">الفروع (Sub-categories)</label>
                     <div id="subcategories-container" class="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">${subcategoriesHtml}</div>
-                    <button type="button" id="add-subcategory-btn" class="text-sm mt-2 text-indigo-600 font-semibold hover:underline">إضافة فرع جديد</button>
+                    <button type="button" id="add-subcategory-btn" class="text-sm mt-2 text-indigo-600 font-semibold hover:underline"><i class="fas fa-plus-circle mr-1"></i>إضافة فرع جديد</button>
                 </div>`;
 
             showModal(title, content, async () => {
                 const name = document.getElementById('category-name').value.trim();
-                if (!name) return;
+                if (!name) { alert('الرجاء إدخال اسم القسم الرئيسي.'); return; }
 
                 const subsData = [];
                 document.querySelectorAll('.subcategory-item').forEach(item => {
@@ -388,11 +363,14 @@
 
                 showLoadingModal();
                 try {
-                    if (category) await updateDoc(doc(db, "categories", category.id), { name, subcategories: subsData });
-                    else await addDoc(collection(db, "categories"), { name, subcategories: subsData });
+                    const data = { name, subcategories: subsData };
+                    if (category) await updateDoc(doc(db, "categories", category.id), data);
+                    else await addDoc(collection(db, "categories"), data);
                     closeModal();
                 } catch (error) {
                     console.error("Error saving category:", error);
+                    alert("حدث خطأ أثناء الحفظ.");
+                    closeModal();
                 }
             });
 
@@ -402,19 +380,38 @@
                 newItem.className = 'flex items-center gap-2 mb-2 subcategory-item';
                 newItem.innerHTML = `
                     <input type="text" class="w-full p-2 border rounded sub-name" placeholder="اسم الفرع">
-                    <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" class="sub-active" checked> فعال</label>
-                    <button type="button" class="text-red-500 remove-sub-btn"><i class="fas fa-trash"></i></button>
+                    <label class="flex items-center gap-1 cursor-pointer text-sm"><input type="checkbox" class="sub-active" checked> فعال</label>
+                    <button type="button" class="text-red-500 remove-sub-btn"><i class="fas fa-times-circle"></i></button>
                 `;
                 newItem.querySelector('.remove-sub-btn').onclick = () => newItem.remove();
                 container.appendChild(newItem);
             };
 
             document.getElementById('add-subcategory-btn').onclick = addSubcategory;
-            document.querySelectorAll('.remove-sub-btn').forEach(btn => btn.onclick = (e) => e.currentTarget.parentElement.remove());
+            document.querySelectorAll('.remove-sub-btn').forEach(btn => btn.onclick = (e) => e.currentTarget.closest('.subcategory-item').remove());
         }
 
+        function attachCategoryActionListeners() {
+            document.querySelectorAll('.edit-category-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const category = categoriesCache.find(c => c.id === btn.dataset.id);
+                    if (category) showCategoryModal(category);
+                };
+            });
+            document.querySelectorAll('.delete-category-btn').forEach(btn => {
+                btn.onclick = () => {
+                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا القسم؟ سيؤثر هذا على المنتجات المرتبطة به.', async () => {
+                        try {
+                            await deleteDoc(doc(db, "categories", btn.dataset.id));
+                            closeModal();
+                        } catch (error) { showModal('خطأ', 'فشل حذف القسم.', () => closeModal(), 'موافق', false); }
+                    }, 'نعم, حذف', true);
+                };
+            });
+        }
+        
         // ===================================
-        // Products Section - NEW & IMPROVED
+        // Products Section
         // ===================================
         function loadProducts() {
             const panel = document.getElementById('products-panel');
@@ -422,32 +419,32 @@
             document.getElementById('add-product-btn').addEventListener('click', () => showProductModal());
             const tableBody = document.getElementById('products-table-body');
 
-            onSnapshot(query(collection(db, "products")), (snapshot) => {
+            onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), (snapshot) => {
                 productsCache = [];
-                tableBody.innerHTML = '';
+                tableBody.innerHTML = snapshot.empty ? '<tr><td colspan="6" class="p-8 text-center text-gray-500">لا توجد منتجات. أضف منتجاً جديداً للبدء.</td></tr>' : '';
                 snapshot.forEach(doc => {
                     const product = { id: doc.id, ...doc.data() };
                     productsCache.push(product);
-                    const catName = categoriesCache.find(c => c.id === product.categoryId)?.name || 'N/A';
+                    const catName = categoriesCache.find(c => c.id === product.categoryId)?.name || '<span class="text-red-500">غير محدد</span>';
                     
                     const row = tableBody.insertRow();
-                    row.className = 'border-b';
+                    row.className = 'border-b bg-white';
                     row.innerHTML = `
                         <td data-label="الصورة" class="p-3"><img src="${product.imageUrl}" alt="${product.name}" class="w-16 h-16 object-cover rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/64x64/e2e8f0/94a3b8?text=Error';"></td>
                         <td data-label="الاسم" class="p-3 font-semibold">${product.name}</td>
                         <td data-label="القسم" class="p-3">${catName}</td>
                         <td data-label="الفرع" class="p-3">${product.subCategoryName || '---'}</td>
-                        <td data-label="السعر" class="p-3 font-mono">${product.price.toLocaleString()} د.ج</td>
+                        <td data-label="السعر" class="p-3 font-mono">${(product.price || 0).toLocaleString()} د.ج</td>
                         <td data-label="إجراءات" class="p-3 actions-cell">
-                            <button class="edit-product-btn text-indigo-500 mr-4" data-id="${product.id}"><i class="fas fa-edit"></i></button>
-                            <button class="delete-product-btn text-red-500" data-id="${product.id}" data-path="${product.imagePath || ''}"><i class="fas fa-trash"></i></button>
+                            <button class="edit-product-btn text-indigo-500 hover:text-indigo-700 mr-4" data-id="${product.id}"><i class="fas fa-edit fa-lg"></i></button>
+                            <button class="delete-product-btn text-red-500 hover:text-red-700" data-id="${product.id}"><i class="fas fa-trash fa-lg"></i></button>
                         </td>`;
                 });
                 attachProductActionListeners();
-                updateAnalytics();
+                updateAnalytics(); // Update analytics after products are loaded
             });
         }
-
+        
         function populateSubcategories(categoryId, productSubCategory = null) {
             const subCategoryContainer = document.getElementById('product-subcategory-container');
             const subCategorySelect = document.getElementById('product-subcategory');
@@ -468,7 +465,7 @@
                 subCategorySelect.innerHTML = '';
             }
         }
-
+        
         function showProductModal(product = null) {
             const title = product ? 'تعديل المنتج' : 'إضافة منتج جديد';
             
@@ -478,11 +475,15 @@
 
             const content = `
                 <div class="space-y-4">
-                    <div><label class="font-semibold">اسم المنتج</label><input type="text" id="product-name" class="mt-1 w-full p-2 border rounded" value="${product ? product.name : ''}"></div>
-                    <div><label class="font-semibold">السعر (د.ج)</label><input type="number" id="product-price" class="mt-1 w-full p-2 border rounded" value="${product ? product.price : ''}"></div>
+                    <div><label class="font-semibold">اسم المنتج</label><input type="text" id="product-name" class="mt-1 w-full p-2 border rounded" value="${product ? product.name : ''}" required></div>
+                    <div><label class="font-semibold">السعر (د.ج)</label><input type="number" id="product-price" class="mt-1 w-full p-2 border rounded" value="${product ? product.price : ''}" required></div>
+                    <div>
+                        <label class="font-semibold">الوصف</label>
+                        <textarea id="product-description" class="mt-1 w-full p-2 border rounded" rows="4" placeholder="اكتب وصفاً جذاباً للمنتج...">${product ? (product.description || '') : ''}</textarea>
+                    </div>
                     <div>
                         <label class="font-semibold">القسم الرئيسي</label>
-                        <select id="product-category-select" class="mt-1 w-full p-2 border rounded bg-white">
+                        <select id="product-category-select" class="mt-1 w-full p-2 border rounded bg-white" required>
                             <option value="">اختر قسم...</option>
                             ${categoryOptions}
                         </select>
@@ -493,70 +494,90 @@
                     </div>
                     <div>
                         <label class="font-semibold">صورة المنتج</label>
-                        <input type="file" id="product-image" class="mt-1 w-full p-2 border rounded" accept="image/*">
-                        ${product ? `<p class="text-sm text-gray-500 mt-1">اترك الحقل فارغاً لعدم تغيير الصورة الحالية.</p><img src="${product.imageUrl}" class="w-24 h-24 mt-2 rounded object-cover" onerror="this.style.display='none'">` : '<p class="text-sm text-gray-500 mt-1">هذا الحقل اختياري. يمكن إضافة المنتج بدون صورة.</p>'}
+                        <input type="file" id="product-image" class="mt-1 w-full p-2 border rounded text-sm" accept="image/*">
+                        ${product ? `<p class="text-sm text-gray-500 mt-1">اترك الحقل فارغاً لعدم تغيير الصورة الحالية.</p><img src="${product.imageUrl}" class="w-24 h-24 mt-2 rounded object-cover border" onerror="this.style.display='none'">` : ''}
                     </div>
-                </div>
-            `;
+                </div>`;
 
             showModal(title, content, async () => {
+                // =================================================================
+                // !!! هام جداً: ضع مفتاح API الخاص بك من موقع ImgBB هنا !!!
+                // استبدل 'YOUR_IMGBB_API_KEY' بالمفتاح الحقيقي
+                // =================================================================
+const IMGBB_API_KEY = 'ac296feb5a275923598bdbfd4f9aed8c';
+
                 const name = document.getElementById('product-name').value.trim();
                 const price = parseFloat(document.getElementById('product-price').value);
+                const description = document.getElementById('product-description').value.trim();
                 const categoryId = document.getElementById('product-category-select').value;
-                const subCategoryName = document.getElementById('product-subcategory').value;
+                const subCategoryName = document.getElementById('product-subcategory').value || null;
                 const imageFile = document.getElementById('product-image').files[0];
 
                 if (!name || isNaN(price) || !categoryId) {
-                    return showModal('خطأ', 'يرجى ملء الحقول: اسم المنتج، السعر، والقسم الرئيسي.', () => showProductModal(product), 'موافق', false);
+                    return showModal('خطأ في الإدخال', 'يرجى ملء الحقول الإلزامية: اسم المنتج، السعر، والقسم الرئيسي.', () => showProductModal(product), 'موافق', false);
                 }
-
-                const selectedCategory = categoriesCache.find(c => c.id === categoryId);
-                if (selectedCategory?.subcategories?.filter(s => s.active).length > 0 && !subCategoryName) {
-                    return showModal('خطأ', 'يرجى اختيار الفرع لهذا القسم.', () => showProductModal(product), 'موافق', false);
+                
+                if (IMGBB_API_KEY === 'YOUR_IMGBB_API_KEY' && imageFile) {
+                    return showModal('خطأ في الإعداد', 'الرجاء وضع مفتاح API الخاص بك من موقع ImgBB في الكود أولاً (ملف dashboard.html).', () => showProductModal(product), 'موافق', false);
                 }
 
                 try {
-                    if (imageFile) {
-                        const compressedFile = await imageCompression(imageFile, { maxSizeMB: 1, maxWidthOrHeight: 1024 });
-                        const imagePath = `products/${Date.now()}_${compressedFile.name}`;
-                        const storageRef = ref(storage, imagePath);
-                        const uploadTask = uploadBytesResumable(storageRef, compressedFile);
+                    let imageUrl = product ? product.imageUrl : "";
 
-                        showProgressModal('جاري رفع الصورة...', uploadTask, async () => {
-                            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                            if (product && product.imagePath) {
-                                await deleteObject(ref(storage, product.imagePath)).catch(e => console.warn("Old image not found:", e));
-                            }
-                            const productData = { name, price, categoryId, subCategoryName, imageUrl: downloadURL, imagePath, updatedAt: serverTimestamp() };
-                            
-                            if (product) {
-                                await updateDoc(doc(db, "products", product.id), productData);
-                            } else {
-                                productData.createdAt = serverTimestamp();
-                                await addDoc(collection(db, "products"), productData);
-                            }
-                            closeModal();
+                    if (imageFile) {
+                        showLoadingModal('جاري رفع الصورة...');
+                        
+                        const formData = new FormData();
+                        formData.append('image', imageFile);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {                            method: 'POST',
+                            body: formData
                         });
 
-                    } else {
-                        showLoadingModal('جاري حفظ البيانات...');
-                        const productData = { name, price, categoryId, subCategoryName, updatedAt: serverTimestamp() };
-                        
-                        if (product) {
-                            // Editing an existing product without changing the image
-                            await updateDoc(doc(db, "products", product.id), productData);
+                        const result = await response.json();
+
+                        if (result.success) {
+                            imageUrl = result.data.url;
                         } else {
-                            // Creating a new product without an image
-                            productData.imageUrl = "";
-                            productData.imagePath = "";
-                            productData.createdAt = serverTimestamp();
-                            await addDoc(collection(db, "products"), productData);
+                            throw new Error(result.error.message || 'فشل رفع الصورة على ImgBB');
                         }
-                        closeModal();
                     }
+                    
+                    if (!imageUrl && !product) {
+                         return showModal('خطأ', 'يجب رفع صورة للمنتج الجديد.', () => showProductModal(product), 'موافق', false);
+                    }
+
+                    showLoadingModal('جاري حفظ البيانات...');
+                    
+                    const productData = { name, price, description, categoryId, subCategoryName, imageUrl, updatedAt: serverTimestamp() };
+                    
+                    if (product) {
+                        await updateDoc(doc(db, "products", product.id), productData);
+                    } else {
+                        productData.createdAt = serverTimestamp();
+                        await addDoc(collection(db, "products"), productData);
+                    }
+                    closeModal();
+
                 } catch (error) {
                     console.error("Error saving product:", error);
-                    showModal('خطأ', `فشل حفظ المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
+                    showModal('خطأ فادح', `فشل حفظ المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
                 }
             });
 
@@ -568,6 +589,30 @@
             if (product && product.categoryId) {
                 populateSubcategories(product.categoryId, product.subCategoryName);
             }
+        }
+        
+        function attachProductActionListeners() {
+            document.querySelectorAll('.edit-product-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const product = productsCache.find(p => p.id === btn.dataset.id);
+                    if (product) showProductModal(product);
+                };
+            });
+            document.querySelectorAll('.delete-product-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const { id } = btn.dataset;
+                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.', async () => {
+                        showLoadingModal('جاري الحذف...');
+                        try {
+                            // لا نحتاج لحذف الصورة من ImgBB, فقط حذف المنتج من Firestore
+                            await deleteDoc(doc(db, "products", id));
+                            closeModal();
+                        } catch (error) {
+                            showModal('خطأ', `فشل حذف المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
+                        }
+                    }, 'نعم, حذف', true);
+                };
+            });
         }
         
         // ===================================
@@ -583,9 +628,8 @@
                                <th class="p-3 font-semibold">العميل</th>
                                <th class="p-3 font-semibold">الهاتف</th>
                                <th class="p-3 font-semibold">المنتج</th>
-                               <th class="p-3 font-semibold">القسم</th>
-                               <th class="p-3 font-semibold">المبلغ المستلم</th>
-                               <th class="p-3 font-semibold">الفائدة (ربح)</th>
+                               <th class="p-3 font-semibold">المبلغ</th>
+                               <th class="p-3 font-semibold">الربح</th>
                                <th class="p-3 font-semibold">الحالة</th>
                                <th class="p-3 font-semibold">التاريخ</th>
                              </tr>
@@ -595,52 +639,35 @@
                        </div>`;
             const tableBody = document.getElementById('orders-table-body');
             
-            onSnapshot(query(collection(db, "orders")), (snapshot) => {
+            onSnapshot(query(collection(db, "orders"), orderBy("createdAt", "desc")), (snapshot) => {
                 ordersCache = []; 
-                tableBody.innerHTML = '';
-                if (snapshot.empty) {
-                    tableBody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-gray-500">لا توجد طلبات حاليًا.</td></tr>';
-                    updateAnalytics();
-                    return;
-                }
+                tableBody.innerHTML = snapshot.empty ? '<tr><td colspan="7" class="p-8 text-center text-gray-500">لا توجد طلبات حاليًا.</td></tr>' : '';
 
                 snapshot.forEach(doc => {
                     const order = { id: doc.id, ...doc.data() };
                     ordersCache.push(order);
                     const date = order.createdAt?.toDate().toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' }) || 'N/A';
                     
-                    let categoryName = '<span class="text-gray-400">غير محدد</span>';
-                    const product = productsCache.find(p => p.name === order.productName);
-                    if (product && product.categoryId) {
-                        const category = categoriesCache.find(c => c.id === product.categoryId);
-                        if (category) categoryName = category.name;
-                    }
+                    const statusText = order.status === 'completed' ? 'مكتمل' : (order.status === 'canceled' ? 'ملغي' : 'جديد');
+                    const statusColor = order.status === 'completed' ? 'bg-green-100 text-green-800' : (order.status === 'canceled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800');
+                    const rowColor = order.status === 'completed' ? 'bg-green-50/50' : (order.status === 'canceled' ? 'bg-red-50/50' : 'bg-white');
 
                     const row = tableBody.insertRow();
-                    const statusText = order.status === 'completed' ? 'تم البيع' : 'في انتظار';
-                    const statusColor = order.status === 'completed' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800';
-                    const rowColor = order.status === 'completed' ? 'bg-green-50' : 'bg-white';
-
                     row.className = `border-b ${rowColor} transition-colors`;
                     row.innerHTML = `
                         <td data-label="العميل" class="p-3 font-semibold">${order.customerName}</td>
-                        <td data-label="الهاتف" class="p-3 font-mono" dir="ltr">${order.customerContact}</td>
-                        <td data-label="المنتج" class="p-3">${order.productName}</td>
-                        <td data-label="القسم" class="p-3">${categoryName}</td>
-                        <td data-label="المبلغ المستلم" class="p-3 font-mono">${(order.price || 0).toLocaleString()} د.ج</td>
-                        <td data-label="الفائدة (ربح)" class="p-3">
-                            <input 
-                                type="number" 
-                                class="profit-input w-24 p-1 border rounded text-center font-mono transition-colors" 
-                                placeholder="0.00" 
-                                value="${order.profit || ''}" 
-                                data-id="${order.id}"
-                            >
+                        <td data-label="الهاتف" class="p-3 font-mono" dir="ltr"><a href="tel:${order.customerContact}" class="hover:underline">${order.customerContact}</a></td>
+                        <td data-label="المنتج" class="p-3">${order.quantity} x ${order.productName}</td>
+                        <td data-label="المبلغ" class="p-3 font-mono">${(order.price || 0).toLocaleString()} د.ج</td>
+                        <td data-label="الربح" class="p-3">
+                            <input type="number" class="profit-input w-24 p-1 border rounded text-center font-mono transition-colors" placeholder="0" value="${order.profit || ''}" data-id="${order.id}">
                         </td>
                         <td data-label="الحالة" class="p-3 actions-cell">
-                            <button class="order-status-btn px-3 py-1 rounded-full text-sm font-semibold ${statusColor}" data-id="${order.id}" data-status="${order.status}">
-                                ${statusText}
-                            </button>
+                            <select class="order-status-select p-2 rounded-lg border-gray-300 ${statusColor}" data-id="${order.id}">
+                                <option value="new" ${order.status === 'new' ? 'selected' : ''}>جديد</option>
+                                <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>مكتمل</option>
+                                <option value="canceled" ${order.status === 'canceled' ? 'selected' : ''}>ملغي</option>
+                            </select>
                         </td>
                         <td data-label="التاريخ" class="p-3 font-mono text-sm">${date}</td>`;
                 });
@@ -650,141 +677,63 @@
             });
         }
         
-        // --- Modal & Listener Functions ---
+        function attachOrderActionListeners() {
+            document.querySelectorAll('.order-status-select').forEach(select => {
+                select.onchange = async (e) => {
+                    const { id } = e.target.dataset;
+                    const newStatus = e.target.value;
+                    await updateDoc(doc(db, "orders", id), { status: newStatus });
+                };
+            });
+            
+            document.querySelectorAll('.profit-input').forEach(input => {
+                let debounceTimer;
+                input.onkeyup = (e) => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(async () => {
+                         const id = e.target.dataset.id;
+                         const profitValue = parseFloat(e.target.value) || 0;
+                         try {
+                            await updateDoc(doc(db, "orders", id), { profit: profitValue });
+                            e.target.classList.add('border-green-400');
+                            setTimeout(() => e.target.classList.remove('border-green-400'), 2000);
+                         } catch (error) {
+                            e.target.classList.add('border-red-400');
+                         }
+                    }, 1000); // Update after 1 second of no typing
+                };
+            });
+        }
+        
+        // --- Modal & Utility Functions ---
         function showModal(title, content, onConfirm, confirmText = 'حفظ', showCancel = true) {
             const modalContainer = document.getElementById('modal-container');
             modalContainer.innerHTML = `
                 <div class="modal-backdrop" id="modal-backdrop">
                     <div class="modal-content">
-                        <div class="flex justify-between items-center mb-4">
+                        <div class="flex justify-between items-center mb-4 border-b pb-3">
                            <h3 class="text-xl font-bold">${title}</h3>
-                           <button id="modal-close-btn" class="text-gray-500 hover:text-gray-800">&times;</button>
+                           <button id="modal-close-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button>
                         </div>
                         <div id="modal-body">${content}</div>
-                        <div class="flex justify-end gap-4 mt-6">
+                        <div class="flex justify-end gap-4 mt-6 border-t pt-4">
                             ${showCancel ? `<button id="modal-cancel" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button>` : ''}
                             <button id="modal-confirm" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700">${confirmText}</button>
                         </div>
                     </div>
                 </div>`;
-            if (showCancel) {
-                document.getElementById('modal-cancel').addEventListener('click', closeModal);
-            }
+            if (showCancel) document.getElementById('modal-cancel').addEventListener('click', closeModal);
             document.getElementById('modal-close-btn').addEventListener('click', closeModal);
-            document.getElementById('modal-backdrop').addEventListener('click', (e) => {
-                if (e.target.id === 'modal-backdrop' && showCancel) closeModal();
-            });
+            document.getElementById('modal-backdrop').addEventListener('click', (e) => { if (e.target.id === 'modal-backdrop' && showCancel) closeModal(); });
             document.getElementById('modal-confirm').addEventListener('click', onConfirm);
         }
 
         function closeModal() { document.getElementById('modal-container').innerHTML = ''; }
-        
+
         function showLoadingModal(text = 'جاري الحفظ...') {
              document.getElementById('modal-container').innerHTML = `<div class="modal-backdrop"><div class="modal-content text-center"><div class="loader mx-auto"></div><p class="mt-4 text-lg font-semibold text-gray-700">${text}</p></div></div>`;
         }
 
-        function showProgressModal(title, uploadTask, onComplete) {
-            const modalHTML = `
-                <div class="modal-backdrop" id="modal-backdrop">
-                    <div class="modal-content text-center">
-                        <h3 class="text-xl font-bold mb-4">${title}</h3>
-                        <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
-                            <div id="progress-bar" class="bg-indigo-600 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
-                        </div>
-                        <p id="progress-text" class="text-lg font-semibold text-gray-700">0%</p>
-                    </div>
-                </div>`;
-            document.getElementById('modal-container').innerHTML = modalHTML;
-            
-            const progressBar = document.getElementById('progress-bar');
-            const progressText = document.getElementById('progress-text');
-
-            uploadTask.on('state_changed', 
-                (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    progressBar.style.width = progress + '%';
-                    progressText.textContent = Math.round(progress) + '%';
-                }, 
-                (error) => {
-                    closeModal();
-                    showModal('خطأ في الرفع', `فشل رفع الصورة: ${error.message}`, () => closeModal(), 'موافق', false);
-                }, 
-                () => {
-                    progressText.textContent = 'اكتمل الرفع، جاري الحفظ...';
-                    onComplete();
-                }
-            );
-        }
-
-        function attachCategoryActionListeners() {
-            document.querySelectorAll('.edit-category-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const category = categoriesCache.find(c => c.id === btn.dataset.id);
-                    if (category) showCategoryModal(category);
-                };
-            });
-            document.querySelectorAll('.delete-category-btn').forEach(btn => {
-                btn.onclick = () => {
-                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا القسم؟', async () => {
-                        try {
-                            await deleteDoc(doc(db, "categories", btn.dataset.id));
-                            closeModal();
-                        } catch (error) {
-                            showModal('خطأ', 'فشل حذف القسم.', () => closeModal(), 'موافق', false);
-                        }
-                    }, 'نعم, حذف', true);
-                };
-            });
-        }
-
-         function attachProductActionListeners() {
-            document.querySelectorAll('.edit-product-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const product = productsCache.find(p => p.id === btn.dataset.id);
-                    if (product) showProductModal(product);
-                };
-            });
-            document.querySelectorAll('.delete-product-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const { id, path } = btn.dataset;
-                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا المنتج؟', async () => {
-                        showLoadingModal('جاري الحذف...');
-                        try {
-                            await deleteDoc(doc(db, "products", id));
-                            if (path && path !== "undefined") {
-                               await deleteObject(ref(storage, path));
-                            }
-                            closeModal();
-                        } catch (error) {
-                            showModal('خطأ', `فشل حذف المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
-                        }
-                    }, 'نعم, حذف', true);
-                };
-            });
-         }
-
-         function attachOrderActionListeners() {
-            document.querySelectorAll('.order-status-btn').forEach(btn => {
-                btn.onclick = async () => {
-                    const { id, status } = btn.dataset;
-                    await updateDoc(doc(db, "orders", id), { status: status === 'completed' ? 'new' : 'completed' });
-                };
-            });
-            
-            document.querySelectorAll('.profit-input').forEach(input => {
-                input.onblur = async (e) => {
-                    const id = e.target.dataset.id;
-                    const profitValue = parseFloat(e.target.value) || 0;
-                    try {
-                        await updateDoc(doc(db, "orders", id), { profit: profitValue });
-                        e.target.classList.add('bg-green-100');
-                        setTimeout(() => e.target.classList.remove('bg-green-100'), 2000);
-                    } catch (error) {
-                        e.target.classList.add('bg-red-100');
-                    }
-                };
-            });
-         }
     </script>
 </body>
 </html>
