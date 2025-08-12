@@ -14,6 +14,9 @@
             font-family: 'Tajawal', sans-serif;
             background-color: #f0f2f5;
         }
+        html {
+            scroll-behavior: smooth;
+        }
         /* --- Animations & Loaders --- */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -28,7 +31,8 @@
             border-radius: 50%; width: 20px; height: 20px;
             animation: spin 0.8s linear infinite;
         }
-        /* --- Modal Styles --- */
+
+        /* --- Modal Styles (Updated) --- */
         .modal-backdrop {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.7); z-index: 50;
@@ -40,68 +44,69 @@
             border-radius: 1rem;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
+            max-width: 700px; /* Increased max-width for new layout */
+            max-height: 95vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             animation: slideInUp 0.4s;
         }
-        /* تقليل حجم صورة المنتج في المودال */
-        .slider-container {
+        .modal-body-container {
+            display: flex;
+            flex-direction: row-reverse; /* Images on the right */
+            overflow: hidden;
+            padding: 1rem;
+            gap: 1.5rem;
+        }
+        /* Vertical image pane */
+        .modal-image-pane {
+            width: 35%; /* Adjust width for image column */
+            max-width: 220px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto; /* Scroll if many images */
+            padding-right: 8px; /* For scrollbar */
+        }
+        /* Styling for each image in the vertical pane */
+        .modal-image-pane img {
+            width: 100%;
             height: auto;
-            max-height: 400px;
+            border-radius: 8px;
+            object-fit: cover;
+            cursor: zoom-in;
+            border: 1px solid #e5e7eb;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .slider-container img {
-            object-fit: contain;
+        .modal-image-pane img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        .modal-backdrop {
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
+        /* Form pane on the left */
+        .modal-form-pane {
+            width: 65%; /* Adjust width for form */
+            display: flex;
+            flex-direction: column;
         }
-        /* على الهواتف */
-        @media (max-width: 640px) {
-            .modal-content {
-                width: 95%;
-                max-width: 400px;
-                max-height: 85vh;
-            }
-            .slider-container {
-                max-height: 200px;
-            }
+        /* Custom Scrollbar for Modal */
+        .modal-image-pane::-webkit-scrollbar,
+        .modal-form-pane .overflow-y-auto::-webkit-scrollbar {
+            width: 6px;
         }
-        /* على الشاشات الكبيرة */
-        @media (min-width: 1024px) {
-            .modal-content {
-                max-width: 600px;
-            }
+        .modal-image-pane::-webkit-scrollbar-track,
+        .modal-form-pane .overflow-y-auto::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
         }
-        /* --- Image Slider in Modal --- */
-        .slider-container { position: relative; overflow: hidden; }
-        .slider-track { display: flex; transition: transform 0.3s ease-in-out; }
-        .slider-item { min-width: 100%; }
-        .slider-btn {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            background-color: rgba(0,0,0,0.4); color: white;
-            border-radius: 50%; width: 40px; height: 40px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; z-index: 10; transition: background-color 0.2s;
+        .modal-image-pane::-webkit-scrollbar-thumb,
+        .modal-form-pane .overflow-y-auto::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 10px;
         }
-        .slider-btn:hover { background-color: rgba(0,0,0,0.6); }
-        .slider-btn.next { left: 10px; } /* Flipped for RTL */
-        .slider-btn.prev { right: 10px; }
-        .slider-dots {
-            position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 8px;
+        .modal-form-pane .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+            background: #aaa;
         }
-        .dot {
-            width: 10px; height: 10px; border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.6);
-            cursor: pointer; transition: background-color 0.3s;
-        }
-        .dot.active { background-color: white; }
-        .cursor-zoom-in { cursor: zoom-in; }
+
         /* --- Fullscreen Image Viewer --- */
         .fullscreen-backdrop {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -111,6 +116,7 @@
         }
         .fullscreen-backdrop img { max-width: 95%; max-height: 95%; object-fit: contain; }
         .fullscreen-close-btn { position: absolute; top: 20px; right: 20px; color: white; font-size: 2.5rem; cursor: pointer; }
+        
         /* --- Toast Notification --- */
         #toast-container {
             position: fixed; bottom: 20px; left: 20px; z-index: 1001;
@@ -123,32 +129,43 @@
             animation: slideInUp 0.5s, fadeOut 0.5s 4.5s forwards;
         }
         @keyframes fadeOut { to { opacity: 0; transform: translateY(20px); } }
+
         /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                max-width: 450px;
+                max-height: 90vh;
+            }
+            .modal-body-container {
+                flex-direction: column; /* Stack images above form on mobile */
+                gap: 1rem;
+                padding: 0.75rem;
+            }
+            .modal-image-pane, .modal-form-pane {
+                width: 100%;
+                max-width: none;
+            }
+            .modal-image-pane {
+                flex-direction: row; /* Images in a row */
+                flex-wrap: wrap; /* Allow wrapping */
+                justify-content: center;
+                align-items: flex-start;
+                max-height: 250px; /* Limit height and allow scrolling */
+                padding-right: 0;
+            }
+             .modal-image-pane img {
+                width: calc(50% - 8px); /* Two images per row */
+            }
+            .modal-form-pane {
+                max-height: calc(90vh - 250px - 2rem);
+            }
+        }
         @media (max-width: 640px) {
             header h1 { font-size: 1.5rem; }
-            .grid-cols-1 { grid-template-columns: 1fr; }
             .md\:col-span-1, .md\:col-span-3 { grid-column: span 1; }
             aside { position: static !important; margin-bottom: 1rem; }
-            #products-grid {
-                grid-template-columns: 1fr !important;
-                gap: 1rem;
-            }
-            .modal-content {
-                width: 100%;
-                height: 100%;
-                max-height: 100vh;
-                border-radius: 0;
-            }
-            .modal-body {
-                flex-direction: column;
-            }
-            .slider-container {
-                height: 40vh;
-            }
-            #modal-form-content {
-                max-height: 50vh;
-                overflow-y: auto;
-            }
+            #products-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important; }
         }
     </style>
 </head>
@@ -211,6 +228,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, getDocs, addDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
         // --- Configuration ---
         const firebaseConfig = {
             apiKey: "AIzaSyAxEq-nkLDc3_HM38xb3mhb8ekSXmuFQ7I",
@@ -222,7 +240,7 @@
             appId: "1:1029564929614:web:2866722c34cf1fb2b8951f",
             measurementId: "G-VH16M3Q33V"
         };
-        const CONTACT_PHONE_NUMBER = "213699443914"; // Updated WhatsApp number
+        const CONTACT_PHONE_NUMBER = "213699443914"; 
         const SOCIAL_LINKS = {
             whatsapp: `https://wa.me/${CONTACT_PHONE_NUMBER}`,
             facebook: "https://www.facebook.com/people/S22market/61563869504735/",
@@ -233,6 +251,7 @@
         // --- Firebase Initialization ---
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
         // --- Global State & Elements Cache ---
         let productsCache = [];
         let categoriesCache = [];
@@ -256,6 +275,7 @@
             elements.toastContainer.appendChild(toast);
             setTimeout(() => toast.remove(), 5000);
         }
+
         // --- Render Functions ---
         function renderStoreProducts() {
             elements.grid.innerHTML = '';
@@ -263,6 +283,7 @@
             const priceSort = elements.priceFilter.value;
             const activeCategoryBtn = document.querySelector('.category-filter-btn.active');
             const selectedCategoryId = activeCategoryBtn ? activeCategoryBtn.dataset.id : 'all';
+
             let filteredProducts = productsCache;
             if (selectedCategoryId !== 'all') {
                 filteredProducts = filteredProducts.filter(p => p.categoryId === selectedCategoryId);
@@ -270,11 +291,13 @@
             if (searchTerm) {
                 filteredProducts = filteredProducts.filter(p => p.name.toLowerCase().includes(searchTerm) || (p.description && p.description.toLowerCase().includes(searchTerm)));
             }
+
             if (priceSort === 'asc') {
                 filteredProducts.sort((a, b) => a.price - b.price);
             } else if (priceSort === 'desc') {
                 filteredProducts.sort((a, b) => b.price - a.price);
             }
+
             if (filteredProducts.length === 0) {
                 elements.grid.classList.add('hidden');
                 elements.noProductsMsg.classList.remove('hidden');
@@ -284,16 +307,19 @@
                 filteredProducts.forEach(product => {
                     const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : (product.imageUrl || '');
                     const card = document.createElement('div');
-                    card.className = 'bg-white rounded-xl shadow-md overflow-hidden flex flex-col';
+                    card.className = 'bg-white rounded-xl shadow-md overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl';
                     card.innerHTML = `
-                        <div class="h-48 sm:h-56 overflow-hidden relative group">
+                        <div class="h-56 overflow-hidden relative group">
                             <img src="${image}" alt="${product.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null;this.src='https://placehold.co/600x400/e2e8f0/4a5568?text=Image+Not+Found';">
                         </div>
-                        <div class="p-4 sm:p-5 flex flex-col flex-grow">
-                            <h3 class="text-base sm:text-lg font-bold text-gray-800 truncate" title="${product.name}">${product.name}</h3>
-                            <p class="text-blue-600 text-xl sm:text-2xl font-extrabold my-2 sm:my-3">${product.price.toLocaleString()} د.ج</p>
-                            <div class="mt-auto pt-3 sm:pt-4 border-t border-gray-100">
-                               <button class="order-btn w-full bg-blue-600 text-white font-bold py-2 px-3 sm:px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base">
+                        <div class="p-4 flex flex-col flex-grow">
+                            <h3 class="text-lg font-bold text-gray-800" title="${product.name}">${product.name}</h3>
+                            <div class="my-3">
+                                <p class="text-blue-600 text-2xl font-extrabold">${product.price.toLocaleString()} د.ج</p>
+                                <p class="text-gray-500 text-sm font-semibold mt-1">🗺️ ${product.location || 'موقع غير محدد'}</p>
+                            </div>
+                            <div class="mt-auto pt-4 border-t border-gray-100">
+                               <button class="order-btn w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
                                   <i class="fas fa-shopping-cart"></i> طلب المنتج
                                </button>
                             </div>
@@ -305,7 +331,7 @@
         }
         
         function setupImageZoom(modalId) {
-            const imagesToZoom = document.querySelectorAll(`#slider-track-${modalId} img`);
+            const imagesToZoom = document.querySelectorAll(`#modal-image-pane-${modalId} img`);
             imagesToZoom.forEach(img => {
                 img.addEventListener('click', () => {
                     const fullscreenView = document.createElement('div');
@@ -318,47 +344,32 @@
                 });
             });
         }
+
         function showOrderModal(product) {
             const modalId = `modal-${product.id}`;
             const images = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls : [product.imageUrl || 'https://placehold.co/600x600/e2e8f0/4a5568?text=No+Image'];
-            const sliderItemsHTML = images.map(url => `
-                <div class="slider-item"><img src="${url}" alt="${product.name}" class="w-full h-full object-cover cursor-zoom-in" onerror="this.onerror=null;this.src='https://placehold.co/600x600/e2e8f0/4a5568?text=Error';"></div>
+            
+            const imagesHTML = images.map(url => `
+                <img src="${url}" alt="صورة منتج ${product.name}" onerror="this.onerror=null;this.src='https://placehold.co/600x600/e2e8f0/4a5568?text=Error';">
             `).join('');
-            const dotsHTML = images.length > 1 ? images.map((_, i) => `<div class="dot ${i === 0 ? 'active' : ''}" data-index="${i}"></div>`).join('') : '';
+
             const modalHTML = `
             <div class="modal-backdrop" id="modal-backdrop-${modalId}">
                 <div class="modal-content">
                     <button id="modal-close-btn-${modalId}" class="absolute top-3 left-3 bg-black bg-opacity-40 rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-60 z-20 text-xl text-white">&times;</button>
-                    <div class="flex flex-col md:flex-row max-h-full">
-                        <div class="md:w-1/2 bg-gray-200 h-64 md:h-auto">
-                            <div id="slider-container-${modalId}" class="slider-container w-full h-full">${sliderItemsHTML ? `
-                                <div id="slider-track-${modalId}" class="slider-track h-full">${sliderItemsHTML}</div>
-                                ${images.length > 1 ? `<div id="prev-btn-${modalId}" class="slider-btn prev"><i class="fas fa-chevron-right"></i></div><div id="next-btn-${modalId}" class="slider-btn next"><i class="fas fa-chevron-left"></i></div><div class="slider-dots">${dotsHTML}</div>` : ''}
-                            ` : `<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">لا توجد صورة</div>`}
-                            </div>
+                    <div class="modal-body-container">
+                        <div id="modal-image-pane-${modalId}" class="modal-image-pane">
+                            ${imagesHTML || `<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">لا توجد صور</div>`}
                         </div>
-                        <div id="modal-form-content-${modalId}" class="md:w-1/2 p-4 md:p-6 flex flex-col overflow-y-auto">
+                        <div id="modal-form-content-${modalId}" class="modal-form-pane">
                            </div>
                     </div>
                 </div>
             </div>`;
             elements.modalContainer.innerHTML = modalHTML;
             
-            setupImageZoom(modalId); // Activate zoom for images
-            // --- Slider Logic ---
-            if (images.length > 1) {
-                const track = document.getElementById(`slider-track-${modalId}`);
-                const dots = document.querySelectorAll(`#slider-container-${modalId} .dot`);
-                let currentIndex = 0;
-                const updateSlider = () => {
-                    track.style.transform = `translateX(${currentIndex * 100}%)`; // RTL
-                    dots.forEach(d => d.classList.remove('active'));
-                    dots[currentIndex].classList.add('active');
-                };
-                document.getElementById(`next-btn-${modalId}`).onclick = () => { currentIndex = (currentIndex - 1 + images.length) % images.length; updateSlider(); };
-                document.getElementById(`prev-btn-${modalId}`).onclick = () => { currentIndex = (currentIndex + 1) % images.length; updateSlider(); };
-                dots.forEach(d => { d.onclick = () => { currentIndex = parseInt(d.dataset.index); updateSlider(); }; });
-            }
+            setupImageZoom(modalId);
+            
             const close = () => elements.modalContainer.innerHTML = '';
             document.getElementById(`modal-close-btn-${modalId}`).onclick = close;
             const backdrop = document.getElementById(`modal-backdrop-${modalId}`);
@@ -369,20 +380,23 @@
             
             const showStep1_Quantity = () => {
                 formContainer.innerHTML = `
-                    <h2 class="text-xl md:text-2xl lg:text-3xl font-extrabold text-gray-900 mb-2">${product.name}</h2>
-                    <p id="total-price-display" class="text-blue-600 text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">${product.price.toLocaleString()} د.ج</p>
-                    <div class="text-gray-600 space-y-2 mb-4 sm:mb-6 border-t pt-3 sm:pt-4">
-                        <h4 class="font-bold text-gray-800 text-sm sm:text-base">الوصف:</h4>
-                        <p class="text-xs sm:text-sm leading-relaxed">${product.description ? product.description.replace(/\n/g, '<br>') : 'لا يوجد وصف متاح حاليا.'}</p>
-                    </div>
-                    <div class="mt-auto">
-                        <label for="quantity-input" class="font-semibold text-gray-700 text-sm sm:text-base">الكمية المطلوبة:</label>
-                        <div class="flex items-center mt-1 sm:mt-2">
-                            <button type="button" id="decrease-qty" class="bg-gray-200 text-gray-800 font-bold w-10 h-10 sm:w-12 sm:h-12 rounded-r-lg text-xl sm:text-2xl">-</button>
-                            <input type="number" id="quantity-input" value="1" min="1" class="w-full h-10 sm:h-12 p-2 sm:p-3 text-center font-bold text-lg sm:text-xl border-t border-b border-gray-300 focus:outline-none" readonly>
-                            <button type="button" id="increase-qty" class="bg-gray-200 text-gray-800 font-bold w-10 h-10 sm:w-12 sm:h-12 rounded-l-lg text-xl sm:text-2xl">+</button>
+                    <div class="flex-grow overflow-y-auto pr-2">
+                        <h2 class="text-2xl lg:text-3xl font-extrabold text-gray-900 mb-2">${product.name}</h2>
+                        <p class="text-gray-500 text-sm font-semibold mb-3">🗺️ ${product.location || 'موقع غير محدد'}</p>
+                        <p id="total-price-display" class="text-blue-600 text-2xl font-bold mb-4">${product.price.toLocaleString()} د.ج</p>
+                        <div class="text-gray-600 space-y-2 mb-4 border-t pt-4">
+                            <h4 class="font-bold text-gray-800">الوصف:</h4>
+                            <p class="text-sm leading-relaxed">${product.description ? product.description.replace(/\n/g, '<br>') : 'لا يوجد وصف متاح حاليا.'}</p>
                         </div>
-                        <button id="next-step-btn" class="w-full mt-4 sm:mt-6 bg-blue-600 text-white font-bold py-2 sm:py-3 px-4 sm:px-5 rounded-lg text-sm sm:text-base md:text-lg">متابعة للطلب <i class="fas fa-arrow-left mr-2"></i></button>
+                    </div>
+                    <div class="mt-auto pt-4 border-t">
+                        <label for="quantity-input" class="font-semibold text-gray-700">الكمية المطلوبة:</label>
+                        <div class="flex items-center mt-2">
+                            <button type="button" id="decrease-qty" class="bg-gray-200 text-gray-800 font-bold w-12 h-12 rounded-r-lg text-2xl">-</button>
+                            <input type="number" id="quantity-input" value="1" min="1" class="w-full h-12 p-2 text-center font-bold text-xl border-t border-b border-gray-300 focus:outline-none" readonly>
+                            <button type="button" id="increase-qty" class="bg-gray-200 text-gray-800 font-bold w-12 h-12 rounded-l-lg text-2xl">+</button>
+                        </div>
+                        <button id="next-step-btn" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-5 rounded-lg text-lg">متابعة للطلب <i class="fas fa-arrow-left mr-2"></i></button>
                     </div>`;
                 const qtyInput = document.getElementById('quantity-input');
                 const priceDisplay = document.getElementById('total-price-display');
@@ -394,70 +408,102 @@
                 document.getElementById('increase-qty').onclick = () => { qtyInput.value++; updatePrice(); };
                 document.getElementById('next-step-btn').onclick = showStep2_ContactInfo;
             };
+
             const showStep2_ContactInfo = () => {
                 formContainer.innerHTML = `
-                    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">معلومات التوصيل</h2>
-                    <p class="text-gray-500 mb-4 sm:mb-6 text-sm sm:text-base">الرجاء إدخال معلوماتك لإتمام الطلب. سنتواصل معك للتأكيد.</p>
-                    <form id="order-form" class="space-y-3 sm:space-y-4">
-                        <div>
-                            <label for="customer-name" class="font-semibold text-gray-700 text-sm sm:text-base">الاسم الكامل</label>
-                            <input type="text" id="customer-name" placeholder="أدخل اسمك" class="mt-1 w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
-                        </div>
-                        <div>
-                            <label for="customer-contact" class="font-semibold text-gray-700 text-sm sm:text-base">رقم الهاتف</label>
-                            <input type="tel" id="customer-contact" placeholder="0x xx xx xx xx" class="mt-1 w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
-                        </div>
-                        <div>
-                            <label for="order-question" class="font-semibold text-gray-700 text-sm sm:text-base">ملاحظات أو أسئلة إضافية (اختياري)</label>
-                            <textarea id="order-question" rows="3" placeholder="اكتب سؤالك أو ملاحظاتك هنا..." class="mt-1 w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"></textarea>
-                        </div>
-                    </form>
-                    <div class="mt-4 sm:mt-6 space-y-2 sm:space-y-3">
-                        <button id="confirm-order-btn" class="w-full bg-blue-600 text-white font-bold py-2 sm:py-3 px-4 sm:px-5 rounded-lg text-sm sm:text-base md:text-lg flex items-center justify-center"><i class="fas fa-check-circle mr-2"></i> تأكيد الطلب</button>
-                        <button id="whatsapp-order-btn" class="w-full bg-green-500 text-white font-bold py-2 sm:py-3 px-4 sm:px-5 rounded-lg text-sm sm:text-base md:text-lg flex items-center justify-center"><i class="fab fa-whatsapp mr-2 sm:mr-3 text-xl sm:text-2xl"></i> أو أرسل الطلب عبر واتساب</button>
-                        <button id="back-step-btn" class="w-full text-gray-600 font-semibold py-1 sm:py-2 hover:text-black transition text-sm sm:text-base">رجوع</button>
+                    <div class="flex-grow overflow-y-auto pr-2">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">معلومات التوصيل</h2>
+                        <form id="order-form" class="space-y-4">
+                            <div>
+                                <label for="customer-name" class="font-semibold text-gray-700">الاسم الكامل</label>
+                                <input type="text" id="customer-name" placeholder="أدخل اسمك" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            <div>
+                                <label for="customer-contact" class="font-semibold text-gray-700">رقم الهاتف</label>
+                                <input type="tel" id="customer-contact" placeholder="0x xx xx xx xx" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            <div>
+                                <label for="customer-location" class="font-semibold text-gray-700">الموقع (الولاية والمدينة)</label>
+                                <input type="text" id="customer-location" placeholder="مثال: الجزائر العاصمة، باب الزوار" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            <div>
+                                <label for="customer-inquiry" class="font-semibold text-gray-700">استفسار أو ملاحظات (اختياري)</label>
+                                <textarea id="customer-inquiry" rows="3" placeholder="اكتب سؤالك أو ملاحظاتك هنا..." class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="mt-auto pt-4 border-t">
+                        <button id="confirm-order-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-5 rounded-lg text-lg flex items-center justify-center gap-2"><i class="fas fa-check-circle"></i> تأكيد الطلب</button>
+                        <button id="whatsapp-order-btn" class="w-full mt-2 bg-green-500 text-white font-bold py-3 px-5 rounded-lg text-lg flex items-center justify-center gap-3"><i class="fab fa-whatsapp text-2xl"></i> أو أرسل الطلب عبر واتساب</button>
+                        <button id="back-step-btn" class="w-full mt-2 text-gray-600 font-semibold py-2 hover:text-black transition">رجوع</button>
                     </div>`;
                 document.getElementById('back-step-btn').onclick = showStep1_Quantity;
                 document.getElementById('confirm-order-btn').onclick = handleFormSubmit;
                 document.getElementById('whatsapp-order-btn').onclick = handleFormSubmit;
             };
+
             const handleFormSubmit = async (e) => {
                 const form = document.getElementById('order-form');
-                if (!form.checkValidity()) { return form.reportValidity(); }
-                const btn = e.currentTarget;
-                const customerName = document.getElementById('customer-name').value.trim();
-                const customerContact = document.getElementById('customer-contact').value.trim();
-                const orderQuestion = document.getElementById('order-question').value.trim();
-                const price = quantity * product.price;
-                const pageUrl = window.location.href; // Get current page URL
-                if (btn.id === 'whatsapp-order-btn') {
-                    const message = encodeURIComponent(`*طلب جديد*\n\nأود طلب المنتج:\n*المنتج:* ${product.name}\n*الكمية:* ${quantity}\n*السعر الإجمالي:* ${price.toLocaleString()} د.ج\n*رابط المنتج:* ${pageUrl}\n\n*معلومات الزبون:*\n*الاسم:* ${customerName}\n*الهاتف:* ${customerContact}\n*ملاحظات إضافية:* ${orderQuestion || 'لا يوجد.'}`);
-                    window.open(`https://wa.me/${CONTACT_PHONE_NUMBER}?text=${message}`, '_blank');
-                    close();
+                if (!form.checkValidity()) {
+                    form.reportValidity();
                     return;
                 }
                 
+                const btn = e.currentTarget;
                 btn.disabled = true;
-                btn.innerHTML = `<div class="small-loader"></div> <span class="mr-2 text-sm sm:text-base">جاري تسجيل الطلب...</span>`;
+                const isWhatsappOrder = btn.id === 'whatsapp-order-btn';
+                const originalBtnHTML = btn.innerHTML;
+                btn.innerHTML = `<div class="small-loader"></div> <span class="mr-2">جاري المعالجة...</span>`;
+
+                const customerName = document.getElementById('customer-name').value.trim();
+                const customerContact = document.getElementById('customer-contact').value.trim();
+                const customerLocation = document.getElementById('customer-location').value.trim();
+                const customerInquiry = document.getElementById('customer-inquiry').value.trim();
+                const price = quantity * product.price;
+                
+                const orderData = {
+                    customerName, customerContact, customerLocation, customerInquiry,
+                    quantity, price, productName: product.name, productId: product.id,
+                    status: 'new',
+                    createdAt: serverTimestamp(),
+                    profit: 0,
+                    pageUrl: window.location.href,
+                    source: isWhatsappOrder ? 'whatsapp' : 'form'
+                };
+
                 try {
-                    await addDoc(collection(db, "orders"), {
-                        customerName, customerContact, quantity, price,
-                        productName: product.name, productId: product.id,
-                        status: 'new', createdAt: serverTimestamp(), profit: 0,
-                        orderQuestion, pageUrl, // Add new fields
-                    });
-                    close();
-                    showToast('تم إرسال طلبك بنجاح!');
+                    await addDoc(collection(db, "orders"), orderData);
+
+                    if (isWhatsappOrder) {
+                        const message = encodeURIComponent(
+                            `*طلب جديد من الموقع*\n\n` +
+                            `*المنتج:* ${product.name}\n` +
+                            `*الكمية:* ${quantity}\n` +
+                            `*السعر الإجمالي:* ${price.toLocaleString()} د.ج\n\n` +
+                            `*معلومات الزبون:*\n` +
+                            `*الاسم:* ${customerName}\n` +
+                            `*الهاتف:* ${customerContact}\n` +
+                            `*الموقع:* ${customerLocation}\n` +
+                            `*ملاحظات:* ${customerInquiry || 'لا يوجد.'}`
+                        );
+                        window.open(`https://wa.me/${CONTACT_PHONE_NUMBER}?text=${message}`, '_blank');
+                        close();
+                        showToast('تم تسجيل طلبك، يتم توجيهك لواتساب.');
+                    } else {
+                        close();
+                        showToast('تم إرسال طلبك بنجاح!');
+                    }
                 } catch (error) {
                     console.error("Error adding order:", error);
                     alert("حدث خطأ ما. الرجاء المحاولة مرة أخرى.");
                     btn.disabled = false;
-                    btn.innerHTML = `<i class="fas fa-check-circle mr-2"></i> تأكيد الطلب`;
+                    btn.innerHTML = originalBtnHTML;
                 }
             };
             
-            showStep1_Quantity(); // Start with the first step
+            showStep1_Quantity();
         }
+
         async function initializeStore() {
             elements.loader.style.display = 'block';
             elements.grid.classList.add('hidden');
@@ -468,12 +514,14 @@
             ]);
             catSnapshot.forEach(doc => categoriesCache.push({ id: doc.id, ...doc.data() }));
             prodSnapshot.forEach(doc => productsCache.push({ id: doc.id, ...doc.data() }));
+
             elements.categoriesContainer.innerHTML = '<button class="category-filter-btn active bg-blue-100 text-blue-800 font-bold w-full text-right p-2 rounded-md transition-colors" data-id="all">كل المنتجات</button>';
             categoriesCache.forEach(cat => {
                 if(productsCache.some(p => p.categoryId === cat.id)) {
                     elements.categoriesContainer.innerHTML += `<button class="category-filter-btn w-full text-right p-2 rounded-md hover:bg-gray-100 transition-colors" data-id="${cat.id}">${cat.name}</button>`;
                 }
             });
+
             document.querySelectorAll('.category-filter-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     document.querySelectorAll('.category-filter-btn').forEach(b => b.classList.remove('active', 'bg-blue-100', 'text-blue-800', 'font-bold'));
@@ -483,16 +531,18 @@
             });
             
             elements.socialLinksContainer.innerHTML = `
-                <a href="${SOCIAL_LINKS.whatsapp}" target="_blank" class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-green-500 rounded-full text-xl sm:text-2xl hover:bg-green-600 transition-transform hover:scale-110"><i class="fab fa-whatsapp"></i></a>
-                <a href="${SOCIAL_LINKS.facebook}" target="_blank" class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-blue-600 rounded-full text-xl sm:text-2xl hover:bg-blue-700 transition-transform hover:scale-110"><i class="fab fa-facebook-f"></i></a>
-                <a href="${SOCIAL_LINKS.instagram}" target="_blank" class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-pink-500 rounded-full text-xl sm:text-2xl hover:bg-pink-600 transition-transform hover:scale-110"><i class="fab fa-instagram"></i></a>
-                <a href="${SOCIAL_LINKS.telegram}" target="_blank" class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-sky-500 rounded-full text-xl sm:text-2xl hover:bg-sky-600 transition-transform hover:scale-110"><i class="fab fa-telegram"></i></a>
+                <a href="${SOCIAL_LINKS.whatsapp}" target="_blank" class="w-12 h-12 flex items-center justify-center bg-green-500 rounded-full text-2xl hover:bg-green-600 transition-transform hover:scale-110"><i class="fab fa-whatsapp"></i></a>
+                <a href="${SOCIAL_LINKS.facebook}" target="_blank" class="w-12 h-12 flex items-center justify-center bg-blue-600 rounded-full text-2xl hover:bg-blue-700 transition-transform hover:scale-110"><i class="fab fa-facebook-f"></i></a>
+                <a href="${SOCIAL_LINKS.instagram}" target="_blank" class="w-12 h-12 flex items-center justify-center bg-pink-500 rounded-full text-2xl hover:bg-pink-600 transition-transform hover:scale-110"><i class="fab fa-instagram"></i></a>
+                <a href="${SOCIAL_LINKS.telegram}" target="_blank" class="w-12 h-12 flex items-center justify-center bg-sky-500 rounded-full text-2xl hover:bg-sky-600 transition-transform hover:scale-110"><i class="fab fa-telegram"></i></a>
             `;
             elements.loader.style.display = 'none';
             renderStoreProducts();
+
             elements.searchInput.addEventListener('input', renderStoreProducts);
             elements.priceFilter.addEventListener('change', renderStoreProducts);
         }
+
         initializeStore();
     </script>
 </body>
