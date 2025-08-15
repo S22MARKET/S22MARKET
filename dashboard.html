@@ -10,6 +10,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
         .hidden { display: none; }
@@ -33,45 +37,30 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Responsive table styles */
+        .ql-toolbar { border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem; }
+        .ql-container { border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem; min-height: 80px; }
+        .ql-editor { font-family: 'Tajawal', sans-serif; }
+
         @media (max-width: 768px) {
             .responsive-table thead { display: none; }
             .responsive-table tr {
-                display: block;
-                border: 1px solid #e5e7eb;
-                border-radius: 0.5rem;
-                padding: 1rem;
-                margin-bottom: 1rem;
-                background-color: white;
+                display: block; border: 1px solid #e5e7eb; border-radius: 0.5rem;
+                padding: 1rem; margin-bottom: 1rem; background-color: white;
                 box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
             }
              .responsive-table td {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0.75rem 0;
-                border-bottom: 1px solid #f3f4f6;
+                display: flex; justify-content: space-between; align-items: center;
+                padding: 0.75rem 0; border-bottom: 1px solid #f3f4f6;
             }
             .responsive-table td:last-child { border-bottom: none; }
             .responsive-table td::before {
-                content: attr(data-label);
-                font-weight: 600;
-                margin-left: 0.5rem; /* Adjusted for RTL */
-                color: #4b5563;
+                content: attr(data-label); font-weight: 600;
+                margin-left: 0.5rem; color: #4b5563;
             }
-             .responsive-table .actions-cell {
-                justify-content: flex-end;
-                gap: 1rem;
-             }
-             .responsive-table .actions-cell::before {
-                content: ""; /* Hide label for actions */
-                flex-grow: 1;
-             }
+             .responsive-table .actions-cell { justify-content: flex-end; gap: 1rem; }
+             .responsive-table .actions-cell::before { content: ""; flex-grow: 1; }
              .responsive-table .order-status-select, .responsive-table .profit-input, .responsive-table .doneBy-input, .responsive-table .suppliers-textarea {
-                width: auto;
-                flex-grow: 1;
-                max-width: 180px;
-                text-align: left;
+                width: auto; flex-grow: 1; max-width: 180px; text-align: left;
              }
         }
     </style>
@@ -444,16 +433,21 @@
                     
                     const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : product.imageUrl;
 
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = product.name;
+                    const productNamePlainText = tempDiv.textContent || tempDiv.innerText || "";
+
                     const row = tableBody.insertRow();
                     row.className = 'border-b bg-white';
                     row.innerHTML = `
-                        <td data-label="الصورة" class="p-3"><img src="${image}" alt="${product.name}" class="w-16 h-16 object-cover rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/64x64/e2e8f0/94a3b8?text=Error';"></td>
+                        <td data-label="الصورة" class="p-3"><img src="${image || ''}" alt="${productNamePlainText}" class="w-16 h-16 object-cover rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/64x64/e2e8f0/94a3b8?text=Error';"></td>
                         <td data-label="الاسم" class="p-3 font-semibold">${product.name}</td>
                         <td data-label="القسم" class="p-3">${catName}</td>
                         <td data-label="الفرع" class="p-3">${product.subCategoryName || '---'}</td>
                         <td data-label="السعر" class="p-3 font-mono">${(product.price || 0).toLocaleString()} د.ج</td>
                         <td data-label="الموقع" class="p-3">${product.location || '---'}</td>
                         <td data-label="إجراءات" class="p-3 actions-cell">
+                            <button class="copy-product-link-btn text-green-500 hover:text-green-700 mr-4" data-id="${product.id}" title="نسخ رابط المنتج"><i class="fas fa-link fa-lg"></i></button>
                             <button class="edit-product-btn text-indigo-500 hover:text-indigo-700 mr-4" data-id="${product.id}"><i class="fas fa-edit fa-lg"></i></button>
                             <button class="delete-product-btn text-red-500 hover:text-red-700" data-id="${product.id}"><i class="fas fa-trash fa-lg"></i></button>
                         </td>`;
@@ -510,7 +504,7 @@
                 reader.onerror = error => reject(error);
             });
         }
-
+        
         function showProductModal(product = null) {
             const title = product ? 'تعديل المنتج' : 'إضافة منتج جديد';
             
@@ -530,10 +524,13 @@
             const existingImagesHTML = existingImages.map(url => 
                 `<div class="relative group"><img src="${url}" class="w-24 h-24 rounded object-cover border"><div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-white text-xs text-center">سيتم حذفها عند رفع صور جديدة</span></div></div>`
             ).join('');
-
+            
             const content = `
                 <div class="space-y-4">
-                    <div><label class="font-semibold">اسم المنتج</label><input type="text" id="product-name" class="mt-1 w-full p-2 border rounded" value="${product ? product.name : ''}" required></div>
+                    <div>
+                        <label class="font-semibold">اسم المنتج</label>
+                        <div id="product-name-editor" class="mt-1 bg-white"></div>
+                    </div>
                     <div><label class="font-semibold">السعر (د.ج)</label><input type="number" id="product-price" class="mt-1 w-full p-2 border rounded" value="${product ? product.price : ''}" required></div>
                     <div>
                         <label class="font-semibold">الوصف</label>
@@ -561,11 +558,15 @@
                         <div id="image-preview-container" class="flex flex-wrap gap-2 mt-2"></div>
                     </div>
                 </div>`;
+            
+            let quill;
 
             showModal(title, content, async () => {
                 const IMGBB_API_KEY = 'ac296feb5a275923598bdbfd4f9aed8c';
 
-                const name = document.getElementById('product-name').value.trim();
+                let name = quill.root.innerHTML.trim();
+                if (name === '<p><br></p>') name = '';
+
                 const price = parseFloat(document.getElementById('product-price').value);
                 const description = document.getElementById('product-description').value.trim();
                 const location = document.getElementById('product-location').value.trim();
@@ -595,23 +596,16 @@
                             const formData = new FormData();
                             formData.append('image', compressedBlob);
 
-                            const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-                                method: 'POST',
-                                body: formData
-                            });
+                            const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
                             const result = await response.json();
-                            if (result.success) {
-                                return result.data.url;
-                            } else {
-                                throw new Error(`فشل رفع الصورة: ${file.name}`);
-                            }
+                            if (result.success) return result.data.url;
+                            else throw new Error(`فشل رفع الصورة: ${file.name}`);
                         });
-
                         newImageUrls = await Promise.all(uploadPromises);
                     }
                     
-                    if (newImageUrls.length === 0) {
-                         return showModal('خطأ', 'يجب رفع صورة واحدة على الأقل للمنتج.', () => showProductModal(product), 'موافق', false);
+                    if (newImageUrls.length === 0 && !product) {
+                         return showModal('خطأ', 'يجب رفع صورة واحدة على الأقل للمنتج الجديد.', () => showProductModal(product), 'موافق', false);
                     }
 
                     showLoadingModal('جاري حفظ البيانات...');
@@ -631,11 +625,18 @@
                     showModal('خطأ فادح', `فشل حفظ المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
                 }
             });
+            
+            quill = new Quill('#product-name-editor', {
+                theme: 'snow',
+                modules: { toolbar: [ ['bold', 'italic', 'underline'], [{ 'color': [] }] ] }
+            });
+
+            if (product && product.name) {
+                quill.root.innerHTML = product.name;
+            }
 
             const categorySelect = document.getElementById('product-category-select');
-            categorySelect.addEventListener('change', (e) => {
-                populateSubcategories(e.target.value);
-            });
+            categorySelect.addEventListener('change', (e) => populateSubcategories(e.target.value));
             
             const imageInput = document.getElementById('product-images');
             const previewContainer = document.getElementById('image-preview-container');
@@ -658,28 +659,50 @@
             }
         }
         
-        function attachProductActionListeners() {
-            document.querySelectorAll('.edit-product-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const product = productsCache.find(p => p.id === btn.dataset.id);
-                    if (product) showProductModal(product);
-                };
+  function attachProductActionListeners() {
+    // Edit Product
+    document.querySelectorAll('.edit-product-btn').forEach(btn => {
+        btn.onclick = () => {
+            const product = productsCache.find(p => p.id === btn.dataset.id);
+            if (product) showProductModal(product);
+        };
+    });
+    // Delete Product
+    document.querySelectorAll('.delete-product-btn').forEach(btn => {
+        btn.onclick = () => {
+            const { id } = btn.dataset;
+            showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.', async () => {
+                showLoadingModal('جاري الحذف...');
+                try {
+                    await deleteDoc(doc(db, "products", id));
+                    closeModal();
+                } catch (error) {
+                    showModal('خطأ', `فشل حذف المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
+                }
+            }, 'نعم, حذف', true);
+        };
+    });
+
+    // Copy Product Link
+    document.querySelectorAll('.copy-product-link-btn').forEach(btn => {
+        btn.onclick = (e) => {
+            const button = e.currentTarget;
+            const productId = button.dataset.id;
+            const productUrl = `https://s22market.github.io/S22MARKET/index.html?product=${productId}`;
+
+            navigator.clipboard.writeText(productUrl).then(() => {
+                const originalIcon = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check text-green-500 fa-lg"></i>'; // Success icon
+                setTimeout(() => {
+                    button.innerHTML = originalIcon;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy link: ', err);
+                alert('فشل نسخ الرابط. يرجى نسخه يدوياً.');
             });
-            document.querySelectorAll('.delete-product-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const { id } = btn.dataset;
-                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.', async () => {
-                        showLoadingModal('جاري الحذف...');
-                        try {
-                            await deleteDoc(doc(db, "products", id));
-                            closeModal();
-                        } catch (error) {
-                            showModal('خطأ', `فشل حذف المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
-                        }
-                    }, 'نعم, حذف', true);
-                };
-            });
-        }
+        };
+    });
+}
         
         // ===================================
         // Orders Section
@@ -691,18 +714,12 @@
                          <table class="w-full text-right responsive-table">
                            <thead class="bg-gray-100">
                              <tr>
-                               <th class="p-3 font-semibold">العميل</th>
-                               <th class="p-3 font-semibold">الهاتف</th>
-                               <th class="p-3 font-semibold">الموقع</th>
-                               <th class="p-3 font-semibold">المنتج</th>
-                               <th class="p-3 font-semibold">المبلغ</th>
-                               <th class="p-3 font-semibold">الربح</th>
-                               <th class="p-3 font-semibold">الاستفسار</th>
-                               <th class="p-3 font-semibold">الحالة</th>
-                               <th class="p-3 font-semibold">تمت بواسطة</th>
-                               <th class="p-3 font-semibold">الموردون</th>
-                               <th class="p-3 font-semibold">التاريخ</th>
-                               <th class="p-3 font-semibold">إجراءات</th>
+                               <th class="p-3 font-semibold">العميل</th><th class="p-3 font-semibold">الهاتف</th>
+                               <th class="p-3 font-semibold">الموقع</th><th class="p-3 font-semibold">المنتج</th>
+                               <th class="p-3 font-semibold">المبلغ</th><th class="p-3 font-semibold">الربح</th>
+                               <th class="p-3 font-semibold">الاستفسار</th><th class="p-3 font-semibold">الحالة</th>
+                               <th class="p-3 font-semibold">تمت بواسطة</th><th class="p-3 font-semibold">الموردون</th>
+                               <th class="p-3 font-semibold">التاريخ</th><th class="p-3 font-semibold">إجراءات</th>
                              </tr>
                            </thead>
                            <tbody id="orders-table-body"></tbody>
@@ -719,7 +736,6 @@
                     ordersCache.push(order);
                     const date = order.createdAt?.toDate().toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' }) || 'N/A';
                     
-                    const statusText = order.status === 'completed' ? 'مكتمل' : (order.status === 'canceled' ? 'ملغي' : 'جديد');
                     const statusColor = order.status === 'completed' ? 'bg-green-100 text-green-800' : (order.status === 'canceled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800');
                     const rowColor = order.status === 'completed' ? 'bg-green-50/50' : (order.status === 'canceled' ? 'bg-red-50/50' : 'bg-white');
 
@@ -731,9 +747,7 @@
                         <td data-label="الموقع" class="p-3 text-sm font-medium">${order.customerLocation || '---'}</td>
                         <td data-label="المنتج" class="p-3">${order.quantity} x ${order.productName}</td>
                         <td data-label="المبلغ" class="p-3 font-mono">${(order.price || 0).toLocaleString()} د.ج</td>
-                        <td data-label="الربح" class="p-3">
-                            <input type="number" class="profit-input w-24 p-1 border rounded text-center font-mono transition-colors" placeholder="0" value="${order.profit || ''}" data-id="${order.id}">
-                        </td>
+                        <td data-label="الربح" class="p-3"><input type="number" class="profit-input w-24 p-1 border rounded text-center font-mono transition-colors" placeholder="0" value="${order.profit || ''}" data-id="${order.id}"></td>
                         <td data-label="الاستفسار" class="p-3 text-sm text-gray-600">${order.customerInquiry || '---'}</td>
                         <td data-label="الحالة" class="p-3 actions-cell">
                             <select class="order-status-select p-2 rounded-lg border-gray-300 ${statusColor}" data-id="${order.id}">
@@ -742,16 +756,10 @@
                                 <option value="canceled" ${order.status === 'canceled' ? 'selected' : ''}>ملغي</option>
                             </select>
                         </td>
-                        <td data-label="تمت بواسطة" class="p-3">
-                            <input type="text" class="doneBy-input w-full p-2 border rounded transition-colors" placeholder="اكتب هنا..." value="${order.doneBy || ''}" data-id="${order.id}">
-                        </td>
-                        <td data-label="الموردون" class="p-3">
-                            <textarea rows="3" class="suppliers-textarea w-full p-2 border rounded transition-colors" placeholder="اكتب هنا..." maxlength="500" data-id="${order.id}">${order.suppliers || ''}</textarea>
-                        </td>
+                        <td data-label="تمت بواسطة" class="p-3"><input type="text" class="doneBy-input w-full p-2 border rounded transition-colors" placeholder="اكتب هنا..." value="${order.doneBy || ''}" data-id="${order.id}"></td>
+                        <td data-label="الموردون" class="p-3"><textarea rows="3" class="suppliers-textarea w-full p-2 border rounded transition-colors" placeholder="اكتب هنا..." maxlength="500" data-id="${order.id}">${order.suppliers || ''}</textarea></td>
                         <td data-label="التاريخ" class="p-3 font-mono text-sm">${date}</td>
-                        <td data-label="إجراءات" class="p-3">
-                            <button class="delete-order-btn text-red-500 hover:text-red-700" data-id="${order.id}"><i class="fas fa-trash fa-lg"></i></button>
-                        </td>
+                        <td data-label="إجراءات" class="p-3"><button class="delete-order-btn text-red-500 hover:text-red-700" data-id="${order.id}"><i class="fas fa-trash fa-lg"></i></button></td>
                     `;
                 });
                 
@@ -761,14 +769,12 @@
         }
         
         function attachOrderActionListeners() {
-            // Listener for Status
             document.querySelectorAll('.order-status-select').forEach(select => {
                 select.onchange = async (e) => {
                     await updateDoc(doc(db, "orders", e.target.dataset.id), { status: e.target.value });
                 };
             });
             
-            // Reusable function for debounced input updates
             const addDebouncedListener = (selector, fieldName, isNumeric = false) => {
                 document.querySelectorAll(selector).forEach(input => {
                     let debounceTimer;
@@ -777,27 +783,21 @@
                         debounceTimer = setTimeout(async () => {
                             const id = e.target.dataset.id;
                             let value = e.target.value;
-                            if (isNumeric) {
-                                value = parseFloat(value) || 0;
-                            }
+                            if (isNumeric) value = parseFloat(value) || 0;
                             try {
                                 await updateDoc(doc(db, "orders", id), { [fieldName]: value });
                                 e.target.classList.add('border-green-400');
                                 setTimeout(() => e.target.classList.remove('border-green-400'), 2000);
-                            } catch (error) {
-                                e.target.classList.add('border-red-400');
-                            }
-                        }, 1000); // Update after 1 second of no typing
+                            } catch (error) { e.target.classList.add('border-red-400'); }
+                        }, 1000);
                     };
                 });
             };
             
-            // Applying listeners
             addDebouncedListener('.profit-input', 'profit', true);
             addDebouncedListener('.doneBy-input', 'doneBy');
             addDebouncedListener('.suppliers-textarea', 'suppliers');
             
-            // Listener for Delete button
             document.querySelectorAll('.delete-order-btn').forEach(btn => {
                 btn.onclick = () => {
                     const { id } = btn.dataset;
@@ -820,10 +820,7 @@
             modalContainer.innerHTML = `
                 <div class="modal-backdrop" id="modal-backdrop">
                     <div class="modal-content">
-                        <div class="flex justify-between items-center mb-4 border-b pb-3">
-                           <h3 class="text-xl font-bold">${title}</h3>
-                           <button id="modal-close-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button>
-                        </div>
+                        <div class="flex justify-between items-center mb-4 border-b pb-3"><h3 class="text-xl font-bold">${title}</h3><button id="modal-close-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button></div>
                         <div id="modal-body">${content}</div>
                         <div class="flex justify-end gap-4 mt-6 border-t pt-4">
                             ${showCancel ? `<button id="modal-cancel" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button>` : ''}
@@ -838,14 +835,12 @@
         }
 
         function closeModal() { document.getElementById('modal-container').innerHTML = ''; }
-
         function showLoadingModal(text = 'جاري الحفظ...') {
              document.getElementById('modal-container').innerHTML = `<div class="modal-backdrop"><div class="modal-content text-center"><div class="loader mx-auto"></div><p class="mt-4 text-lg font-semibold text-gray-700">${text}</p></div></div>`;
         }
 
         const adminPassword = document.getElementById('admin-password');
         const togglePasswordBtn = document.getElementById('toggle-password');
-
         if (togglePasswordBtn) {
             togglePasswordBtn.addEventListener('click', () => {
                 const type = adminPassword.getAttribute('type') === 'password' ? 'text' : 'password';
