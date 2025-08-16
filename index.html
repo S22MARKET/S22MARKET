@@ -328,6 +328,7 @@
         }
 
         // --- Order Modal Logic ---
+  // --- Order Modal Logic ---
         function showOrderModal(product) {
             const modalId = `modal-${product.id}`;
             const images = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls : [product.imageUrl || 'https://placehold.co/600x600/e2e8f0/4a5568?text=No+Image'];
@@ -384,14 +385,84 @@
                 };
                 document.getElementById('decrease-qty').onclick = () => { if(qtyInput.value > 1) { qtyInput.value--; updatePrice(); }};
                 document.getElementById('increase-qty').onclick = () => { qtyInput.value++; updatePrice(); };
-                document.getElementById('next-step-btn').onclick = showStep2_ContactInfo;
+                document.getElementById('next-step-btn').onclick = () => showStep2_ContactInfo(quantity);
             };
 
-            const showStep2_ContactInfo = () => { /* ... كود هذه الدالة يبقى كما هو ... */ };
-            const handleFormSubmit = async (e) => { /* ... كود هذه الدالة يبقى كما هو ... */ };
+            const showStep2_ContactInfo = (currentQuantity) => {
+                formContainer.innerHTML = `
+                    <h2 class="text-xl font-bold mb-4">معلومات التوصيل</h2>
+                    <form id="order-form" class="flex-grow overflow-y-auto pr-2 space-y-4">
+                        <div>
+                            <label for="customer-name" class="font-semibold text-sm text-gray-700">الاسم الكامل</label>
+                            <input type="text" id="customer-name" required class="mt-1 w-full p-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="customer-contact" class="font-semibold text-sm text-gray-700">رقم الهاتف</label>
+                            <input type="tel" id="customer-contact" required class="mt-1 w-full p-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" dir="ltr">
+                        </div>
+                        <div>
+                            <label for="customer-location" class="font-semibold text-sm text-gray-700">الولاية والبلدية</label>
+                            <input type="text" id="customer-location" required class="mt-1 w-full p-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="مثال: عنابة، البوني">
+                        </div>
+                         <div>
+                            <label for="customer-inquiry" class="font-semibold text-sm text-gray-700">استفسار أو ملاحظة (اختياري)</label>
+                            <textarea id="customer-inquiry" rows="2" class="mt-1 w-full p-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                    </form>
+                    <div class="mt-auto pt-4 border-t flex items-center gap-3">
+                        <button id="back-step-btn" class="w-auto bg-gray-200 text-gray-800 font-bold py-3 px-5 rounded-lg"><i class="fas fa-arrow-right"></i></button>
+                        <button id="submit-order-btn" class="w-full bg-green-600 text-white font-bold py-3 px-5 rounded-lg text-lg">تأكيد وإرسال الطلب</button>
+                    </div>`;
+                document.getElementById('back-step-btn').onclick = showStep1_Quantity;
+                document.getElementById('order-form').addEventListener('submit', (e) => handleFormSubmit(e, currentQuantity));
+                document.getElementById('submit-order-btn').onclick = () => document.getElementById('order-form').requestSubmit();
+            };
+
+            const handleFormSubmit = async (e, finalQuantity) => {
+                e.preventDefault();
+                const submitBtn = document.getElementById('submit-order-btn');
+                const customerName = document.getElementById('customer-name').value.trim();
+                const customerContact = document.getElementById('customer-contact').value.trim();
+                const customerLocation = document.getElementById('customer-location').value.trim();
+                if (!customerName || !customerContact || !customerLocation) {
+                    alert("الرجاء ملء جميع الحقول الإلزامية (الاسم، الهاتف، الموقع).");
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="small-loader"></span> جاري الإرسال...';
+
+                try {
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = product.name;
+                    const productNamePlainText = tempDiv.textContent || tempDiv.innerText || "";
+                    
+                    await addDoc(collection(db, "orders"), {
+                        productId: product.id,
+                        productName: productNamePlainText,
+                        quantity: finalQuantity,
+                        price: finalQuantity * product.price,
+                        customerName,
+                        customerContact,
+                        customerLocation,
+                        customerInquiry: document.getElementById('customer-inquiry').value.trim(),
+                        status: 'new',
+                        createdAt: serverTimestamp()
+                    });
+                    
+                    close();
+                    showToast('تم إرسال طلبك بنجاح!');
+                    
+                } catch (error) {
+                    console.error("Error adding document: ", error);
+                    alert("حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.");
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'تأكيد وإرسال الطلب';
+                }
+            };
+            
             showStep1_Quantity();
         }
-
         // --- Code to handle direct/featured product links ---
         async function handleDirectProductLink() {
             const urlParams = new URLSearchParams(window.location.search);
