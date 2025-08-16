@@ -417,15 +417,37 @@
         // ===================================
         // Products Section
         // ===================================
-        function loadProducts() {
+     function loadProducts() {
             const panel = document.getElementById('products-panel');
-            panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات</h1><button id="add-product-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div><div class="overflow-x-auto"><table class="w-full text-right responsive-table"><thead class="bg-gray-100"><tr><th class="p-3">الصورة</th><th class="p-3">الاسم</th><th class="p-3">القسم</th><th class="p-3">الفرع</th><th class="p-3">السعر</th><th class="p-3">الموقع</th><th class="p-3">إجراءات</th></tr></thead><tbody id="products-table-body"></tbody></table></div>`;
+            // START MODIFICATION 1: Add new table headers (المورد, الربح) and update the table structure
+            panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات</h1><button id="add-product-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-right responsive-table">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-3">الصورة</th>
+                            <th class="p-3">الاسم</th>
+                            <th class="p-3">القسم</th>
+                            <th class="p-3">الفرع</th>
+                            <th class="p-3">السعر</th>
+                            <th class="p-3">الموقع</th>
+                            <th class="p-3">المورد</th> <th class="p-3">الربح</th>   <th class="p-3">إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-table-body"></tbody>
+                </table>
+            </div>`;
+            // END MODIFICATION 1
+
             document.getElementById('add-product-btn').addEventListener('click', () => showProductModal());
             const tableBody = document.getElementById('products-table-body');
 
             onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), (snapshot) => {
                 productsCache = [];
-                tableBody.innerHTML = snapshot.empty ? '<tr><td colspan="7" class="p-8 text-center text-gray-500">لا توجد منتجات. أضف منتجاً جديداً للبدء.</td></tr>' : '';
+                // START MODIFICATION 2: Update colspan for the "no products" message to 9
+                tableBody.innerHTML = snapshot.empty ? '<tr><td colspan="9" class="p-8 text-center text-gray-500">لا توجد منتجات. أضف منتجاً جديداً للبدء.</td></tr>' : '';
+                // END MODIFICATION 2
+                
                 snapshot.forEach(doc => {
                     const product = { id: doc.id, ...doc.data() };
                     productsCache.push(product);
@@ -439,6 +461,8 @@
 
                     const row = tableBody.insertRow();
                     row.className = 'border-b bg-white';
+                    
+                    // START MODIFICATION 3: Add new <td> cells for supplier and profit data
                     row.innerHTML = `
                         <td data-label="الصورة" class="p-3"><img src="${image || ''}" alt="${productNamePlainText}" class="w-16 h-16 object-cover rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/64x64/e2e8f0/94a3b8?text=Error';"></td>
                         <td data-label="الاسم" class="p-3 font-semibold">${product.name}</td>
@@ -446,11 +470,12 @@
                         <td data-label="الفرع" class="p-3">${product.subCategoryName || '---'}</td>
                         <td data-label="السعر" class="p-3 font-mono">${(product.price || 0).toLocaleString()} د.ج</td>
                         <td data-label="الموقع" class="p-3">${product.location || '---'}</td>
-                        <td data-label="إجراءات" class="p-3 actions-cell">
+                        <td data-label="المورد" class="p-3">${product.supplier || '---'}</td> <td data-label="الربح" class="p-3 font-mono text-green-700 font-bold">${(product.profit || 0).toLocaleString()} د.ج</td> <td data-label="إجراءات" class="p-3 actions-cell">
                             <button class="copy-product-link-btn text-green-500 hover:text-green-700 mr-4" data-id="${product.id}" title="نسخ رابط المنتج"><i class="fas fa-link fa-lg"></i></button>
                             <button class="edit-product-btn text-indigo-500 hover:text-indigo-700 mr-4" data-id="${product.id}"><i class="fas fa-edit fa-lg"></i></button>
                             <button class="delete-product-btn text-red-500 hover:text-red-700" data-id="${product.id}"><i class="fas fa-trash fa-lg"></i></button>
                         </td>`;
+                    // END MODIFICATION 3
                 });
                 attachProductActionListeners();
                 updateAnalytics();
