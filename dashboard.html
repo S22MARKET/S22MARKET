@@ -111,6 +111,7 @@
                     <a href="#products" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
                     <a href="#categories" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
                     <a href="#orders" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
+                    <a href="#applications" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
                 </nav>
                 <div class="p-4 border-t border-gray-700">
                     <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
@@ -122,6 +123,7 @@
                 <div id="products-panel" class="dashboard-panel hidden"></div>
                 <div id="categories-panel" class="dashboard-panel hidden"></div>
                 <div id="orders-panel" class="dashboard-panel hidden"></div>
+                <div id="applications-panel" class="dashboard-panel hidden"></div>
             </main>
         </div>
     </div>
@@ -152,6 +154,8 @@
         let productsCache = [];
         let ordersCache = [];
         let myChart = null;
+        let applicationsCache = [];
+
 
         const loginPage = document.getElementById('login-page');
         const dashboardPage = document.getElementById('dashboard-page');
@@ -212,6 +216,8 @@
             loadCategories();
             loadProducts();
             loadOrders();
+            loadApplications(); // <--- أضف هذا السطر
+
         }
         
         // ===================================
@@ -925,6 +931,173 @@
                 togglePasswordBtn.querySelector('i').classList.toggle('fa-eye-slash');
             });
         }
+
+        // ===================================
+// Applications Section
+// ===================================
+
+function loadApplications() {
+    const panel = document.getElementById('applications-panel');
+    panel.innerHTML = `<div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">إدارة التطبيقات</h1>
+        <button id="add-app-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700">
+            <i class="fas fa-plus mr-2"></i> إضافة تطبيق
+        </button>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-right responsive-table">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="p-3">الأيقونة</th>
+                    <th class="p-3">الاسم</th>
+                    <th class="p-3">رابط التحميل (Android)</th>
+                    <th class="p-3">رابط التحميل (iPhone)</th>
+                    <th class="p-3">إجراءات</th>
+                </tr>
+            </thead>
+            <tbody id="apps-table-body"></tbody>
+        </table>
+    </div>`;
+
+    document.getElementById('add-app-btn').addEventListener('click', () => showApplicationModal());
+    const tableBody = document.getElementById('apps-table-body');
+
+    onSnapshot(query(collection(db, "applications"), orderBy("createdAt", "desc")), (snapshot) => {
+        applicationsCache = [];
+        tableBody.innerHTML = snapshot.empty ? '<tr><td colspan="5" class="p-8 text-center text-gray-500">لا توجد تطبيقات. أضف تطبيقاً جديداً للبدء.</td></tr>' : '';
+        
+        snapshot.forEach(doc => {
+            const app = { id: doc.id, ...doc.data() };
+            applicationsCache.push(app);
+            
+            const row = tableBody.insertRow();
+            row.className = 'border-b bg-white';
+            
+            row.innerHTML = `
+                <td data-label="الأيقونة" class="p-3"><img src="${app.iconUrl || ''}" alt="${app.name}" class="w-16 h-16 object-cover rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/64x64/e2e8f0/94a3b8?text=Icon';"></td>
+                <td data-label="الاسم" class="p-3 font-semibold">${app.name}</td>
+                <td data-label="Android" class="p-3"><a href="${app.apkUrl || '#'}" target="_blank" class="text-blue-600 hover:underline">${app.apkUrl ? 'رابط مباشر' : '---'}</a></td>
+                <td data-label="iPhone" class="p-3"><a href="${app.iosUrl || '#'}" target="_blank" class="text-blue-600 hover:underline">${app.iosUrl ? 'رابط AppStore' : '---'}</a></td>
+                <td data-label="إجراءات" class="p-3 actions-cell">
+                    <button class="edit-app-btn text-indigo-500 hover:text-indigo-700 mr-4" data-id="${app.id}"><i class="fas fa-edit fa-lg"></i></button>
+                    <button class="delete-app-btn text-red-500 hover:text-red-700" data-id="${app.id}"><i class="fas fa-trash fa-lg"></i></button>
+                </td>`;
+        });
+        attachApplicationActionListeners();
+    });
+}
+
+function showApplicationModal(app = null) {
+    const title = app ? 'تعديل التطبيق' : 'إضافة تطبيق جديد';
+
+ const content = `
+    <div class="space-y-4">
+        <div><label class="font-semibold">اسم التطبيق</label><input type="text" id="app-name" class="mt-1 w-full p-2 border rounded" value="${app ? app.name : ''}" required></div>
+        <div>
+            <label class="font-semibold">الوصف</label>
+            <textarea id="app-description" class="mt-1 w-full p-2 border rounded" rows="4" placeholder="اكتب وصفاً قصيراً للتطبيق...">${app ? (app.description || '') : ''}</textarea>
+        </div>
+        <div>
+            <label class="font-semibold">رابط أيقونة التطبيق</label>
+            <input type="text" id="app-icon-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.iconUrl || '' : ''}" placeholder="ارفع الأيقونة على ImgBB والصق الرابط هنا" required>
+        </div>
+
+        <div class="border-t pt-4 space-y-4">
+            <h4 class="font-bold text-gray-800">روابط التحميل (أضف رابطاً واحداً على الأقل)</h4>
+            
+            <div>
+                <label class="font-semibold flex items-center gap-2 text-gray-700"><i class="fab fa-google-play text-lg"></i> رابط التطبيق على Google Play</label>
+                <input type="text" id="app-google-play-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.googlePlayUrl || '' : ''}" placeholder="(اختياري) الصق رابط التطبيق من متجر جوجل بلاي">
+            </div>
+
+            <div>
+                <label class="font-semibold flex items-center gap-2 text-green-700"><i class="fas fa-file-archive text-lg"></i> رابط التحميل المباشر (ملف APK)</label>
+                <input type="text" id="app-apk-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.apkUrl || '' : ''}" placeholder="(اختياري) رابط من Google Drive, Mediafire...">
+            </div>
+
+            <div>
+                <label class="font-semibold flex items-center gap-2 text-sky-600"><i class="fab fa-telegram text-lg"></i> رابط التطبيق على Telegram</label>
+                <input type="text" id="app-telegram-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.telegramUrl || '' : ''}" placeholder="(اختياري) رابط قناة أو رسالة على تيليجرام">
+            </div>
+
+             <div>
+                <label class="font-semibold flex items-center gap-2 text-black"><i class="fab fa-apple text-lg"></i> رابط التطبيق على App Store (للآيفون)</label>
+                <input type="text" id="app-ios-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.iosUrl || '' : ''}" placeholder="(اختياري) الصق رابط التطبيق من متجر آبل هنا">
+            </div>
+        </div>
+    </div>`;
+
+    showModal(title, content, async () => {
+
+    // Get values from all fields
+    const name = document.getElementById('app-name').value.trim();
+    const description = document.getElementById('app-description').value.trim();
+    const iconUrl = document.getElementById('app-icon-url').value.trim();
+    const googlePlayUrl = document.getElementById('app-google-play-url').value.trim();
+    const apkUrl = document.getElementById('app-apk-url').value.trim();
+    const telegramUrl = document.getElementById('app-telegram-url').value.trim();
+    const iosUrl = document.getElementById('app-ios-url').value.trim();
+
+    // Validation: Ensure at least one download link is provided
+    if (!name || !iconUrl) {
+        return showModal('خطأ في الإدخال', 'يرجى ملء اسم التطبيق ورابط الأيقونة.', () => showApplicationModal(app), 'موافق', false);
+    }
+    if (!googlePlayUrl && !apkUrl && !telegramUrl && !iosUrl) {
+        return showModal('خطأ في الإدخال', 'يجب توفير رابط تحميل واحد على الأقل.', () => showApplicationModal(app), 'موافق', false);
+    }
+
+    try {
+        showLoadingModal('جاري حفظ البيانات...');
+        
+        const appData = { 
+            name, 
+            description, 
+            iconUrl, 
+            googlePlayUrl, 
+            apkUrl, 
+            telegramUrl, 
+            iosUrl, 
+            updatedAt: serverTimestamp() 
+        };
+        
+        if (app) {
+            await updateDoc(doc(db, "applications", app.id), appData);
+        } else {
+            appData.createdAt = serverTimestamp();
+            await addDoc(collection(db, "applications"), appData);
+        }
+        closeModal();
+
+    } catch (error) {
+        console.error("Error saving application:", error);
+        showModal('خطأ فادح', `فشل حفظ التطبيق: ${error.message}`, () => closeModal(), 'موافق', false);
+    }
+}, () => {}); // Added an empty onCancel function
+}
+
+
+function attachApplicationActionListeners() {
+    document.querySelectorAll('.edit-app-btn').forEach(btn => {
+        btn.onclick = () => {
+            const app = applicationsCache.find(a => a.id === btn.dataset.id);
+            if (app) showApplicationModal(app);
+        };
+    });
+
+    document.querySelectorAll('.delete-app-btn').forEach(btn => {
+        btn.onclick = () => {
+            showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا التطبيق؟', async () => {
+                showLoadingModal('جاري الحذف...');
+                try {
+                    await deleteDoc(doc(db, "applications", btn.dataset.id));
+                    closeModal();
+                } catch (error) {
+                    showModal('خطأ', 'فشل حذف التطبيق.', () => closeModal(), 'موافق', false);
+                }
+            }, 'نعم, حذف', true);
+        };
+    });
+}
     </script>
 </body>
 </html>
