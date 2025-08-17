@@ -557,20 +557,36 @@ function createApplicationCard(app) {
         }
         
         // --- Fetch Categories from Firestore ---
-        async function fetchCategories() {
+    async function fetchCategories() {
             try {
+                // 1. جلب الأقسام من قاعدة البيانات
                 const catSnapshot = await getDocs(query(collection(db, "categories"), orderBy("name")));
+                categoriesCache = []; // مسح الكاش القديم
                 catSnapshot.forEach(doc => categoriesCache.push({ id: doc.id, ...doc.data() }));
 
-              elements.categoriesContainer.innerHTML = `
-    <button class="category-filter-btn active bg-blue-100 text-blue-800 font-bold w-full text-right p-2 rounded-md transition-colors" data-id="all">
-        <i class="fas fa-store ml-2"></i> كل المنتجات
-    </button>
-    <button class="category-filter-btn w-full text-right p-2 rounded-md hover:bg-gray-100 transition-colors" data-id="apps">
-        <i class="fab fa-android ml-2"></i> التطبيقات
-    </button>
-`;
+                // 2. البدء بالأزرار الثابتة
+                let categoriesHTML = `
+                    <button class="category-filter-btn active bg-blue-100 text-blue-800 font-bold w-full text-right p-2 rounded-md transition-colors" data-id="all">
+                        <i class="fas fa-store ml-2"></i> كل المنتجات
+                    </button>
+                    <button class="category-filter-btn w-full text-right p-2 rounded-md hover:bg-gray-100 transition-colors" data-id="apps">
+                        <i class="fab fa-android ml-2"></i> التطبيقات
+                    </button>
+                `;
+                
+                // 3. إضافة زر لكل قسم منتج تم جلبه من قاعدة البيانات
+                categoriesCache.forEach(category => {
+                    categoriesHTML += `
+                        <button class="category-filter-btn w-full text-right p-2 rounded-md hover:bg-gray-100 transition-colors" data-id="${category.id}">
+                            <i class="fas fa-tag ml-2"></i> ${category.name}
+                        </button>
+                    `;
+                });
 
+                // 4. وضع كل الأزرار في الحاوية المخصصة لها
+                elements.categoriesContainer.innerHTML = categoriesHTML;
+                
+                // 5. ربط وظيفة الفلترة مع كل الأزرار الجديدة
                 document.querySelectorAll('.category-filter-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         document.querySelectorAll('.category-filter-btn').forEach(b => b.classList.remove('active', 'bg-blue-100', 'text-blue-800', 'font-bold'));
@@ -578,12 +594,12 @@ function createApplicationCard(app) {
                         resetAndFetchProducts();
                     });
                 });
+
             } catch (error) {
                 console.error("Error fetching categories:", error);
                 elements.categoriesContainer.innerHTML = `<p class="text-sm text-red-500">فشل تحميل الأقسام.</p>`;
             }
         }
-        
         // --- Fetch Products from Firestore with Pagination ---
         async function fetchProducts() {
             if (isFetching) return;
