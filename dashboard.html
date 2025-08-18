@@ -155,6 +155,8 @@
         let ordersCache = [];
         let myChart = null;
         let profitChart = null;
+        let topProductsChart = null; // <--- أضف هذا السطر
+
         let applicationsCache = [];
 
 
@@ -223,120 +225,201 @@
         // ===================================
         // Analytics Section
         // ===================================
-        function loadAnalytics() {
-            const panel = document.getElementById('analytics-panel');
-            panel.innerHTML = `
-                <h1 class="text-3xl font-bold text-gray-800 mb-6">لوحة التحكم الرئيسية</h1>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
-                        <i class="fas fa-hand-holding-usd text-4xl text-green-500 mr-4"></i>
-                        <div><p class="text-gray-500">إجمالي الأرباح</p><p id="total-profit" class="text-2xl font-bold">0 د.ج</p></div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
-                        <i class="fas fa-divide text-4xl text-yellow-400 mr-4"></i>
-                        <div><p class="text-gray-500">متوسط الربح / طلب</p><p id="avg-profit" class="text-2xl font-bold">0 د.ج</p></div>
-                    </div>
-                     <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
-                        <i class="fas fa-check-circle text-4xl text-blue-500 mr-4"></i>
-                        <div><p class="text-gray-500">الطلبات المكتملة</p><p id="completed-orders" class="text-2xl font-bold">0</p></div>
-                    </div>
-                     <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
-                        <i class="fas fa-boxes text-4xl text-purple-500 mr-4"></i>
-                        <div><p class="text-gray-500">المنتجات</p><p id="total-products" class="text-2xl font-bold">0</p></div>
-                    </div>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-md">
-                    <h2 class="text-xl font-bold mb-4">الطلبات المكتملة (آخر 7 أيام)</h2>
-                    <canvas id="ordersChart"></canvas>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-md mt-8">
-                    <h2 class="text-xl font-bold mb-4">الأرباح اليومية (آخر 7 أيام)</h2>
-                    <canvas id="profitChart"></canvas>
-                </div>
-                `;
-        }
+   function loadAnalytics() {
+    const panel = document.getElementById('analytics-panel');
+    panel.innerHTML = `
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">لوحة التحكم الرئيسية</h1>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
+                <i class="fas fa-hand-holding-usd text-4xl text-green-500 mr-4"></i>
+                <div><p class="text-gray-500">إجمالي الأرباح</p><p id="total-profit" class="text-2xl font-bold">0 د.ج</p></div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
+                <i class="fas fa-divide text-4xl text-yellow-400 mr-4"></i>
+                <div><p class="text-gray-500">متوسط الربح / طلب</p><p id="avg-profit" class="text-2xl font-bold">0 د.ج</p></div>
+            </div>
+             <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
+                <i class="fas fa-check-circle text-4xl text-blue-500 mr-4"></i>
+                <div><p class="text-gray-500">الطلبات المكتملة</p><p id="completed-orders" class="text-2xl font-bold">0</p></div>
+            </div>
+             <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
+                <i class="fas fa-boxes text-4xl text-purple-500 mr-4"></i>
+                <div><p class="text-gray-500">المنتجات</p><p id="total-products" class="text-2xl font-bold">0</p></div>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <h2 class="text-xl font-bold mb-4">الطلبات المكتملة (آخر 7 أيام)</h2>
+                <canvas id="ordersChart"></canvas>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <h2 class="text-xl font-bold mb-4">الأرباح اليومية (آخر 7 أيام)</h2>
+                <canvas id="profitChart"></canvas>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-md">
+            <h2 class="text-xl font-bold mb-4">أعلى 7 منتجات تحقيقًا للأرباح</h2>
+            <canvas id="topProductsChart"></canvas>
+        </div>
+        `;
+}
+      function updateAnalytics() {
+    if(!document.getElementById('total-products')) return; 
+    
+    const completedOrders = ordersCache.filter(o => o.status === 'completed');
+    const totalProfit = completedOrders.reduce((sum, order) => sum + (order.profit || 0), 0);
+    const completedOrdersCount = completedOrders.length;
+    const avgProfit = completedOrdersCount > 0 ? totalProfit / completedOrdersCount : 0;
 
-        function updateAnalytics() {
-            if(!document.getElementById('total-products')) return; 
-            
-            const completedOrders = ordersCache.filter(o => o.status === 'completed');
-            const totalProfit = completedOrders.reduce((sum, order) => sum + (order.profit || 0), 0);
-            const completedOrdersCount = completedOrders.length;
-            const avgProfit = completedOrdersCount > 0 ? totalProfit / completedOrdersCount : 0;
+    document.getElementById('total-products').textContent = productsCache.length;
+    document.getElementById('total-profit').textContent = `${totalProfit.toLocaleString()} د.ج`;
+    document.getElementById('avg-profit').textContent = `${avgProfit.toFixed(0).toLocaleString()} د.ج`;
+    document.getElementById('completed-orders').textContent = completedOrdersCount;
 
-            document.getElementById('total-products').textContent = productsCache.length;
-            document.getElementById('total-profit').textContent = `${totalProfit.toLocaleString()} د.ج`;
-            document.getElementById('avg-profit').textContent = `${avgProfit.toFixed(0).toLocaleString()} د.ج`;
-            document.getElementById('completed-orders').textContent = completedOrdersCount;
+    const last7Days = {};
+    const last7DaysProfit = {};
 
-            const last7Days = {};
-            const last7DaysProfit = {};
+    for(let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().split('T')[0];
+        last7Days[key] = 0;
+        last7DaysProfit[key] = 0;
+    }
 
-            for(let i = 6; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                const key = d.toISOString().split('T')[0];
-                last7Days[key] = 0;
-                last7DaysProfit[key] = 0;
+    completedOrders.forEach(order => {
+        if (order.createdAt?.toDate) {
+            const orderDate = order.createdAt.toDate().toISOString().split('T')[0];
+            if (last7Days.hasOwnProperty(orderDate)) {
+                last7Days[orderDate]++;
+                last7DaysProfit[orderDate] += (order.profit || 0);
             }
+        }
+    });
 
-            completedOrders.forEach(order => {
-                if (order.createdAt?.toDate) {
-                    const orderDate = order.createdAt.toDate().toISOString().split('T')[0];
-                    if (last7Days.hasOwnProperty(orderDate)) {
-                        last7Days[orderDate]++;
-                        last7DaysProfit[orderDate] += (order.profit || 0);
+    const chartLabels = Object.keys(last7Days).map(date => new Date(date).toLocaleDateString('ar-EG', { weekday: 'short', day: 'numeric'}));
+    
+    // Orders Chart
+    const ordersChartData = Object.values(last7Days);
+    const ordersCtx = document.getElementById('ordersChart')?.getContext('2d');
+    if (ordersCtx) {
+        if (myChart) myChart.destroy();
+        myChart = new Chart(ordersCtx, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'عدد الطلبات',
+                    data: ordersChartData,
+                    backgroundColor: 'rgba(79, 70, 229, 0.8)',
+                    borderColor: 'rgba(79, 70, 229, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5
+                }]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } }
+        });
+    }
+
+    // Profit Chart
+    const profitChartData = Object.values(last7DaysProfit);
+    const profitCtx = document.getElementById('profitChart')?.getContext('2d');
+    if (profitCtx) {
+        if (profitChart) profitChart.destroy();
+        profitChart = new Chart(profitCtx, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'الأرباح (د.ج)',
+                    data: profitChartData,
+                    backgroundColor: 'rgba(22, 163, 74, 0.2)',
+                    borderColor: 'rgba(22, 163, 74, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+        });
+    }
+
+
+
+
+
+    // ===== الكود الجديد لمخطط أعلى المنتجات ربحًا =====
+const productProfits = {};
+completedOrders.forEach(order => {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = order.productName || 'منتج غير معروف';
+    const productName = tempDiv.textContent || tempDiv.innerText || "";
+    const profit = order.profit || 0;
+    if (productProfits[productName]) {
+        productProfits[productName] += profit;
+    } else {
+        productProfits[productName] = profit;
+    }
+});
+
+const sortedProducts = Object.entries(productProfits)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 7);
+
+//-- سطر الفحص: افتح الـ Console في المتصفح لترى نتيجة هذا السطر --//
+console.log("أعلى المنتجات ربحًا:", sortedProducts); 
+
+const topProductsLabels = sortedProducts.map(p => p[0]);
+const topProductsData = sortedProducts.map(p => p[1]);
+
+const topProductsCtx = document.getElementById('topProductsChart')?.getContext('2d');
+if (topProductsCtx) {
+    if (topProductsChart) topProductsChart.destroy();
+    topProductsChart = new Chart(topProductsCtx, {
+        type: 'bar', // نوع المخطط: عمودي
+        data: {
+            labels: topProductsLabels,
+            datasets: [{
+                label: 'إجمالي الربح',
+                data: topProductsData,
+                backgroundColor: 'rgba(153, 102, 255, 0.8)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1,
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { // المحور العمودي (الربح)
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'إجمالي الربح (د.ج)'
+                    }
+                },
+                x: { // المحور الأفقي (أسماء المنتجات)
+                    ticks: {
+                        // لا حاجة لإعدادات خاصة هنا حاليًا
                     }
                 }
-            });
-
-            const chartLabels = Object.keys(last7Days).map(date => new Date(date).toLocaleDateString('ar-EG', { weekday: 'short', day: 'numeric'}));
-            
-            // Orders Chart
-            const ordersChartData = Object.values(last7Days);
-            const ordersCtx = document.getElementById('ordersChart')?.getContext('2d');
-            if (ordersCtx) {
-                if (myChart) myChart.destroy();
-                myChart = new Chart(ordersCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: chartLabels,
-                        datasets: [{
-                            label: 'عدد الطلبات',
-                            data: ordersChartData,
-                            backgroundColor: 'rgba(79, 70, 229, 0.8)',
-                            borderColor: 'rgba(79, 70, 229, 1)',
-                            borderWidth: 1,
-                            borderRadius: 5
-                        }]
-                    },
-                    options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } }
-                });
-            }
-
-            // Profit Chart
-            const profitChartData = Object.values(last7DaysProfit);
-            const profitCtx = document.getElementById('profitChart')?.getContext('2d');
-            if (profitCtx) {
-                if (profitChart) profitChart.destroy();
-                profitChart = new Chart(profitCtx, {
-                    type: 'line',
-                    data: {
-                        labels: chartLabels,
-                        datasets: [{
-                            label: 'الأرباح (د.ج)',
-                            data: profitChartData,
-                            backgroundColor: 'rgba(22, 163, 74, 0.2)',
-                            borderColor: 'rgba(22, 163, 74, 1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.3
-                        }]
-                    },
-                    options: { responsive: true, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
-                });
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            // تعديل النص الظاهر عند المرور على العمود
+                            return `الربح: ${context.parsed.y.toLocaleString()} د.ج`;
+                        }
+                    }
+                }
             }
         }
+    });
+}}
         
         function loadCategories() {
             const panel = document.getElementById('categories-panel');
