@@ -220,9 +220,6 @@
 
         }
         
-        // ===================================
-        // Analytics Section
-        // ===================================
         function loadAnalytics() {
             const panel = document.getElementById('analytics-panel');
             panel.innerHTML = `
@@ -301,9 +298,6 @@
             });
         }
         
-        // ===================================
-        // Categories Section
-        // ===================================
         function loadCategories() {
             const panel = document.getElementById('categories-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة الأقسام</h1><button id="add-category-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة قسم</button></div><div id="categories-list" class="space-y-4"></div>`;
@@ -420,9 +414,6 @@
             });
         }
         
-        // ===================================
-        // Products Section
-        // ===================================
      function loadProducts() {
             const panel = document.getElementById('products-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات</h1><button id="add-product-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div>
@@ -734,14 +725,12 @@
             }
         }
   function attachProductActionListeners() {
-    // Edit Product
     document.querySelectorAll('.edit-product-btn').forEach(btn => {
         btn.onclick = () => {
             const product = productsCache.find(p => p.id === btn.dataset.id);
             if (product) showProductModal(product);
         };
     });
-    // Delete Product
     document.querySelectorAll('.delete-product-btn').forEach(btn => {
         btn.onclick = () => {
             const { id } = btn.dataset;
@@ -757,7 +746,6 @@
         };
     });
 
-    // Copy Product Link
     document.querySelectorAll('.copy-product-link-btn').forEach(btn => {
         btn.onclick = (e) => {
             const button = e.currentTarget;
@@ -766,7 +754,7 @@
 
             navigator.clipboard.writeText(productUrl).then(() => {
                 const originalIcon = button.innerHTML;
-                button.innerHTML = '<i class="fas fa-check text-green-500 fa-lg"></i>'; // Success icon
+                button.innerHTML = '<i class="fas fa-check text-green-500 fa-lg"></i>'; 
                 setTimeout(() => {
                     button.innerHTML = originalIcon;
                 }, 2000);
@@ -778,9 +766,6 @@
     });
 }
         
-        // ===================================
-        // Orders Section
-        // ===================================
         function loadOrders() {
             const panel = document.getElementById('orders-panel');
             panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">الطلبات الواردة</h1>
@@ -789,11 +774,12 @@
                            <thead class="bg-gray-100">
                              <tr>
                                <th class="p-3 font-semibold">العميل</th><th class="p-3 font-semibold">الهاتف</th>
-                               <th class="p-3 font-semibold">الموقع</th><th class="p-3 font-semibold">المنتج</th>
-                               <th class="p-3 font-semibold">المبلغ</th><th class="p-3 font-semibold">الربح</th>
-                               <th class="p-3 font-semibold">الاستفسار</th><th class="p-3 font-semibold">الحالة</th>
-                               <th class="p-3 font-semibold">تمت بواسطة</th><th class="p-3 font-semibold">الموردون</th>
-                               <th class="p-3 font-semibold">التاريخ</th><th class="p-3 font-semibold">إجراءات</th>
+                               <th class="p-3 font-semibold">الموقع</th><th class="p-3 font-semibold">نوع التوصيل</th>
+                               <th class="p-3 font-semibold">المنتج</th><th class="p-3 font-semibold">المبلغ</th>
+                               <th class="p-3 font-semibold">الربح</th><th class="p-3 font-semibold">الاستفسار</th>
+                               <th class="p-3 font-semibold">الحالة</th><th class="p-3 font-semibold">تمت بواسطة</th>
+                               <th class="p-3 font-semibold">الموردون</th><th class="p-3 font-semibold">التاريخ</th>
+                               <th class="p-3 font-semibold">إجراءات</th>
                              </tr>
                            </thead>
                            <tbody id="orders-table-body"></tbody>
@@ -803,7 +789,7 @@
             
             onSnapshot(query(collection(db, "orders"), orderBy("createdAt", "desc")), (snapshot) => {
                 ordersCache = []; 
-                tableBody.innerHTML = snapshot.empty ? `<tr><td colspan="12" class="p-8 text-center text-gray-500">لا توجد طلبات حاليًا.</td></tr>` : '';
+                tableBody.innerHTML = snapshot.empty ? `<tr><td colspan="13" class="p-8 text-center text-gray-500">لا توجد طلبات حاليًا.</td></tr>` : '';
 
                 snapshot.forEach(doc => {
                     const order = { id: doc.id, ...doc.data() };
@@ -813,12 +799,20 @@
                     const statusColor = order.status === 'completed' ? 'bg-green-100 text-green-800' : (order.status === 'canceled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800');
                     const rowColor = order.status === 'completed' ? 'bg-green-50/50' : (order.status === 'canceled' ? 'bg-red-50/50' : 'bg-white');
 
+                    let deliveryDisplay = '---';
+                    if (order.deliveryType === 'home') {
+                        deliveryDisplay = '<span class="text-blue-600 font-semibold"><i class="fas fa-home mr-1"></i> للمنزل</span>';
+                    } else if (order.deliveryType === 'office') {
+                        deliveryDisplay = '<span class="text-purple-600 font-semibold"><i class="fas fa-building mr-1"></i> للمكتب</span>';
+                    }
+
                     const row = tableBody.insertRow();
                     row.className = `border-b ${rowColor} transition-colors`;
                     row.innerHTML = `
                         <td data-label="العميل" class="p-3 font-semibold">${order.customerName}</td>
                         <td data-label="الهاتف" class="p-3 font-mono" dir="ltr"><a href="tel:${order.customerContact}" class="hover:underline">${order.customerContact}</a></td>
                         <td data-label="الموقع" class="p-3 text-sm font-medium">${order.customerLocation || '---'}</td>
+                        <td data-label="نوع التوصيل" class="p-3 text-sm">${deliveryDisplay}</td>
                         <td data-label="المنتج" class="p-3">${order.quantity} x ${order.productName}</td>
                         <td data-label="المبلغ" class="p-3 font-mono">${(order.price || 0).toLocaleString()} د.ج</td>
                         <td data-label="الربح" class="p-3"><input type="number" class="profit-input w-24 p-1 border rounded text-center font-mono transition-colors" placeholder="0" value="${order.profit || ''}" data-id="${order.id}"></td>
@@ -888,7 +882,6 @@
             });
         }
         
-        // --- Modal & Utility Functions ---
         function showModal(title, content, onConfirm, confirmText = 'حفظ', showCancel = true) {
             const modalContainer = document.getElementById('modal-container');
             modalContainer.innerHTML = `
@@ -923,10 +916,6 @@
                 togglePasswordBtn.querySelector('i').classList.toggle('fa-eye-slash');
             });
         }
-
-        // ===================================
-// Applications Section
-// ===================================
 
 function loadApplications() {
     const panel = document.getElementById('applications-panel');
