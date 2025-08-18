@@ -216,7 +216,7 @@
             loadCategories();
             loadProducts();
             loadOrders();
-            loadApplications(); // <--- أضف هذا السطر
+            loadApplications(); 
 
         }
         
@@ -463,7 +463,6 @@
                     tempDiv.innerHTML = product.name;
                     const productNamePlainText = tempDiv.textContent || tempDiv.innerText || "";
 
-                    // START MODIFICATION: Calculate profit display string
                     let profitDisplay = '0 د.ج';
                     if (product.profitType === 'percentage' && product.price && product.profitValue) {
                         const calculatedProfit = (product.price * product.profitValue) / 100;
@@ -471,7 +470,6 @@
                     } else if (product.profitValue) {
                         profitDisplay = `${product.profitValue.toLocaleString()} د.ج`;
                     }
-                    // END MODIFICATION
 
                     const row = tableBody.insertRow();
                     row.className = 'border-b bg-white';
@@ -563,7 +561,6 @@
                 `<div class="relative group"><img src="${url}" class="w-24 h-24 rounded object-cover border"><div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-white text-xs text-center">سيتم حذفها عند رفع صور جديدة</span></div></div>`
             ).join('');
             
-            // START MODIFICATION: Update profit input to include type selection
             const content = `
                 <div class="space-y-4">
                     <div>
@@ -618,7 +615,6 @@
                         <div id="image-preview-container" class="flex flex-wrap gap-2 mt-2"></div>
                     </div>
                 </div>`;
-            // END MODIFICATION
             
             let quill;
 
@@ -635,12 +631,10 @@
                 const subCategoryName = document.getElementById('product-subcategory').value || null;
                 const imageFiles = document.getElementById('product-images').files;
 
-                // START MODIFICATION: Get values from new profit fields
                 const supplier = document.getElementById('product-supplier').value.trim();
                 const supplierContact = document.getElementById('product-supplier-contact').value.trim();
                 const profitValue = parseFloat(document.getElementById('product-profit-value').value) || 0;
                 const profitType = document.getElementById('product-profit-type').value;
-                // END MODIFICATION
 
                 if (!name || isNaN(price) || !categoryId) {
                     return showModal('خطأ في الإدخال', 'يرجى ملء الحقول الإلزامية: اسم المنتج، السعر، والقسم الرئيسي.', () => showProductModal(product), 'موافق', false);
@@ -678,7 +672,6 @@
 
                     showLoadingModal('جاري حفظ البيانات...');
                     
-                    // START MODIFICATION: Add new profit fields to the productData object
                     const productData = { 
                         name, 
                         price, 
@@ -693,7 +686,6 @@
                         profitType,
                         updatedAt: serverTimestamp() 
                     };
-                    // END MODIFICATION
                     
                     if (product) {
                         await updateDoc(doc(db, "products", product.id), productData);
@@ -1029,7 +1021,6 @@ function showApplicationModal(app = null) {
 
     showModal(title, content, async () => {
 
-    // Get values from all fields
     const name = document.getElementById('app-name').value.trim();
     const description = document.getElementById('app-description').value.trim();
     const iconUrl = document.getElementById('app-icon-url').value.trim();
@@ -1038,7 +1029,6 @@ function showApplicationModal(app = null) {
     const telegramUrl = document.getElementById('app-telegram-url').value.trim();
     const iosUrl = document.getElementById('app-ios-url').value.trim();
 
-    // Validation: Ensure at least one download link is provided
     if (!name || !iconUrl) {
         return showModal('خطأ في الإدخال', 'يرجى ملء اسم التطبيق ورابط الأيقونة.', () => showApplicationModal(app), 'موافق', false);
     }
@@ -1072,7 +1062,7 @@ function showApplicationModal(app = null) {
         console.error("Error saving application:", error);
         showModal('خطأ فادح', `فشل حفظ التطبيق: ${error.message}`, () => closeModal(), 'موافق', false);
     }
-}, () => {}); // Added an empty onCancel function
+}, () => {});
 }
 
 

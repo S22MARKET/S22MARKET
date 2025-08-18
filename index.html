@@ -54,14 +54,13 @@
         .toast { background-color: #22c55e; color: white; padding: 1rem 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 0.75rem; animation: slideInUp 0.5s, fadeOut 0.5s 4.5s forwards; }
         @keyframes fadeOut { to { opacity: 0; transform: translateY(20px); } }
 
-        /* أكواد التصميم للمنتج المميز */
         .featured-product-card {
-            border: 3px solid #ef4444; /* إطار أحمر سميك */
-            transform: scale(1.02); /* تكبير بسيط لزيادة البروز */
+            border: 3px solid #ef4444; 
+            transform: scale(1.02); 
             box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.2), 0 8px 10px -6px rgba(239, 68, 68, 0.2);
         }
         .glowing-mustard-button {
-            background-color: #D4AC0D; /* لون أصفر مستردة */
+            background-color: #D4AC0D;
             animation: pulse 1.5s infinite;
             box-shadow: 0 0 5px #D4AC0D, 0 0 10px #D4AC0D;
         }
@@ -298,7 +297,6 @@
             }
         }
 
-        // --- Reset and fetch products (used for filtering) ---
    // --- Reset and fetch content (products or apps) ---
 function resetAndFetchProducts() {
     productsCache = [];
@@ -315,17 +313,11 @@ function resetAndFetchProducts() {
     const selectedId = activeCategoryBtn ? activeCategoryBtn.dataset.id : 'all';
 
     if (selectedId === 'apps') {
-        // Fetch applications instead of products
         fetchApplications();
     } else {
-        // Fetch products (original logic)
         fetchProducts();
     }
 }
-
-
-
-
 
             // --- Fetch Applications from Firestore ---
 async function fetchApplications() {
@@ -333,7 +325,7 @@ async function fetchApplications() {
     isFetching = true;
     elements.loader.classList.remove('hidden');
     elements.grid.classList.add('hidden');
-    elements.grid.innerHTML = ''; // Clear previous items
+    elements.grid.innerHTML = ''; 
 
     try {
         const appSnapshot = await getDocs(query(collection(db, "applications"), orderBy("createdAt", "desc")));
@@ -401,7 +393,6 @@ function createApplicationCard(app) {
         }
 
         // --- Order Modal Logic ---
-  // --- Order Modal Logic ---
         function showOrderModal(product) {
             const modalId = `modal-${product.id}`;
             const images = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls : [product.imageUrl || 'https://placehold.co/600x600/e2e8f0/4a5568?text=No+Image'];
@@ -559,12 +550,10 @@ function createApplicationCard(app) {
         // --- Fetch Categories from Firestore ---
     async function fetchCategories() {
             try {
-                // 1. جلب الأقسام من قاعدة البيانات
                 const catSnapshot = await getDocs(query(collection(db, "categories"), orderBy("name")));
-                categoriesCache = []; // مسح الكاش القديم
+                categoriesCache = []; 
                 catSnapshot.forEach(doc => categoriesCache.push({ id: doc.id, ...doc.data() }));
 
-                // 2. البدء بالأزرار الثابتة
                 let categoriesHTML = `
                     <button class="category-filter-btn active bg-blue-100 text-blue-800 font-bold w-full text-right p-2 rounded-md transition-colors" data-id="all">
                         <i class="fas fa-store ml-2"></i> كل المنتجات
@@ -574,7 +563,6 @@ function createApplicationCard(app) {
                     </button>
                 `;
                 
-                // 3. إضافة زر لكل قسم منتج تم جلبه من قاعدة البيانات
                 categoriesCache.forEach(category => {
                     categoriesHTML += `
                         <button class="category-filter-btn w-full text-right p-2 rounded-md hover:bg-gray-100 transition-colors" data-id="${category.id}">
@@ -583,10 +571,8 @@ function createApplicationCard(app) {
                     `;
                 });
 
-                // 4. وضع كل الأزرار في الحاوية المخصصة لها
                 elements.categoriesContainer.innerHTML = categoriesHTML;
                 
-                // 5. ربط وظيفة الفلترة مع كل الأزرار الجديدة
                 document.querySelectorAll('.category-filter-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         document.querySelectorAll('.category-filter-btn').forEach(b => b.classList.remove('active', 'bg-blue-100', 'text-blue-800', 'font-bold'));
@@ -611,8 +597,6 @@ function createApplicationCard(app) {
             try {
                 const searchTerm = elements.searchInput.value.toLowerCase();
                 if (searchTerm) {
-                    // ملاحظة: البحث المباشر مع Pagination يتطلب خدمات بحث متقدمة مثل Algolia
-                    // هذا الكود سيقوم بالبحث في كل المنتجات مرة واحدة، مما يلغي فائدة الـ Pagination للبحث
                     const prodSnapshot = await getDocs(query(collection(db, "products"), orderBy("createdAt", "desc")));
                     let allProducts = [];
                     prodSnapshot.forEach(doc => allProducts.push({ id: doc.id, ...doc.data() }));
