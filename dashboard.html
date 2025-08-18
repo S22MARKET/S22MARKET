@@ -799,6 +799,24 @@
                     const statusColor = order.status === 'completed' ? 'bg-green-100 text-green-800' : (order.status === 'canceled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800');
                     const rowColor = order.status === 'completed' ? 'bg-green-50/50' : (order.status === 'canceled' ? 'bg-red-50/50' : 'bg-white');
 
+                    let defaultProfit = '';
+                    let defaultSupplierInfo = '';
+                    const product = productsCache.find(p => p.id === order.productId);
+
+                    if (product) {
+                        if (order.profit === undefined || order.profit === null) {
+                            const orderQuantity = order.quantity || 1;
+                            if (product.profitType === 'percentage' && product.price && product.profitValue) {
+                                defaultProfit = ((product.price * product.profitValue) / 100) * orderQuantity;
+                            } else if (product.profitType === 'fixed' && product.profitValue) {
+                                defaultProfit = product.profitValue * orderQuantity;
+                            }
+                        }
+                        if (!order.suppliers) {
+                            defaultSupplierInfo = [product.supplier, product.supplierContact].filter(Boolean).join(' - ');
+                        }
+                    }
+
                     let deliveryDisplay = '---';
                     if (order.deliveryType === 'home') {
                         deliveryDisplay = '<span class="text-blue-600 font-semibold"><i class="fas fa-home mr-1"></i> للمنزل</span>';
@@ -815,7 +833,7 @@
                         <td data-label="نوع التوصيل" class="p-3 text-sm">${deliveryDisplay}</td>
                         <td data-label="المنتج" class="p-3">${order.quantity} x ${order.productName}</td>
                         <td data-label="المبلغ" class="p-3 font-mono">${(order.price || 0).toLocaleString()} د.ج</td>
-                        <td data-label="الربح" class="p-3"><input type="number" class="profit-input w-24 p-1 border rounded text-center font-mono transition-colors" placeholder="0" value="${order.profit || ''}" data-id="${order.id}"></td>
+                        <td data-label="الربح" class="p-3"><input type="number" class="profit-input w-24 p-1 border rounded text-center font-mono transition-colors" placeholder="0" value="${order.profit ?? defaultProfit}" data-id="${order.id}"></td>
                         <td data-label="الاستفسار" class="p-3 text-sm text-gray-600">${order.customerInquiry || '---'}</td>
                         <td data-label="الحالة" class="p-3 actions-cell">
                             <select class="order-status-select p-2 rounded-lg border-gray-300 ${statusColor}" data-id="${order.id}">
@@ -825,7 +843,7 @@
                             </select>
                         </td>
                         <td data-label="تمت بواسطة" class="p-3"><input type="text" class="doneBy-input w-full p-2 border rounded transition-colors" placeholder="اكتب هنا..." value="${order.doneBy || ''}" data-id="${order.id}"></td>
-                        <td data-label="الموردون" class="p-3"><textarea rows="3" class="suppliers-textarea w-full p-2 border rounded transition-colors" placeholder="اكتب هنا..." maxlength="500" data-id="${order.id}">${order.suppliers || ''}</textarea></td>
+                        <td data-label="الموردون" class="p-3"><textarea rows="3" class="suppliers-textarea w-full p-2 border rounded transition-colors" placeholder="اكتب هنا..." maxlength="500" data-id="${order.id}">${order.suppliers ?? defaultSupplierInfo}</textarea></td>
                         <td data-label="التاريخ" class="p-3 font-mono text-sm">${date}</td>
                         <td data-label="إجراءات" class="p-3"><button class="delete-order-btn text-red-500 hover:text-red-700" data-id="${order.id}"><i class="fas fa-trash fa-lg"></i></button></td>
                     `;
