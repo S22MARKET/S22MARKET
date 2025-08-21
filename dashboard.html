@@ -111,6 +111,7 @@
                     <a href="#products" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
                     <a href="#categories" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
                     <a href="#orders" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
+                    <a href="#inquiries" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-envelope-open-text fa-fw mr-3"></i> الرسائل الواردة</a>
                     <a href="#applications" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
                 </nav>
                 <div class="p-4 border-t border-gray-700">
@@ -123,6 +124,7 @@
                 <div id="products-panel" class="dashboard-panel hidden"></div>
                 <div id="categories-panel" class="dashboard-panel hidden"></div>
                 <div id="orders-panel" class="dashboard-panel hidden"></div>
+                <div id="inquiries-panel" class="dashboard-panel hidden"></div>
                 <div id="applications-panel" class="dashboard-panel hidden"></div>
             </main>
         </div>
@@ -155,10 +157,8 @@
         let ordersCache = [];
         let myChart = null;
         let profitChart = null;
-        let topProductsChart = null; // <--- أضف هذا السطر
-
+        let topProductsChart = null;
         let applicationsCache = [];
-
 
         const loginPage = document.getElementById('login-page');
         const dashboardPage = document.getElementById('dashboard-page');
@@ -219,208 +219,183 @@
             loadCategories();
             loadProducts();
             loadOrders();
+            loadInquiries(); // === NEW: Calling the function to load inquiries
             loadApplications(); 
         }
         
         // ===================================
         // Analytics Section
         // ===================================
-   function loadAnalytics() {
-    const panel = document.getElementById('analytics-panel');
-    panel.innerHTML = `
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">لوحة التحكم الرئيسية</h1>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
-                <i class="fas fa-hand-holding-usd text-4xl text-green-500 mr-4"></i>
-                <div><p class="text-gray-500">إجمالي الأرباح</p><p id="total-profit" class="text-2xl font-bold">0 د.ج</p></div>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
-                <i class="fas fa-divide text-4xl text-yellow-400 mr-4"></i>
-                <div><p class="text-gray-500">متوسط الربح / طلب</p><p id="avg-profit" class="text-2xl font-bold">0 د.ج</p></div>
-            </div>
-             <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
-                <i class="fas fa-check-circle text-4xl text-blue-500 mr-4"></i>
-                <div><p class="text-gray-500">الطلبات المكتملة</p><p id="completed-orders" class="text-2xl font-bold">0</p></div>
-            </div>
-             <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
-                <i class="fas fa-boxes text-4xl text-purple-500 mr-4"></i>
-                <div><p class="text-gray-500">المنتجات</p><p id="total-products" class="text-2xl font-bold">0</p></div>
-            </div>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <h2 class="text-xl font-bold mb-4">الطلبات المكتملة (آخر 7 أيام)</h2>
-                <canvas id="ordersChart"></canvas>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <h2 class="text-xl font-bold mb-4">الأرباح اليومية (آخر 7 أيام)</h2>
-                <canvas id="profitChart"></canvas>
-            </div>
-        </div>
-        <div class="bg-white p-6 rounded-xl shadow-md">
-            <h2 class="text-xl font-bold mb-4">أعلى 7 منتجات تحقيقًا للأرباح</h2>
-            <canvas id="topProductsChart"></canvas>
-        </div>
-        `;
-}
-      function updateAnalytics() {
-    if(!document.getElementById('total-products')) return; 
-    
-    const completedOrders = ordersCache.filter(o => o.status === 'completed');
-    const totalProfit = completedOrders.reduce((sum, order) => sum + (order.profit || 0), 0);
-    const completedOrdersCount = completedOrders.length;
-    const avgProfit = completedOrdersCount > 0 ? totalProfit / completedOrdersCount : 0;
-
-    document.getElementById('total-products').textContent = productsCache.length;
-    document.getElementById('total-profit').textContent = `${totalProfit.toLocaleString()} د.ج`;
-    document.getElementById('avg-profit').textContent = `${avgProfit.toFixed(0).toLocaleString()} د.ج`;
-    document.getElementById('completed-orders').textContent = completedOrdersCount;
-
-    const last7Days = {};
-    const last7DaysProfit = {};
-
-    for(let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const key = d.toISOString().split('T')[0];
-        last7Days[key] = 0;
-        last7DaysProfit[key] = 0;
-    }
-
-    completedOrders.forEach(order => {
-        if (order.createdAt?.toDate) {
-            const orderDate = order.createdAt.toDate().toISOString().split('T')[0];
-            if (last7Days.hasOwnProperty(orderDate)) {
-                last7Days[orderDate]++;
-                last7DaysProfit[orderDate] += (order.profit || 0);
-            }
+        function loadAnalytics() {
+            const panel = document.getElementById('analytics-panel');
+            panel.innerHTML = `
+                <h1 class="text-3xl font-bold text-gray-800 mb-6">لوحة التحكم الرئيسية</h1>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
+                        <i class="fas fa-hand-holding-usd text-4xl text-green-500 mr-4"></i>
+                        <div><p class="text-gray-500">إجمالي الأرباح</p><p id="total-profit" class="text-2xl font-bold">0 د.ج</p></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
+                        <i class="fas fa-divide text-4xl text-yellow-400 mr-4"></i>
+                        <div><p class="text-gray-500">متوسط الربح / طلب</p><p id="avg-profit" class="text-2xl font-bold">0 د.ج</p></div>
+                    </div>
+                     <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
+                        <i class="fas fa-check-circle text-4xl text-blue-500 mr-4"></i>
+                        <div><p class="text-gray-500">الطلبات المكتملة</p><p id="completed-orders" class="text-2xl font-bold">0</p></div>
+                    </div>
+                     <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
+                        <i class="fas fa-boxes text-4xl text-purple-500 mr-4"></i>
+                        <div><p class="text-gray-500">المنتجات</p><p id="total-products" class="text-2xl font-bold">0</p></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h2 class="text-xl font-bold mb-4">الطلبات المكتملة (آخر 7 أيام)</h2>
+                        <canvas id="ordersChart"></canvas>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h2 class="text-xl font-bold mb-4">الأرباح اليومية (آخر 7 أيام)</h2>
+                        <canvas id="profitChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-xl font-bold mb-4">أعلى 7 منتجات تحقيقًا للأرباح</h2>
+                    <canvas id="topProductsChart"></canvas>
+                </div>
+                `;
         }
-    });
+        function updateAnalytics() {
+            if(!document.getElementById('total-products')) return; 
+            
+            const completedOrders = ordersCache.filter(o => o.status === 'completed');
+            const totalProfit = completedOrders.reduce((sum, order) => sum + (order.profit || 0), 0);
+            const completedOrdersCount = completedOrders.length;
+            const avgProfit = completedOrdersCount > 0 ? totalProfit / completedOrdersCount : 0;
 
-    const chartLabels = Object.keys(last7Days).map(date => new Date(date).toLocaleDateString('ar-EG', { weekday: 'short', day: 'numeric'}));
-    
-    // Orders Chart
-    const ordersChartData = Object.values(last7Days);
-    const ordersCtx = document.getElementById('ordersChart')?.getContext('2d');
-    if (ordersCtx) {
-        if (myChart) myChart.destroy();
-        myChart = new Chart(ordersCtx, {
-            type: 'bar',
-            data: {
-                labels: chartLabels,
-                datasets: [{
-                    label: 'عدد الطلبات',
-                    data: ordersChartData,
-                    backgroundColor: 'rgba(79, 70, 229, 0.8)',
-                    borderColor: 'rgba(79, 70, 229, 1)',
-                    borderWidth: 1,
-                    borderRadius: 5
-                }]
-            },
-            options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } }
-        });
-    }
+            document.getElementById('total-products').textContent = productsCache.length;
+            document.getElementById('total-profit').textContent = `${totalProfit.toLocaleString()} د.ج`;
+            document.getElementById('avg-profit').textContent = `${avgProfit.toFixed(0).toLocaleString()} د.ج`;
+            document.getElementById('completed-orders').textContent = completedOrdersCount;
 
-    // Profit Chart
-    const profitChartData = Object.values(last7DaysProfit);
-    const profitCtx = document.getElementById('profitChart')?.getContext('2d');
-    if (profitCtx) {
-        if (profitChart) profitChart.destroy();
-        profitChart = new Chart(profitCtx, {
-            type: 'line',
-            data: {
-                labels: chartLabels,
-                datasets: [{
-                    label: 'الأرباح (د.ج)',
-                    data: profitChartData,
-                    backgroundColor: 'rgba(22, 163, 74, 0.2)',
-                    borderColor: 'rgba(22, 163, 74, 1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: { responsive: true, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
-        });
-    }
+            const last7Days = {};
+            const last7DaysProfit = {};
 
+            for(let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const key = d.toISOString().split('T')[0];
+                last7Days[key] = 0;
+                last7DaysProfit[key] = 0;
+            }
 
-
-
-
-    // ===== الكود الجديد لمخطط أعلى المنتجات ربحًا =====
-const productProfits = {};
-completedOrders.forEach(order => {
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = order.productName || 'منتج غير معروف';
-    const productName = tempDiv.textContent || tempDiv.innerText || "";
-    const profit = order.profit || 0;
-    if (productProfits[productName]) {
-        productProfits[productName] += profit;
-    } else {
-        productProfits[productName] = profit;
-    }
-});
-
-const sortedProducts = Object.entries(productProfits)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 7);
-
-//-- سطر الفحص: افتح الـ Console في المتصفح لترى نتيجة هذا السطر --//
-console.log("أعلى المنتجات ربحًا:", sortedProducts); 
-
-const topProductsLabels = sortedProducts.map(p => p[0]);
-const topProductsData = sortedProducts.map(p => p[1]);
-
-const topProductsCtx = document.getElementById('topProductsChart')?.getContext('2d');
-if (topProductsCtx) {
-    if (topProductsChart) topProductsChart.destroy();
-    topProductsChart = new Chart(topProductsCtx, {
-        type: 'bar', // نوع المخطط: عمودي
-        data: {
-            labels: topProductsLabels,
-            datasets: [{
-                label: 'إجمالي الربح',
-                data: topProductsData,
-                backgroundColor: 'rgba(153, 102, 255, 0.8)',
-                borderColor: 'rgba(153, 102, 255, 1)',
-                borderWidth: 1,
-                borderRadius: 5
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: { // المحور العمودي (الربح)
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'إجمالي الربح (د.ج)'
-                    }
-                },
-                x: { // المحور الأفقي (أسماء المنتجات)
-                    ticks: {
-                        // لا حاجة لإعدادات خاصة هنا حاليًا
+            completedOrders.forEach(order => {
+                if (order.createdAt?.toDate) {
+                    const orderDate = order.createdAt.toDate().toISOString().split('T')[0];
+                    if (last7Days.hasOwnProperty(orderDate)) {
+                        last7Days[orderDate]++;
+                        last7DaysProfit[orderDate] += (order.profit || 0);
                     }
                 }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            // تعديل النص الظاهر عند المرور على العمود
-                            return `الربح: ${context.parsed.y.toLocaleString()} د.ج`;
+            });
+
+            const chartLabels = Object.keys(last7Days).map(date => new Date(date).toLocaleDateString('ar-EG', { weekday: 'short', day: 'numeric'}));
+            
+            const ordersChartData = Object.values(last7Days);
+            const ordersCtx = document.getElementById('ordersChart')?.getContext('2d');
+            if (ordersCtx) {
+                if (myChart) myChart.destroy();
+                myChart = new Chart(ordersCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            label: 'عدد الطلبات',
+                            data: ordersChartData,
+                            backgroundColor: 'rgba(79, 70, 229, 0.8)',
+                            borderColor: 'rgba(79, 70, 229, 1)',
+                            borderWidth: 1,
+                            borderRadius: 5
+                        }]
+                    },
+                    options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } }
+                });
+            }
+
+            const profitChartData = Object.values(last7DaysProfit);
+            const profitCtx = document.getElementById('profitChart')?.getContext('2d');
+            if (profitCtx) {
+                if (profitChart) profitChart.destroy();
+                profitChart = new Chart(profitCtx, {
+                    type: 'line',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            label: 'الأرباح (د.ج)',
+                            data: profitChartData,
+                            backgroundColor: 'rgba(22, 163, 74, 0.2)',
+                            borderColor: 'rgba(22, 163, 74, 1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: { responsive: true, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+                });
+            }
+
+            const productProfits = {};
+            completedOrders.forEach(order => {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = order.productName || 'منتج غير معروف';
+                const productName = tempDiv.textContent || tempDiv.innerText || "";
+                const profit = order.profit || 0;
+                if (productProfits[productName]) {
+                    productProfits[productName] += profit;
+                } else {
+                    productProfits[productName] = profit;
+                }
+            });
+
+            const sortedProducts = Object.entries(productProfits)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 7);
+
+            const topProductsLabels = sortedProducts.map(p => p[0]);
+            const topProductsData = sortedProducts.map(p => p[1]);
+
+            const topProductsCtx = document.getElementById('topProductsChart')?.getContext('2d');
+            if (topProductsCtx) {
+                if (topProductsChart) topProductsChart.destroy();
+                topProductsChart = new Chart(topProductsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: topProductsLabels,
+                        datasets: [{
+                            label: 'إجمالي الربح',
+                            data: topProductsData,
+                            backgroundColor: 'rgba(153, 102, 255, 0.8)',
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            borderWidth: 1,
+                            borderRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: 'إجمالي الربح (د.ج)' } },
+                            x: {}
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: function(context) { return `الربح: ${context.parsed.y.toLocaleString()} د.ج`; } } }
                         }
                     }
-                }
-            }
-        }
-    });
-}}
+                });
+        }}
         
+        // ===================================
+        // Categories Section
+        // ===================================
         function loadCategories() {
             const panel = document.getElementById('categories-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة الأقسام</h1><button id="add-category-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة قسم</button></div><div id="categories-list" class="space-y-4"></div>`;
@@ -456,7 +431,6 @@ if (topProductsCtx) {
                 attachCategoryActionListeners();
             });
         }
-
         function showCategoryModal(category = null) {
             const title = category ? 'تعديل القسم' : 'إضافة قسم جديد';
             const subcategories = category?.subcategories || [];
@@ -517,7 +491,6 @@ if (topProductsCtx) {
             document.getElementById('add-subcategory-btn').onclick = addSubcategory;
             document.querySelectorAll('.remove-sub-btn').forEach(btn => btn.onclick = (e) => e.currentTarget.closest('.subcategory-item').remove());
         }
-
         function attachCategoryActionListeners() {
             document.querySelectorAll('.edit-category-btn').forEach(btn => {
                 btn.onclick = () => {
@@ -537,7 +510,10 @@ if (topProductsCtx) {
             });
         }
         
-     function loadProducts() {
+        // ===================================
+        // Products Section
+        // ===================================
+        function loadProducts() {
             const panel = document.getElementById('products-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات</h1><button id="add-product-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div>
             <div class="overflow-x-auto">
@@ -607,7 +583,6 @@ if (topProductsCtx) {
                 updateAnalytics();
             });
         }
-        
         function populateSubcategories(categoryId, productSubCategory = null) {
             const subCategoryContainer = document.getElementById('product-subcategory-container');
             const subCategorySelect = document.getElementById('product-subcategory');
@@ -628,7 +603,6 @@ if (topProductsCtx) {
                 subCategorySelect.innerHTML = '';
             }
         }
-        
         function resizeAndCompressImage(file, maxWidth = 800, quality = 0.85) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -655,7 +629,7 @@ if (topProductsCtx) {
                 reader.onerror = error => reject(error);
             });
         }
-      function showProductModal(product = null) {
+        function showProductModal(product = null) {
             const title = product ? 'تعديل المنتج' : 'إضافة منتج جديد';
             
             const categoryOptions = categoriesCache.map(cat => 
@@ -787,18 +761,9 @@ if (topProductsCtx) {
                     showLoadingModal('جاري حفظ البيانات...');
                     
                     const productData = { 
-                        name, 
-                        price, 
-                        description, 
-                        location, 
-                        categoryId, 
-                        subCategoryName, 
-                        imageUrls: newImageUrls, 
-                        supplier, 
-                        supplierContact,
-                        profitValue,
-                        profitType,
-                        updatedAt: serverTimestamp() 
+                        name, price, description, location, categoryId, subCategoryName, 
+                        imageUrls: newImageUrls, supplier, supplierContact, profitValue,
+                        profitType, updatedAt: serverTimestamp() 
                     };
                     
                     if (product) {
@@ -847,48 +812,51 @@ if (topProductsCtx) {
                 populateSubcategories(product.categoryId, product.subCategoryName);
             }
         }
-  function attachProductActionListeners() {
-    document.querySelectorAll('.edit-product-btn').forEach(btn => {
-        btn.onclick = () => {
-            const product = productsCache.find(p => p.id === btn.dataset.id);
-            if (product) showProductModal(product);
-        };
-    });
-    document.querySelectorAll('.delete-product-btn').forEach(btn => {
-        btn.onclick = () => {
-            const { id } = btn.dataset;
-            showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.', async () => {
-                showLoadingModal('جاري الحذف...');
-                try {
-                    await deleteDoc(doc(db, "products", id));
-                    closeModal();
-                } catch (error) {
-                    showModal('خطأ', `فشل حذف المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
-                }
-            }, 'نعم, حذف', true);
-        };
-    });
-
-    document.querySelectorAll('.copy-product-link-btn').forEach(btn => {
-        btn.onclick = (e) => {
-            const button = e.currentTarget;
-            const productId = button.dataset.id;
-            const productUrl = `https://s22market.github.io/S22MARKET/index.html?product=${productId}`;
-
-            navigator.clipboard.writeText(productUrl).then(() => {
-                const originalIcon = button.innerHTML;
-                button.innerHTML = '<i class="fas fa-check text-green-500 fa-lg"></i>'; 
-                setTimeout(() => {
-                    button.innerHTML = originalIcon;
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy link: ', err);
-                alert('فشل نسخ الرابط. يرجى نسخه يدوياً.');
+        function attachProductActionListeners() {
+            document.querySelectorAll('.edit-product-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const product = productsCache.find(p => p.id === btn.dataset.id);
+                    if (product) showProductModal(product);
+                };
             });
-        };
-    });
-}
+            document.querySelectorAll('.delete-product-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const { id } = btn.dataset;
+                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.', async () => {
+                        showLoadingModal('جاري الحذف...');
+                        try {
+                            await deleteDoc(doc(db, "products", id));
+                            closeModal();
+                        } catch (error) {
+                            showModal('خطأ', `فشل حذف المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
+                        }
+                    }, 'نعم, حذف', true);
+                };
+            });
+
+            document.querySelectorAll('.copy-product-link-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    const button = e.currentTarget;
+                    const productId = button.dataset.id;
+                    const productUrl = `https://s22market.github.io/S22MARKET/index.html?product=${productId}`;
+
+                    navigator.clipboard.writeText(productUrl).then(() => {
+                        const originalIcon = button.innerHTML;
+                        button.innerHTML = '<i class="fas fa-check text-green-500 fa-lg"></i>'; 
+                        setTimeout(() => {
+                            button.innerHTML = originalIcon;
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy link: ', err);
+                        alert('فشل نسخ الرابط. يرجى نسخه يدوياً.');
+                    });
+                };
+            });
+        }
         
+        // ===================================
+        // Orders Section
+        // ===================================
         function loadOrders() {
             const panel = document.getElementById('orders-panel');
             panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">الطلبات الواردة</h1>
@@ -976,7 +944,6 @@ if (topProductsCtx) {
                 updateAnalytics(); 
             });
         }
-        
         function attachOrderActionListeners() {
             document.querySelectorAll('.order-status-select').forEach(select => {
                 select.onchange = async (e) => {
@@ -1023,6 +990,249 @@ if (topProductsCtx) {
             });
         }
         
+        // ===================================
+        // Applications Section
+        // ===================================
+        function loadApplications() {
+            const panel = document.getElementById('applications-panel');
+            panel.innerHTML = `<div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800">إدارة التطبيقات</h1>
+                <button id="add-app-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700">
+                    <i class="fas fa-plus mr-2"></i> إضافة تطبيق
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-right responsive-table">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-3">الأيقونة</th>
+                            <th class="p-3">الاسم</th>
+                            <th class="p-3">رابط التحميل (Android)</th>
+                            <th class="p-3">رابط التحميل (iPhone)</th>
+                            <th class="p-3">إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="apps-table-body"></tbody>
+                </table>
+            </div>`;
+
+            document.getElementById('add-app-btn').addEventListener('click', () => showApplicationModal());
+            const tableBody = document.getElementById('apps-table-body');
+
+            onSnapshot(query(collection(db, "applications"), orderBy("createdAt", "desc")), (snapshot) => {
+                applicationsCache = [];
+                tableBody.innerHTML = snapshot.empty ? '<tr><td colspan="5" class="p-8 text-center text-gray-500">لا توجد تطبيقات. أضف تطبيقاً جديداً للبدء.</td></tr>' : '';
+                
+                snapshot.forEach(doc => {
+                    const app = { id: doc.id, ...doc.data() };
+                    applicationsCache.push(app);
+                    
+                    const row = tableBody.insertRow();
+                    row.className = 'border-b bg-white';
+                    
+                    row.innerHTML = `
+                        <td data-label="الأيقونة" class="p-3"><img src="${app.iconUrl || ''}" alt="${app.name}" class="w-16 h-16 object-cover rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/64x64/e2e8f0/94a3b8?text=Icon';"></td>
+                        <td data-label="الاسم" class="p-3 font-semibold">${app.name}</td>
+                        <td data-label="Android" class="p-3"><a href="${app.apkUrl || '#'}" target="_blank" class="text-blue-600 hover:underline">${app.apkUrl ? 'رابط مباشر' : '---'}</a></td>
+                        <td data-label="iPhone" class="p-3"><a href="${app.iosUrl || '#'}" target="_blank" class="text-blue-600 hover:underline">${app.iosUrl ? 'رابط AppStore' : '---'}</a></td>
+                        <td data-label="إجراءات" class="p-3 actions-cell">
+                            <button class="edit-app-btn text-indigo-500 hover:text-indigo-700 mr-4" data-id="${app.id}"><i class="fas fa-edit fa-lg"></i></button>
+                            <button class="delete-app-btn text-red-500 hover:text-red-700" data-id="${app.id}"><i class="fas fa-trash fa-lg"></i></button>
+                        </td>`;
+                });
+                attachApplicationActionListeners();
+            });
+        }
+        function showApplicationModal(app = null) {
+            const title = app ? 'تعديل التطبيق' : 'إضافة تطبيق جديد';
+            const content = `
+                <div class="space-y-4">
+                    <div><label class="font-semibold">اسم التطبيق</label><input type="text" id="app-name" class="mt-1 w-full p-2 border rounded" value="${app ? app.name : ''}" required></div>
+                    <div>
+                        <label class="font-semibold">الوصف</label>
+                        <textarea id="app-description" class="mt-1 w-full p-2 border rounded" rows="4" placeholder="اكتب وصفاً قصيراً للتطبيق...">${app ? (app.description || '') : ''}</textarea>
+                    </div>
+                    <div>
+                        <label class="font-semibold">رابط أيقونة التطبيق</label>
+                        <input type="text" id="app-icon-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.iconUrl || '' : ''}" placeholder="ارفع الأيقونة على ImgBB والصق الرابط هنا" required>
+                    </div>
+                    <div class="border-t pt-4 space-y-4">
+                        <h4 class="font-bold text-gray-800">روابط التحميل (أضف رابطاً واحداً على الأقل)</h4>
+                        <div>
+                            <label class="font-semibold flex items-center gap-2 text-gray-700"><i class="fab fa-google-play text-lg"></i> رابط التطبيق على Google Play</label>
+                            <input type="text" id="app-google-play-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.googlePlayUrl || '' : ''}" placeholder="(اختياري) الصق رابط التطبيق من متجر جوجل بلاي">
+                        </div>
+                        <div>
+                            <label class="font-semibold flex items-center gap-2 text-green-700"><i class="fas fa-file-archive text-lg"></i> رابط التحميل المباشر (ملف APK)</label>
+                            <input type="text" id="app-apk-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.apkUrl || '' : ''}" placeholder="(اختياري) رابط من Google Drive, Mediafire...">
+                        </div>
+                        <div>
+                            <label class="font-semibold flex items-center gap-2 text-sky-600"><i class="fab fa-telegram text-lg"></i> رابط التطبيق على Telegram</label>
+                            <input type="text" id="app-telegram-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.telegramUrl || '' : ''}" placeholder="(اختياري) رابط قناة أو رسالة على تيليجرام">
+                        </div>
+                         <div>
+                            <label class="font-semibold flex items-center gap-2 text-black"><i class="fab fa-apple text-lg"></i> رابط التطبيق على App Store (للآيفون)</label>
+                            <input type="text" id="app-ios-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.iosUrl || '' : ''}" placeholder="(اختياري) الصق رابط التطبيق من متجر آبل هنا">
+                        </div>
+                    </div>
+                </div>`;
+
+            showModal(title, content, async () => {
+                const name = document.getElementById('app-name').value.trim();
+                const description = document.getElementById('app-description').value.trim();
+                const iconUrl = document.getElementById('app-icon-url').value.trim();
+                const googlePlayUrl = document.getElementById('app-google-play-url').value.trim();
+                const apkUrl = document.getElementById('app-apk-url').value.trim();
+                const telegramUrl = document.getElementById('app-telegram-url').value.trim();
+                const iosUrl = document.getElementById('app-ios-url').value.trim();
+
+                if (!name || !iconUrl) {
+                    return showModal('خطأ في الإدخال', 'يرجى ملء اسم التطبيق ورابط الأيقونة.', () => showApplicationModal(app), 'موافق', false);
+                }
+                if (!googlePlayUrl && !apkUrl && !telegramUrl && !iosUrl) {
+                    return showModal('خطأ في الإدخال', 'يجب توفير رابط تحميل واحد على الأقل.', () => showApplicationModal(app), 'موافق', false);
+                }
+
+                try {
+                    showLoadingModal('جاري حفظ البيانات...');
+                    const appData = { 
+                        name, description, iconUrl, googlePlayUrl, apkUrl, telegramUrl, 
+                        iosUrl, updatedAt: serverTimestamp() 
+                    };
+                    if (app) {
+                        await updateDoc(doc(db, "applications", app.id), appData);
+                    } else {
+                        appData.createdAt = serverTimestamp();
+                        await addDoc(collection(db, "applications"), appData);
+                    }
+                    closeModal();
+                } catch (error) {
+                    console.error("Error saving application:", error);
+                    showModal('خطأ فادح', `فشل حفظ التطبيق: ${error.message}`, () => closeModal(), 'موافق', false);
+                }
+            }, () => {});
+        }
+        function attachApplicationActionListeners() {
+            document.querySelectorAll('.edit-app-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const app = applicationsCache.find(a => a.id === btn.dataset.id);
+                    if (app) showApplicationModal(app);
+                };
+            });
+            document.querySelectorAll('.delete-app-btn').forEach(btn => {
+                btn.onclick = () => {
+                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا التطبيق؟', async () => {
+                        showLoadingModal('جاري الحذف...');
+                        try {
+                            await deleteDoc(doc(db, "applications", btn.dataset.id));
+                            closeModal();
+                        } catch (error) {
+                            showModal('خطأ', 'فشل حذف التطبيق.', () => closeModal(), 'موافق', false);
+                        }
+                    }, 'نعم, حذف', true);
+                };
+            });
+        }
+
+        // ===================================
+        // Inquiries Section (MODIFIED & IMPROVED)
+        // ===================================
+        function loadInquiries() { 
+            const panel = document.getElementById('inquiries-panel'); 
+            panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">الرسائل والطلبات الواردة</h1> 
+                               <div class="overflow-x-auto bg-white rounded-xl shadow-md"> 
+                                   <table class="w-full text-right responsive-table"> 
+                                       <thead class="bg-gray-100"><tr> 
+                                           <th class="p-4">النوع</th> 
+                                           <th class="p-4">الرسالة/الطلب</th> 
+                                           <th class="p-4">معلومات التواصل</th> 
+                                           <th class="p-4">المشرف</th> 
+                                           <th class="p-4">الحالة</th> 
+                                           <th class="p-4">التاريخ</th> 
+                                           <th class="p-4">إجراءات</th> 
+                                       </tr></thead> 
+                                       <tbody id="inquiries-table-body"></tbody> 
+                                   </table> 
+                               </div>`; 
+            const tableBody = document.getElementById('inquiries-table-body'); 
+
+            onSnapshot(query(collection(db, "inquiries"), orderBy("createdAt", "desc")), (snapshot) => { 
+                tableBody.innerHTML = snapshot.empty ? `<tr><td colspan="7" class="p-8 text-center text-gray-500">لا توجد رسائل أو طلبات حاليًا.</td></tr>` : ''; 
+                snapshot.forEach(doc => { 
+                    const inquiry = { id: doc.id, ...doc.data() }; 
+                    const date = inquiry.createdAt?.toDate().toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }); 
+                    
+                    let typeText = inquiry.type === 'product' ? '📝 طلب منتج' : '🚩 شكوى/رأي';
+                    let typeColor = inquiry.type === 'product' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800';
+
+                    let rowClass = 'bg-white font-semibold';
+                    let statusColorClass = 'bg-yellow-100 text-yellow-800'; 
+                    if (inquiry.status === 'قيد الإجراء') { 
+                        rowClass = 'bg-indigo-50'; 
+                        statusColorClass = 'bg-indigo-100 text-indigo-800'; 
+                    } else if (inquiry.status === 'تمت المعالجة') { 
+                        rowClass = 'bg-green-50 text-gray-600';
+                        statusColorClass = 'bg-green-100 text-green-800'; 
+                    }
+                    
+                    let contactHTML = `
+                        <div><strong>الاسم:</strong> ${inquiry.fullName}</div>
+                        ${inquiry.phone ? `<div><i class="fas fa-phone fa-fw mr-1"></i> ${inquiry.phone}</div>` : ''}
+                        ${inquiry.contactLink ? `<div><a href="${inquiry.contactLink}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-external-link-alt fa-fw mr-1"></i> رابط التواصل</a></div>` : ''}
+                    `;
+
+                    const row = tableBody.insertRow(); 
+                    row.className = `border-b ${rowClass} hover:bg-gray-50 transition-colors`; 
+                    row.innerHTML = ` 
+                        <td data-label="النوع" class="p-4"><span class="px-3 py-1 rounded-full text-sm ${typeColor}">${typeText}</span></td> 
+                        <td data-label="الرسالة" class="p-4" style="white-space: pre-wrap; max-width: 350px;">${inquiry.message}</td> 
+                        <td data-label="التواصل" class="p-4 text-sm">${contactHTML}</td> 
+                        <td data-label="المشرف" class="p-4">
+                            <input type="text" class="supervisor-input w-full p-2 border rounded-md" value="${inquiry.supervisor || ''}" placeholder="اسم المشرف..." data-id="${inquiry.id}">
+                        </td>
+                        <td data-label="الحالة" class="p-4"> 
+                            <select class="inquiry-status-select w-full p-2 rounded-lg border-gray-300 ${statusColorClass}" data-id="${inquiry.id}"> 
+                                <option value="جديد" ${inquiry.status === 'جديد' ? 'selected' : ''}>جديد</option> 
+                                <option value="قيد الإجراء" ${inquiry.status === 'قيد الإجراء' ? 'selected' : ''}>قيد الإجراء</option> 
+                                <option value="تمت المعالجة" ${inquiry.status === 'تمت المعالجة' ? 'selected' : ''}>تمت المعالجة</option> 
+                            </select> 
+                        </td> 
+                        <td data-label="التاريخ" class="p-4 text-sm text-gray-500">${date}</td> 
+                        <td data-label="إجراءات" class="p-4">
+                            <button class="delete-inquiry-btn text-gray-400 hover:text-red-600 transition-colors" data-id="${inquiry.id}">
+                                <i class="fas fa-trash fa-lg"></i>
+                            </button>
+                        </td> 
+                    `; 
+                }); 
+                attachInquiryActionListeners(); 
+            }); 
+        } 
+        function attachInquiryActionListeners() { 
+            document.querySelectorAll('.inquiry-status-select').forEach(select => { 
+                select.onchange = async (e) => { 
+                    await updateDoc(doc(db, "inquiries", e.target.dataset.id), { status: e.target.value }); 
+                }; 
+            }); 
+
+            document.querySelectorAll('.supervisor-input').forEach(input => {
+                input.addEventListener('change', async (e) => {
+                     await updateDoc(doc(db, "inquiries", e.target.dataset.id), { supervisor: e.target.value.trim() });
+                });
+            });
+
+            document.querySelectorAll('.delete-inquiry-btn').forEach(btn => { 
+                btn.onclick = async () => { 
+                    if (confirm('هل أنت متأكد من حذف هذه الرسالة نهائياً؟')) { 
+                        await deleteDoc(doc(db, "inquiries", btn.dataset.id)); 
+                    } 
+                }; 
+            }); 
+        } 
+
+        // ===================================
+        // General Modal & Helper Functions
+        // ===================================
         function showModal(title, content, onConfirm, confirmText = 'حفظ', showCancel = true) {
             const modalContainer = document.getElementById('modal-container');
             modalContainer.innerHTML = `
@@ -1041,12 +1251,10 @@ if (topProductsCtx) {
             document.getElementById('modal-backdrop').addEventListener('click', (e) => { if (e.target.id === 'modal-backdrop' && showCancel) closeModal(); });
             document.getElementById('modal-confirm').addEventListener('click', onConfirm);
         }
-
         function closeModal() { document.getElementById('modal-container').innerHTML = ''; }
         function showLoadingModal(text = 'جاري الحفظ...') {
              document.getElementById('modal-container').innerHTML = `<div class="modal-backdrop"><div class="modal-content text-center"><div class="loader mx-auto"></div><p class="mt-4 text-lg font-semibold text-gray-700">${text}</p></div></div>`;
         }
-
         const adminPassword = document.getElementById('admin-password');
         const togglePasswordBtn = document.getElementById('toggle-password');
         if (togglePasswordBtn) {
@@ -1057,167 +1265,6 @@ if (topProductsCtx) {
                 togglePasswordBtn.querySelector('i').classList.toggle('fa-eye-slash');
             });
         }
-
-function loadApplications() {
-    const panel = document.getElementById('applications-panel');
-    panel.innerHTML = `<div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">إدارة التطبيقات</h1>
-        <button id="add-app-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700">
-            <i class="fas fa-plus mr-2"></i> إضافة تطبيق
-        </button>
-    </div>
-    <div class="overflow-x-auto">
-        <table class="w-full text-right responsive-table">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="p-3">الأيقونة</th>
-                    <th class="p-3">الاسم</th>
-                    <th class="p-3">رابط التحميل (Android)</th>
-                    <th class="p-3">رابط التحميل (iPhone)</th>
-                    <th class="p-3">إجراءات</th>
-                </tr>
-            </thead>
-            <tbody id="apps-table-body"></tbody>
-        </table>
-    </div>`;
-
-    document.getElementById('add-app-btn').addEventListener('click', () => showApplicationModal());
-    const tableBody = document.getElementById('apps-table-body');
-
-    onSnapshot(query(collection(db, "applications"), orderBy("createdAt", "desc")), (snapshot) => {
-        applicationsCache = [];
-        tableBody.innerHTML = snapshot.empty ? '<tr><td colspan="5" class="p-8 text-center text-gray-500">لا توجد تطبيقات. أضف تطبيقاً جديداً للبدء.</td></tr>' : '';
-        
-        snapshot.forEach(doc => {
-            const app = { id: doc.id, ...doc.data() };
-            applicationsCache.push(app);
-            
-            const row = tableBody.insertRow();
-            row.className = 'border-b bg-white';
-            
-            row.innerHTML = `
-                <td data-label="الأيقونة" class="p-3"><img src="${app.iconUrl || ''}" alt="${app.name}" class="w-16 h-16 object-cover rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/64x64/e2e8f0/94a3b8?text=Icon';"></td>
-                <td data-label="الاسم" class="p-3 font-semibold">${app.name}</td>
-                <td data-label="Android" class="p-3"><a href="${app.apkUrl || '#'}" target="_blank" class="text-blue-600 hover:underline">${app.apkUrl ? 'رابط مباشر' : '---'}</a></td>
-                <td data-label="iPhone" class="p-3"><a href="${app.iosUrl || '#'}" target="_blank" class="text-blue-600 hover:underline">${app.iosUrl ? 'رابط AppStore' : '---'}</a></td>
-                <td data-label="إجراءات" class="p-3 actions-cell">
-                    <button class="edit-app-btn text-indigo-500 hover:text-indigo-700 mr-4" data-id="${app.id}"><i class="fas fa-edit fa-lg"></i></button>
-                    <button class="delete-app-btn text-red-500 hover:text-red-700" data-id="${app.id}"><i class="fas fa-trash fa-lg"></i></button>
-                </td>`;
-        });
-        attachApplicationActionListeners();
-    });
-}
-
-function showApplicationModal(app = null) {
-    const title = app ? 'تعديل التطبيق' : 'إضافة تطبيق جديد';
-
- const content = `
-    <div class="space-y-4">
-        <div><label class="font-semibold">اسم التطبيق</label><input type="text" id="app-name" class="mt-1 w-full p-2 border rounded" value="${app ? app.name : ''}" required></div>
-        <div>
-            <label class="font-semibold">الوصف</label>
-            <textarea id="app-description" class="mt-1 w-full p-2 border rounded" rows="4" placeholder="اكتب وصفاً قصيراً للتطبيق...">${app ? (app.description || '') : ''}</textarea>
-        </div>
-        <div>
-            <label class="font-semibold">رابط أيقونة التطبيق</label>
-            <input type="text" id="app-icon-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.iconUrl || '' : ''}" placeholder="ارفع الأيقونة على ImgBB والصق الرابط هنا" required>
-        </div>
-
-        <div class="border-t pt-4 space-y-4">
-            <h4 class="font-bold text-gray-800">روابط التحميل (أضف رابطاً واحداً على الأقل)</h4>
-            
-            <div>
-                <label class="font-semibold flex items-center gap-2 text-gray-700"><i class="fab fa-google-play text-lg"></i> رابط التطبيق على Google Play</label>
-                <input type="text" id="app-google-play-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.googlePlayUrl || '' : ''}" placeholder="(اختياري) الصق رابط التطبيق من متجر جوجل بلاي">
-            </div>
-
-            <div>
-                <label class="font-semibold flex items-center gap-2 text-green-700"><i class="fas fa-file-archive text-lg"></i> رابط التحميل المباشر (ملف APK)</label>
-                <input type="text" id="app-apk-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.apkUrl || '' : ''}" placeholder="(اختياري) رابط من Google Drive, Mediafire...">
-            </div>
-
-            <div>
-                <label class="font-semibold flex items-center gap-2 text-sky-600"><i class="fab fa-telegram text-lg"></i> رابط التطبيق على Telegram</label>
-                <input type="text" id="app-telegram-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.telegramUrl || '' : ''}" placeholder="(اختياري) رابط قناة أو رسالة على تيليجرام">
-            </div>
-
-             <div>
-                <label class="font-semibold flex items-center gap-2 text-black"><i class="fab fa-apple text-lg"></i> رابط التطبيق على App Store (للآيفون)</label>
-                <input type="text" id="app-ios-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.iosUrl || '' : ''}" placeholder="(اختياري) الصق رابط التطبيق من متجر آبل هنا">
-            </div>
-        </div>
-    </div>`;
-
-    showModal(title, content, async () => {
-
-    const name = document.getElementById('app-name').value.trim();
-    const description = document.getElementById('app-description').value.trim();
-    const iconUrl = document.getElementById('app-icon-url').value.trim();
-    const googlePlayUrl = document.getElementById('app-google-play-url').value.trim();
-    const apkUrl = document.getElementById('app-apk-url').value.trim();
-    const telegramUrl = document.getElementById('app-telegram-url').value.trim();
-    const iosUrl = document.getElementById('app-ios-url').value.trim();
-
-    if (!name || !iconUrl) {
-        return showModal('خطأ في الإدخال', 'يرجى ملء اسم التطبيق ورابط الأيقونة.', () => showApplicationModal(app), 'موافق', false);
-    }
-    if (!googlePlayUrl && !apkUrl && !telegramUrl && !iosUrl) {
-        return showModal('خطأ في الإدخال', 'يجب توفير رابط تحميل واحد على الأقل.', () => showApplicationModal(app), 'موافق', false);
-    }
-
-    try {
-        showLoadingModal('جاري حفظ البيانات...');
-        
-        const appData = { 
-            name, 
-            description, 
-            iconUrl, 
-            googlePlayUrl, 
-            apkUrl, 
-            telegramUrl, 
-            iosUrl, 
-            updatedAt: serverTimestamp() 
-        };
-        
-        if (app) {
-            await updateDoc(doc(db, "applications", app.id), appData);
-        } else {
-            appData.createdAt = serverTimestamp();
-            await addDoc(collection(db, "applications"), appData);
-        }
-        closeModal();
-
-    } catch (error) {
-        console.error("Error saving application:", error);
-        showModal('خطأ فادح', `فشل حفظ التطبيق: ${error.message}`, () => closeModal(), 'موافق', false);
-    }
-}, () => {});
-}
-
-
-function attachApplicationActionListeners() {
-    document.querySelectorAll('.edit-app-btn').forEach(btn => {
-        btn.onclick = () => {
-            const app = applicationsCache.find(a => a.id === btn.dataset.id);
-            if (app) showApplicationModal(app);
-        };
-    });
-
-    document.querySelectorAll('.delete-app-btn').forEach(btn => {
-        btn.onclick = () => {
-            showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا التطبيق؟', async () => {
-                showLoadingModal('جاري الحذف...');
-                try {
-                    await deleteDoc(doc(db, "applications", btn.dataset.id));
-                    closeModal();
-                } catch (error) {
-                    showModal('خطأ', 'فشل حذف التطبيق.', () => closeModal(), 'موافق', false);
-                }
-            }, 'نعم, حذف', true);
-        };
-    });
-}
     </script>
 </body>
 </html>
