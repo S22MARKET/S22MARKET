@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بطاقة زيارة | عبد العالي عبد الرحمان</title>
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👔</text></svg>">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-light: #f4f7f6;
+      --bg-dark: #121212;
+      --card-light: #ffffff;
+      --card-dark: #1e1e1e;
+      --text-light: #212529;
+      --text-dark: #e9ecef;
+      --text-muted-light: #6c757d;
+      --text-muted-dark: #adb5bd;
+      --accent1: #007bff;
+      --accent2: #0056b3;
+      --accent-gradient: linear-gradient(45deg, var(--accent1), var(--accent2));
+      --radius: 20px;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+      --shadow-dark: 0 10px 30px rgba(0, 0, 0, 0.3);
+      --border-light: rgba(0,0,0,0.08);
+      --border-dark: rgba(255,255,255,0.1);
+    }
+    
+    *, *::before, *::after { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      font-family: "Cairo", sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-light);
+      transition: background-color 0.4s ease;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    body.dark {
+      --bg-light: var(--bg-dark);
+      --card-light: var(--card-dark);
+      --text-light: var(--text-dark);
+      --text-muted-light: var(--text-muted-dark);
+      --shadow: var(--shadow-dark);
+      --border-light: var(--border-dark);
+    }
+    
+    /* === Floating Background === */
+    .background-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .shape {
+      position: absolute;
+      display: block;
+      list-style: none;
+      background: rgba(0, 123, 255, 0.15);
+      animation: float-up 25s linear infinite;
+      bottom: -180px;
+      border-radius: 50%;
+    }
+    body.dark .shape {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .shape:nth-child(1) { left: 25%; width: 80px; height: 80px; animation-delay: 0s; }
+    .shape:nth-child(2) { left: 10%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; }
+    .shape:nth-child(3) { left: 70%; width: 20px; height: 20px; animation-delay: 4s; }
+    .shape:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; }
+    .shape:nth-child(5) { left: 65%; width: 20px; height: 20px; animation-delay: 0s; }
+    .shape:nth-child(6) { left: 75%; width: 110px; height: 110px; animation-delay: 3s; }
+    .shape:nth-child(7) { left: 35%; width: 150px; height: 150px; animation-delay: 7s; }
+    .shape:nth-child(8) { left: 50%; width: 25px; height: 25px; animation-delay: 15s; animation-duration: 45s; }
+    .shape:nth-child(9) { left: 20%; width: 15px; height: 15px; animation-delay: 2s; animation-duration: 35s; }
+    .shape:nth-child(10) { left: 85%; width: 150px; height: 150px; animation-delay: 0s; animation-duration: 11s; }
+
+    @keyframes float-up {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; border-radius: 20%; }
+      100% { transform: translateY(-120vh) rotate(720deg); opacity: 0; border-radius: 50%; }
+    }
+    /* === End Floating Background === */
+    
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .vcard {
+      width: 100%;
+      max-width: 400px;
+      background: var(--card-light);
+      border-radius: var(--radius);
+      padding: 40px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 1px solid var(--border-light);
+      animation: fadeInSlideUp 0.7s ease-out forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeInSlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .vcard:hover { transform: translateY(-8px); }
+    
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent1);
+    }
+    
+    .title, .location { color: var(--text-muted-light); }
+    .title { font-size: 18px; }
+    .location { font-size: 16px; margin-top: 5px; }
+    
+    .social-links { display: flex; justify-content: center; gap: 15px; margin: 30px 0; }
+    .social-links a {
+      font-size: 20px; width: 50px; height: 50px; border-radius: 50%;
+      background: var(--accent-gradient); color: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .social-links a:hover { transform: scale(1.15); box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4); }
+
+    .action-btn {
+      width: 100%; padding: 15px; background: var(--accent-gradient); color: #fff;
+      border: none; border-radius: 12px; font-size: 18px; font-family: inherit;
+      font-weight: bold; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 10px; transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin-top: 25px;
+    }
+    .action-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3); }
+    
+    #qrcode {
+      margin: 30px auto 10px; padding: 10px; background: #fff; border-radius: 12px;
+      display: inline-block; line-height: 0;
+    }
+
+    .footer { margin-top: 25px; font-size: 14px; opacity: 0.8; color: var(--text-muted-light); }
+    
+    /* === Professional Theme Toggle === */
+    .theme-switch-wrapper {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+    }
+    .theme-switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+    .theme-switch input { display: none; }
+    .slider {
+      position: absolute; cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute; content: "";
+      height: 26px; width: 26px;
+      left: 4px; bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    .slider .fa-moon, .slider .fa-sun {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--accent1);
+      transition: opacity 0.4s ease;
+    }
+    .slider .fa-moon { right: 8px; opacity: 1; }
+    .slider .fa-sun { left: 8px; opacity: 0; }
+
+    input:checked + .slider { background-color: var(--accent1); }
+    input:checked + .slider:before { transform: translateX(26px); }
+    input:checked + .slider .fa-moon { opacity: 0; }
+    input:checked + .slider .fa-sun { opacity: 1; }
+    body.dark .slider { background-color: #333; }
+    /* === End Theme Toggle === */
+
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    a:focus-visible, button:focus-visible, input:focus-visible + .slider { outline: 3px solid var(--accent1); outline-offset: 3px; }
+  </style>
+</head>
+<body>
+
+  <div class="background-wrapper">
+    <div class="shape"></div> <div class="shape"></div> <div class="shape"></div>
+    <div class="shape"></div> <div class="shape"></div> <div class="shape"></div>
+    <div class="shape"></div> <div class="shape"></div> <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
+  
+  <div class="theme-switch-wrapper">
+    <label class="theme-switch" for="theme-checkbox" title="تغيير المظهر">
+      <input type="checkbox" id="theme-checkbox" />
+      <div class="slider">
+        <i class="fa-solid fa-sun"></i>
+        <i class="fa-solid fa-moon"></i>
+      </div>
+    </label>
+  </div>
+
+  <div class="container">
+    <main class="vcard">
+      <h1>عبد العالي عبد الرحمان</h1>
+      <p class="title">متخصص في الأقمصة والعطور</p>
+      <p class="location"><i class="fa-solid fa-location-dot"></i> قرب مسجد النور، عنابة – الجزائر</p>
+
+      <div class="social-links">
+        <a href="https://wa.me/213559951936" target="_blank" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+        <a href="https://www.instagram.com/abd_alali23" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="https://www.facebook.com/share/168SmaE6mg/" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+        <a href="tel:0559951936" aria-label="Phone"><i class="fa-solid fa-phone"></i></a>
+      </div>
+
+      <div id="qrcode"></div>
+      <p class="sr-only">امسح هذا الرمز لحفظ جهة الاتصال مباشرة.</p>
+      
+      <button class="action-btn" id="save-contact-btn">
+        <i class="fa-solid fa-address-card"></i>
+        <span>حفظ جهة الاتصال</span>
+      </button>
+
+      <footer class="footer">
+        &copy; <span id="year"></span> متجر عبد العالي عبد الرحمان
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const contact = {
+        name: 'عبد العالي عبد الرحمان', phone: '+213559951936', title: 'أقمصة وعطور',
+        org: 'متجر عبد العالي عبد الرحمان', address: 'قرب مسجد النور، عنابة، الجزائر',
+        instagram: 'https://www.instagram.com/abd_alali23', facebook: 'https://www.facebook.com/share/168SmaE6mg/'
+      };
+
+      const vcfContent = `BEGIN:VCARD\nVERSION:3.0\nFN;CHARSET=UTF-8:${contact.name}\nN;CHARSET=UTF-8:عبد الرحمان;عبد العالي;;;\nTEL;TYPE=CELL,VOICE:${contact.phone}\nTITLE;CHARSET=UTF-8:${contact.title}\nORG;CHARSET=UTF-8:${contact.org}\nADR;TYPE=WORK;CHARSET=UTF-8:;;${contact.address}\nURL;TYPE=Instagram:${contact.instagram}\nURL;TYPE=Facebook:${contact.facebook}\nEND:VCARD`;
+
+      new QRCode(document.getElementById("qrcode"), { text: vcfContent, width: 128, height: 128 });
+
+      document.getElementById("save-contact-btn").addEventListener('click', () => {
+        const blob = new Blob([vcfContent], { type: 'text/vcard;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${contact.name}.vcf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      const themeCheckbox = document.getElementById('theme-checkbox');
+      const applyTheme = (theme) => {
+        if (theme === 'dark') {
+          document.body.classList.add('dark');
+          themeCheckbox.checked = true;
+        } else {
+          document.body.classList.remove('dark');
+          themeCheckbox.checked = false;
+        }
+      };
+      
+      themeCheckbox.addEventListener('change', () => {
+        const newTheme = themeCheckbox.checked ? 'dark' : 'light';
+        localStorage.setItem('theme', newTheme);
+        applyTheme(newTheme);
+      });
+
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      applyTheme(savedTheme);
+
+      document.getElementById("year").textContent = new Date().getFullYear();
+    });
+  </script>
+
+</body>
+</html>
