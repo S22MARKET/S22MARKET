@@ -94,7 +94,7 @@
 <body>
     <header class="bg-white shadow-sm sticky top-0 z-30">
         <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <h1 onclick="location.reload()" class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800" style="cursor: pointer; transition: color 0.3s ease, text-shadow 0.3s ease;">
+            <h1 onclick="location.href=window.location.pathname" class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800" style="cursor: pointer; transition: color 0.3s ease, text-shadow 0.3s ease;">
                 S22<span style="color: #2563eb;">MARKET</span>
             </h1>
             <div id="header-actions" class="flex items-center gap-3">
@@ -191,7 +191,7 @@
         let lastVisibleProduct = null;
         let isFetching = false;
         const PRODUCTS_PER_PAGE = 12;
-        let highlightedProductId = null; // <-- متغير جديد لتخزين ID المنتج المُميّز
+        let highlightedProductId = null;
 
         let cart = [];
 
@@ -399,7 +399,7 @@
             const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const orderItems = cart.map(item => ({
                 id: item.id,
-                name: item.name.replace(/<[^>]*>?/gm, ''), // Sanitize HTML from name
+                name: item.name.replace(/<[^>]*>?/gm, ''),
                 quantity: item.quantity,
                 price: item.price
             }));
@@ -416,7 +416,7 @@
                     createdAt: serverTimestamp()
                 });
                 
-                elements.modalContainer.innerHTML = ''; // Close modal
+                elements.modalContainer.innerHTML = '';
                 showToast('تم إرسال طلبك بنجاح!');
                 
                 cart = [];
@@ -434,10 +434,9 @@
         function showProductDetailModal(productId) {
             const product = productsCache.find(p => p.id === productId);
             if (!product) return;
-
+            
             const images = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls : (product.imageUrl ? [product.imageUrl] : []);
             const mainImage = images[0] || 'https://placehold.co/600x400/e2e8f0/4a5568?text=No+Image';
-
             const productNamePlainText = product.name.replace(/<[^>]*>?/gm, '');
 
             const thumbnailsHTML = images.map((img, index) => `
@@ -445,10 +444,17 @@
             `).join('');
 
             const modalId = 'product-detail-modal';
+            
+            // إضافة سجل في المتصفح عند فتح النافذة
+            const modalUrl = `#product/${productId}`;
+            history.pushState({ modalId: modalId }, productNamePlainText, modalUrl);
+
             const modalHTML = `
             <div class="modal-backdrop" id="modal-backdrop-${modalId}">
+                 <button id="modal-close-btn-top-${modalId}" class="absolute top-4 left-1/2 -translate-x-1/2 bg-white/70 backdrop-blur-sm rounded-full w-9 h-9 flex items-center justify-center text-2xl text-gray-800 hover:bg-white hover:text-red-500 z-30 transition-all shadow-lg">&times;</button>
+                
                 <div class="modal-content !max-w-4xl">
-                     <button id="modal-close-btn-${modalId}" class="absolute top-2 right-3 text-2xl text-gray-500 hover:text-red-500 z-20 md:bg-white/50 rounded-full md:w-8 md:h-8 flex items-center justify-center">&times;</button>
+                    <button id="modal-close-btn-${modalId}" class="absolute top-2 right-3 text-2xl text-gray-500 hover:text-red-500 z-20 md:bg-white/50 rounded-full md:w-8 md:h-8 flex items-center justify-center">&times;</button>
                     <div class="flex flex-col md:flex-row gap-4 md:gap-6 p-1 sm:p-2 md:p-4">
                         <div class="w-full md:w-1/2 flex flex-col gap-3">
                             <div class="w-full h-64 md:h-auto md:flex-1 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
@@ -456,19 +462,15 @@
                             </div>
                             ${images.length > 1 ? `<div class="flex flex-wrap justify-center gap-2 px-2">${thumbnailsHTML}</div>` : ''}
                         </div>
-
                         <div class="w-full md:w-1/2 flex flex-col p-4">
                             <h2 class="text-2xl lg:text-3xl font-bold text-gray-800">${product.name}</h2>
                             <p class="text-gray-500 text-sm font-semibold mt-2 mb-4">🗺️ ${product.location || 'موقع غير محدد'}</p>
-                            
                             <div class="my-4">
                                 <span class="text-blue-600 text-3xl lg:text-4xl font-extrabold">${product.price.toLocaleString()} د.ج</span>
                             </div>
-
                             <div class="text-gray-700 my-4 flex-grow overflow-y-auto max-h-48 md:max-h-64 pr-2 space-y-2">
                                 ${product.description || '<p>لا يوجد وصف متاح لهذا المنتج.</p>'}
                             </div>
-                            
                             <div class="mt-auto pt-4 border-t">
                                 <button id="modal-add-to-cart-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-5 rounded-lg text-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
                                     <i class="fas fa-cart-plus"></i> أضف للسلة
@@ -481,19 +483,21 @@
 
             elements.modalContainer.innerHTML = modalHTML;
 
-            // Event Listeners
-            const close = () => { elements.modalContainer.innerHTML = ''; };
+            const close = () => {
+                // العودة للخلف في سجل المتصفح، مما يفعل popstate listener
+                history.back();
+            };
+
             document.getElementById(`modal-close-btn-${modalId}`).onclick = close;
+            document.getElementById(`modal-close-btn-top-${modalId}`).onclick = close; // ربط الزر الجديد
             const backdrop = document.getElementById(`modal-backdrop-${modalId}`);
             backdrop.onclick = (e) => { if (e.target.id === `modal-backdrop-${modalId}`) close(); };
             
             document.getElementById('modal-add-to-cart-btn').onclick = () => {
                 addToCart(productId);
                 showToast(`تم إضافة "${productNamePlainText}" للسلة!`);
-                close();
             };
             
-            // Thumbnail click listener
             backdrop.querySelectorAll('.thumbnail-image').forEach(thumb => {
                 thumb.addEventListener('click', () => {
                     document.getElementById('main-product-image').src = thumb.src;
@@ -669,10 +673,12 @@
             fetchProducts();
         }
         
-        // --- دالة جديدة للتعامل مع رابط المنتج المباشر ---
         async function handleDirectProductLink() {
             const params = new URLSearchParams(window.location.search);
-            const productId = params.get('product');
+            const productIdFromQuery = params.get('product');
+            const productIdFromHash = window.location.hash.includes('/product/') ? window.location.hash.split('/product/')[1] : null;
+            const productId = productIdFromQuery || productIdFromHash;
+            
             if (productId) {
                 highlightedProductId = productId; 
                 try {
@@ -713,6 +719,15 @@
                     showProductDetailModal(trigger.dataset.id);
                 }
             });
+            
+            // --- التحكم بزر الرجوع في الهاتف ---
+            window.addEventListener('popstate', () => {
+                elements.modalContainer.innerHTML = '';
+                // إزالة الـ hash من الرابط بدون إعادة تحميل الصفحة
+                if(window.location.hash.startsWith('#product')) {
+                    history.replaceState(null, null, window.location.pathname + window.location.search);
+                }
+            });
 
             elements.cartBtn.addEventListener('click', showCartModal);
             
@@ -730,7 +745,7 @@
 
             elements.priceFilter.addEventListener('change', () => resetAndFetchProducts());
 
-            await handleDirectProductLink(); // <-- تم تفعيل الدالة هنا
+            await handleDirectProductLink();
             
             loadCartFromStorage();
             resetAndFetchProducts();
@@ -741,14 +756,6 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
 
 
 
