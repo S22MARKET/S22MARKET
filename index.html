@@ -36,7 +36,7 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%;
             max-width: 700px; max-height: 95vh;
             display: flex; flex-direction: column;
-            overflow-y: auto; /* <-- تم التعديل هنا لحل مشكلة التمرير */
+            overflow-y: auto;
             animation: slideInUp 0.4s; position: relative;
         }
         #toast-container { position: fixed; bottom: 20px; left: 20px; z-index: 1001; }
@@ -48,16 +48,15 @@
             transform: scale(1.02); 
             box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.2), 0 8px 10px -6px rgba(239, 68, 68, 0.2);
         }
-        /* --- كود التمييز الجديد --- */
         .highlighted-product {
-            border: 3px solid #f59e0b; /* Amber color */
+            border: 3px solid #f59e0b;
             box-shadow: 0 0 15px #f59e0b, 0 0 25px #f59e0b;
             transform: scale(1.03);
             animation: pulse-highlight 2s infinite;
         }
         @keyframes pulse-highlight {
             0% { box-shadow: 0 0 15px #f59e0b, 0 0 25px #f59e0b; }
-            50% { box-shadow: 0 0 25px #fde047, 0 0 40px #fde047; } /* Lighter yellow glow */
+            50% { box-shadow: 0 0 25px #fde047, 0 0 40px #fde047; }
             100% { box-shadow: 0 0 15px #f59e0b, 0 0 25px #f59e0b; }
         }
         .glowing-mustard-button {
@@ -159,8 +158,7 @@
     </footer>
     <div id="modal-container"></div>
     <div id="toast-container"></div>
-
-    <script type="module">
+<script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, getDoc, addDoc, query, orderBy, serverTimestamp, where, limit, startAfter } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
@@ -430,6 +428,90 @@
             }
         }
         
+        function showInquiryModal(type) {
+            const isProductRequest = type === 'product';
+            const modalId = 'inquiry-modal';
+            const title = isProductRequest ? 'طلب توفير منتج' : 'تقديم شكوى أو رأي';
+            const messageLabel = isProductRequest ? 'صف لنا المنتج الذي تبحث عنه بدقة (الاسم، النوع، الشركة...)' : 'اكتب رسالتك هنا';
+            const icon = isProductRequest ? 'fa-search' : 'fa-flag';
+            
+            const modalHTML = `
+            <div class="modal-backdrop" id="modal-backdrop-${modalId}">
+                <div class="modal-content" style="max-width: 550px;">
+                    <div class="p-5 border-b flex justify-between items-center">
+                        <h2 class="text-xl font-bold"><i class="fas ${icon} mr-2"></i> ${title}</h2>
+                        <button id="modal-close-btn-${modalId}" class="text-2xl hover:text-red-500">&times;</button>
+                    </div>
+                    <form id="inquiry-form" class="p-5 overflow-y-auto space-y-4">
+                        <div>
+                            <label for="inquiry-name" class="font-semibold text-sm text-gray-700">الاسم الكامل <span class="text-red-500">*</span></label>
+                            <input type="text" id="inquiry-name" required class="mt-1 w-full p-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="inquiry-phone" class="font-semibold text-sm text-gray-700">رقم الهاتف (اختياري)</label>
+                            <input type="tel" id="inquiry-phone" class="mt-1 w-full p-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" dir="ltr">
+                        </div>
+                        <div>
+                            <label for="inquiry-link" class="font-semibold text-sm text-gray-700">رابط للتواصل (فيسبوك مثلاً، اختياري)</label>
+                            <input type="text" id="inquiry-link" class="mt-1 w-full p-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://facebook.com/profile">
+                        </div>
+                        <div>
+                            <label for="inquiry-message" class="font-semibold text-sm text-gray-700">${messageLabel} <span class="text-red-500">*</span></label>
+                            <textarea id="inquiry-message" rows="4" required class="mt-1 w-full p-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                    </form>
+                    <div class="mt-auto p-4 border-t bg-gray-50">
+                        <button id="submit-inquiry-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-5 rounded-lg text-lg">إرسال</button>
+                    </div>
+                </div>
+            </div>`;
+            elements.modalContainer.innerHTML = modalHTML;
+
+            const close = () => { elements.modalContainer.innerHTML = ''; };
+            document.getElementById(`modal-close-btn-${modalId}`).onclick = close;
+            document.getElementById(`modal-backdrop-${modalId}`).onclick = (e) => { if(e.target.id === `modal-backdrop-${modalId}`) close(); };
+            
+            const form = document.getElementById('inquiry-form');
+            form.addEventListener('submit', (e) => handleInquirySubmit(e, type));
+            document.getElementById('submit-inquiry-btn').onclick = () => form.requestSubmit();
+        }
+
+        async function handleInquirySubmit(e, type) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submit-inquiry-btn');
+            const fullName = document.getElementById('inquiry-name').value.trim();
+            const message = document.getElementById('inquiry-message').value.trim();
+
+            if (!fullName || !message) {
+                showToast("الرجاء ملء حقول الاسم والرسالة.", false);
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="small-loader"></span> جاري الإرسال...';
+            
+            try {
+                await addDoc(collection(db, "inquiries"), {
+                    type: type,
+                    fullName: fullName,
+                    phone: document.getElementById('inquiry-phone').value.trim(),
+                    contactLink: document.getElementById('inquiry-link').value.trim(),
+                    message: message,
+                    status: 'جديد',
+                    createdAt: serverTimestamp()
+                });
+
+                elements.modalContainer.innerHTML = '';
+                showToast('تم إرسال رسالتك بنجاح!');
+
+            } catch (error) {
+                console.error("Error submitting inquiry: ", error);
+                showToast("حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.", false);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'إرسال';
+            }
+        }
+        
         // --- Product Details Modal ---
         function showProductDetailModal(productId) {
             const product = productsCache.find(p => p.id === productId);
@@ -445,13 +527,12 @@
 
             const modalId = 'product-detail-modal';
             
-            // إضافة سجل في المتصفح عند فتح النافذة
             const modalUrl = `#product/${productId}`;
             history.pushState({ modalId: modalId }, productNamePlainText, modalUrl);
 
             const modalHTML = `
             <div class="modal-backdrop" id="modal-backdrop-${modalId}">
-                 <button id="modal-close-btn-top-${modalId}" class="absolute top-4 left-1/2 -translate-x-1/2 bg-white/70 backdrop-blur-sm rounded-full w-9 h-9 flex items-center justify-center text-2xl text-gray-800 hover:bg-white hover:text-red-500 z-30 transition-all shadow-lg">&times;</button>
+                <button id="modal-close-btn-top-${modalId}" class="absolute top-4 left-1/2 -translate-x-1/2 bg-white/70 backdrop-blur-sm rounded-full w-9 h-9 flex items-center justify-center text-2xl text-gray-800 hover:bg-white hover:text-red-500 z-30 transition-all shadow-lg">&times;</button>
                 
                 <div class="modal-content !max-w-4xl">
                     <button id="modal-close-btn-${modalId}" class="absolute top-2 right-3 text-2xl text-gray-500 hover:text-red-500 z-20 md:bg-white/50 rounded-full md:w-8 md:h-8 flex items-center justify-center">&times;</button>
@@ -484,12 +565,11 @@
             elements.modalContainer.innerHTML = modalHTML;
 
             const close = () => {
-                // العودة للخلف في سجل المتصفح، مما يفعل popstate listener
                 history.back();
             };
 
             document.getElementById(`modal-close-btn-${modalId}`).onclick = close;
-            document.getElementById(`modal-close-btn-top-${modalId}`).onclick = close; // ربط الزر الجديد
+            document.getElementById(`modal-close-btn-top-${modalId}`).onclick = close;
             const backdrop = document.getElementById(`modal-backdrop-${modalId}`);
             backdrop.onclick = (e) => { if (e.target.id === `modal-backdrop-${modalId}`) close(); };
             
@@ -505,6 +585,48 @@
                     thumb.classList.add('border-blue-500');
                 });
             });
+        }
+
+        // --- [دالة جديدة] لجلب وعرض الأقسام ---
+        async function fetchAndRenderCategories() {
+            try {
+                const querySnapshot = await getDocs(query(collection(db, "categories"), orderBy("name")));
+                categoriesCache = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                elements.categoriesContainer.innerHTML = ''; // إفراغ محتوى الأقسام (يزيل أيقونة التحميل)
+
+                // زر لعرض كل المنتجات
+                const allButton = document.createElement('button');
+                allButton.className = 'category-filter-btn w-full text-right p-2 rounded-md font-semibold transition-colors active'; // active by default
+                allButton.textContent = 'كل المنتجات';
+                allButton.dataset.id = 'all';
+                elements.categoriesContainer.appendChild(allButton);
+                
+                // عرض بقية الأقسام
+                categoriesCache.forEach(category => {
+                    const categoryButton = document.createElement('button');
+                    categoryButton.className = 'category-filter-btn w-full text-right p-2 rounded-md font-semibold transition-colors';
+                    categoryButton.textContent = category.name;
+                    categoryButton.dataset.id = category.id;
+                    elements.categoriesContainer.appendChild(categoryButton);
+                });
+
+                // إضافة مستمع واحد للتحكم في كل الأزرار
+                elements.categoriesContainer.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('category-filter-btn')) {
+                        // إزالة كلاس 'active' من كل الأزرار
+                        elements.categoriesContainer.querySelectorAll('.category-filter-btn').forEach(btn => btn.classList.remove('active'));
+                        // إضافة كلاس 'active' للزر المضعوط
+                        e.target.classList.add('active');
+                        // إعادة تحميل المنتجات حسب القسم المختار
+                        resetAndFetchProducts();
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error fetching categories: ", error);
+                elements.categoriesContainer.innerHTML = '<p class="text-red-500">فشل في تحميل الأقسام</p>';
+            }
         }
         
         // --- Product Rendering & Fetching ---
@@ -567,6 +689,7 @@
 
             try {
                 const priceSort = elements.priceFilter.value;
+                // تعديل بسيط: تأكد من أن هناك زر فعال قبل محاولة قراءته
                 const activeCategoryBtn = document.querySelector('.category-filter-btn.active');
                 const selectedCategoryId = activeCategoryBtn ? activeCategoryBtn.dataset.id : 'all';
 
@@ -628,11 +751,22 @@
         }
         
         function renderPage(products) {
-            if (elements.grid.children.length === 0 && featuredProduct && !lastVisibleProduct) {
+            // تحقق إذا كانت هذه أول عملية عرض (لا يوجد منتجات معروضة بعد)
+            const isInitialRender = elements.grid.children.length === 0 && !lastVisibleProduct;
+
+            if (isInitialRender && featuredProduct) {
                 createProductCard(featuredProduct, true);
             }
 
-            if (elements.grid.children.length === 0 && !featuredProduct && products.length === 0) {
+            products.forEach(product => {
+                // تأكد من عدم عرض المنتج المميز مرة أخرى
+                if (product.id !== featuredProduct?.id) {
+                    createProductCard(product, false);
+                }
+            });
+            
+            // تحقق مما إذا كانت الشبكة فارغة تمامًا بعد محاولة العرض
+            if (elements.grid.children.length === 0) {
                 elements.noProductsMsg.classList.remove('hidden');
                 elements.grid.classList.add('hidden');
             } else {
@@ -640,12 +774,6 @@
                  elements.grid.classList.remove('hidden');
             }
 
-            products.forEach(product => {
-                if (product.id !== featuredProduct?.id) {
-                    createProductCard(product, false);
-                }
-            });
-            
             const oldBtn = document.getElementById('load-more-btn');
             if(oldBtn) oldBtn.remove();
 
@@ -655,6 +783,7 @@
                 loadMoreBtn.className = 'sm:col-span-2 lg:col-span-3 mt-4 w-full bg-gray-700 text-white font-bold py-3 px-5 rounded-lg text-lg hover:bg-gray-800 transition-colors';
                 loadMoreBtn.textContent = 'تحميل المزيد';
                 loadMoreBtn.onclick = fetchProducts;
+                // استخدام `insertAdjacentElement` لتجنب إعادة رسم الشبكة
                 elements.grid.insertAdjacentElement('afterend', loadMoreBtn);
             }
         }
@@ -720,17 +849,18 @@
                 }
             });
             
-            // --- التحكم بزر الرجوع في الهاتف ---
             window.addEventListener('popstate', () => {
                 elements.modalContainer.innerHTML = '';
-                // إزالة الـ hash من الرابط بدون إعادة تحميل الصفحة
                 if(window.location.hash.startsWith('#product')) {
                     history.replaceState(null, null, window.location.pathname + window.location.search);
                 }
             });
 
+            elements.addProductBtn.addEventListener('click', () => showInquiryModal('product'));
+            elements.addComplaintBtn.addEventListener('click', () => showInquiryModal('complaint'));
             elements.cartBtn.addEventListener('click', showCartModal);
             
+            // تحسين البحث ليشمل المنتجات المحملة حديثًا (لم يعد ضروريًا مع الفلترة الحالية)
             elements.searchInput.addEventListener('input', () => {
                 const searchTerm = elements.searchInput.value.toLowerCase().trim();
                 let foundProducts = false;
@@ -748,14 +878,34 @@
             await handleDirectProductLink();
             
             loadCartFromStorage();
+            // --- تعديل: جلب الأقسام أولاً ثم المنتجات ---
+            await fetchAndRenderCategories();
             resetAndFetchProducts();
         }
 
         initializeStore();
 
     </script>
-</body>
-</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
