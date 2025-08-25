@@ -453,16 +453,19 @@ async function handleOrderSubmit(e, directProductId = null) {
                     const product = productsCache.find(p => p.id === directProductId);
                     const productName = product.name.replace(/<[^>]*>?/gm, '');
                     
-                    const message = `
-طلب جديد من S22 Market:
+                    const message = 
+`السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ تَعَالَى وَبَرَكَاتُهُ 
+🌿
+📢 طَلَبٌ جَدِيدٌ مِنْ S22 Market:
 --------------------
-👤 الاسم: ${customerName}
-📞 الهاتف: ${customerContact}
-📍 العنوان: ${customerLocation}
-📦 المنتج: ${productName}
-💰 السعر: ${product.price.toLocaleString()} د.ج
+👤 الاِسْمُ: ${customerName}
+📞 الهَاتِفُ: ${customerContact}
+📍 العُنْوَانُ: ${customerLocation}
+📦 المُنْتَجُ / الدَّوْرَةُ: ${productName}
+💰 السِّعْرُ: ${product.price.toLocaleString()} د.ج
 --------------------
 `;
+
                     let contactUrl = '';
                     switch(product.contactType) {
                         case 'whatsapp':
