@@ -332,7 +332,7 @@
         window.updateCartQuantity = updateCartQuantity;
 
         // --- CHECKOUT LOGIC ---
-        function showCheckoutModal() {
+      function showCheckoutModal(directProductId = null) { // Added directProductId parameter
             const modalId = 'checkout-modal';
             const modalHTML = `
             <div class="modal-backdrop" id="modal-backdrop-${modalId}">
@@ -370,16 +370,30 @@
             document.getElementById(`modal-close-btn-${modalId}`).onclick = close;
             document.getElementById(`modal-backdrop-${modalId}`).onclick = (e) => { if(e.target.id === `modal-backdrop-${modalId}`) close(); };
 
-            document.getElementById('order-form').addEventListener('submit', handleOrderSubmit);
+            // Pass the directProductId to the handler
+            document.getElementById('order-form').addEventListener('submit', (e) => handleOrderSubmit(e, directProductId));
             document.getElementById('submit-order-btn').onclick = () => document.getElementById('order-form').requestSubmit();
         }
 
-        async function handleOrderSubmit(e) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+async function handleOrderSubmit(e, directProductId = null) {
              e.preventDefault();
-            if (cart.length === 0) {
-                showToast("لا يمكنك إرسال طلب فارغ!", false);
-                return;
-            }
             
             const submitBtn = document.getElementById('submit-order-btn');
             const customerName = document.getElementById('customer-name').value.trim();
@@ -394,13 +408,31 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="small-loader"></span> جاري الإرسال...';
             
-            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const orderItems = cart.map(item => ({
-                id: item.id,
-                name: item.name.replace(/<[^>]*>?/gm, ''),
-                quantity: item.quantity,
-                price: item.price
-            }));
+            let orderItems, totalPrice;
+            if (directProductId) {
+                const product = productsCache.find(p => p.id === directProductId);
+                if (!product) {
+                     showToast("حدث خطأ، المنتج غير موجود.", false);
+                     submitBtn.disabled = false;
+                     submitBtn.textContent = 'تأكيد وإرسال الطلب';
+                     return;
+                }
+                orderItems = [{ id: product.id, name: product.name.replace(/<[^>]*>?/gm, ''), quantity: 1, price: product.price }];
+                totalPrice = product.price;
+            } else {
+                 if (cart.length === 0) {
+                    showToast("لا يمكنك إرسال طلب فارغ!", false);
+                    return;
+                }
+                orderItems = cart.map(item => ({
+                    id: item.id,
+                    name: item.name.replace(/<[^>]*>?/gm, ''),
+                    quantity: item.quantity,
+                    price: item.price
+                }));
+                totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            }
+
 
             try {
                 await addDoc(collection(db, "orders"), {
@@ -417,8 +449,52 @@
                 elements.modalContainer.innerHTML = '';
                 showToast('تم إرسال طلبك بنجاح!');
                 
-                cart = [];
-                saveCartToStorage();
+                if (directProductId) {
+                    const product = productsCache.find(p => p.id === directProductId);
+                    const productName = product.name.replace(/<[^>]*>?/gm, '');
+                    
+                    const message = `
+طلب جديد من S22 Market:
+--------------------
+👤 الاسم: ${customerName}
+📞 الهاتف: ${customerContact}
+📍 العنوان: ${customerLocation}
+📦 المنتج: ${productName}
+💰 السعر: ${product.price.toLocaleString()} د.ج
+--------------------
+`;
+                    let contactUrl = '';
+                    switch(product.contactType) {
+                        case 'whatsapp':
+                            contactUrl = `https://wa.me/${product.contactValue}?text=${encodeURIComponent(message)}`;
+                            break;
+                        case 'facebook': // New case
+                            navigator.clipboard.writeText(message);
+                            contactUrl = `https://m.me/${product.contactValue}`;
+                            showToast("تم نسخ معلومات الطلب، قم بلصقها في محادثة فيسبوك.");
+                            break;
+                        case 'telegram':
+                            navigator.clipboard.writeText(message);
+                            contactUrl = product.contactValue;
+                            showToast("تم نسخ معلومات الطلب، قم بلصقها في محادثة تيليجرام.");
+                            break;
+                        case 'instagram':
+                            navigator.clipboard.writeText(message);
+                            contactUrl = product.contactValue;
+                            showToast("تم نسخ معلومات الطلب، قم بلصقها في محادثة انستغرام.");
+                            break;
+                        case 'phone':
+                            contactUrl = `tel:${product.contactValue}`;
+                            break;
+                    }
+
+                    if(contactUrl) {
+                        window.open(contactUrl, '_blank');
+                    }
+                } else {
+                    cart = [];
+                    saveCartToStorage();
+                }
 
             } catch (error) {
                 console.error("Error submitting order: ", error);
@@ -427,7 +503,28 @@
                 submitBtn.textContent = 'تأكيد وإرسال الطلب';
             }
         }
-        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         function showInquiryModal(type) {
             const isProductRequest = type === 'product';
             const modalId = 'inquiry-modal';
@@ -630,12 +727,10 @@
         }
         
         // --- Product Rendering & Fetching ---
-        function createProductCard(product, isFeatured) {
+function createProductCard(product, isFeatured) {
             const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : (product.imageUrl || '');
             const card = document.createElement('div');
-            
             const cardClasses = 'bg-white rounded-xl shadow-md overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl';
-            
             let finalCardClasses = cardClasses;
             if (product.id === highlightedProductId) {
                 finalCardClasses += ' highlighted-product';
@@ -647,11 +742,33 @@
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = product.name;
             const productNamePlainText = tempDiv.textContent || tempDiv.innerText || "";
-
-            const buttonClasses = 'add-to-cart-btn w-full text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2';
-            const normalButtonClasses = `${buttonClasses} bg-blue-600 hover:bg-blue-700`;
-            const featuredButtonClasses = `${buttonClasses} glowing-mustard-button`;
             
+            let buttonHTML = '';
+            const isDirectOrder = product.orderType === 'direct_contact';
+
+            if(isDirectOrder) {
+                let iconClass = 'fa-paper-plane';
+                let btnText = 'اطلب الآن';
+                switch(product.contactType) {
+                    case 'whatsapp': iconClass = 'fab fa-whatsapp'; btnText = 'اطلب عبر واتساب'; break;
+                    case 'facebook': iconClass = 'fab fa-facebook-messenger'; btnText = 'اطلب عبر فيسبوك'; break; // New case
+                    case 'telegram': iconClass = 'fab fa-telegram'; btnText = 'اطلب عبر تيليجرام'; break;
+                    case 'instagram': iconClass = 'fab fa-instagram'; btnText = 'اطلب عبر انستغرام'; break;
+                    case 'phone': iconClass = 'fa-phone'; btnText = 'اطلب عبر الهاتف'; break;
+                }
+                const featuredButtonClasses = `glowing-mustard-button`;
+                buttonHTML = `<button data-id="${product.id}" class="direct-order-btn w-full text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 ${isFeatured ? featuredButtonClasses : 'bg-green-600 hover:bg-green-700'}">
+                                  <i class="${iconClass}"></i> ${btnText}
+                              </button>`;
+            } else {
+                 const buttonClasses = 'add-to-cart-btn w-full text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2';
+                 const normalButtonClasses = `${buttonClasses} bg-blue-600 hover:bg-blue-700`;
+                 const featuredButtonClasses = `${buttonClasses} glowing-mustard-button`;
+                 buttonHTML = `<button data-id="${product.id}" class="${isFeatured ? featuredButtonClasses : normalButtonClasses}">
+                                  <i class="fas fa-cart-plus"></i> أضف للسلة
+                              </button>`;
+            }
+
             card.innerHTML = `
                 <div class="cursor-pointer group product-details-trigger" data-id="${product.id}">
                     <div class="h-56 overflow-hidden relative">
@@ -666,12 +783,8 @@
                     </div>
                 </div>
                 <div class="p-4 mt-auto pt-2 border-t border-gray-100">
-                   <button data-id="${product.id}" class="${isFeatured ? featuredButtonClasses : normalButtonClasses}">
-                      <i class="fas fa-cart-plus"></i> أضف للسلة
-                   </button>
+                   ${buttonHTML}
                 </div>`;
-                
-            card.querySelector('button').addEventListener('click', (e) => addToCart(e.currentTarget.dataset.id));
             
             if(isFeatured) {
                 elements.grid.prepend(card);
@@ -679,7 +792,15 @@
                 elements.grid.appendChild(card);
             }
         }
-        
+
+
+
+
+
+
+
+
+
         async function fetchProducts() {
             if (isFetching) return;
             isFetching = true;
@@ -841,14 +962,22 @@
                 <a href="${SOCIAL_LINKS.instagram}" target="_blank" class="w-12 h-12 flex items-center justify-center bg-pink-500 rounded-full text-2xl hover:bg-pink-600 transition-transform hover:scale-110"><i class="fab fa-instagram"></i></a>
                 <a href="${SOCIAL_LINKS.telegram}" target="_blank" class="w-12 h-12 flex items-center justify-center bg-sky-500 rounded-full text-2xl hover:bg-sky-600 transition-transform hover:scale-110"><i class="fab fa-telegram"></i></a>
             `;
-            
             elements.grid.addEventListener('click', (e) => {
-                const trigger = e.target.closest('.product-details-trigger');
-                if (trigger) {
-                    showProductDetailModal(trigger.dataset.id);
-                }
-            });
-            
+            const detailsTrigger = e.target.closest('.product-details-trigger');
+            const cartBtn = e.target.closest('.add-to-cart-btn');
+            const directOrderBtn = e.target.closest('.direct-order-btn');
+
+            if (directOrderBtn) {
+                e.stopPropagation();
+                const productId = directOrderBtn.dataset.id;
+                showCheckoutModal(productId); // Open checkout directly for this product
+            } else if (cartBtn) {
+                e.stopPropagation();
+                addToCart(cartBtn.dataset.id);
+            } else if (detailsTrigger) {
+                showProductDetailModal(detailsTrigger.dataset.id);
+            }
+        });
             window.addEventListener('popstate', () => {
                 elements.modalContainer.innerHTML = '';
                 if(window.location.hash.startsWith('#product')) {
@@ -886,6 +1015,71 @@
         initializeStore();
 
     </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
