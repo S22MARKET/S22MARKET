@@ -355,6 +355,19 @@
                             <input type="text" id="customer-location" required class="mt-1 w-full p-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="مثال: عنابة، البوني">
                         </div>
                          <div>
+                            <label class="font-semibold text-sm text-gray-700">مكان التوصيل</label>
+                            <div class="mt-2 flex gap-4">
+                               <label class="flex items-center gap-2 cursor-pointer">
+                                   <input type="radio" name="delivery-preference" value="Home" class="form-radio h-5 w-5 text-blue-600" checked>
+                                   <span class="text-base">المنزل</span>
+                               </label>
+                               <label class="flex items-center gap-2 cursor-pointer">
+                                   <input type="radio" name="delivery-preference" value="Office" class="form-radio h-5 w-5 text-blue-600">
+                                   <span class="text-base">المكتب</span>
+                               </label>
+                            </div>
+                        </div>
+                         <div>
                             <label for="customer-inquiry" class="font-semibold text-sm text-gray-700">استفسار أو ملاحظة (اختياري)</label>
                             <textarea id="customer-inquiry" rows="2" class="mt-1 w-full p-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                         </div>
@@ -375,23 +388,6 @@
             document.getElementById('submit-order-btn').onclick = () => document.getElementById('order-form').requestSubmit();
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 async function handleOrderSubmit(e, directProductId = null) {
              e.preventDefault();
             
@@ -399,6 +395,7 @@ async function handleOrderSubmit(e, directProductId = null) {
             const customerName = document.getElementById('customer-name').value.trim();
             const customerContact = document.getElementById('customer-contact').value.trim();
             const customerLocation = document.getElementById('customer-location').value.trim();
+            const deliveryPreference = document.querySelector('input[name="delivery-preference"]:checked').value;
 
             if (!customerName || !customerContact || !customerLocation) {
                 showToast("الرجاء ملء جميع الحقول الإلزامية.", false);
@@ -439,6 +436,7 @@ async function handleOrderSubmit(e, directProductId = null) {
                     customerName,
                     customerContact,
                     customerLocation,
+                    deliveryPreference, // حفظ مكان التوصيل
                     customerInquiry: document.getElementById('customer-inquiry').value.trim(),
                     totalPrice: totalPrice,
                     items: orderItems,
@@ -452,6 +450,7 @@ async function handleOrderSubmit(e, directProductId = null) {
                 if (directProductId) {
                     const product = productsCache.find(p => p.id === directProductId);
                     const productName = product.name.replace(/<[^>]*>?/gm, '');
+                    const deliveryPlace = deliveryPreference === 'Home' ? 'المنزل' : 'المكتب';
                     
                     const message = 
 `السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ تَعَالَى وَبَرَكَاتُهُ 
@@ -461,6 +460,7 @@ async function handleOrderSubmit(e, directProductId = null) {
 👤 الاِسْمُ: ${customerName}
 📞 الهَاتِفُ: ${customerContact}
 📍 العُنْوَانُ: ${customerLocation}
+🚚 التوصيل إلى: ${deliveryPlace}
 📦 المُنْتَجُ / الدَّوْرَةُ: ${productName}
 💰 السِّعْرُ: ${product.price.toLocaleString()} د.ج
 --------------------
@@ -506,27 +506,6 @@ async function handleOrderSubmit(e, directProductId = null) {
                 submitBtn.textContent = 'تأكيد وإرسال الطلب';
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         function showInquiryModal(type) {
             const isProductRequest = type === 'product';
@@ -796,14 +775,6 @@ function createProductCard(product, isFeatured) {
             }
         }
 
-
-
-
-
-
-
-
-
         async function fetchProducts() {
             if (isFetching) return;
             isFetching = true;
@@ -1018,9 +989,8 @@ function createProductCard(product, isFeatured) {
         initializeStore();
 
     </script>
-
-
-
+</body>
+</html>
 
 
 
