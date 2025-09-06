@@ -113,6 +113,7 @@
                     <a href="#orders" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
                     <a href="#inquiries" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-envelope-open-text fa-fw mr-3"></i> الرسائل الواردة</a>
                     <a href="#applications" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
+                    <a href="#notepad" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
                 </nav>
                 <div class="p-4 border-t border-gray-700">
                     <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
@@ -126,6 +127,7 @@
                 <div id="orders-panel" class="dashboard-panel hidden"></div>
                 <div id="inquiries-panel" class="dashboard-panel hidden"></div>
                 <div id="applications-panel" class="dashboard-panel hidden"></div>
+                <div id="notepad-panel" class="dashboard-panel hidden"></div>
             </main>
         </div>
     </div>
@@ -155,10 +157,11 @@
         let categoriesCache = [];
         let productsCache = [];
         let ordersCache = [];
+        let applicationsCache = [];
+        let notesCache = [];
         let myChart = null;
         let profitChart = null;
         let topProductsChart = null;
-        let applicationsCache = [];
 
         const loginPage = document.getElementById('login-page');
         const dashboardPage = document.getElementById('dashboard-page');
@@ -220,11 +223,12 @@
             loadProducts();
             loadOrders();
             loadInquiries(); 
-            loadApplications(); 
+            loadApplications();
+            loadNotepad();
         }
         
         // ===================================
-        // Analytics Section (MODIFIED)
+        // Analytics Section
         // ===================================
         function loadAnalytics() {
             const panel = document.getElementById('analytics-panel');
@@ -272,11 +276,11 @@
             if(!document.getElementById('total-products')) return; 
             
             const completedOrders = ordersCache.filter(o => o.status === 'completed');
-            const incompleteOrders = ordersCache.filter(o => o.status === 'new'); // Calculate incomplete orders
+            const incompleteOrders = ordersCache.filter(o => o.status === 'new');
 
             const totalProfit = completedOrders.reduce((sum, order) => sum + (order.profit || 0), 0);
             const completedOrdersCount = completedOrders.length;
-            const incompleteOrdersCount = incompleteOrders.length; // Count of incomplete orders
+            const incompleteOrdersCount = incompleteOrders.length;
 
             const avgProfit = completedOrdersCount > 0 ? totalProfit / completedOrdersCount : 0;
 
@@ -284,7 +288,7 @@
             document.getElementById('total-profit').textContent = `${totalProfit.toLocaleString()} د.ج`;
             document.getElementById('avg-profit').textContent = `${avgProfit.toFixed(0).toLocaleString()} د.ج`;
             document.getElementById('completed-orders').textContent = completedOrdersCount;
-            document.getElementById('incomplete-orders').textContent = incompleteOrdersCount; // Update the new card
+            document.getElementById('incomplete-orders').textContent = incompleteOrdersCount;
 
             const last7Days = {};
             const last7DaysProfit = {};
@@ -587,9 +591,17 @@
                         <td data-label="المورد" class="p-3">${product.supplier || '---'}</td>
                         <td data-label="الربح" class="p-3 font-mono text-green-700 font-bold">${profitDisplay}</td>
                         <td data-label="إجراءات" class="p-3 actions-cell">
-                            <button class="copy-product-link-btn text-green-500 hover:text-green-700 mr-4" data-id="${product.id}" title="نسخ رابط المنتج"><i class="fas fa-link fa-lg"></i></button>
-                            <button class="edit-product-btn text-indigo-500 hover:text-indigo-700 mr-4" data-id="${product.id}"><i class="fas fa-edit fa-lg"></i></button>
-                            <button class="delete-product-btn text-red-500 hover:text-red-700" data-id="${product.id}"><i class="fas fa-trash fa-lg"></i></button>
+                            <div class="flex items-center gap-2">
+                                <button class="copy-product-link-btn bg-green-100 text-green-700 hover:bg-green-200 transition-colors px-3 py-2 rounded-md" data-id="${product.id}" title="نسخ رابط المنتج">
+                                    <i class="fas fa-link"></i>
+                                </button>
+                                <button class="edit-product-btn bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-3 py-2 rounded-md" data-id="${product.id}" title="تعديل المنتج">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="delete-product-btn bg-red-100 text-red-700 hover:bg-red-200 transition-colors px-3 py-2 rounded-md" data-id="${product.id}" title="حذف المنتج">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </td>`;
                 });
                 attachProductActionListeners();
@@ -643,7 +655,7 @@
             });
         }
 
-function showProductModal(product = null) {
+        function showProductModal(product = null) {
             const title = product ? 'تعديل المنتج' : 'إضافة منتج جديد';
             
             const categoryOptions = categoriesCache.map(cat => 
@@ -1336,8 +1348,190 @@ ${itemsText}
                     } 
                 }; 
             }); 
-        } 
+        }
 
+        // ===================================
+        // Notepad Section (NEW)
+        // ===================================
+        function loadNotepad() {
+            const panel = document.getElementById('notepad-panel');
+            panel.innerHTML = `<div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800">المفكرة الاحترافية</h1>
+                <button id="add-note-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700">
+                    <i class="fas fa-plus mr-2"></i> إضافة ملاحظة
+                </button>
+            </div>
+            <div id="notes-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>`;
+
+            document.getElementById('add-note-btn').addEventListener('click', () => showNoteModal());
+
+            const listContainer = document.getElementById('notes-list');
+            onSnapshot(query(collection(db, "notes"), orderBy("updatedAt", "desc")), (snapshot) => {
+                notesCache = [];
+                listContainer.innerHTML = snapshot.empty ? '<p class="text-center text-gray-500 col-span-full mt-8">لا توجد ملاحظات. أضف ملاحظة جديدة للبدء.</p>' : '';
+                snapshot.forEach(doc => {
+                    const note = { id: doc.id, ...doc.data() };
+                    notesCache.push(note);
+
+                    const statusMap = {
+                        'Pending': { text: 'قيد الانتظار', color: 'bg-yellow-100 text-yellow-800' },
+                        'In Progress': { text: 'قيد التنفيذ', color: 'bg-blue-100 text-blue-800' },
+                        'Resolved': { text: 'تمت التسوية', color: 'bg-green-100 text-green-800' }
+                    };
+                    const statusInfo = statusMap[note.status] || { text: note.status, color: 'bg-gray-100 text-gray-800' };
+
+                    const date = note.updatedAt?.toDate().toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+                    const card = document.createElement('div');
+                    card.className = 'bg-white p-5 rounded-xl shadow-md border-l-4 flex flex-col';
+                    card.style.borderLeftColor = note.status === 'Resolved' ? '#10B981' : (note.status === 'In Progress' ? '#3B82F6' : '#F59E0B');
+                    
+                    card.innerHTML = `
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-start">
+                                <h3 class="text-xl font-bold text-gray-800 mb-2">${note.title}</h3>
+                                <span class="text-xs font-bold px-2 py-1 rounded-full ${statusInfo.color}">${statusInfo.text}</span>
+                            </div>
+                            ${note.linkedSupplier ? `<p class="text-sm text-gray-500 mb-3"><i class="fas fa-user-tie fa-fw mr-1"></i> مرتبط بالمورد: <strong>${note.linkedSupplier}</strong></p>` : ''}
+                            ${note.amount > 0 ? `<p class="text-lg font-mono font-bold text-indigo-600 mb-4">${note.amount.toLocaleString()} د.ج</p>` : ''}
+                            
+                            <div class="prose prose-sm max-w-none text-gray-700 mb-4 ql-editor-display">${note.content}</div>
+                        </div>
+                        <div class="border-t pt-3 mt-auto flex justify-between items-center text-sm">
+                            <span class="text-gray-400">${date}</span>
+                            <div>
+                                <button class="edit-note-btn text-indigo-500 hover:text-indigo-700 mr-3" data-id="${note.id}"><i class="fas fa-edit"></i> تعديل</button>
+                                <button class="delete-note-btn text-red-500 hover:text-red-700" data-id="${note.id}"><i class="fas fa-trash"></i> حذف</button>
+                            </div>
+                        </div>
+                    `;
+                    // Sanitize the content before displaying
+                    const displayContent = card.querySelector('.ql-editor-display');
+                    displayContent.innerHTML = note.content;
+                    // Remove script tags for security
+                    displayContent.querySelectorAll('script').forEach(el => el.remove());
+
+                    listContainer.appendChild(card);
+                });
+                attachNoteActionListeners();
+            });
+        }
+
+        function showNoteModal(note = null) {
+            const title = note ? 'تعديل الملاحظة' : 'إضافة ملاحظة جديدة';
+            
+            const uniqueSuppliers = [...new Set(productsCache.map(p => p.supplier).filter(Boolean))];
+            const supplierOptions = uniqueSuppliers.map(s => `<option value="${s}" ${note && note.linkedSupplier === s ? 'selected' : ''}>${s}</option>`).join('');
+
+            const content = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="font-semibold">عنوان الملاحظة</label>
+                        <input type="text" id="note-title" class="mt-1 w-full p-2 border rounded" value="${note ? note.title : ''}" required>
+                    </div>
+                     <div>
+                        <label class="font-semibold">المحتوى</label>
+                        <div id="note-content-editor" class="mt-1 bg-white" style="min-height: 150px;"></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="font-semibold">المبلغ المالي (د.ج)</label>
+                            <input type="number" id="note-amount" class="mt-1 w-full p-2 border rounded" placeholder="اختياري" value="${note ? note.amount || '' : ''}">
+                        </div>
+                        <div>
+                            <label class="font-semibold">الحالة</label>
+                             <select id="note-status" class="mt-1 w-full p-2 border rounded bg-white">
+                                <option value="Pending" ${note && note.status === 'Pending' ? 'selected' : ''}>قيد الانتظار</option>
+                                <option value="In Progress" ${note && note.status === 'In Progress' ? 'selected' : ''}>قيد التنفيذ</option>
+                                <option value="Resolved" ${note && note.status === 'Resolved' ? 'selected' : ''}>تمت التسوية</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="font-semibold">ربط بمورد (اختياري)</label>
+                        <select id="note-linked-supplier" class="mt-1 w-full p-2 border rounded bg-white">
+                            <option value="">-- بدون ربط --</option>
+                            ${supplierOptions}
+                        </select>
+                    </div>
+                </div>
+            `;
+            
+            let noteQuill;
+            showModal(title, content, async () => {
+                const noteTitle = document.getElementById('note-title').value.trim();
+                const noteContent = noteQuill.root.innerHTML.trim();
+                const amount = parseFloat(document.getElementById('note-amount').value) || 0;
+                const status = document.getElementById('note-status').value;
+                const linkedSupplier = document.getElementById('note-linked-supplier').value;
+
+                if (!noteTitle || noteContent === '<p><br></p>') {
+                    alert('يرجى إدخال عنوان ومحتوى للملاحظة.');
+                    return;
+                }
+
+                const noteData = {
+                    title: noteTitle,
+                    content: noteContent,
+                    amount,
+                    status,
+                    linkedSupplier,
+                    updatedAt: serverTimestamp()
+                };
+
+                showLoadingModal('جاري الحفظ...');
+                try {
+                    if (note) {
+                        await updateDoc(doc(db, "notes", note.id), noteData);
+                    } else {
+                        noteData.createdAt = serverTimestamp();
+                        await addDoc(collection(db, "notes"), noteData);
+                    }
+                    closeModal();
+                } catch (error) {
+                    console.error("Error saving note:", error);
+                    showModal('خطأ', `فشل حفظ الملاحظة: ${error.message}`, () => closeModal(), 'موافق', false);
+                }
+            });
+
+            noteQuill = new Quill('#note-content-editor', {
+                theme: 'snow',
+                modules: { toolbar: [
+                    ['bold', 'italic', 'underline'], 
+                    [{'list': 'ordered'}, {'list': 'bullet'}],
+                    [{ 'color': [] }, { 'background': [] }],
+                    ['clean']
+                ]}
+            });
+
+            if (note && note.content) {
+                noteQuill.root.innerHTML = note.content;
+            }
+        }
+
+        function attachNoteActionListeners() {
+            document.querySelectorAll('.edit-note-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const note = notesCache.find(n => n.id === btn.dataset.id);
+                    if (note) showNoteModal(note);
+                };
+            });
+            document.querySelectorAll('.delete-note-btn').forEach(btn => {
+                btn.onclick = () => {
+                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذه الملاحظة نهائياً؟', async () => {
+                        showLoadingModal('جاري الحذف...');
+                        try {
+                            await deleteDoc(doc(db, "notes", btn.dataset.id));
+                            closeModal();
+                        } catch (error) {
+                            showModal('خطأ', 'فشل حذف الملاحظة.', () => closeModal(), 'موافق', false);
+                        }
+                    }, 'نعم, حذف', true);
+                };
+            });
+        }
+        
         // ===================================
         // General Modal & Helper Functions
         // ===================================
@@ -1376,18 +1570,6 @@ ${itemsText}
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
