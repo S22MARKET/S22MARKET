@@ -653,234 +653,278 @@
                 };
                 reader.onerror = error => reject(error);
             });
+
+
+
+
+
+
+
         }
 
-        function showProductModal(product = null) {
-            const title = product ? 'تعديل المنتج' : 'إضافة منتج جديد';
-            
-            const categoryOptions = categoriesCache.map(cat => 
-                `<option value="${cat.id}" ${product && product.categoryId === cat.id ? 'selected' : ''}>${cat.name}</option>`
-            ).join('');
 
-            let existingImages = [];
-            if (product) {
-                if (product.imageUrls && product.imageUrls.length > 0) {
-                    existingImages = product.imageUrls;
-                } else if (product.imageUrl) {
-                    existingImages = [product.imageUrl];
-                }
-            }
 
-            const existingImagesHTML = existingImages.map(url => 
-                `<div class="relative group"><img src="${url}" class="w-24 h-24 rounded object-cover border"><div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-white text-xs text-center">سيتم حذفها عند رفع صور جديدة</span></div></div>`
-            ).join('');
-            
-            const content = `
-                <div class="space-y-4">
-                    <div>
-                        <label class="font-semibold">اسم المنتج</label>
-                        <div id="product-name-editor" class="mt-1 bg-white"></div>
-                    </div>
-                    <div><label class="font-semibold">السعر (د.ج)</label><input type="number" id="product-price" class="mt-1 w-full p-2 border rounded" value="${product ? product.price : ''}" required></div>
-                    <div>
-                        <label class="font-semibold">الوصف</label>
-                        <div id="product-description-editor" class="mt-1 bg-white" style="min-height: 150px;"></div>
-                    </div>
-                     <div>
-                        <label class="font-semibold">موقع المنتج (اختياري)</label>
-                        <input type="text" id="product-location" class="mt-1 w-full p-2 border rounded" value="${product ? product.location || '' : ''}" placeholder="مثال: مستودع الجزائر العاصمة">
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 mt-4">
-                        <div>
-                            <label class="font-semibold text-gray-700">المورد (داخلي)</label>
-                            <input type="text" id="product-supplier" class="mt-1 w-full p-2 border rounded" value="${product ? product.supplier || '' : ''}" placeholder="اسم المورد أو الشركة">
-                        </div>
-                        <div>
-                            <label class="font-semibold text-gray-700">تواصل المورد (داخلي)</label>
-                            <textarea id="product-supplier-contact" class="mt-1 w-full p-2 border rounded" rows="3" placeholder="أرقام الهواتف، الإيميل، العنوان، ملاحظات...">${product ? product.supplierContact || '' : ''}</textarea>
-                        </div>
-                    </div>
-                     <div>
-                        <label class="font-semibold text-green-700">الربح من هذا المنتج (داخلي)</label>
-                        <div class="flex items-center mt-1">
-                           <input type="number" id="product-profit-value" class="w-full p-2 border rounded-r-md" value="${product ? product.profitValue || '' : ''}" placeholder="0">
-                           <select id="product-profit-type" class="p-2 border-l-0 border rounded-l-md bg-gray-100">
-                                <option value="fixed" ${product && product.profitType === 'fixed' ? 'selected' : ''}>د.ج</option>
-                                <option value="percentage" ${product && product.profitType === 'percentage' ? 'selected' : ''}>%</option>
-                           </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="font-semibold">القسم الرئيسي</label>
-                        <select id="product-category-select" class="mt-1 w-full p-2 border rounded bg-white" required>
-                            <option value="">اختر قسم...</option>
-                            ${categoryOptions}
-                        </select>
-                    </div>
-                    <div id="product-subcategory-container" class="hidden">
-                        <label class="font-semibold">الفرع</label>
-                        <select id="product-subcategory" class="mt-1 w-full p-2 border rounded bg-white"></select>
-                    </div>
 
-                    <div class="border-t pt-4">
-                        <label class="font-semibold text-indigo-800">طريقة استقبال الطلبات</label>
-                        <div class="mt-2 flex gap-4">
-                             <label class="flex items-center gap-2"><input type="radio" name="orderType" value="site_only" ${!product || product.orderType === 'site_only' ? 'checked' : ''}><span>حفظ في الموقع فقط (عادي)</span></label>
-                             <label class="flex items-center gap-2"><input type="radio" name="orderType" value="direct_contact" ${product && product.orderType === 'direct_contact' ? 'checked' : ''}><span>إرسال مباشر + حفظ</span></label>
-                        </div>
-                        <div id="direct-contact-details" class="mt-3 p-3 bg-indigo-50 rounded-lg space-y-3 ${product && product.orderType === 'direct_contact' ? '' : 'hidden'}">
-                             <label class="font-semibold text-sm">إعدادات الإرسال المباشر</label>
-                             <div>
-                                 <select id="contact-type" class="w-full p-2 border rounded bg-white">
-                                     <option value="whatsapp" ${product && product.contactType === 'whatsapp' ? 'selected' : ''}>واتساب</option>
-                                     <option value="facebook" ${product && product.contactType === 'facebook' ? 'selected' : ''}>فيسبوك (Messenger)</option>
-                                     <option value="telegram" ${product && product.contactType === 'telegram' ? 'selected' : ''}>تيليجرام</option>
-                                     <option value="instagram" ${product && product.contactType === 'instagram' ? 'selected' : ''}>انستغرام</option>
-                                     <option value="phone" ${product && product.contactType === 'phone' ? 'selected' : ''}>رقم هاتف (للمكالمة)</option>
-                                 </select>
-                             </div>
-                             <div>
-                                <input type="text" id="contact-value" class="w-full p-2 border rounded" value="${product ? product.contactValue || '' : ''}" placeholder="أدخل رقم الهاتف، اسم المستخدم أو رابط الحساب...">
-                                <p class="text-xs text-gray-500 mt-1">واتساب: 213xxxxxxxx (بدون +). فيسبوك/تيليجرام: اسم المستخدم. انستغرام: رابط الحساب.</p>
-                             </div>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="font-semibold">صور المنتج (يمكنك اختيار عدة صور)</label>
-                        <input type="file" id="product-images" class="mt-1 w-full p-2 border rounded text-sm" accept="image/*" multiple>
-                         ${product ? `<p class="text-sm text-gray-500 mt-1">الصور الحالية. رفع صور جديدة سيقوم باستبدالها.</p><div class="flex flex-wrap gap-2 mt-2">${existingImagesHTML}</div>` : ''}
-                        <div id="image-preview-container" class="flex flex-wrap gap-2 mt-2"></div>
-                    </div>
-                </div>`;
-            
-            let nameQuill, descriptionQuill;
 
-            showModal(title, content, async () => {
-                const IMGBB_API_KEY = 'ac296feb5a275923598bdbfd4f9aed8c';
-                let name = nameQuill.root.innerHTML.trim();
-                let description = descriptionQuill.root.innerHTML.trim();
-                if (name === '<p><br></p>') name = '';
-                if (description === '<p><br></p>') description = '';
 
-                const price = parseFloat(document.getElementById('product-price').value);
-                const location = document.getElementById('product-location').value.trim();
-                const categoryId = document.getElementById('product-category-select').value;
-                const subCategoryName = document.getElementById('product-subcategory').value || null;
-                const imageFiles = document.getElementById('product-images').files;
-                const orderType = document.querySelector('input[name="orderType"]:checked').value;
-                const contactType = document.getElementById('contact-type').value;
-                const contactValue = document.getElementById('contact-value').value.trim();
-                const supplier = document.getElementById('product-supplier').value.trim();
-                const supplierContact = document.getElementById('product-supplier-contact').value.trim();
-                const profitValue = parseFloat(document.getElementById('product-profit-value').value) || 0;
-                const profitType = document.getElementById('product-profit-type').value;
 
-                if (!name || isNaN(price) || !categoryId) {
-                    return showModal('خطأ في الإدخال', 'يرجى ملء الحقول الإلزامية: اسم المنتج، السعر، والقسم الرئيسي.', () => showProductModal(product), 'موافق', false);
-                }
-                if (orderType === 'direct_contact' && !contactValue) {
-                    return showModal('خطأ في الإدخال', 'عند اختيار الإرسال المباشر، يجب إدخال رقم أو رابط التواصل.', () => showProductModal(product), 'موافق', false);
-                }
-                
-                try {
-                    let newImageUrls = [];
-                    if (imageFiles.length === 0 && product) {
-                        newImageUrls = product.imageUrls || (product.imageUrl ? [product.imageUrl] : []);
-                    }
-                    if (imageFiles.length > 0) {
-                        showLoadingModal(`جاري ضغط ورفع الصور (${imageFiles.length})...`);
-                        const uploadPromises = Array.from(imageFiles).map(async file => {
-                            const compressedBlob = await resizeAndCompressImage(file);
-                            const formData = new FormData();
-                            formData.append('image', compressedBlob);
-                            const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
-                            const result = await response.json();
-                            if (result.success) return result.data.url;
-                            else throw new Error(`فشل رفع الصورة: ${file.name}`);
-                        });
-                        newImageUrls = await Promise.all(uploadPromises);
-                    }
-                    if (newImageUrls.length === 0 && !product) {
-                         return showModal('خطأ', 'يجب رفع صورة واحدة على الأقل للمنتج الجديد.', () => showProductModal(product), 'موافق', false);
-                    }
-                    showLoadingModal('جاري حفظ البيانات...');
-                    const productData = { 
-                        name, price, description, location, categoryId, subCategoryName, 
-                        imageUrls: newImageUrls, supplier, supplierContact, profitValue,
-                        profitType, 
-                        orderType: orderType,
-                        contactType: orderType === 'direct_contact' ? contactType : null,
-                        contactValue: orderType === 'direct_contact' ? contactValue : null,
-                        updatedAt: serverTimestamp() 
-                    };
-                    if (product) {
-                        await updateDoc(doc(db, "products", product.id), productData);
-                    } else {
-                        productData.createdAt = serverTimestamp();
-                        await addDoc(collection(db, "products"), productData);
-                    }
-                    closeModal();
-                } catch (error) {
-                    console.error("Error saving product:", error);
-                    showModal('خطأ فادح', `فشل حفظ المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
-                }
-            });
-            
-            const fullToolbarOptions = [
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                [{ 'align': [] }],
-                [{ 'color': [] }, { 'background': [] }],
-                ['link'],
-                ['clean']
-            ];
 
-            nameQuill = new Quill('#product-name-editor', {
-                theme: 'snow',
-                modules: { toolbar: [ ['bold', 'italic', 'underline'], [{ 'color': [] }] ] }
-            });
-             descriptionQuill = new Quill('#product-description-editor', {
-                theme: 'snow',
-                modules: { toolbar: fullToolbarOptions }
-            });
 
-            if (product) {
-                if(product.name) nameQuill.root.innerHTML = product.name;
-                if(product.description) descriptionQuill.root.innerHTML = product.description;
-            }
 
-            const categorySelect = document.getElementById('product-category-select');
-            categorySelect.addEventListener('change', (e) => populateSubcategories(e.target.value));
-            document.querySelectorAll('input[name="orderType"]').forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    const detailsDiv = document.getElementById('direct-contact-details');
-                    if (e.target.value === 'direct_contact') {
-                        detailsDiv.classList.remove('hidden');
-                    } else {
-                        detailsDiv.classList.add('hidden');
-                    }
-                });
-            });
-            const imageInput = document.getElementById('product-images');
-            const previewContainer = document.getElementById('image-preview-container');
-            imageInput.addEventListener('change', () => {
-                previewContainer.innerHTML = ''; 
-                Array.from(imageInput.files).forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.className = 'w-24 h-24 rounded object-cover border';
-                        previewContainer.appendChild(img);
-                    }
-                    reader.readAsDataURL(file);
-                });
-            });
-            if (product && product.categoryId) {
-                populateSubcategories(product.categoryId, product.subCategoryName);
-            }
+
+
+
+
+
+
+
+        
+function showProductModal(product = null) {
+    const title = product ? 'تعديل المنتج' : 'إضافة منتج جديد';
+
+    const categoryOptions = categoriesCache.map(cat =>
+        `<option value="${cat.id}" ${product && product.categoryId === cat.id ? 'selected' : ''}>${cat.name}</option>`
+    ).join('');
+
+    let existingImages = [];
+    if (product) {
+        if (product.imageUrls && product.imageUrls.length > 0) {
+            existingImages = product.imageUrls;
+        } else if (product.imageUrl) {
+            existingImages = [product.imageUrl];
         }
+    }
+
+    const existingImagesHTML = existingImages.map(url =>
+        `<div class="relative group"><img src="${url}" class="w-24 h-24 rounded object-cover border"><div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-white text-xs text-center">سيتم حذفها عند رفع صور جديدة</span></div></div>`
+    ).join('');
+
+    const content = `
+        <div class="space-y-4">
+            <div>
+                <label class="font-semibold">اسم المنتج</label>
+                <div id="product-name-editor" class="mt-1 bg-white"></div>
+            </div>
+            <div><label class="font-semibold">السعر (د.ج)</label><input type="number" id="product-price" class="mt-1 w-full p-2 border rounded" value="${product ? product.price : ''}" required></div>
+            <div>
+                <label class="font-semibold">الوصف</label>
+                <div id="product-description-editor" class="mt-1 bg-white" style="min-height: 150px;"></div>
+            </div>
+             <div>
+                <label class="font-semibold">موقع المنتج (اختياري)</label>
+                <input type="text" id="product-location" class="mt-1 w-full p-2 border rounded" value="${product ? product.location || '' : ''}" placeholder="مثال: مستودع الجزائر العاصمة">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 mt-4">
+                <div>
+                    <label class="font-semibold text-gray-700">المورد (داخلي)</label>
+                    <input type="text" id="product-supplier" class="mt-1 w-full p-2 border rounded" value="${product ? product.supplier || '' : ''}" placeholder="اسم المورد أو الشركة">
+                </div>
+                <div>
+                    <label class="font-semibold text-gray-700">تواصل المورد (داخلي)</label>
+                    <textarea id="product-supplier-contact" class="mt-1 w-full p-2 border rounded" rows="3" placeholder="أرقام الهواتف، الإيميل، العنوان، ملاحظات...">${product ? product.supplierContact || '' : ''}</textarea>
+                </div>
+            </div>
+             <div>
+                <label class="font-semibold text-green-700">الربح من هذا المنتج (داخلي)</label>
+                <div class="flex items-center mt-1">
+                   <input type="number" id="product-profit-value" class="w-full p-2 border rounded-r-md" value="${product ? product.profitValue || '' : ''}" placeholder="0">
+                   <select id="product-profit-type" class="p-2 border-l-0 border rounded-l-md bg-gray-100">
+                        <option value="fixed" ${product && product.profitType === 'fixed' ? 'selected' : ''}>د.ج</option>
+                        <option value="percentage" ${product && product.profitType === 'percentage' ? 'selected' : ''}>%</option>
+                   </select>
+                </div>
+            </div>
+            <div>
+                <label class="font-semibold">القسم الرئيسي</label>
+                <select id="product-category-select" class="mt-1 w-full p-2 border rounded bg-white" required>
+                    <option value="">اختر قسم...</option>
+                    ${categoryOptions}
+                </select>
+            </div>
+            <div id="product-subcategory-container" class="hidden">
+                <label class="font-semibold">الفرع</label>
+                <select id="product-subcategory" class="mt-1 w-full p-2 border rounded bg-white"></select>
+            </div>
+
+            <div class="border-t pt-4">
+                <label class="font-semibold text-indigo-800">طريقة استقبال الطلبات</label>
+                <div class="mt-2 flex gap-4">
+                     <label class="flex items-center gap-2"><input type="radio" name="orderType" value="site_only" ${!product || product.orderType === 'site_only' ? 'checked' : ''}><span>حفظ في الموقع فقط (عادي)</span></label>
+                     <label class="flex items-center gap-2"><input type="radio" name="orderType" value="direct_contact" ${product && product.orderType === 'direct_contact' ? 'checked' : ''}><span>إرسال مباشر + حفظ</span></label>
+                </div>
+                <div id="direct-contact-details" class="mt-3 p-3 bg-indigo-50 rounded-lg space-y-3 ${product && product.orderType === 'direct_contact' ? '' : 'hidden'}">
+                     <label class="font-semibold text-sm">إعدادات الإرسال المباشر</label>
+                     <div>
+                         <select id="contact-type" class="w-full p-2 border rounded bg-white">
+                             <option value="whatsapp" ${product && product.contactType === 'whatsapp' ? 'selected' : ''}>واتساب</option>
+                             <option value="facebook" ${product && product.contactType === 'facebook' ? 'selected' : ''}>فيسبوك (Messenger)</option>
+                             <option value="telegram" ${product && product.contactType === 'telegram' ? 'selected' : ''}>تيليجرام</option>
+                             <option value="instagram" ${product && product.contactType === 'instagram' ? 'selected' : ''}>انستغرام</option>
+                             <option value="phone" ${product && product.contactType === 'phone' ? 'selected' : ''}>رقم هاتف (للمكالمة)</option>
+                         </select>
+                     </div>
+                     <div>
+                        <input type="text" id="contact-value" class="w-full p-2 border rounded" value="${product ? product.contactValue || '' : ''}" placeholder="أدخل رقم الهاتف، اسم المستخدم أو رابط الحساب...">
+                        <p class="text-xs text-gray-500 mt-1">واتساب: 213xxxxxxxx (بدون +). فيسبوك/تيليجرام: اسم المستخدم. انستغرام: رابط الحساب.</p>
+                     </div>
+                </div>
+            </div>
+            <div>
+                <label class="font-semibold">صور المنتج (يمكنك اختيار عدة صور)</label>
+                <input type="file" id="product-images" class="mt-1 w-full p-2 border rounded text-sm" accept="image/*" multiple>
+                 ${product ? `<p class="text-sm text-gray-500 mt-1">الصور الحالية. رفع صور جديدة سيقوم باستبدالها.</p><div class="flex flex-wrap gap-2 mt-2">${existingImagesHTML}</div>` : ''}
+                <div id="image-preview-container" class="flex flex-wrap gap-2 mt-2"></div>
+            </div>
+        </div>`;
+
+    let nameQuill, descriptionQuill;
+
+    showModal(title, content, async () => {
+        let name = nameQuill.root.innerHTML.trim();
+        let description = descriptionQuill.root.innerHTML.trim();
+        if (name === '<p><br></p>') name = '';
+        if (description === '<p><br></p>') description = '';
+
+        const price = parseFloat(document.getElementById('product-price').value);
+        const location = document.getElementById('product-location').value.trim();
+        const categoryId = document.getElementById('product-category-select').value;
+        const subCategoryName = document.getElementById('product-subcategory').value || null;
+        const imageFiles = document.getElementById('product-images').files;
+        const orderType = document.querySelector('input[name="orderType"]:checked').value;
+        const contactType = document.getElementById('contact-type').value;
+        const contactValue = document.getElementById('contact-value').value.trim();
+        const supplier = document.getElementById('product-supplier').value.trim();
+        const supplierContact = document.getElementById('product-supplier-contact').value.trim();
+        const profitValue = parseFloat(document.getElementById('product-profit-value').value) || 0;
+        const profitType = document.getElementById('product-profit-type').value;
+
+        if (!name || isNaN(price) || !categoryId) {
+            return showModal('خطأ في الإدخال', 'يرجى ملء الحقول الإلزامية: اسم المنتج، السعر، والقسم الرئيسي.', () => showProductModal(product), 'موافق', false);
+        }
+        if (orderType === 'direct_contact' && !contactValue) {
+            return showModal('خطأ في الإدخال', 'عند اختيار الإرسال المباشر، يجب إدخال رقم أو رابط التواصل.', () => showProductModal(product), 'موافق', false);
+        }
+
+        try {
+            let newImageUrls = [];
+            if (imageFiles.length === 0 && product) {
+                newImageUrls = product.imageUrls || (product.imageUrl ? [product.imageUrl] : []);
+            }
+            if (imageFiles.length > 0) {
+                showLoadingModal(`جاري ضغط ورفع الصور (${imageFiles.length})...`);
+                const uploadPromises = Array.from(imageFiles).map(async file => {
+                    const compressedBlob = await resizeAndCompressImage(file);
+                    const formData = new FormData();
+                    formData.append('image', compressedBlob);
+
+                    // **سطور الرفع الجديدة هنا**
+                    const response = await fetch(`https://freeimage.host/api/1/upload?key=6d207e02198a847aa98d0a2a901485a5`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    if (result.status_code === 200) {
+                        return result.image.url;
+                    } else {
+                        throw new Error(`فشل رفع الصورة: ${file.name}`);
+                    }
+                });
+                newImageUrls = await Promise.all(uploadPromises);
+            }
+            if (newImageUrls.length === 0 && !product) {
+                 return showModal('خطأ', 'يجب رفع صورة واحدة على الأقل للمنتج الجديد.', () => showProductModal(product), 'موافق', false);
+            }
+            showLoadingModal('جاري حفظ البيانات...');
+            const productData = {
+                name, price, description, location, categoryId, subCategoryName,
+                imageUrls: newImageUrls, supplier, supplierContact, profitValue,
+                profitType,
+                orderType: orderType,
+                contactType: orderType === 'direct_contact' ? contactType : null,
+                contactValue: orderType === 'direct_contact' ? contactValue : null,
+                updatedAt: serverTimestamp()
+            };
+            if (product) {
+                await updateDoc(doc(db, "products", product.id), productData);
+            } else {
+                productData.createdAt = serverTimestamp();
+                await addDoc(collection(db, "products"), productData);
+            }
+            closeModal();
+        } catch (error) {
+            console.error("Error saving product:", error);
+            showModal('خطأ فادح', `فشل حفظ المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
+        }
+    });
+
+    const fullToolbarOptions = [
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'align': [] }],
+        [{ 'color': [] }, { 'background': [] }],
+        ['link'],
+        ['clean']
+    ];
+
+    nameQuill = new Quill('#product-name-editor', {
+        theme: 'snow',
+        modules: { toolbar: [ ['bold', 'italic', 'underline'], [{ 'color': [] }] ] }
+    });
+     descriptionQuill = new Quill('#product-description-editor', {
+        theme: 'snow',
+        modules: { toolbar: fullToolbarOptions }
+    });
+
+    if (product) {
+        if(product.name) nameQuill.root.innerHTML = product.name;
+        if(product.description) descriptionQuill.root.innerHTML = product.description;
+    }
+
+    const categorySelect = document.getElementById('product-category-select');
+    categorySelect.addEventListener('change', (e) => populateSubcategories(e.target.value));
+    document.querySelectorAll('input[name="orderType"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const detailsDiv = document.getElementById('direct-contact-details');
+            if (e.target.value === 'direct_contact') {
+                detailsDiv.classList.remove('hidden');
+            } else {
+                detailsDiv.classList.add('hidden');
+            }
+        });
+    });
+    const imageInput = document.getElementById('product-images');
+    const previewContainer = document.getElementById('image-preview-container');
+    imageInput.addEventListener('change', () => {
+        previewContainer.innerHTML = '';
+        Array.from(imageInput.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'w-24 h-24 rounded object-cover border';
+                previewContainer.appendChild(img);
+            }
+            reader.readAsDataURL(file);
+        });
+    });
+    if (product && product.categoryId) {
+        populateSubcategories(product.categoryId, product.subCategoryName);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
         
         function attachProductActionListeners() {
             document.querySelectorAll('.edit-product-btn').forEach(btn => {
@@ -1605,521 +1649,3 @@ ${itemsText}
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S22MARKET - نافذة ترحيب وأذكار</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
-    <style>
-        /* =================================================================== */
-        /* S22MARKET - نسخة مطورة ومنقحة (منطق كل ساعتين + تحسينات للهاتف)   */
-        /* =================================================================== */
-
-        :root {
-            --adm-bg-color: #f0f4f8;
-            --adm-modal-bg: #ffffff;
-            --adm-primary-text: #1c3d5a;
-            --adm-secondary-text: #5a7b9d;
-            --adm-reminder-text: #607d8b;
-            --adm-primary-accent: #007bff;
-            --adm-primary-accent-hover: #0056b3;
-            --adm-success-color: #28a745;
-            --adm-subtle-border: rgba(0, 123, 255, 0.15);
-            
-            --adm-border-radius-lg: 20px;
-            --adm-border-radius-md: 14px;
-            
-            --adm-shadow: 0 15px 45px rgba(0, 123, 255, 0.18);
-            --adm-transition: all 0.3s ease-in-out;
-        }
-
-        *, *::before, *::after { box-sizing: border-box; }
-
-        body {
-            font-family: 'Scheherazade New', serif;
-            font-weight: 500;
-            margin: 0;
-            background-color: var(--adm-bg-color);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        .adm-modal-overlay {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: fixed;
-            inset: 0;
-            z-index: 99999;
-            padding: 1rem;
-            background-color: rgba(10, 30, 50, 0.6);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            overflow-y: auto;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.5s ease, visibility 0.5s;
-        }
-
-        .adm-modal-overlay.is-visible {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .adm-modal-content, .adm-jumaa-message-content, .isn-modal-content {
-            background: var(--adm-modal-bg);
-            padding: clamp(1.2rem, 5vw, 2.2rem);
-            border-radius: var(--adm-border-radius-lg);
-            box-shadow: var(--adm-shadow);
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-            border-top: 6px solid var(--adm-primary-accent);
-            transform: translateY(25px) scale(0.97);
-            opacity: 0;
-            transition: transform 0.4s ease-out, opacity 0.4s ease-out;
-            display: flex;
-            flex-direction: column;
-            gap: clamp(1rem, 4vw, 1.5rem);
-        }
-
-        .is-visible .adm-modal-content,
-        .is-visible .adm-jumaa-message-content,
-        .is-visible .isn-modal-content {
-            transform: translateY(0) scale(1);
-            opacity: 1;
-            transition-delay: 0.1s;
-        }
-        
-        .adm-hidden { display: none !important; }
-        
-        .adm-modal-header h2 {
-            font-size: clamp(1.8rem, 6vw, 2.5rem);
-            font-weight: 700;
-            color: var(--adm-primary-text);
-            margin: 0;
-            line-height: 1.4;
-        }
-        
-        .adm-tasks-header {
-            font-size: clamp(1.1rem, 4vw, 1.3rem);
-            line-height: 1.8;
-            color: var(--adm-secondary-text);
-            margin: 0.25rem 0 0 0;
-        }
-
-        .adm-dhikr-btn {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: clamp(0.8rem, 3.5vw, 1rem) clamp(1rem, 4.5vw, 1.3rem);
-            font-size: clamp(1.2rem, 5vw, 1.4rem);
-            font-weight: 700;
-            font-family: 'Scheherazade New', serif;
-            color: #fff;
-            background: linear-gradient(45deg, var(--adm-primary-accent), #4dabf7);
-            border: none;
-            border-bottom: 3px solid var(--adm-primary-accent-hover);
-            border-radius: var(--adm-border-radius-md);
-            cursor: pointer;
-            transition: var(--adm-transition);
-            text-decoration: none;
-        }
-        
-        .adm-dhikr-btn .adm-icon { margin-left: 15px; font-size: 1.3em; }
-        .adm-dhikr-btn .adm-btn-text { flex-grow: 1; text-align: right; }
-
-        .adm-dhikr-btn:hover:not(:disabled) {
-            transform: translateY(-4px);
-            border-bottom-width: 5px;
-        }
-        .adm-dhikr-btn:active:not(:disabled) {
-            transform: translateY(-1px);
-            border-bottom-width: 3px;
-        }
-
-        .adm-dhikr-btn:disabled {
-            background: var(--adm-success-color);
-            cursor: default;
-            border-bottom-color: #1e7e34;
-        }
-
-        .adm-dhikr-btn .adm-counter {
-            background-color: rgba(255, 255, 255, 0.2);
-            padding: 0.2rem 0.8rem;
-            border-radius: 50px;
-            font-size: 0.9rem;
-        }
-        
-        .adm-modal-footer {
-            margin-top: auto;
-            padding-top: clamp(0.8rem, 3vw, 1.2rem);
-            border-top: 1px solid var(--adm-subtle-border);
-        }
-        
-        .adm-dhikr-reminder .quran-verse {
-            color: var(--adm-primary-text);
-            font-weight: 700;
-            font-family: 'Amiri Quran', serif;
-            font-size: clamp(1.1rem, 4vw, 1.3rem);
-            line-height: 2;
-        }
-
-        .adm-progress-bar-container {
-            background-color: rgba(0, 123, 255, 0.1);
-            border-radius: 50px;
-            height: 10px;
-            overflow: hidden;
-        }
-        #adm-progress-bar {
-            width: 0%;
-            height: 100%;
-            background: var(--adm-success-color);
-            border-radius: 50px;
-            transition: width 0.6s ease-in-out;
-        }
-        
-        .adm-jumaa-message-content {
-            border-top-color: var(--adm-primary-accent-hover);
-        }
-        .adm-jumaa-message-content .closing-message {
-            background-color: #d1ecf1;
-            border: 1px solid #bee5eb;
-            padding: clamp(0.8rem, 3.5vw, 1.1rem);
-            border-radius: var(--adm-border-radius-md);
-        }
-        .adm-jumaa-message-content .closing-message p {
-            color: #0c5460;
-            font-weight: 700;
-            margin: 0;
-            font-size: clamp(1rem, 3.5vw, 1.1rem);
-        }
-        .isn-modal-content .quran-text {
-            font-size: clamp(1.3rem, 4.5vw, 1.6rem);
-            line-height: 1.8;
-        }
-        .isn-btn {
-            font-family: 'Scheherazade New', serif;
-            font-size: 1.2rem;
-            padding: 0.8rem;
-            border-radius: var(--adm-border-radius-md);
-        }
-    </style>
-</head>
-<body>
-
-    <div id="adm-modal-overlay" class="adm-modal-overlay">
-        
-        <div id="adm-modal-content" class="adm-modal-content adm-hidden">
-            <div class="adm-modal-header">
-                <h2>
-                    السلام عليكم
-                    
-                    أهلاً بك ايها المشرف الصنديد  ياسين  باذن الله واهلا بكي يا زعمن ان شاء الله  في متجركم
-
-                </h2>
-                <p class="adm-tasks-header">للمتابعة، نرجو إنجاز هذه الأذكار اليسيرة.</p>
-            </div>
-            <div id="adm-dhikr-tasks" class="adm-dhikr-tasks" style="display: flex; flex-direction: column; gap: 1rem;">
-                <button id="adm-btn-salat" class="adm-dhikr-btn">
-                    <span class="adm-btn-text"><i class="fa-solid fa-moon adm-icon"></i>صلِّ على النبي ﷺ</span>
-                    <span class="adm-counter">0/1</span>
-                </button>
-                <button id="adm-btn-tasbih" class="adm-dhikr-btn">
-                    <span class="adm-btn-text"><i class="fa-solid fa-leaf adm-icon"></i>سبحان الله وبحمده</span>
-                    <span class="adm-counter">0/1</span>
-                </button>
-                <button id="adm-btn-istighfar" class="adm-dhikr-btn">
-                    <span class="adm-btn-text"><i class="fa-solid fa-hands-praying adm-icon"></i>استغفر الله</span>
-                    <span class="adm-counter">0/1</span>
-                </button>
-            </div>
-            <div class="adm-modal-footer">
-                <div class="adm-dhikr-reminder">
-                    <p class="quran-verse">﴿ أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ ﴾</p>
-                </div>
-                <div class="adm-progress-bar-container">
-                    <div id="adm-progress-bar"></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="adm-jumaa-message" class="adm-jumaa-message-content adm-hidden">
-            <h2 class="jumaa-header">📿 تذكير بصلاة الجمعة</h2>
-            <div class="jumaa-body" style="font-family: 'Amiri Quran', serif; font-size: 1.5rem; line-height: 2.2;">
-                <p>يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوٓاْ إِذَا نُودِيَ لِلصَّلَوٰةِ مِن يَوۡمِ ٱلۡجُمُعَةِ فَٱسۡعَوۡاْ إِلَىٰ ذِكۡرِ ٱللَّهِ وَذَرُواْ ٱلۡبَيۡعَۚ</p>
-            </div>
-            <p class="jumaa-source">[سورة الجمعة: 9]</p>
-            <button id="play-jumaa-audio" class="adm-dhikr-btn">
-                <span class="adm-btn-text"><i class="fa-solid fa-volume-high adm-icon"></i> تشغيل التلاوة</span>
-            </button>
-            <div class="closing-message">
-                <p>⛔ يغلق متجر <strong>S22MARKET</strong> أبوابه يوم الجمعة من <strong>11:30</strong> إلى <strong>14:00</strong>.</p>
-            </div>
-            <button class="adm-jumaa-refresh-btn isn-btn" aria-label="تحديث الصفحة" onclick="location.reload();">
-                <span>اضغط هنا بعد الساعة 14:00</span>
-            </button>
-        </div>
-
-        <div id="kahfModal" class="isn-modal-content jumaa-style adm-hidden">
-            <div class="isn-modal-header"><h2>📿 فضل سورة الكهف</h2></div>
-            <p class="quran-text">"من قرأ سورةَ الكهفِ في يومِ الجمعةِ أضاء له من النورِ ما بين الجمُعَتَين."</p>
-            <p class="hadith-source">صحيح الترغيب | 736</p>
-            <div class="buttons-container" style="display:flex; gap:1rem;">
-                <a href="سورة الكهف مكتوبة.html" class="isn-btn" style="flex:1; background-color: var(--adm-primary-accent); color:white; text-decoration:none;">قراءة السورة</a>
-                <button id="closeKahfModal" class="isn-btn" style="flex:1; background-color: #e9ecef; color:#495057; border:none; cursor:pointer;">إغلاق</button>
-            </div>
-        </div>
-    </div>
-
-    <audio id="jumaa-audio" src="JOMAA.mp3" preload="auto"></audio>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        try {
-            const overlay = document.getElementById('adm-modal-overlay');
-            const modals = {
-                dhikr: document.getElementById('adm-modal-content'),
-                jumaa: document.getElementById('adm-jumaa-message'),
-                kahf: document.getElementById('kahfModal')
-            };
-
-            function handleWelcomeMessage() {
-                const WELCOME_COOLDOWN = 6 * 60 * 60 * 1000; // 6 ساعات
-                const lastShown = localStorage.getItem('welcomeMessageLastShown');
-                const now = new Date().getTime();
-                const header = modals.dhikr.querySelector('.adm-modal-header');
-
-                if (header && (!lastShown || (now - lastShown > WELCOME_COOLDOWN))) {
-                    const existingWelcomeEl = header.querySelector('.s22-welcome-msg');
-                    if (existingWelcomeEl) return; 
-
-                    const welcomeEl = document.createElement('p');
-                    welcomeEl.className = 's22-welcome-msg';
-                    welcomeEl.innerHTML = `🌟 مرحبا بكم في <strong>S22MARKET</strong>`;
-                    welcomeEl.style.cssText = `
-                        color: var(--adm-primary-accent-hover); font-weight: 700; margin-bottom: 1rem;
-                        font-size: clamp(1.3rem, 5vw, 1.5rem); background-color: rgba(0, 123, 255, 0.08);
-                        padding: 0.7rem; border-radius: var(--adm-border-radius-md);
-                        border: 1px solid rgba(0, 123, 255, 0.1);`;
-                    header.prepend(welcomeEl);
-                    localStorage.setItem('welcomeMessageLastShown', now);
-                }
-            }
-            
-            // =========================================================================
-            // [تعديل للمرة الثانية] هذا هو المنطق النهائي والصحيح
-            // =========================================================================
-            function handleModalsVisibility() {
-                const now = new Date();
-                const day = now.getDay(); // 5 = Friday
-                const isFriday = (day === 5);
-
-                Object.values(modals).forEach(modal => modal.classList.add('adm-hidden'));
-                
-                let modalToShow = null;
-
-                if (isFriday) {
-                    const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
-                    const isJumaaClosingTime = currentTimeInMinutes >= 690 && currentTimeInMinutes < 840; // 11:30 to 14:00
-                    
-                    if (isJumaaClosingTime) {
-                        modalToShow = modals.jumaa;
-                    } else {
-                        // [تحسين] استخدام sessionStorage لمنع ظهورها عند كل تحديث في نفس الجلسة
-                        const kahfShownThisSession = sessionStorage.getItem('kahfModalShown');
-                        if (!kahfShownThisSession) {
-                           modalToShow = modals.kahf;
-                           sessionStorage.setItem('kahfModalShown', 'true');
-                        }
-                    }
-                } else {
-                    // هذا الكود يعمل فقط في الأيام غير الجمعة
-                    const DHIKR_COOLDOWN = 2 * 60 * 60 * 1000; // ساعتان
-                    const lastCompleted = localStorage.getItem('dhikrLastCompleted');
-                    if (!lastCompleted || (now.getTime() - lastCompleted > DHIKR_COOLDOWN)) {
-                        modalToShow = modals.dhikr;
-                        handleWelcomeMessage();
-                    }
-                }
-
-                if (modalToShow) {
-                    modalToShow.classList.remove('adm-hidden');
-                    overlay.classList.add('is-visible');
-                }
-            }
-            
-            handleModalsVisibility();
-
-            // --- باقي السكربت للتحكم في الأزرار والصوت والأذكار (بدون تغيير) ---
-            const jumaaAudio = document.getElementById('jumaa-audio');
-            document.getElementById('play-jumaa-audio')?.addEventListener('click', (e) => {
-                const btnText = e.currentTarget.querySelector('.adm-btn-text');
-                if (jumaaAudio.paused) {
-                    jumaaAudio.play();
-                    btnText.innerHTML = '<i class="fa-solid fa-pause adm-icon"></i> جارٍ التشغيل...';
-                } else {
-                    jumaaAudio.pause();
-                    btnText.innerHTML = '<i class="fa-solid fa-volume-high adm-icon"></i> تشغيل التلاوة';
-                }
-            });
-            if(jumaaAudio) jumaaAudio.onended = () => {
-                document.querySelector('#play-jumaa-audio .adm-btn-text').innerHTML = '<i class="fa-solid fa-volume-high adm-icon"></i> تشغيل التلاوة';
-            };
-            
-            document.getElementById('closeKahfModal')?.addEventListener('click', () => {
-                overlay.classList.remove('is-visible');
-            });
-
-            const dhikrModule = (() => {
-                const dhikrModal = modals.dhikr;
-                if (!dhikrModal) return;
-
-                const buttons = Array.from(dhikrModal.querySelectorAll('.adm-dhikr-btn'));
-                if (buttons.length === 0) return;
-
-                const progressBar = document.getElementById('adm-progress-bar');
-                const totalClicksRequired = buttons.length;
-                let completedClicks = 0;
-
-                const updateProgressBar = () => {
-                    if (progressBar) {
-                        progressBar.style.width = `${(completedClicks / totalClicksRequired) * 100}%`;
-                    }
-                };
-
-                const onTaskComplete = () => {
-                    localStorage.setItem('dhikrLastCompleted', new Date().getTime());
-                    const tasksContainer = document.getElementById('adm-dhikr-tasks');
-                    if(tasksContainer) {
-                       tasksContainer.innerHTML = `<p style="color: var(--adm-success-color); font-size: 1.5rem; font-weight: bold;">جزاكم الله خيرًا!</p>`;
-                    }
-                    setTimeout(() => overlay.classList.remove('is-visible'), 2000);
-                };
-
-                buttons.forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        if (btn.disabled) return;
-                        
-                        completedClicks++;
-                        updateProgressBar();
-                        btn.disabled = true;
-                        
-                        const textSpan = btn.querySelector('.adm-btn-text');
-                        if (textSpan) {
-                           textSpan.innerHTML = (textSpan.querySelector('.adm-icon')?.outerHTML || '') + 'أُنجِز';
-                        }
-                        const counterSpan = btn.querySelector('.adm-counter');
-                        if (counterSpan) {
-                            counterSpan.style.display = 'none';
-                        }
-
-                        if (completedClicks === totalClicksRequired) {
-                            onTaskComplete();
-                        }
-                    }, { once: true });
-                });
-                updateProgressBar();
-            })();
-
-        } catch (error) {
-            console.error("Script Error:", error);
-            const overlay = document.getElementById('adm-modal-overlay');
-            if (overlay) overlay.style.display = 'none';
-        }
-    });
-    </script>
-
-</body>
-</html>
