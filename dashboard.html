@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S22 Market - لوحة التحكم المطورة</title>
+    <title>S22 Market - لوحة التحكم النهائية</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,6 +13,7 @@
     
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.6/purify.min.js"></script>
 
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
@@ -34,6 +35,13 @@
             border-radius: 50%; width: 50px; height: 50px;
             animation: spin 1s linear infinite;
         }
+        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #48bb78; }
+        input:checked + .slider:before { transform: translateX(24px); }
+
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -102,7 +110,7 @@
                 </button>
             </div>
 
-            <aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out">
+            <aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
                 <div class="p-3 text-center border-b border-gray-700">
                     <h2 class="text-2xl font-bold">S22 Market</h2>
                 </div>
@@ -111,9 +119,11 @@
                     <a href="#products" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
                     <a href="#categories" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
                     <a href="#orders" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
+                    <a href="#coupons" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-tags fa-fw mr-3"></i> الكوبونات</a>
                     <a href="#inquiries" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-envelope-open-text fa-fw mr-3"></i> الرسائل الواردة</a>
                     <a href="#applications" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
                     <a href="#notepad" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
+                    <a href="#settings" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
                 </nav>
                 <div class="p-4 border-t border-gray-700">
                     <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
@@ -125,9 +135,11 @@
                 <div id="products-panel" class="dashboard-panel hidden"></div>
                 <div id="categories-panel" class="dashboard-panel hidden"></div>
                 <div id="orders-panel" class="dashboard-panel hidden"></div>
+                <div id="coupons-panel" class="dashboard-panel hidden"></div>
                 <div id="inquiries-panel" class="dashboard-panel hidden"></div>
                 <div id="applications-panel" class="dashboard-panel hidden"></div>
                 <div id="notepad-panel" class="dashboard-panel hidden"></div>
+                <div id="settings-panel" class="dashboard-panel hidden"></div>
             </main>
         </div>
     </div>
@@ -137,7 +149,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, serverTimestamp, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAxEq-nkLDc3_HM38xb3mhb8ekSXmuFQ7I",
@@ -157,11 +169,13 @@
         let categoriesCache = [];
         let productsCache = [];
         let ordersCache = [];
+        let couponsCache = [];
         let applicationsCache = [];
         let notesCache = [];
         let myChart = null;
         let profitChart = null;
         let topProductsChart = null;
+        let selectedFileStore = {};
 
         const loginPage = document.getElementById('login-page');
         const dashboardPage = document.getElementById('dashboard-page');
@@ -188,6 +202,7 @@
             try {
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
+                console.error("Login Error:", error);
                 loginError.textContent = "فشل الدخول. تحقق من البريد وكلمة المرور.";
                 loginError.classList.remove('hidden');
             }
@@ -222,9 +237,11 @@
             loadCategories();
             loadProducts();
             loadOrders();
+            loadCoupons();
             loadInquiries(); 
             loadApplications();
             loadNotepad();
+            loadStoreSettings();
         }
         
         // ===================================
@@ -487,7 +504,7 @@
                     closeModal();
                 } catch (error) {
                     console.error("Error saving category:", error);
-                    alert("حدث خطأ أثناء الحفظ.");
+                    alert("حدث خطأ أثناء الحفظ: " + error.message);
                     closeModal();
                 }
             });
@@ -516,97 +533,83 @@
                 };
             });
             document.querySelectorAll('.delete-category-btn').forEach(btn => {
-                btn.onclick = () => {
-                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا القسم؟ سيؤثر هذا على المنتجات المرتبطة به.', async () => {
+                btn.onclick = async () => {
+                    if (confirm('هل أنت متأكد من حذف هذا القسم؟ سيؤثر هذا على المنتجات المرتبطة به.')) {
                         try {
                             await deleteDoc(doc(db, "categories", btn.dataset.id));
-                            closeModal();
-                        } catch (error) { showModal('خطأ', 'فشل حذف القسم.', () => closeModal(), 'موافق', false); }
-                    }, 'نعم, حذف', true);
+                        } catch (error) {
+                             console.error("Error deleting category:", error);
+                             alert("حدث خطأ أثناء الحذف: " + error.message);
+                        }
+                    }
                 };
             });
         }
         
         // ===================================
-        // Products Section
+        // Products Section (MERGED AND UPGRADED)
         // ===================================
         function loadProducts() {
             const panel = document.getElementById('products-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات</h1><button id="add-product-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-right responsive-table">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="p-3">الصورة</th>
-                            <th class="p-3">الاسم</th>
-                            <th class="p-3">القسم</th>
-                            <th class="p-3">الفرع</th>
-                            <th class="p-3">السعر</th>
-                            <th class="p-3">الموقع</th>
-                            <th class="p-3">المورد</th>
-                            <th class="p-3">الربح</th>
-                            <th class="p-3">إجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="products-table-body"></tbody>
-                </table>
-            </div>`;
+            <div id="products-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>`;
 
             document.getElementById('add-product-btn').addEventListener('click', () => showProductModal());
-            const tableBody = document.getElementById('products-table-body');
-
             onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), (snapshot) => {
-                productsCache = [];
-                tableBody.innerHTML = snapshot.empty ? '<tr><td colspan="9" class="p-8 text-center text-gray-500">لا توجد منتجات. أضف منتجاً جديداً للبدء.</td></tr>' : '';
-                
-                snapshot.forEach(doc => {
-                    const product = { id: doc.id, ...doc.data() };
-                    productsCache.push(product);
-                    const catName = categoriesCache.find(c => c.id === product.categoryId)?.name || '<span class="text-red-500">غير محدد</span>';
-                    
-                    const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : product.imageUrl;
-
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = product.name;
-                    const productNamePlainText = tempDiv.textContent || tempDiv.innerText || "";
-
-                    let profitDisplay = '0 د.ج';
-                    if (product.profitType === 'percentage' && product.price && product.profitValue) {
-                        const calculatedProfit = (product.price * product.profitValue) / 100;
-                        profitDisplay = `${calculatedProfit.toLocaleString()} د.ج <span class="text-xs text-gray-500">(${product.profitValue}%)</span>`;
-                    } else if (product.profitValue) {
-                        profitDisplay = `${product.profitValue.toLocaleString()} د.ج`;
-                    }
-
-                    const row = tableBody.insertRow();
-                    row.className = 'border-b bg-white';
-                    
-                    row.innerHTML = `
-                        <td data-label="الصورة" class="p-3"><img src="${image || ''}" alt="${productNamePlainText}" class="w-16 h-16 object-cover rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/64x64/e2e8f0/94a3b8?text=Error';"></td>
-                        <td data-label="الاسم" class="p-3 font-semibold">${product.name}</td>
-                        <td data-label="القسم" class="p-3">${catName}</td>
-                        <td data-label="الفرع" class="p-3">${product.subCategoryName || '---'}</td>
-                        <td data-label="السعر" class="p-3 font-mono">${(product.price || 0).toLocaleString()} د.ج</td>
-                        <td data-label="الموقع" class="p-3">${product.location || '---'}</td>
-                        <td data-label="المورد" class="p-3">${product.supplier || '---'}</td>
-                        <td data-label="الربح" class="p-3 font-mono text-green-700 font-bold">${profitDisplay}</td>
-                        <td data-label="إجراءات" class="p-3 actions-cell">
-                            <div class="flex items-center gap-2">
-                                <button class="copy-product-link-btn bg-green-100 text-green-700 hover:bg-green-200 transition-colors px-3 py-2 rounded-md" data-id="${product.id}" title="نسخ رابط المنتج">
-                                    <i class="fas fa-link"></i>
-                                </button>
-                                <button class="edit-product-btn bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-3 py-2 rounded-md" data-id="${product.id}" title="تعديل المنتج">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="delete-product-btn bg-red-100 text-red-700 hover:bg-red-200 transition-colors px-3 py-2 rounded-md" data-id="${product.id}" title="حذف المنتج">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>`;
-                });
-                attachProductActionListeners();
+                productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderProductsGrid();
                 updateAnalytics();
             });
+        }
+        function renderProductsGrid() {
+            const list = document.getElementById('products-list');
+            list.innerHTML = productsCache.length === 0 ? '<p class="text-center text-gray-500 col-span-full mt-8">لا توجد منتجات. أضف منتجاً جديداً للبدء.</p>' : '';
+            
+            productsCache.forEach(product => {
+                const card = document.createElement('div');
+                card.className = `bg-white p-4 rounded-xl shadow-md flex flex-col relative`;
+                
+                let availabilityBadge = '';
+                switch(product.availability) {
+                    case 'soon':
+                        availabilityBadge = '<span class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">قريبًا إن شاء الله</span>';
+                        break;
+                    case 'sold_out':
+                        availabilityBadge = '<span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">سنعمل على توفيره مجددا ان شاء الله</span>';
+                        break;
+                    default:
+                        availabilityBadge = '<span class="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">متوفر</span>';
+                }
+
+                const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : (product.imageUrl || 'https://placehold.co/300x160/e2e8f0/94a3b8?text=No+Image');
+
+                let profitDisplay = '';
+                if (product.profitType === 'percentage' && product.price && product.profitValue) {
+                    const calculatedProfit = (product.price * product.profitValue) / 100;
+                    profitDisplay = `<span class="text-xs text-green-600">الربح: ${calculatedProfit.toLocaleString()} د.ج</span>`;
+                } else if (product.profitValue) {
+                    profitDisplay = `<span class="text-xs text-green-600">الربح: ${product.profitValue.toLocaleString()} د.ج</span>`;
+                }
+
+                card.innerHTML = `
+                    ${availabilityBadge}
+                    <img src="${image}" class="w-full h-40 object-cover rounded-lg mb-4 bg-gray-100">
+                    <div class="description-content font-bold text-xl mb-2">${product.name || ''}</div>
+                    <div class="flex-grow text-gray-600 text-sm mb-3">${product.supplier ? `<i class="fas fa-user-tie fa-fw mr-1 text-gray-400"></i>${product.supplier}` : ''}</div>
+                    <div class="flex justify-between items-center">
+                        <p class="text-lg font-bold text-indigo-600">${(product.price || 0).toLocaleString()} د.ج</p>
+                        ${profitDisplay}
+                    </div>
+                    <div class="border-t mt-4 pt-3 flex justify-end gap-2">
+                        <button class="copy-product-link-btn text-gray-400 hover:text-green-600" data-id="${product.id}" title="نسخ رابط المنتج"><i class="fas fa-link"></i></button>
+                        <button class="edit-product-btn text-gray-400 hover:text-indigo-600" data-id="${product.id}" title="تعديل"><i class="fas fa-edit"></i></button>
+                        <button class="delete-product-btn text-gray-400 hover:text-red-600" data-id="${product.id}" title="حذف"><i class="fas fa-trash"></i></button>
+                    </div>`;
+                
+                card.querySelector('.description-content').innerHTML = product.name || '';
+                list.appendChild(card);
+            });
+            attachProductActionListeners();
         }
         function populateSubcategories(categoryId, productSubCategory = null) {
             const subCategoryContainer = document.getElementById('product-subcategory-container');
@@ -636,339 +639,169 @@
                     const img = new Image();
                     img.src = event.target.result;
                     img.onload = () => {
-                        if (img.width <= maxWidth) {
-                            resolve(file);
-                            return;
-                        }
                         const canvas = document.createElement('canvas');
-                        const scale = maxWidth / img.width;
-                        canvas.width = maxWidth;
-                        canvas.height = img.height * scale;
+                        let { width, height } = img;
+                        if (width > maxWidth) {
+                            const scale = maxWidth / width;
+                            width = maxWidth;
+                            height = height * scale;
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        canvas.toBlob(blob => {
-                            resolve(blob);
+                        canvas.toBlob(blob => { 
+                            if (!blob) {
+                                reject(new Error("Canvas to Blob conversion failed"));
+                                return;
+                            }
+                            resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() })); 
                         }, 'image/jpeg', quality);
                     };
+                    img.onerror = reject;
                 };
                 reader.onerror = error => reject(error);
             });
-
-
-
-
-
-
-
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function showProductModal(product = null) {
-    const title = product ? 'تعديل المنتج' : 'إضافة منتج جديد';
-
-    const categoryOptions = categoriesCache.map(cat =>
-        `<option value="${cat.id}" ${product && product.categoryId === cat.id ? 'selected' : ''}>${cat.name}</option>`
-    ).join('');
-
-    let existingImages = [];
-    if (product) {
-        if (product.imageUrls && product.imageUrls.length > 0) {
-            existingImages = product.imageUrls;
-        } else if (product.imageUrl) {
-            existingImages = [product.imageUrl];
-        }
-    }
-
-    const existingImagesHTML = existingImages.map(url =>
-        `<div class="relative group"><img src="${url}" class="w-24 h-24 rounded object-cover border"><div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-white text-xs text-center">سيتم حذفها عند رفع صور جديدة</span></div></div>`
-    ).join('');
-
-    const content = `
-        <div class="space-y-4">
-            <div>
-                <label class="font-semibold">اسم المنتج</label>
-                <div id="product-name-editor" class="mt-1 bg-white"></div>
-            </div>
-            <div><label class="font-semibold">السعر (د.ج)</label><input type="number" id="product-price" class="mt-1 w-full p-2 border rounded" value="${product ? product.price : ''}" required></div>
-            <div>
-                <label class="font-semibold">الوصف</label>
-                <div id="product-description-editor" class="mt-1 bg-white" style="min-height: 150px;"></div>
-            </div>
-             <div>
-                <label class="font-semibold">موقع المنتج (اختياري)</label>
-                <input type="text" id="product-location" class="mt-1 w-full p-2 border rounded" value="${product ? product.location || '' : ''}" placeholder="مثال: مستودع الجزائر العاصمة">
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 mt-4">
-                <div>
-                    <label class="font-semibold text-gray-700">المورد (داخلي)</label>
-                    <input type="text" id="product-supplier" class="mt-1 w-full p-2 border rounded" value="${product ? product.supplier || '' : ''}" placeholder="اسم المورد أو الشركة">
-                </div>
-                <div>
-                    <label class="font-semibold text-gray-700">تواصل المورد (داخلي)</label>
-                    <textarea id="product-supplier-contact" class="mt-1 w-full p-2 border rounded" rows="3" placeholder="أرقام الهواتف، الإيميل، العنوان، ملاحظات...">${product ? product.supplierContact || '' : ''}</textarea>
-                </div>
-            </div>
-             <div>
-                <label class="font-semibold text-green-700">الربح من هذا المنتج (داخلي)</label>
-                <div class="flex items-center mt-1">
-                   <input type="number" id="product-profit-value" class="w-full p-2 border rounded-r-md" value="${product ? product.profitValue || '' : ''}" placeholder="0">
-                   <select id="product-profit-type" class="p-2 border-l-0 border rounded-l-md bg-gray-100">
-                        <option value="fixed" ${product && product.profitType === 'fixed' ? 'selected' : ''}>د.ج</option>
-                        <option value="percentage" ${product && product.profitType === 'percentage' ? 'selected' : ''}>%</option>
-                   </select>
-                </div>
-            </div>
-            <div>
-                <label class="font-semibold">القسم الرئيسي</label>
-                <select id="product-category-select" class="mt-1 w-full p-2 border rounded bg-white" required>
-                    <option value="">اختر قسم...</option>
-                    ${categoryOptions}
-                </select>
-            </div>
-            <div id="product-subcategory-container" class="hidden">
-                <label class="font-semibold">الفرع</label>
-                <select id="product-subcategory" class="mt-1 w-full p-2 border rounded bg-white"></select>
-            </div>
-
-            <div class="border-t pt-4">
-                <label class="font-semibold text-indigo-800">طريقة استقبال الطلبات</label>
-                <div class="mt-2 flex gap-4">
-                     <label class="flex items-center gap-2"><input type="radio" name="orderType" value="site_only" ${!product || product.orderType === 'site_only' ? 'checked' : ''}><span>حفظ في الموقع فقط (عادي)</span></label>
-                     <label class="flex items-center gap-2"><input type="radio" name="orderType" value="direct_contact" ${product && product.orderType === 'direct_contact' ? 'checked' : ''}><span>إرسال مباشر + حفظ</span></label>
-                </div>
-                <div id="direct-contact-details" class="mt-3 p-3 bg-indigo-50 rounded-lg space-y-3 ${product && product.orderType === 'direct_contact' ? '' : 'hidden'}">
-                     <label class="font-semibold text-sm">إعدادات الإرسال المباشر</label>
-                     <div>
-                         <select id="contact-type" class="w-full p-2 border rounded bg-white">
-                             <option value="whatsapp" ${product && product.contactType === 'whatsapp' ? 'selected' : ''}>واتساب</option>
-                             <option value="facebook" ${product && product.contactType === 'facebook' ? 'selected' : ''}>فيسبوك (Messenger)</option>
-                             <option value="telegram" ${product && product.contactType === 'telegram' ? 'selected' : ''}>تيليجرام</option>
-                             <option value="instagram" ${product && product.contactType === 'instagram' ? 'selected' : ''}>انستغرام</option>
-                             <option value="phone" ${product && product.contactType === 'phone' ? 'selected' : ''}>رقم هاتف (للمكالمة)</option>
-                         </select>
-                     </div>
-                     <div>
-                        <input type="text" id="contact-value" class="w-full p-2 border rounded" value="${product ? product.contactValue || '' : ''}" placeholder="أدخل رقم الهاتف، اسم المستخدم أو رابط الحساب...">
-                        <p class="text-xs text-gray-500 mt-1">واتساب: 213xxxxxxxx (بدون +). فيسبوك/تيليجرام: اسم المستخدم. انستغرام: رابط الحساب.</p>
-                     </div>
-                </div>
-            </div>
-            <div>
-                <label class="font-semibold">صور المنتج (يمكنك اختيار عدة صور)</label>
-                <input type="file" id="product-images" class="mt-1 w-full p-2 border rounded text-sm" accept="image/*" multiple>
-                 ${product ? `<p class="text-sm text-gray-500 mt-1">الصور الحالية. رفع صور جديدة سيقوم باستبدالها.</p><div class="flex flex-wrap gap-2 mt-2">${existingImagesHTML}</div>` : ''}
-                <div id="image-preview-container" class="flex flex-wrap gap-2 mt-2"></div>
-            </div>
-        </div>`;
-
-    let nameQuill, descriptionQuill;
-
-    showModal(title, content, async () => {
-        let name = nameQuill.root.innerHTML.trim();
-        let description = descriptionQuill.root.innerHTML.trim();
-        if (name === '<p><br></p>') name = '';
-        if (description === '<p><br></p>') description = '';
-
-        const price = parseFloat(document.getElementById('product-price').value);
-        const location = document.getElementById('product-location').value.trim();
-        const categoryId = document.getElementById('product-category-select').value;
-        const subCategoryName = document.getElementById('product-subcategory').value || null;
-        const imageFiles = document.getElementById('product-images').files;
-        const orderType = document.querySelector('input[name="orderType"]:checked').value;
-        const contactType = document.getElementById('contact-type').value;
-        const contactValue = document.getElementById('contact-value').value.trim();
-        const supplier = document.getElementById('product-supplier').value.trim();
-        const supplierContact = document.getElementById('product-supplier-contact').value.trim();
-        const profitValue = parseFloat(document.getElementById('product-profit-value').value) || 0;
-        const profitType = document.getElementById('product-profit-type').value;
-
-        if (!name || isNaN(price) || !categoryId) {
-            return showModal('خطأ في الإدخال', 'يرجى ملء الحقول الإلزامية: اسم المنتج، السعر، والقسم الرئيسي.', () => showProductModal(product), 'موافق', false);
-        }
-        if (orderType === 'direct_contact' && !contactValue) {
-            return showModal('خطأ في الإدخال', 'عند اختيار الإرسال المباشر، يجب إدخال رقم أو رابط التواصل.', () => showProductModal(product), 'موافق', false);
-        }
-
-        try {
-            let newImageUrls = [];
-            if (imageFiles.length === 0 && product) {
-                newImageUrls = product.imageUrls || (product.imageUrl ? [product.imageUrl] : []);
+        async function uploadImageToImgBB(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('key', "ac296feb5a275923598bdbfd4f9aed8c");
+            const response = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`ImgBB upload failed with status ${response.status}: ${errorText}`);
             }
-            if (imageFiles.length > 0) {
-                showLoadingModal(`جاري ضغط ورفع الصور (${imageFiles.length})...`);
-                const uploadPromises = Array.from(imageFiles).map(async file => {
-                    const compressedBlob = await resizeAndCompressImage(file);
-                    const formData = new FormData();
-                    formData.append('image', compressedBlob);
+            const result = await response.json();
+            if (result.success) return result.data.url;
+            else throw new Error(`ImgBB Error: ${result.error.message}`);
+        }
 
-// --- بداية الكود الجديد لخدمة ImgBB ---
-const apiKey = "ac296feb5a275923598bdbfd4f9aed8c";
-formData.append('key', apiKey);
+        function showProductModal(product = null) {
+            const title = product ? 'تعديل المنتج' : 'إضافة منتج جديد';
+            const categoryOptions = categoriesCache.map(cat => `<option value="${cat.id}" ${product && product.categoryId === cat.id ? 'selected' : ''}>${cat.name}</option>`).join('');
+            let existingImages = product ? (product.imageUrls || (product.imageUrl ? [product.imageUrl] : [])) : [];
+            const existingImagesHTML = existingImages.map(url => `<div class="relative group"><img src="${url}" class="w-24 h-24 rounded object-cover border"><div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-white text-xs text-center">سيتم حذفها عند رفع صور جديدة</span></div></div>`).join('');
 
-const response = await fetch('https://api.imgbb.com/1/upload', {
-    method: 'POST',
-    body: formData
-});
+            const content = `<div class="space-y-4">
+                <div><label class="font-semibold">اسم المنتج</label><div id="product-name-editor" class="mt-1 bg-white"></div></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="font-semibold">السعر (د.ج)</label><input type="number" id="product-price" class="mt-1 w-full p-2 border rounded" value="${product?.price || ''}" required></div>
+                    <div><label class="font-semibold">SKU / رمز المنتج</label><input type="text" id="product-sku" class="mt-1 w-full p-2 border rounded" value="${product?.sku || ''}" placeholder="رمز فريد للمنتج"></div>
+                </div>
+                <div>
+                    <label class="font-semibold">حالة التوفر</label>
+                    <select id="product-availability" class="w-full p-2 border rounded mt-1 bg-white">
+                        <option value="available" ${!product || product.availability === 'available' ? 'selected' : ''}>متوفر</option>
+                        <option value="soon" ${product?.availability === 'soon' ? 'selected' : ''}>قريبًا إن شاء الله</option>
+                        <option value="sold_out" ${product?.availability === 'sold_out' ? 'selected' : ''}>سنعمل على توفيره مجددا ان شاء الله</option>
+                    </select>
+                </div>
+                <div><label class="font-semibold">الوصف</label><div id="product-description-editor" class="mt-1 bg-white" style="min-height: 150px;"></div></div>
+                <div><label class="font-semibold">موقع المنتج (اختياري)</label><input type="text" id="product-location" class="mt-1 w-full p-2 border rounded" value="${product?.location || ''}" placeholder="مثال: مستودع الجزائر العاصمة"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 mt-4">
+                    <div><label class="font-semibold text-gray-700">المورد (داخلي)</label><input type="text" id="product-supplier" class="mt-1 w-full p-2 border rounded" value="${product?.supplier || ''}" placeholder="اسم المورد أو الشركة"></div>
+                    <div><label class="font-semibold text-gray-700">تواصل المورد (داخلي)</label><textarea id="product-supplier-contact" class="mt-1 w-full p-2 border rounded" rows="3" placeholder="أرقام الهواتف، الإيميل...">${product?.supplierContact || ''}</textarea></div>
+                </div>
+                <div><label class="font-semibold text-green-700">الربح من هذا المنتج (داخلي)</label><div class="flex items-center mt-1"><input type="number" id="product-profit-value" class="w-full p-2 border rounded-r-md" value="${product?.profitValue || ''}" placeholder="0"><select id="product-profit-type" class="p-2 border-l-0 border rounded-l-md bg-gray-100"><option value="fixed" ${product?.profitType === 'fixed' ? 'selected' : ''}>د.ج</option><option value="percentage" ${product?.profitType === 'percentage' ? 'selected' : ''}>%</option></select></div></div>
+                <div><label class="font-semibold">القسم الرئيسي</label><select id="product-category-select" class="mt-1 w-full p-2 border rounded bg-white" required><option value="">اختر قسم...</option>${categoryOptions}</select></div>
+                <div id="product-subcategory-container" class="hidden"><label class="font-semibold">الفرع</label><select id="product-subcategory" class="mt-1 w-full p-2 border rounded bg-white"></select></div>
+                <div class="border-t pt-4"><label class="font-semibold">صور المنتج (يمكنك اختيار عدة صور)</label><input type="file" id="product-images" class="mt-1 w-full p-2 border rounded text-sm" accept="image/*" multiple>${product ? `<p class="text-sm text-gray-500 mt-1">الصور الحالية. رفع صور جديدة سيقوم باستبدالها.</p><div class="flex flex-wrap gap-2 mt-2">${existingImagesHTML}</div>` : ''}<div id="image-preview-container" class="flex flex-wrap gap-2 mt-2"></div></div>
+            </div>`;
 
-const result = await response.json();
-if (result.success) {
-    return result.data.url; // استلام رابط الصورة من ImgBB
-} else {
-    throw new Error(`ImgBB Error: ${result.error.message}`);
-}
-// --- نهاية الكود الجديد ---
+            let nameQuill, descriptionQuill;
+            showModal(title, content, async () => {
+                let nameHTML = nameQuill.root.innerHTML.trim();
+                let descriptionHTML = descriptionQuill.root.innerHTML.trim();
+                if (nameHTML === '<p><br></p>') nameHTML = '';
+                if (descriptionHTML === '<p><br></p>') descriptionHTML = '';
+                
+                const cleanName = DOMPurify.sanitize(nameHTML);
+                const cleanDescription = DOMPurify.sanitize(descriptionHTML);
+
+                const price = parseFloat(document.getElementById('product-price').value);
+                const categoryId = document.getElementById('product-category-select').value;
+                const imageFiles = document.getElementById('product-images').files;
+
+                if (!cleanName || isNaN(price) || !categoryId) return alert('يرجى ملء الحقول الإلزامية: اسم المنتج، السعر، والقسم الرئيسي.');
+                
+                try {
+                    let newImageUrls = [];
+                    if (imageFiles.length === 0 && product) newImageUrls = existingImages;
+                    if (imageFiles.length > 0) {
+                        showLoadingModal(`جاري ضغط ورفع الصور (${imageFiles.length})...`);
+                        const uploadPromises = Array.from(imageFiles).map(file => resizeAndCompressImage(file).then(uploadImageToImgBB));
+                        newImageUrls = await Promise.all(uploadPromises);
+                    }
+                    if (newImageUrls.length === 0 && !product) return alert('يجب رفع صورة واحدة على الأقل للمنتج الجديد.');
+
+                    showLoadingModal('جاري حفظ البيانات...');
+                    
+                    const productData = {
+                        name: cleanName, price, description: cleanDescription, categoryId, imageUrls: newImageUrls,
+                        availability: document.getElementById('product-availability').value,
+                        sku: document.getElementById('product-sku').value.trim(),
+                        location: document.getElementById('product-location').value.trim(),
+                        subCategoryName: document.getElementById('product-subcategory').value || null,
+                        supplier: document.getElementById('product-supplier').value.trim(),
+                        supplierContact: document.getElementById('product-supplier-contact').value.trim(),
+                        profitValue: parseFloat(document.getElementById('product-profit-value').value) || 0,
+                        profitType: document.getElementById('product-profit-type').value,
+                        updatedAt: serverTimestamp() 
+                    };
+                    
+                    if (product) {
+                        await updateDoc(doc(db, "products", product.id), productData);
+                    } else {
+                        productData.createdAt = serverTimestamp(); 
+                        await addDoc(collection(db, "products"), productData);
+                    }
+                    closeModal();
+                } catch (error) { showModal('خطأ فادح', `فشل حفظ المنتج: ${error.message}`, () => closeModal(), 'موافق', false); }
+            });
+
+            const fullToolbarOptions = [['bold', 'italic', 'underline', 'strike'],[{ 'list': 'ordered'}, { 'list': 'bullet' }],[{ 'align': [] }],[{ 'color': [] }, { 'background': [] }],['link'],['clean']];
+            nameQuill = new Quill('#product-name-editor', { theme: 'snow', modules: { toolbar: [ ['bold', 'italic', 'underline'], [{ 'color': [] }] ] } });
+            descriptionQuill = new Quill('#product-description-editor', { theme: 'snow', modules: { toolbar: fullToolbarOptions } });
+            if (product) { if(product.name) nameQuill.root.innerHTML = product.name; if(product.description) descriptionQuill.root.innerHTML = product.description; }
+
+            document.getElementById('product-category-select').addEventListener('change', (e) => populateSubcategories(e.target.value));
+            document.getElementById('product-images').addEventListener('change', (e) => {
+                const previewContainer = document.getElementById('image-preview-container');
+                previewContainer.innerHTML = '';
+                Array.from(e.target.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const img = document.createElement('img');
+                        img.src = ev.target.result;
+                        img.className = 'w-24 h-24 rounded object-cover border';
+                        previewContainer.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
                 });
-                newImageUrls = await Promise.all(uploadPromises);
-            }
-            if (newImageUrls.length === 0 && !product) {
-                 return showModal('خطأ', 'يجب رفع صورة واحدة على الأقل للمنتج الجديد.', () => showProductModal(product), 'موافق', false);
-            }
-            showLoadingModal('جاري حفظ البيانات...');
-            const productData = {
-                name, price, description, location, categoryId, subCategoryName,
-                imageUrls: newImageUrls, supplier, supplierContact, profitValue,
-                profitType,
-                orderType: orderType,
-                contactType: orderType === 'direct_contact' ? contactType : null,
-                contactValue: orderType === 'direct_contact' ? contactValue : null,
-                updatedAt: serverTimestamp()
-            };
-            if (product) {
-                await updateDoc(doc(db, "products", product.id), productData);
-            } else {
-                productData.createdAt = serverTimestamp();
-                await addDoc(collection(db, "products"), productData);
-            }
-            closeModal();
-        } catch (error) {
-            console.error("Error saving product:", error);
-            showModal('خطأ فادح', `فشل حفظ المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
+            });
+            if (product?.categoryId) populateSubcategories(product.categoryId, product.subCategoryName);
         }
-    });
 
-    const fullToolbarOptions = [
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        [{ 'align': [] }],
-        [{ 'color': [] }, { 'background': [] }],
-        ['link'],
-        ['clean']
-    ];
-
-    nameQuill = new Quill('#product-name-editor', {
-        theme: 'snow',
-        modules: { toolbar: [ ['bold', 'italic', 'underline'], [{ 'color': [] }] ] }
-    });
-     descriptionQuill = new Quill('#product-description-editor', {
-        theme: 'snow',
-        modules: { toolbar: fullToolbarOptions }
-    });
-
-    if (product) {
-        if(product.name) nameQuill.root.innerHTML = product.name;
-        if(product.description) descriptionQuill.root.innerHTML = product.description;
-    }
-
-    const categorySelect = document.getElementById('product-category-select');
-    categorySelect.addEventListener('change', (e) => populateSubcategories(e.target.value));
-    document.querySelectorAll('input[name="orderType"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            const detailsDiv = document.getElementById('direct-contact-details');
-            if (e.target.value === 'direct_contact') {
-                detailsDiv.classList.remove('hidden');
-            } else {
-                detailsDiv.classList.add('hidden');
-            }
-        });
-    });
-    const imageInput = document.getElementById('product-images');
-    const previewContainer = document.getElementById('image-preview-container');
-    imageInput.addEventListener('change', () => {
-        previewContainer.innerHTML = '';
-        Array.from(imageInput.files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.className = 'w-24 h-24 rounded object-cover border';
-                previewContainer.appendChild(img);
-            }
-            reader.readAsDataURL(file);
-        });
-    });
-    if (product && product.categoryId) {
-        populateSubcategories(product.categoryId, product.subCategoryName);
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-        
         function attachProductActionListeners() {
-            document.querySelectorAll('.edit-product-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const product = productsCache.find(p => p.id === btn.dataset.id);
-                    if (product) showProductModal(product);
-                };
+            document.querySelectorAll('.edit-product-btn').forEach(btn => btn.onclick = () => showProductModal(productsCache.find(p => p.id === btn.dataset.id)));
+            document.querySelectorAll('.delete-product-btn').forEach(btn => btn.onclick = async () => {
+                if(confirm('هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                    try {
+                        await deleteDoc(doc(db, "products", btn.dataset.id));
+                    } catch(error) {
+                        alert(`فشل حذف المنتج: ${error.message}`);
+                    }
+                }
             });
-            document.querySelectorAll('.delete-product-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const { id } = btn.dataset;
-                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.', async () => {
-                        showLoadingModal('جاري الحذف...');
-                        try {
-                            await deleteDoc(doc(db, "products", id));
-                            closeModal();
-                        } catch (error) {
-                            showModal('خطأ', `فشل حذف المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
-                        }
-                    }, 'نعم, حذف', true);
-                };
-            });
-
-            document.querySelectorAll('.copy-product-link-btn').forEach(btn => {
-                btn.onclick = (e) => {
-                    const button = e.currentTarget;
-                    const productId = button.dataset.id;
-                    const productUrl = `https://s22market.github.io/S22MARKET/index.html?product=${productId}`;
-
-                    navigator.clipboard.writeText(productUrl).then(() => {
-                        const originalIcon = button.innerHTML;
-                        button.innerHTML = '<i class="fas fa-check text-green-500 fa-lg"></i>'; 
-                        setTimeout(() => {
-                            button.innerHTML = originalIcon;
-                        }, 2000);
-                    }).catch(err => {
-                        console.error('Failed to copy link: ', err);
-                        alert('فشل نسخ الرابط. يرجى نسخه يدوياً.');
-                    });
-                };
+            document.querySelectorAll('.copy-product-link-btn').forEach(btn => btn.onclick = (e) => {
+                const button = e.currentTarget;
+                const productUrl = `https://s22market.github.io/S22MARKET/index.html?product=${button.dataset.id}`;
+                navigator.clipboard.writeText(productUrl).then(() => {
+                    const originalIcon = button.innerHTML;
+                    button.innerHTML = '<i class="fas fa-check text-green-500"></i>'; 
+                    setTimeout(() => { button.innerHTML = originalIcon; }, 2000);
+                });
             });
         }
         
@@ -982,18 +815,10 @@ if (result.success) {
                          <table class="w-full text-right responsive-table">
                            <thead class="bg-gray-100">
                              <tr>
-                               <th class="p-3 font-semibold">العميل</th>
-                               <th class="p-3 font-semibold">الهاتف</th>
-                               <th class="p-3 font-semibold">الموقع</th>
-                               <th class="p-3 font-semibold">نوع التوصيل</th>
-                               <th class="p-3 font-semibold">المنتجات</th>
-                               <th class="p-3 font-semibold">المبلغ</th>
-                               <th class="p-3 font-semibold">الربح</th>
-                               <th class="p-3 font-semibold">ملاحظات</th>
-                               <th class="p-3 font-semibold">الحالة</th>
-                               <th class="p-3 font-semibold">تمت بواسطة</th>
-                               <th class="p-3 font-semibold">الموردون</th>
-                               <th class="p-3 font-semibold">التاريخ</th>
+                               <th class="p-3 font-semibold">العميل</th><th class="p-3 font-semibold">الهاتف</th><th class="p-3 font-semibold">الموقع</th>
+                               <th class="p-3 font-semibold">نوع التوصيل</th><th class="p-3 font-semibold">المنتجات</th><th class="p-3 font-semibold">المبلغ</th>
+                               <th class="p-3 font-semibold">الربح</th><th class="p-3 font-semibold">ملاحظات</th><th class="p-3 font-semibold">الحالة</th>
+                               <th class="p-3 font-semibold">تمت بواسطة</th><th class="p-3 font-semibold">الموردون</th><th class="p-3 font-semibold">التاريخ</th>
                                <th class="p-3 font-semibold">إجراءات</th>
                              </tr>
                            </thead>
@@ -1003,85 +828,48 @@ if (result.success) {
             const tableBody = document.getElementById('orders-table-body');
             
             onSnapshot(query(collection(db, "orders"), orderBy("createdAt", "desc")), (snapshot) => {
-                ordersCache = []; 
+                ordersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 tableBody.innerHTML = snapshot.empty ? `<tr><td colspan="13" class="p-8 text-center text-gray-500">لا توجد طلبات حاليًا.</td></tr>` : '';
 
-                snapshot.forEach(doc => {
-                    const order = { id: doc.id, ...doc.data() };
-                    ordersCache.push(order);
+                ordersCache.forEach(order => {
                     const date = order.createdAt?.toDate().toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' }) || 'N/A';
-                    
                     const statusColor = order.status === 'completed' ? 'bg-green-100 text-green-800' : (order.status === 'canceled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800');
                     const rowColor = order.status === 'completed' ? 'bg-green-50/50' : (order.status === 'canceled' ? 'bg-red-50/50' : 'bg-white');
-
-                    const primaryItemId = order.items && order.items[0] ? order.items[0].id : null;
-                    const product = productsCache.find(p => p.id === primaryItemId);
+                    const product = productsCache.find(p => p.id === (order.items && order.items[0] ? order.items[0].id : null));
                     
-                    let defaultProfit = '';
-                    let defaultSupplierInfo = '';
-
+                    let defaultProfit = ''; let defaultSupplierInfo = '';
                     if (product) {
                         if (order.profit === undefined || order.profit === null) {
                             const orderQuantity = (order.items || []).reduce((sum, item) => sum + item.quantity, 0);
-                            if (product.profitType === 'percentage' && product.price && product.profitValue) {
-                                defaultProfit = ((product.price * product.profitValue) / 100) * orderQuantity;
-                            } else if (product.profitType === 'fixed' && product.profitValue) {
-                                defaultProfit = product.profitValue * orderQuantity;
-                            }
+                            if (product.profitType === 'percentage' && product.price && product.profitValue) defaultProfit = ((product.price * product.profitValue) / 100) * orderQuantity;
+                            else if (product.profitType === 'fixed' && product.profitValue) defaultProfit = product.profitValue * orderQuantity;
                         }
-                        if (!order.suppliers) {
-                            defaultSupplierInfo = [product.supplier, product.supplierContact].filter(Boolean).join(' - ');
-                        }
+                        if (!order.suppliers) defaultSupplierInfo = [product.supplier, product.supplierContact].filter(Boolean).join(' - ');
                     }
 
-                    let deliveryDisplay = '---';
-                    if (order.deliveryPreference === 'Home') {
-                        deliveryDisplay = '<span class="text-blue-600 font-semibold"><i class="fas fa-home mr-1"></i> للمنزل</span>';
-                    } else if (order.deliveryPreference === 'Office') {
-                        deliveryDisplay = '<span class="text-purple-600 font-semibold"><i class="fas fa-building mr-1"></i> للمكتب</span>';
-                    }
-                    
+                    let deliveryDisplay = order.deliveryPreference === 'Home' ? '<span class="text-blue-600 font-semibold"><i class="fas fa-home mr-1"></i> للمنزل</span>' : (order.deliveryPreference === 'Office' ? '<span class="text-purple-600 font-semibold"><i class="fas fa-building mr-1"></i> للمكتب</span>' : '---');
                     const itemsHtml = (order.items || []).map(item => `<div>${item.quantity} x ${item.name}</div>`).join('');
 
                     const row = tableBody.insertRow();
                     row.className = `border-b ${rowColor} transition-colors`;
                     row.innerHTML = `
-                        <td data-label="العميل" class="p-3 font-semibold">${order.customerName}</td>
-                        <td data-label="الهاتف" class="p-3 font-mono" dir="ltr"><a href="tel:${order.customerContact}" class="hover:underline">${order.customerContact}</a></td>
-                        <td data-label="الموقع" class="p-3 text-sm font-medium">${order.customerLocation || '---'}</td>
-                        <td data-label="نوع التوصيل" class="p-3 text-sm">${deliveryDisplay}</td>
-                        <td data-label="المنتجات" class="p-3 text-sm">${itemsHtml}</td>
-                        <td data-label="المبلغ" class="p-3 font-mono">${(order.totalPrice || 0).toLocaleString()} د.ج</td>
+                        <td data-label="العميل" class="p-3 font-semibold">${order.customerName}</td><td data-label="الهاتف" class="p-3 font-mono" dir="ltr"><a href="tel:${order.customerContact}" class="hover:underline">${order.customerContact}</a></td>
+                        <td data-label="الموقع" class="p-3 text-sm font-medium">${order.customerLocation || '---'}</td><td data-label="نوع التوصيل" class="p-3 text-sm">${deliveryDisplay}</td>
+                        <td data-label="المنتجات" class="p-3 text-sm">${itemsHtml}</td><td data-label="المبلغ" class="p-3 font-mono">${(order.totalPrice || 0).toLocaleString()} د.ج</td>
                         <td data-label="الربح" class="p-3"><input type="number" class="profit-input w-24 p-1 border rounded text-center font-mono transition-colors" placeholder="0" value="${order.profit ?? defaultProfit}" data-id="${order.id}"></td>
                         <td data-label="ملاحظات" class="p-3 text-sm text-gray-600">${order.customerInquiry || '---'}</td>
-                        <td data-label="الحالة" class="p-3 actions-cell">
-                            <select class="order-status-select p-2 rounded-lg border-gray-300 ${statusColor}" data-id="${order.id}">
-                                <option value="new" ${order.status === 'new' ? 'selected' : ''}>جديد</option>
-                                <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>مكتمل</option>
-                                <option value="canceled" ${order.status === 'canceled' ? 'selected' : ''}>ملغي</option>
-                            </select>
-                        </td>
+                        <td data-label="الحالة" class="p-3 actions-cell"><select class="order-status-select p-2 rounded-lg border-gray-300 ${statusColor}" data-id="${order.id}"><option value="new" ${order.status === 'new' ? 'selected' : ''}>جديد</option><option value="completed" ${order.status === 'completed' ? 'selected' : ''}>مكتمل</option><option value="canceled" ${order.status === 'canceled' ? 'selected' : ''}>ملغي</option></select></td>
                         <td data-label="تمت بواسطة" class="p-3"><input type="text" class="doneBy-input w-full p-2 border rounded transition-colors" placeholder="اكتب هنا..." value="${order.doneBy || ''}" data-id="${order.id}"></td>
-                        <td data-label="الموردون" class="p-3"><textarea rows="3" class="suppliers-textarea w-full p-2 border rounded transition-colors" placeholder="اكتب هنا..." maxlength="500" data-id="${order.id}">${order.suppliers ?? defaultSupplierInfo}</textarea></td>
+                        <td data-label="الموردون" class="p-3"><textarea rows="4" class="suppliers-textarea w-full p-2 border rounded transition-colors" placeholder="اكتب هنا..." maxlength="500" data-id="${order.id}">${order.suppliers ?? defaultSupplierInfo}</textarea></td>
                         <td data-label="التاريخ" class="p-3 font-mono text-sm">${date}</td>
-                        <td data-label="إجراءات" class="p-3 actions-cell">
-                            <button class="copy-order-btn text-blue-500 hover:text-blue-700 mr-2" data-id="${order.id}" title="نسخ معلومات الطلب للمورد"><i class="fas fa-copy fa-lg"></i></button>
-                            <button class="delete-order-btn text-red-500 hover:text-red-700" data-id="${order.id}"><i class="fas fa-trash fa-lg"></i></button>
-                        </td>
-                    `;
+                        <td data-label="إجراءات" class="p-3 actions-cell"><button class="copy-order-btn text-blue-500 hover:text-blue-700 mr-2" data-id="${order.id}" title="نسخ معلومات الطلب للمورد"><i class="fas fa-copy fa-lg"></i></button><button class="delete-order-btn text-red-500 hover:text-red-700" data-id="${order.id}"><i class="fas fa-trash fa-lg"></i></button></td>`;
                 });
-                
                 attachOrderActionListeners();
                 updateAnalytics(); 
             });
         }
         function attachOrderActionListeners() {
-            document.querySelectorAll('.order-status-select').forEach(select => {
-                select.onchange = async (e) => {
-                    await updateDoc(doc(db, "orders", e.target.dataset.id), { status: e.target.value });
-                };
-            });
-            
+            document.querySelectorAll('.order-status-select').forEach(select => select.onchange = async (e) => await updateDoc(doc(db, "orders", e.target.dataset.id), { status: e.target.value }));
             const addDebouncedListener = (selector, fieldName, isNumeric = false) => {
                 document.querySelectorAll(selector).forEach(input => {
                     let debounceTimer;
@@ -1091,215 +879,164 @@ if (result.success) {
                             const id = e.target.dataset.id;
                             let value = e.target.value;
                             if (isNumeric) value = parseFloat(value) || 0;
-                            try {
-                                await updateDoc(doc(db, "orders", id), { [fieldName]: value });
-                                e.target.classList.add('border-green-400');
-                                setTimeout(() => e.target.classList.remove('border-green-400'), 2000);
-                            } catch (error) { e.target.classList.add('border-red-400'); }
+                            try { await updateDoc(doc(db, "orders", id), { [fieldName]: value }); e.target.classList.add('border-green-400'); setTimeout(() => e.target.classList.remove('border-green-400'), 2000); }
+                            catch (error) { e.target.classList.add('border-red-400'); }
                         }, 1000);
                     };
                 });
             };
-            
-            addDebouncedListener('.profit-input', 'profit', true);
-            addDebouncedListener('.doneBy-input', 'doneBy');
-            addDebouncedListener('.suppliers-textarea', 'suppliers');
-
-            document.querySelectorAll('.copy-order-btn').forEach(btn => {
-                btn.onclick = (e) => {
-                    const button = e.currentTarget;
-                    const orderId = button.dataset.id;
-                    const order = ordersCache.find(o => o.id === orderId);
-                    if (!order) return;
-
-                    const itemsText = (order.items || []).map(item => `   - ${item.quantity} x ${item.name}`).join('\n');
-                    const deliveryPreferenceText = order.deliveryPreference === 'Home' ? 'المنزل' : (order.deliveryPreference === 'Office' ? 'المكتب' : 'غير محدد');
-
-                    const messageToCopy = `
-السلام عليكم ورحمة الله تعالى وبركاته
-
-📋 **معلومات الطلبية** 📋
-
-👤 **اسم العميل:** ${order.customerName}
-📞 **رقم الهاتف:** ${order.customerContact}
-📦 **المنتج:**
-${itemsText}
-📍 **العنوان:** ${order.customerLocation}
-🚚 **التوصيل إلى:** ${deliveryPreferenceText}
-💰 **السعر الإجمالي:** ${order.totalPrice.toLocaleString()} د.ج
-                    `.trim();
-
-                    navigator.clipboard.writeText(messageToCopy).then(() => {
-                        const originalIcon = button.innerHTML;
-                        button.innerHTML = '<i class="fas fa-check text-green-500 fa-lg"></i>';
-                        setTimeout(() => {
-                            button.innerHTML = originalIcon;
-                        }, 2500);
-                    }).catch(err => {
-                        console.error('Failed to copy order details: ', err);
-                        alert('فشل نسخ المعلومات.');
-                    });
-                };
+            addDebouncedListener('.profit-input', 'profit', true); addDebouncedListener('.doneBy-input', 'doneBy'); addDebouncedListener('.suppliers-textarea', 'suppliers');
+            document.querySelectorAll('.copy-order-btn').forEach(btn => btn.onclick = (e) => {
+                const order = ordersCache.find(o => o.id === e.currentTarget.dataset.id); if (!order) return;
+                const itemsText = (order.items || []).map(item => `   - ${item.quantity} x ${item.name}`).join('\n');
+                const deliveryPreferenceText = order.deliveryPreference === 'Home' ? 'المنزل' : (order.deliveryPreference === 'Office' ? 'المكتب' : 'غير محدد');
+                const messageToCopy = `السلام عليكم ورحمة الله تعالى وبركاته\n\n📋 **معلومات الطلبية** 📋\n\n👤 **اسم العميل:** ${order.customerName}\n📞 **رقم الهاتف:** ${order.customerContact}\n📦 **المنتج:**\n${itemsText}\n📍 **العنوان:** ${order.customerLocation}\n🚚 **التوصيل إلى:** ${deliveryPreferenceText}\n💰 **السعر الإجمالي:** ${order.totalPrice.toLocaleString()} د.ج`.trim();
+                navigator.clipboard.writeText(messageToCopy).then(() => {
+                    const originalIcon = e.currentTarget.innerHTML;
+                    e.currentTarget.innerHTML = '<i class="fas fa-check text-green-500 fa-lg"></i>';
+                    setTimeout(() => { e.currentTarget.innerHTML = originalIcon; }, 2500);
+                });
             });
-            
-            document.querySelectorAll('.delete-order-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const { id } = btn.dataset;
-                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.', async () => {
-                        showLoadingModal('جاري الحذف...');
-                        try {
-                            await deleteDoc(doc(db, "orders", id));
-                            closeModal();
-                        } catch (error) {
-                            showModal('خطأ', `فشل حذف الطلب: ${error.message}`, () => closeModal(), 'موافق', false);
-                        }
-                    }, 'نعم, حذف', true);
-                };
+            document.querySelectorAll('.delete-order-btn').forEach(btn => btn.onclick = async () => {
+                if(confirm('هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                     try {
+                        await deleteDoc(doc(db, "orders", btn.dataset.id));
+                    } catch(error) {
+                        alert(`فشل حذف الطلب: ${error.message}`);
+                    }
+                }
             });
         }
         
         // ===================================
-        // Applications Section
+        // NEW Coupons Section (IMPROVED)
         // ===================================
-        function loadApplications() {
-            const panel = document.getElementById('applications-panel');
-            panel.innerHTML = `<div class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold text-gray-800">إدارة التطبيقات</h1>
-                <button id="add-app-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700">
-                    <i class="fas fa-plus mr-2"></i> إضافة تطبيق
-                </button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-right responsive-table">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="p-3">الأيقونة</th>
-                            <th class="p-3">الاسم</th>
-                            <th class="p-3">رابط التحميل (Android)</th>
-                            <th class="p-3">رابط التحميل (iPhone)</th>
-                            <th class="p-3">إجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="apps-table-body"></tbody>
-                </table>
+        function loadCoupons() {
+            const panel = document.getElementById('coupons-panel');
+            panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold">إدارة الكوبونات</h1><button id="add-coupon-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة كوبون</button></div>
+                <div class="overflow-x-auto bg-white rounded-xl shadow-md">
+                <table class="w-full text-right responsive-table"><thead class="bg-gray-100"><tr>
+                    <th class="p-3">الكود</th><th class="p-3">نوع/قيمة التخفيض</th><th class="p-3">الحالة</th>
+                    <th class="p-3">الاستخدام</th><th class="p-3">مرات النسخ</th><th class="p-3">فترة الصلاحية</th><th class="p-3">إجراءات</th>
+                </tr></thead><tbody id="coupons-table-body"></tbody></table></div>`;
+            document.getElementById('add-coupon-btn').onclick = () => showCouponModal();
+            onSnapshot(query(collection(db, "coupons"), orderBy("createdAt", "desc")), snapshot => {
+                couponsCache = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
+                renderCouponsTable();
+            });
+        }
+        function renderCouponsTable() {
+            const tBody = document.getElementById('coupons-table-body');
+            tBody.innerHTML = couponsCache.length === 0 ? `<tr><td colspan="7" class="p-8 text-center">لم تقم بإضافة أي كوبونات بعد.</td></tr>` : '';
+            
+            couponsCache.forEach(coupon => {
+                const now = new Date();
+                const startDate = coupon.startsAt?.toDate();
+                const expiryDate = coupon.expiresAt?.toDate();
+                
+                let statusText, statusClass;
+                if (!coupon.isActive) {
+                    statusText = 'معطل'; statusClass = 'bg-gray-200 text-gray-800';
+                } else if (startDate && startDate > now) {
+                    statusText = 'لم يبدأ بعد'; statusClass = 'bg-blue-100 text-blue-800';
+                } else if (expiryDate && expiryDate < now) {
+                    statusText = 'منتهي'; statusClass = 'bg-red-100 text-red-800';
+                } else if (coupon.usageLimit && (coupon.usageCount || 0) >= coupon.usageLimit) {
+                    statusText = 'استنفذ'; statusClass = 'bg-yellow-100 text-yellow-800';
+                } else {
+                    statusText = 'نشط'; statusClass = 'bg-green-100 text-green-800';
+                }
+
+                const discountText = coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `${(coupon.discountValue || 0).toLocaleString()} د.ج`;
+                const validityText = `${startDate ? startDate.toLocaleDateString('ar-EG') : 'فوراً'} - ${expiryDate ? expiryDate.toLocaleDateString('ar-EG') : 'بلا نهاية'}`;
+                const usageText = `${coupon.usageCount || 0}${coupon.usageLimit ? ` / ${coupon.usageLimit}` : ''}`;
+                const copyCountText = `${coupon.copyCount || 0} مرة`;
+
+                const row = document.createElement('tr');
+                row.className = 'border-b';
+                row.innerHTML = `
+                    <td data-label="الكود" class="p-3 font-mono font-bold">${coupon.code}</td>
+                    <td data-label="التخفيض" class="p-3">${discountText}</td>
+                    <td data-label="الحالة" class="p-3"><span class="px-2 py-1 text-sm font-semibold rounded-full ${statusClass}">${statusText}</span></td>
+                    <td data-label="الاستخدام" class="p-3">${usageText}</td>
+                    <td data-label="مرات النسخ" class="p-3">${copyCountText}</td>
+                    <td data-label="الصلاحية" class="p-3 font-mono text-sm">${validityText}</td>
+                    <td data-label="إجراءات" class="p-3 actions-cell">
+                        <button class="edit-coupon-btn text-indigo-500 hover:text-indigo-700 mr-4" data-id="${coupon.id}"><i class="fas fa-edit"></i></button>
+                        <button class="delete-coupon-btn text-red-500 hover:text-red-700" data-id="${coupon.id}"><i class="fas fa-trash"></i></button>
+                    </td>`;
+                tBody.appendChild(row);
+            });
+
+            document.querySelectorAll('.edit-coupon-btn').forEach(btn => btn.onclick = e => showCouponModal(couponsCache.find(c => c.id === e.currentTarget.dataset.id)));
+            document.querySelectorAll('.delete-coupon-btn').forEach(btn => btn.onclick = async e => {
+                if (confirm('هل أنت متأكد من حذف هذا الكوبون؟')) {
+                    try {
+                        await deleteDoc(doc(db, "coupons", e.currentTarget.dataset.id));
+                    } catch(error) {
+                         alert(`فشل حذف الكوبون: ${error.message}`);
+                    }
+                }
+            });
+        }
+        function showCouponModal(coupon = null) {
+            const tempDiv = document.createElement('div');
+            const productOptions = productsCache.map(p => {
+                tempDiv.innerHTML = p.name;
+                const productName = tempDiv.textContent || tempDiv.innerText || "";
+                return `<option value="${p.id}">${productName}</option>`;
+            }).join('');
+            const content = `<div class="space-y-4">
+                <input type="text" id="coupon-code" placeholder="كود التخفيض (مثال: SAVE10)" class="w-full p-2 border rounded uppercase" value="${coupon?.code || ''}">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="font-semibold text-sm">نوع التخفيض</label><select id="coupon-type" class="w-full p-2 mt-1 border rounded bg-white"><option value="percentage" ${coupon?.discountType === 'percentage' ? 'selected' : ''}>نسبة مئوية (%)</option><option value="fixed" ${coupon?.discountType === 'fixed' ? 'selected' : ''}>مبلغ ثابت (د.ج)</option></select></div>
+                    <div><label class="font-semibold text-sm">قيمة التخفيض</label><input type="number" id="coupon-value" placeholder="مثال: 10 أو 100" class="w-full p-2 mt-1 border rounded" value="${coupon?.discountValue || ''}"></div>
+                </div>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="font-semibold text-sm">تاريخ بداية الصلاحية (اختياري)</label><input type="date" id="coupon-start" class="w-full p-2 mt-1 border rounded" value="${coupon?.startsAt ? coupon.startsAt.toDate().toISOString().split('T')[0] : ''}"></div>
+                    <div><label class="font-semibold text-sm">تاريخ انتهاء الصلاحية (اختياري)</label><input type="date" id="coupon-expiry" class="w-full p-2 mt-1 border rounded" value="${coupon?.expiresAt ? coupon.expiresAt.toDate().toISOString().split('T')[0] : ''}"></div>
+                </div>
+                 <div><label class="font-semibold text-sm">الحد الأقصى لمرات الاستخدام (اختياري)</label><input type="number" id="coupon-usage-limit" placeholder="اتركه فارغاً للاستخدام غير المحدود" class="w-full p-2 mt-1 border rounded" value="${coupon?.usageLimit || ''}"></div>
+                <div><label class="font-semibold text-sm">على ماذا يطبق الكوبون؟</label><select id="coupon-applies-to" class="w-full p-2 mt-1 border rounded bg-white"><option value="all" ${coupon?.appliesTo === 'all' ? 'selected' : ''}>كل المنتجات</option><option value="specific_products" ${coupon?.appliesTo === 'specific_products' ? 'selected' : ''}>منتجات محددة</option></select></div>
+                <div id="coupon-products-container" class="hidden"><label class="font-semibold text-sm">اختر المنتجات</label><select id="coupon-products" multiple class="w-full p-2 mt-1 border rounded bg-white h-32">${productOptions}</select></div>
+                <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg"><label for="coupon-active-toggle" class="font-semibold">تفعيل الكوبون</label><label class="toggle-switch"><input type="checkbox" id="coupon-active-toggle" ${coupon?.isActive !== false ? 'checked' : ''}><span class="slider"></span></label></div>
             </div>`;
 
-            document.getElementById('add-app-btn').addEventListener('click', () => showApplicationModal());
-            const tableBody = document.getElementById('apps-table-body');
-
-            onSnapshot(query(collection(db, "applications"), orderBy("createdAt", "desc")), (snapshot) => {
-                applicationsCache = [];
-                tableBody.innerHTML = snapshot.empty ? '<tr><td colspan="5" class="p-8 text-center text-gray-500">لا توجد تطبيقات. أضف تطبيقاً جديداً للبدء.</td></tr>' : '';
-                
-                snapshot.forEach(doc => {
-                    const app = { id: doc.id, ...doc.data() };
-                    applicationsCache.push(app);
-                    
-                    const row = tableBody.insertRow();
-                    row.className = 'border-b bg-white';
-                    
-                    row.innerHTML = `
-                        <td data-label="الأيقونة" class="p-3"><img src="${app.iconUrl || ''}" alt="${app.name}" class="w-16 h-16 object-cover rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/64x64/e2e8f0/94a3b8?text=Icon';"></td>
-                        <td data-label="الاسم" class="p-3 font-semibold">${app.name}</td>
-                        <td data-label="Android" class="p-3"><a href="${app.apkUrl || '#'}" target="_blank" class="text-blue-600 hover:underline">${app.apkUrl ? 'رابط مباشر' : '---'}</a></td>
-                        <td data-label="iPhone" class="p-3"><a href="${app.iosUrl || '#'}" target="_blank" class="text-blue-600 hover:underline">${app.iosUrl ? 'رابط AppStore' : '---'}</a></td>
-                        <td data-label="إجراءات" class="p-3 actions-cell">
-                            <button class="edit-app-btn text-indigo-500 hover:text-indigo-700 mr-4" data-id="${app.id}"><i class="fas fa-edit fa-lg"></i></button>
-                            <button class="delete-app-btn text-red-500 hover:text-red-700" data-id="${app.id}"><i class="fas fa-trash fa-lg"></i></button>
-                        </td>`;
-                });
-                attachApplicationActionListeners();
-            });
-        }
-        function showApplicationModal(app = null) {
-            const title = app ? 'تعديل التطبيق' : 'إضافة تطبيق جديد';
-            const content = `
-                <div class="space-y-4">
-                    <div><label class="font-semibold">اسم التطبيق</label><input type="text" id="app-name" class="mt-1 w-full p-2 border rounded" value="${app ? app.name : ''}" required></div>
-                    <div>
-                        <label class="font-semibold">الوصف</label>
-                        <textarea id="app-description" class="mt-1 w-full p-2 border rounded" rows="4" placeholder="اكتب وصفاً قصيراً للتطبيق...">${app ? (app.description || '') : ''}</textarea>
-                    </div>
-                    <div>
-                        <label class="font-semibold">رابط أيقونة التطبيق</label>
-                        <input type="text" id="app-icon-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.iconUrl || '' : ''}" placeholder="ارفع الأيقونة على ImgBB والصق الرابط هنا" required>
-                    </div>
-                    <div class="border-t pt-4 space-y-4">
-                        <h4 class="font-bold text-gray-800">روابط التحميل (أضف رابطاً واحداً على الأقل)</h4>
-                        <div>
-                            <label class="font-semibold flex items-center gap-2 text-gray-700"><i class="fab fa-google-play text-lg"></i> رابط التطبيق على Google Play</label>
-                            <input type="text" id="app-google-play-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.googlePlayUrl || '' : ''}" placeholder="(اختياري) الصق رابط التطبيق من متجر جوجل بلاي">
-                        </div>
-                        <div>
-                            <label class="font-semibold flex items-center gap-2 text-green-700"><i class="fas fa-file-archive text-lg"></i> رابط التحميل المباشر (ملف APK)</label>
-                            <input type="text" id="app-apk-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.apkUrl || '' : ''}" placeholder="(اختياري) رابط من Google Drive, Mediafire...">
-                        </div>
-                        <div>
-                            <label class="font-semibold flex items-center gap-2 text-sky-600"><i class="fab fa-telegram text-lg"></i> رابط التطبيق على Telegram</label>
-                            <input type="text" id="app-telegram-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.telegramUrl || '' : ''}" placeholder="(اختياري) رابط قناة أو رسالة على تيليجرام">
-                        </div>
-                         <div>
-                            <label class="font-semibold flex items-center gap-2 text-black"><i class="fab fa-apple text-lg"></i> رابط التطبيق على App Store (للآيفون)</label>
-                            <input type="text" id="app-ios-url" class="mt-1 w-full p-2 border rounded" value="${app ? app.iosUrl || '' : ''}" placeholder="(اختياري) الصق رابط التطبيق من متجر آبل هنا">
-                        </div>
-                    </div>
-                </div>`;
-
-            showModal(title, content, async () => {
-                const name = document.getElementById('app-name').value.trim();
-                const description = document.getElementById('app-description').value.trim();
-                const iconUrl = document.getElementById('app-icon-url').value.trim();
-                const googlePlayUrl = document.getElementById('app-google-play-url').value.trim();
-                const apkUrl = document.getElementById('app-apk-url').value.trim();
-                const telegramUrl = document.getElementById('app-telegram-url').value.trim();
-                const iosUrl = document.getElementById('app-ios-url').value.trim();
-
-                if (!name || !iconUrl) {
-                    return showModal('خطأ في الإدخال', 'يرجى ملء اسم التطبيق ورابط الأيقونة.', () => showApplicationModal(app), 'موافق', false);
-                }
-                if (!googlePlayUrl && !apkUrl && !telegramUrl && !iosUrl) {
-                    return showModal('خطأ في الإدخال', 'يجب توفير رابط تحميل واحد على الأقل.', () => showApplicationModal(app), 'موافق', false);
-                }
-
+            showModal(coupon ? 'تعديل كوبون' : 'إضافة كوبون', content, async () => {
+                const startDate = document.getElementById('coupon-start').value;
+                const expiryDate = document.getElementById('coupon-expiry').value;
+                const data = {
+                    code: document.getElementById('coupon-code').value.trim().toUpperCase(),
+                    discountType: document.getElementById('coupon-type').value,
+                    discountValue: parseFloat(document.getElementById('coupon-value').value),
+                    startsAt: startDate ? Timestamp.fromDate(new Date(startDate)) : null,
+                    expiresAt: expiryDate ? Timestamp.fromDate(new Date(expiryDate)) : null,
+                    usageLimit: parseInt(document.getElementById('coupon-usage-limit').value, 10) || null,
+                    appliesTo: document.getElementById('coupon-applies-to').value,
+                    productIds: document.getElementById('coupon-applies-to').value === 'specific_products' ? Array.from(document.getElementById('coupon-products').selectedOptions).map(opt => opt.value) : [],
+                    isActive: document.getElementById('coupon-active-toggle').checked,
+                    updatedAt: serverTimestamp()
+                };
+                if(!data.code || isNaN(data.discountValue)) return alert('الرجاء إدخال الكود وقيمة التخفيض.');
+                if(data.appliesTo === 'specific_products' && data.productIds.length === 0) return alert('الرجاء اختيار منتج واحد على الأقل.');
+                showLoadingModal();
                 try {
-                    showLoadingModal('جاري حفظ البيانات...');
-                    const appData = { 
-                        name, description, iconUrl, googlePlayUrl, apkUrl, telegramUrl, 
-                        iosUrl, updatedAt: serverTimestamp() 
-                    };
-                    if (app) {
-                        await updateDoc(doc(db, "applications", app.id), appData);
-                    } else {
-                        appData.createdAt = serverTimestamp();
-                        await addDoc(collection(db, "applications"), appData);
-                    }
+                    if (coupon) await updateDoc(doc(db, "coupons", coupon.id), data);
+                    else { data.createdAt = serverTimestamp(); data.usageCount = 0; data.copyCount = 0; await addDoc(collection(db, "coupons"), data); }
                     closeModal();
-                } catch (error) {
-                    console.error("Error saving application:", error);
-                    showModal('خطأ فادح', `فشل حفظ التطبيق: ${error.message}`, () => closeModal(), 'موافق', false);
+                } catch(error) {
+                     showModal('خطأ فادح', `فشل حفظ الكوبون: ${error.message}`, () => closeModal(), 'موافق', false);
                 }
-            }, () => {});
-        }
-        function attachApplicationActionListeners() {
-            document.querySelectorAll('.edit-app-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const app = applicationsCache.find(a => a.id === btn.dataset.id);
-                    if (app) showApplicationModal(app);
-                };
             });
-            document.querySelectorAll('.delete-app-btn').forEach(btn => {
-                btn.onclick = () => {
-                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذا التطبيق؟', async () => {
-                        showLoadingModal('جاري الحذف...');
-                        try {
-                            await deleteDoc(doc(db, "applications", btn.dataset.id));
-                            closeModal();
-                        } catch (error) {
-                            showModal('خطأ', 'فشل حذف التطبيق.', () => closeModal(), 'موافق', false);
-                        }
-                    }, 'نعم, حذف', true);
-                };
-            });
+
+            const appliesToSelect = document.getElementById('coupon-applies-to');
+            const productsContainer = document.getElementById('coupon-products-container');
+            const toggleProducts = () => productsContainer.classList.toggle('hidden', appliesToSelect.value !== 'specific_products');
+            appliesToSelect.onchange = toggleProducts;
+            if (coupon?.appliesTo === 'specific_products' && coupon.productIds) {
+                coupon.productIds.forEach(id => { const option = document.querySelector(`#coupon-products option[value="${id}"]`); if (option) option.selected = true; });
+            }
+            toggleProducts();
         }
 
         // ===================================
@@ -1307,304 +1044,304 @@ ${itemsText}
         // ===================================
         function loadInquiries() { 
             const panel = document.getElementById('inquiries-panel'); 
-            panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">الرسائل والطلبات الواردة</h1> 
-                               <div class="overflow-x-auto bg-white rounded-xl shadow-md"> 
-                                   <table class="w-full text-right responsive-table"> 
-                                       <thead class="bg-gray-100"><tr> 
-                                           <th class="p-4">النوع</th> 
-                                           <th class="p-4">الرسالة/الطلب</th> 
-                                           <th class="p-4">معلومات التواصل</th> 
-                                           <th class="p-4">المشرف</th> 
-                                           <th class="p-4">الحالة</th> 
-                                           <th class="p-4">التاريخ</th> 
-                                           <th class="p-4">إجراءات</th> 
-                                       </tr></thead> 
-                                       <tbody id="inquiries-table-body"></tbody> 
-                                   </table> 
-                               </div>`; 
-            const tableBody = document.getElementById('inquiries-table-body'); 
-
+            panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">الرسائل والطلبات الواردة</h1><div class="overflow-x-auto bg-white rounded-xl shadow-md"><table class="w-full text-right responsive-table"><thead class="bg-gray-100"><tr><th class="p-4">النوع</th><th class="p-4">الرسالة/الطلب</th><th class="p-4">معلومات التواصل</th><th class="p-4">المشرف</th><th class="p-4">الحالة</th><th class="p-4">التاريخ</th><th class="p-4">إجراءات</th></tr></thead><tbody id="inquiries-table-body"></tbody></table></div>`; 
             onSnapshot(query(collection(db, "inquiries"), orderBy("createdAt", "desc")), (snapshot) => { 
-                tableBody.innerHTML = snapshot.empty ? `<tr><td colspan="7" class="p-8 text-center text-gray-500">لا توجد رسائل أو طلبات حاليًا.</td></tr>` : ''; 
+                const tableBody = document.getElementById('inquiries-table-body'); 
+                tableBody.innerHTML = snapshot.empty ? `<tr><td colspan="7" class="p-8 text-center text-gray-500">لا توجد رسائل حاليًا.</td></tr>` : ''; 
                 snapshot.forEach(doc => { 
                     const inquiry = { id: doc.id, ...doc.data() }; 
                     const date = inquiry.createdAt?.toDate().toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }); 
-                    
-                    let typeText = inquiry.type === 'product' ? '📝 طلب منتج' : '🚩 شكوى/رأي';
-                    let typeColor = inquiry.type === 'product' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800';
-
-                    let rowClass = 'bg-white font-semibold';
-                    let statusColorClass = 'bg-yellow-100 text-yellow-800'; 
-                    if (inquiry.status === 'قيد الإجراء') { 
-                        rowClass = 'bg-indigo-50'; 
-                        statusColorClass = 'bg-indigo-100 text-indigo-800'; 
-                    } else if (inquiry.status === 'تمت المعالجة') { 
-                        rowClass = 'bg-green-50 text-gray-600';
-                        statusColorClass = 'bg-green-100 text-green-800'; 
-                    }
-                    
-                    let contactHTML = `
-                        <div><strong>الاسم:</strong> ${inquiry.fullName}</div>
-                        ${inquiry.phone ? `<div><i class="fas fa-phone fa-fw mr-1"></i> ${inquiry.phone}</div>` : ''}
-                        ${inquiry.contactLink ? `<div><a href="${inquiry.contactLink}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-external-link-alt fa-fw mr-1"></i> رابط التواصل</a></div>` : ''}
-                    `;
-
+                    let typeText = inquiry.type === 'product' ? '📝 طلب منتج' : '🚩 شكوى/رأي'; let typeColor = inquiry.type === 'product' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800';
+                    let rowClass = 'bg-white font-semibold'; let statusColorClass = 'bg-yellow-100 text-yellow-800'; 
+                    if (inquiry.status === 'قيد الإجراء') { rowClass = 'bg-indigo-50'; statusColorClass = 'bg-indigo-100 text-indigo-800'; }
+                    else if (inquiry.status === 'تمت المعالجة') { rowClass = 'bg-green-50 text-gray-600'; statusColorClass = 'bg-green-100 text-green-800'; }
+                    let contactHTML = `<div><strong>الاسم:</strong> ${inquiry.fullName}</div>${inquiry.phone ? `<div><i class="fas fa-phone fa-fw mr-1"></i> ${inquiry.phone}</div>` : ''}${inquiry.contactLink ? `<div><a href="${inquiry.contactLink}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-external-link-alt fa-fw mr-1"></i> رابط التواصل</a></div>` : ''}`;
                     const row = tableBody.insertRow(); 
                     row.className = `border-b ${rowClass} hover:bg-gray-50 transition-colors`; 
-                    row.innerHTML = ` 
-                        <td data-label="النوع" class="p-4"><span class="px-3 py-1 rounded-full text-sm ${typeColor}">${typeText}</span></td> 
-                        <td data-label="الرسالة" class="p-4" style="white-space: pre-wrap; max-width: 350px;">${inquiry.message}</td> 
-                        <td data-label="التواصل" class="p-4 text-sm">${contactHTML}</td> 
-                        <td data-label="المشرف" class="p-4">
-                            <input type="text" class="supervisor-input w-full p-2 border rounded-md" value="${inquiry.supervisor || ''}" placeholder="اسم المشرف..." data-id="${inquiry.id}">
-                        </td>
-                        <td data-label="الحالة" class="p-4"> 
-                            <select class="inquiry-status-select w-full p-2 rounded-lg border-gray-300 ${statusColorClass}" data-id="${inquiry.id}"> 
-                                <option value="جديد" ${inquiry.status === 'جديد' ? 'selected' : ''}>جديد</option> 
-                                <option value="قيد الإجراء" ${inquiry.status === 'قيد الإجراء' ? 'selected' : ''}>قيد الإجراء</option> 
-                                <option value="تمت المعالجة" ${inquiry.status === 'تمت المعالجة' ? 'selected' : ''}>تمت المعالجة</option> 
-                            </select> 
-                        </td> 
-                        <td data-label="التاريخ" class="p-4 text-sm text-gray-500">${date}</td> 
-                        <td data-label="إجراءات" class="p-4">
-                            <button class="delete-inquiry-btn text-gray-400 hover:text-red-600 transition-colors" data-id="${inquiry.id}">
-                                <i class="fas fa-trash fa-lg"></i>
-                            </button>
-                        </td> 
-                    `; 
+                    row.innerHTML = `<td data-label="النوع" class="p-4"><span class="px-3 py-1 rounded-full text-sm ${typeColor}">${typeText}</span></td><td data-label="الرسالة" class="p-4" style="white-space: pre-wrap; max-width: 350px;">${inquiry.message}</td><td data-label="التواصل" class="p-4 text-sm">${contactHTML}</td><td data-label="المشرف" class="p-4"><input type="text" class="supervisor-input w-full p-2 border rounded-md" value="${inquiry.supervisor || ''}" data-id="${inquiry.id}"></td><td data-label="الحالة" class="p-4"><select class="inquiry-status-select w-full p-2 rounded-lg border-gray-300 ${statusColorClass}" data-id="${inquiry.id}"><option value="جديد" ${inquiry.status === 'جديد' ? 'selected' : ''}>جديد</option><option value="قيد الإجراء" ${inquiry.status === 'قيد الإجراء' ? 'selected' : ''}>قيد الإجراء</option><option value="تمت المعالجة" ${inquiry.status === 'تمت المعالجة' ? 'selected' : ''}>تمت المعالجة</option></select></td><td data-label="التاريخ" class="p-4 text-sm text-gray-500">${date}</td><td data-label="إجراءات" class="p-4"><button class="delete-inquiry-btn text-gray-400 hover:text-red-600" data-id="${inquiry.id}"><i class="fas fa-trash fa-lg"></i></button></td>`; 
                 }); 
                 attachInquiryActionListeners(); 
             }); 
         } 
         function attachInquiryActionListeners() { 
-            document.querySelectorAll('.inquiry-status-select').forEach(select => { 
-                select.onchange = async (e) => { 
-                    await updateDoc(doc(db, "inquiries", e.target.dataset.id), { status: e.target.value }); 
-                }; 
-            }); 
-
-            document.querySelectorAll('.supervisor-input').forEach(input => {
-                input.addEventListener('change', async (e) => {
-                     await updateDoc(doc(db, "inquiries", e.target.dataset.id), { supervisor: e.target.value.trim() });
-                });
-            });
-
-            document.querySelectorAll('.delete-inquiry-btn').forEach(btn => { 
-                btn.onclick = async () => { 
-                    if (confirm('هل أنت متأكد من حذف هذه الرسالة نهائياً؟')) { 
-                        await deleteDoc(doc(db, "inquiries", btn.dataset.id)); 
-                    } 
-                }; 
-            }); 
+            document.querySelectorAll('.inquiry-status-select').forEach(select => select.onchange = async (e) => await updateDoc(doc(db, "inquiries", e.target.dataset.id), { status: e.target.value })); 
+            document.querySelectorAll('.supervisor-input').forEach(input => input.addEventListener('change', async (e) => await updateDoc(doc(db, "inquiries", e.target.dataset.id), { supervisor: e.target.value.trim() })));
+            document.querySelectorAll('.delete-inquiry-btn').forEach(btn => btn.onclick = async () => { if (confirm('هل أنت متأكد من حذف هذه الرسالة نهائياً؟')) await deleteDoc(doc(db, "inquiries", btn.dataset.id)); }); 
         }
 
         // ===================================
-        // Notepad Section (NEW)
+        // Applications Section
+        // ===================================
+        function loadApplications() {
+            const panel = document.getElementById('applications-panel');
+            panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة التطبيقات</h1><button id="add-app-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة تطبيق</button></div>
+            <div class="overflow-x-auto"><table class="w-full text-right responsive-table"><thead class="bg-gray-100"><tr><th class="p-3">الأيقونة</th><th class="p-3">الاسم</th><th class="p-3">رابط التحميل (Android)</th><th class="p-3">رابط التحميل (iPhone)</th><th class="p-3">إجراءات</th></tr></thead><tbody id="apps-table-body"></tbody></table></div>`;
+            document.getElementById('add-app-btn').addEventListener('click', () => showApplicationModal());
+            onSnapshot(query(collection(db, "applications"), orderBy("createdAt", "desc")), (snapshot) => {
+                applicationsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const tableBody = document.getElementById('apps-table-body');
+                tableBody.innerHTML = snapshot.empty ? '<tr><td colspan="5" class="p-8 text-center text-gray-500">لا توجد تطبيقات.</td></tr>' : '';
+                applicationsCache.forEach(app => {
+                    const row = tableBody.insertRow();
+                    row.className = 'border-b bg-white';
+                    row.innerHTML = `<td data-label="الأيقونة" class="p-3"><img src="${app.iconUrl || ''}" alt="${app.name}" class="w-16 h-16 object-cover rounded-md"></td><td data-label="الاسم" class="p-3 font-semibold">${app.name}</td><td data-label="Android" class="p-3"><a href="${app.apkUrl || '#'}" target="_blank" class="text-blue-600 hover:underline">${app.apkUrl ? 'رابط مباشر' : '---'}</a></td><td data-label="iPhone" class="p-3"><a href="${app.iosUrl || '#'}" target="_blank" class="text-blue-600 hover:underline">${app.iosUrl ? 'رابط AppStore' : '---'}</a></td><td data-label="إجراءات" class="p-3 actions-cell"><button class="edit-app-btn text-indigo-500 hover:text-indigo-700 mr-4" data-id="${app.id}"><i class="fas fa-edit fa-lg"></i></button><button class="delete-app-btn text-red-500 hover:text-red-700" data-id="${app.id}"><i class="fas fa-trash fa-lg"></i></button></td>`;
+                });
+                attachApplicationActionListeners();
+            });
+        }
+        function showApplicationModal(app = null) {
+            const title = app ? 'تعديل التطبيق' : 'إضافة تطبيق جديد';
+            const content = `<div class="space-y-4"><div><label class="font-semibold">اسم التطبيق</label><input type="text" id="app-name" class="mt-1 w-full p-2 border rounded" value="${app?.name || ''}" required></div><div><label class="font-semibold">الوصف</label><textarea id="app-description" class="mt-1 w-full p-2 border rounded" rows="4">${app?.description || ''}</textarea></div><div><label class="font-semibold">رابط أيقونة التطبيق</label><input type="text" id="app-icon-url" class="mt-1 w-full p-2 border rounded" value="${app?.iconUrl || ''}" required></div><div class="border-t pt-4 space-y-4"><h4 class="font-bold text-gray-800">روابط التحميل</h4><div><label class="font-semibold flex items-center gap-2 text-gray-700"><i class="fab fa-google-play text-lg"></i> رابط التطبيق على Google Play</label><input type="text" id="app-google-play-url" class="mt-1 w-full p-2 border rounded" value="${app?.googlePlayUrl || ''}"></div><div><label class="font-semibold flex items-center gap-2 text-green-700"><i class="fas fa-file-archive text-lg"></i> رابط التحميل المباشر (ملف APK)</label><input type="text" id="app-apk-url" class="mt-1 w-full p-2 border rounded" value="${app?.apkUrl || ''}"></div><div><label class="font-semibold flex items-center gap-2 text-sky-600"><i class="fab fa-telegram text-lg"></i> رابط التطبيق على Telegram</label><input type="text" id="app-telegram-url" class="mt-1 w-full p-2 border rounded" value="${app?.telegramUrl || ''}"></div><div><label class="font-semibold flex items-center gap-2 text-black"><i class="fab fa-apple text-lg"></i> رابط التطبيق على App Store (للآيفون)</label><input type="text" id="app-ios-url" class="mt-1 w-full p-2 border rounded" value="${app?.iosUrl || ''}"></div></div></div>`;
+            showModal(title, content, async () => {
+                const name = document.getElementById('app-name').value.trim();
+                const iconUrl = document.getElementById('app-icon-url').value.trim();
+                const googlePlayUrl = document.getElementById('app-google-play-url').value.trim(); const apkUrl = document.getElementById('app-apk-url').value.trim(); const telegramUrl = document.getElementById('app-telegram-url').value.trim(); const iosUrl = document.getElementById('app-ios-url').value.trim();
+                if (!name || !iconUrl) return alert('يرجى ملء اسم التطبيق ورابط الأيقونة.');
+                if (!googlePlayUrl && !apkUrl && !telegramUrl && !iosUrl) return alert('يجب توفير رابط تحميل واحد على الأقل.');
+
+                try {
+                    showLoadingModal('جاري حفظ البيانات...');
+                    const appData = { name, description: document.getElementById('app-description').value.trim(), iconUrl, googlePlayUrl, apkUrl, telegramUrl, iosUrl, updatedAt: serverTimestamp() };
+                    if (app) await updateDoc(doc(db, "applications", app.id), appData);
+                    else { appData.createdAt = serverTimestamp(); await addDoc(collection(db, "applications"), appData); }
+                    closeModal();
+                } catch (error) { showModal('خطأ فادح', `فشل حفظ التطبيق: ${error.message}`, () => closeModal(), 'موافق', false); }
+            });
+        }
+        function attachApplicationActionListeners() {
+            document.querySelectorAll('.edit-app-btn').forEach(btn => btn.onclick = () => showApplicationModal(applicationsCache.find(a => a.id === btn.dataset.id)));
+            document.querySelectorAll('.delete-app-btn').forEach(btn => btn.onclick = async () => {
+                if (confirm('هل أنت متأكد من حذف هذا التطبيق؟')) await deleteDoc(doc(db, "applications", btn.dataset.id));
+            });
+        }
+
+        // ===================================
+        // Notepad Section
         // ===================================
         function loadNotepad() {
             const panel = document.getElementById('notepad-panel');
-            panel.innerHTML = `<div class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold text-gray-800">المفكرة الاحترافية</h1>
-                <button id="add-note-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700">
-                    <i class="fas fa-plus mr-2"></i> إضافة ملاحظة
-                </button>
-            </div>
-            <div id="notes-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                </div>`;
-
+            panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">المفكرة الاحترافية</h1><button id="add-note-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة ملاحظة</button></div><div id="notes-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>`;
             document.getElementById('add-note-btn').addEventListener('click', () => showNoteModal());
-
-            const listContainer = document.getElementById('notes-list');
             onSnapshot(query(collection(db, "notes"), orderBy("updatedAt", "desc")), (snapshot) => {
-                notesCache = [];
-                listContainer.innerHTML = snapshot.empty ? '<p class="text-center text-gray-500 col-span-full mt-8">لا توجد ملاحظات. أضف ملاحظة جديدة للبدء.</p>' : '';
-                snapshot.forEach(doc => {
-                    const note = { id: doc.id, ...doc.data() };
-                    notesCache.push(note);
-
-                    const statusMap = {
-                        'Pending': { text: 'قيد الانتظار', color: 'bg-yellow-100 text-yellow-800' },
-                        'In Progress': { text: 'قيد التنفيذ', color: 'bg-blue-100 text-blue-800' },
-                        'Resolved': { text: 'تمت التسوية', color: 'bg-green-100 text-green-800' }
-                    };
+                notesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const listContainer = document.getElementById('notes-list');
+                listContainer.innerHTML = snapshot.empty ? '<p class="text-center text-gray-500 col-span-full mt-8">لا توجد ملاحظات.</p>' : '';
+                notesCache.forEach(note => {
+                    const statusMap = { 'Pending': { text: 'قيد الانتظار', color: 'bg-yellow-100 text-yellow-800' }, 'In Progress': { text: 'قيد التنفيذ', color: 'bg-blue-100 text-blue-800' }, 'Resolved': { text: 'تمت التسوية', color: 'bg-green-100 text-green-800' } };
                     const statusInfo = statusMap[note.status] || { text: note.status, color: 'bg-gray-100 text-gray-800' };
-
                     const date = note.updatedAt?.toDate().toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-
                     const card = document.createElement('div');
                     card.className = 'bg-white p-5 rounded-xl shadow-md border-l-4 flex flex-col';
                     card.style.borderLeftColor = note.status === 'Resolved' ? '#10B981' : (note.status === 'In Progress' ? '#3B82F6' : '#F59E0B');
-                    
-                    card.innerHTML = `
-                        <div class="flex-grow">
-                            <div class="flex justify-between items-start">
-                                <h3 class="text-xl font-bold text-gray-800 mb-2">${note.title}</h3>
-                                <span class="text-xs font-bold px-2 py-1 rounded-full ${statusInfo.color}">${statusInfo.text}</span>
-                            </div>
-                            ${note.linkedSupplier ? `<p class="text-sm text-gray-500 mb-3"><i class="fas fa-user-tie fa-fw mr-1"></i> مرتبط بالمورد: <strong>${note.linkedSupplier}</strong></p>` : ''}
-                            ${note.amount > 0 ? `<p class="text-lg font-mono font-bold text-indigo-600 mb-4">${note.amount.toLocaleString()} د.ج</p>` : ''}
-                            
-                            <div class="prose prose-sm max-w-none text-gray-700 mb-4 ql-editor-display">${note.content}</div>
-                        </div>
-                        <div class="border-t pt-3 mt-auto flex justify-between items-center text-sm">
-                            <span class="text-gray-400">${date}</span>
-                            <div>
-                                <button class="edit-note-btn text-indigo-500 hover:text-indigo-700 mr-3" data-id="${note.id}"><i class="fas fa-edit"></i> تعديل</button>
-                                <button class="delete-note-btn text-red-500 hover:text-red-700" data-id="${note.id}"><i class="fas fa-trash"></i> حذف</button>
-                            </div>
-                        </div>
-                    `;
-                    // Sanitize the content before displaying
+                    card.innerHTML = `<div class="flex-grow"><div class="flex justify-between items-start"><h3 class="text-xl font-bold text-gray-800 mb-2">${note.title}</h3><span class="text-xs font-bold px-2 py-1 rounded-full ${statusInfo.color}">${statusInfo.text}</span></div>${note.linkedSupplier ? `<p class="text-sm text-gray-500 mb-3"><i class="fas fa-user-tie fa-fw mr-1"></i> مرتبط بالمورد: <strong>${note.linkedSupplier}</strong></p>` : ''}${note.amount > 0 ? `<p class="text-lg font-mono font-bold text-indigo-600 mb-4">${note.amount.toLocaleString()} د.ج</p>` : ''}<div class="prose prose-sm max-w-none text-gray-700 mb-4 ql-editor-display">${note.content}</div></div><div class="border-t pt-3 mt-auto flex justify-between items-center text-sm"><span class="text-gray-400">${date}</span><div><button class="edit-note-btn text-indigo-500 hover:text-indigo-700 mr-3" data-id="${note.id}"><i class="fas fa-edit"></i> تعديل</button><button class="delete-note-btn text-red-500 hover:text-red-700" data-id="${note.id}"><i class="fas fa-trash"></i> حذف</button></div></div>`;
                     const displayContent = card.querySelector('.ql-editor-display');
-                    displayContent.innerHTML = note.content;
-                    // Remove script tags for security
-                    displayContent.querySelectorAll('script').forEach(el => el.remove());
-
+                    displayContent.innerHTML = DOMPurify.sanitize(note.content);
                     listContainer.appendChild(card);
                 });
                 attachNoteActionListeners();
             });
         }
-
         function showNoteModal(note = null) {
             const title = note ? 'تعديل الملاحظة' : 'إضافة ملاحظة جديدة';
-            
             const uniqueSuppliers = [...new Set(productsCache.map(p => p.supplier).filter(Boolean))];
-            const supplierOptions = uniqueSuppliers.map(s => `<option value="${s}" ${note && note.linkedSupplier === s ? 'selected' : ''}>${s}</option>`).join('');
-
-            const content = `
-                <div class="space-y-4">
-                    <div>
-                        <label class="font-semibold">عنوان الملاحظة</label>
-                        <input type="text" id="note-title" class="mt-1 w-full p-2 border rounded" value="${note ? note.title : ''}" required>
-                    </div>
-                     <div>
-                        <label class="font-semibold">المحتوى</label>
-                        <div id="note-content-editor" class="mt-1 bg-white" style="min-height: 150px;"></div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="font-semibold">المبلغ المالي (د.ج)</label>
-                            <input type="number" id="note-amount" class="mt-1 w-full p-2 border rounded" placeholder="اختياري" value="${note ? note.amount || '' : ''}">
-                        </div>
-                        <div>
-                            <label class="font-semibold">الحالة</label>
-                             <select id="note-status" class="mt-1 w-full p-2 border rounded bg-white">
-                                <option value="Pending" ${note && note.status === 'Pending' ? 'selected' : ''}>قيد الانتظار</option>
-                                <option value="In Progress" ${note && note.status === 'In Progress' ? 'selected' : ''}>قيد التنفيذ</option>
-                                <option value="Resolved" ${note && note.status === 'Resolved' ? 'selected' : ''}>تمت التسوية</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="font-semibold">ربط بمورد (اختياري)</label>
-                        <select id="note-linked-supplier" class="mt-1 w-full p-2 border rounded bg-white">
-                            <option value="">-- بدون ربط --</option>
-                            ${supplierOptions}
-                        </select>
-                    </div>
-                </div>
-            `;
-            
+            const supplierOptions = uniqueSuppliers.map(s => `<option value="${s}" ${note?.linkedSupplier === s ? 'selected' : ''}>${s}</option>`).join('');
+            const content = `<div class="space-y-4"><div><label class="font-semibold">عنوان الملاحظة</label><input type="text" id="note-title" class="mt-1 w-full p-2 border rounded" value="${note?.title || ''}" required></div><div><label class="font-semibold">المحتوى</label><div id="note-content-editor" class="mt-1 bg-white" style="min-height: 150px;"></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="font-semibold">المبلغ المالي (د.ج)</label><input type="number" id="note-amount" class="mt-1 w-full p-2 border rounded" placeholder="اختياري" value="${note?.amount || ''}"></div><div><label class="font-semibold">الحالة</label><select id="note-status" class="mt-1 w-full p-2 border rounded bg-white"><option value="Pending" ${note?.status === 'Pending' ? 'selected' : ''}>قيد الانتظار</option><option value="In Progress" ${note?.status === 'In Progress' ? 'selected' : ''}>قيد التنفيذ</option><option value="Resolved" ${note?.status === 'Resolved' ? 'selected' : ''}>تمت التسوية</option></select></div></div><div><label class="font-semibold">ربط بمورد (اختياري)</label><select id="note-linked-supplier" class="mt-1 w-full p-2 border rounded bg-white"><option value="">-- بدون ربط --</option>${supplierOptions}</select></div></div>`;
             let noteQuill;
             showModal(title, content, async () => {
                 const noteTitle = document.getElementById('note-title').value.trim();
-                const noteContent = noteQuill.root.innerHTML.trim();
-                const amount = parseFloat(document.getElementById('note-amount').value) || 0;
-                const status = document.getElementById('note-status').value;
-                const linkedSupplier = document.getElementById('note-linked-supplier').value;
-
-                if (!noteTitle || noteContent === '<p><br></p>') {
-                    alert('يرجى إدخال عنوان ومحتوى للملاحظة.');
-                    return;
-                }
-
-                const noteData = {
-                    title: noteTitle,
-                    content: noteContent,
-                    amount,
-                    status,
-                    linkedSupplier,
-                    updatedAt: serverTimestamp()
-                };
-
+                const noteContentHTML = noteQuill.root.innerHTML.trim();
+                if (!noteTitle || noteContentHTML === '<p><br></p>') return alert('يرجى إدخال عنوان ومحتوى للملاحظة.');
+                
+                const cleanContent = DOMPurify.sanitize(noteContentHTML);
+                const noteData = { title: noteTitle, content: cleanContent, amount: parseFloat(document.getElementById('note-amount').value) || 0, status: document.getElementById('note-status').value, linkedSupplier: document.getElementById('note-linked-supplier').value, updatedAt: serverTimestamp() };
                 showLoadingModal('جاري الحفظ...');
                 try {
-                    if (note) {
-                        await updateDoc(doc(db, "notes", note.id), noteData);
-                    } else {
-                        noteData.createdAt = serverTimestamp();
-                        await addDoc(collection(db, "notes"), noteData);
-                    }
+                    if (note) await updateDoc(doc(db, "notes", note.id), noteData);
+                    else { noteData.createdAt = serverTimestamp(); await addDoc(collection(db, "notes"), noteData); }
                     closeModal();
-                } catch (error) {
-                    console.error("Error saving note:", error);
-                    showModal('خطأ', `فشل حفظ الملاحظة: ${error.message}`, () => closeModal(), 'موافق', false);
+                } catch (error) { showModal('خطأ', `فشل حفظ الملاحظة: ${error.message}`, () => closeModal(), 'موافق', false); }
+            });
+            noteQuill = new Quill('#note-content-editor', { theme: 'snow', modules: { toolbar: [['bold', 'italic', 'underline'], [{'list': 'ordered'}, {'list': 'bullet'}],[{ 'color': [] }, { 'background': [] }],['clean']] } });
+            if (note?.content) noteQuill.root.innerHTML = note.content;
+        }
+        function attachNoteActionListeners() {
+            document.querySelectorAll('.edit-note-btn').forEach(btn => btn.onclick = () => showNoteModal(notesCache.find(n => n.id === btn.dataset.id)));
+            document.querySelectorAll('.delete-note-btn').forEach(btn => btn.onclick = async () => { if (confirm('هل أنت متأكد من حذف هذه الملاحظة نهائياً؟')) await deleteDoc(doc(db, "notes", btn.dataset.id)); });
+        }
+
+        // ===================================
+        // Store Settings Section (UPGRADED)
+        // ===================================
+    async function loadStoreSettings() {
+            const panel = document.getElementById('settings-panel');
+            panel.innerHTML = `<div class="loader mx-auto mt-10"></div>`;
+            const docRef = doc(db, "settings", "storeConfig");
+            const docSnap = await getDoc(docRef);
+            const settings = docSnap.exists() ? docSnap.data() : {};
+
+            panel.innerHTML = `
+                <h1 class="text-3xl font-bold text-gray-800 mb-6">إعدادات المتجر</h1>
+                <div class="space-y-8">
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold mb-4 border-b pb-2">شعار المتجر (اللوقو)</h3>
+                        <p class="text-sm text-gray-500 mb-3">هذا هو الشعار الذي يظهر للزبائن.</p>
+                        <div id="logo-image-preview" class="mt-2 mb-3"><img src="${settings.logoUrl || 'https://placehold.co/200x80/e2e8f0/94a3b8?text=Logo'}" class="w-40 h-auto object-contain rounded-md bg-gray-100 p-2 border"></div>
+                        <input type="file" id="logo-image-file" accept="image/*" class="mt-2">
+                    </div>
+                    
+                     <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold mb-4 border-b pb-2">رسالة إعلانية عامة (Banner)</h3>
+                        <div class="flex items-center justify-between mb-4">
+                            <label for="banner-active-toggle" class="font-semibold text-lg">تفعيل الرسالة الإعلانية</label>
+                            <label class="toggle-switch"><input type="checkbox" id="banner-active-toggle" ${settings.isBannerActive ? 'checked' : ''}><span class="slider"></span></label>
+                        </div>
+                        <div class="mt-4"><label class="font-semibold">نص الرسالة</label><input type="text" id="banner-message" class="w-full p-2 mt-1 border rounded" placeholder="مثال: تخفيضات 20% على كل المنتجات!" value="${settings.bannerMessage || ''}"></div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold mb-4 border-b pb-2">نافذة التوصيات المنبثقة</h3>
+                        <div class="flex items-center justify-between mb-4"><label for="recommendation-active-toggle" class="font-semibold text-lg">تفعيل نافذة "هل تحتاج توصية؟"</label><label class="toggle-switch"><input type="checkbox" id="recommendation-active-toggle" ${settings.isRecommendationActive ? 'checked' : ''}><span class="slider"></span></label></div>
+                        <div class="mt-4"><label class="font-semibold">نص الرسالة</label><textarea id="recommendation-message" rows="3" class="w-full p-2 mt-1 border rounded" placeholder="...">${settings.recommendationMessage || 'هل تحتاج توصية؟ يمكننا أن نعرض عليك أفضل عروضنا الحصرية!'}</textarea></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                           <div><label class="font-semibold">مرات الظهور في اليوم</label><input type="number" id="recommendation-daily-freq" class="w-full p-2 mt-1 border rounded" value="${settings.recommendationDailyFreq || '1'}"></div>
+                           <div><label class="font-semibold">مرات الظهور في الأسبوع</label><input type="number" id="recommendation-weekly-freq" class="w-full p-2 mt-1 border rounded" value="${settings.recommendationWeeklyFreq || '3'}"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                         <h3 class="text-xl font-bold mb-4 border-b pb-2">إعدادات الشحن والتوصيل</h3>
+                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div><label class="font-semibold">تكلفة الشحن (د.ج)</label><input type="number" id="shipping-cost" class="w-full p-2 mt-1 border rounded" value="${settings.shippingCost || ''}" placeholder="مثال: 600"></div>
+                            <div><label class="font-semibold">حد الشحن المجاني (د.ج)</label><input type="number" id="free-shipping-threshold" class="w-full p-2 mt-1 border rounded" value="${settings.freeShippingThreshold || ''}" placeholder="اتركه فارغاً لتعطيل الشحن المجاني"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold mb-4 border-b pb-2">الإعدادات العامة وحالة المتجر</h3>
+                         <div class="flex items-center justify-between bg-red-50 p-4 rounded-lg mb-4"><label for="manual-closed-toggle" class="font-semibold text-lg text-red-800">فرض إغلاق المتجر (للطوارئ)</label><label class="toggle-switch"><input type="checkbox" id="manual-closed-toggle" ${settings.isManuallyClosed ? 'checked' : ''}><span class="slider"></span></label></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div><label class="font-semibold">وقت الفتح</label><input type="time" id="open-time" class="w-full p-2 mt-1 border rounded" value="${settings.openTime || ''}"></div>
+                            <div><label class="font-semibold">وقت الإغلاق</label><input type="time" id="close-time" class="w-full p-2 mt-1 border rounded" value="${settings.closeTime || ''}"></div>
+                        </div>
+                        <div class="mt-4"><label class="font-semibold">رسالة الإغلاق</label><input type="text" id="closed-message" placeholder="مثال: المتجر مغلق حاليًا، نفتح غدًا على الساعة 09:00" class="w-full p-2 mt-1 border rounded" value="${settings.closedMessage || ''}"></div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold mb-4 border-b pb-2">روابط التواصل</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" id="social-phone" placeholder="رقم الهاتف" class="p-2 border rounded" value="${settings.socialLinks?.phone || ''}">
+                            <input type="text" id="social-whatsapp" placeholder="رقم الواتساب (بدون +)" class="p-2 border rounded" value="${settings.socialLinks?.whatsapp || ''}">
+                            <input type="url" id="social-facebook" placeholder="رابط فيسبوك" class="p-2 border rounded" value="${settings.socialLinks?.facebook || ''}">
+                            <input type="url" id="social-instagram" placeholder="رابط انستغرام" class="p-2 border rounded" value="${settings.socialLinks?.instagram || ''}">
+                            <input type="url" id="social-x" placeholder="رابط X (تويتر سابقاً)" class="p-2 border rounded" value="${settings.socialLinks?.x || ''}">
+                            <input type="url" id="social-tiktok" placeholder="رابط تيك توك" class="p-2 border rounded" value="${settings.socialLinks?.tiktok || ''}">
+                            <input type="url" id="social-telegram1" placeholder="رابط تيليجرام 1 (مثال: القناة)" class="p-2 border rounded" value="${settings.socialLinks?.telegram1 || ''}">
+                            <input type="url" id="social-telegram2" placeholder="رابط تيليجرام 2 (مثال: المجموعة)" class="p-2 border rounded" value="${settings.socialLinks?.telegram2 || ''}">
+                            <input type="url" id="social-snapchat" placeholder="رابط سناب شات" class="p-2 border rounded" value="${settings.socialLinks?.snapchat || ''}">
+                        </div>
+                        </div>
+                    
+                     <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold mb-4 border-b pb-2">تحسينات SEO & Pixels</h3>
+                        <div class="space-y-4">
+                           <div><label class="font-semibold">عنوان المتجر (Meta Title)</label><input type="text" id="seo-title" placeholder="اسم متجرك | أفضل المنتجات..." class="w-full p-2 mt-1 border rounded" value="${settings.seoTitle || ''}"></div>
+                           <div><label class="font-semibold">وصف المتجر (Meta Description)</label><textarea id="seo-description" rows="3" class="w-full p-2 mt-1 border rounded">${settings.seoDescription || ''}</textarea></div>
+                           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                               <div><label class="font-semibold">Facebook Pixel ID</label><input type="text" id="fb-pixel-id" placeholder="123456789012345" class="w-full p-2 mt-1 border rounded" value="${settings.fbPixelId || ''}"></div>
+                               <div><label class="font-semibold">Google Analytics ID</label><input type="text" id="ga-id" placeholder="G-XXXXXXXXXX" class="w-full p-2 mt-1 border rounded" value="${settings.gaId || ''}"></div>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 text-right">
+                    <button id="save-settings-btn" class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700">حفظ كل الإعدادات</button>
+                </div>`;
+            
+            document.getElementById('logo-image-file').onchange = (e) => {
+                if(e.target.files && e.target.files[0]) {
+                    selectedFileStore.logo = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onload = (ev) => document.querySelector('#logo-image-preview img').src = ev.target.result;
+                    reader.readAsDataURL(selectedFileStore.logo);
                 }
-            });
+            };
+            document.getElementById('save-settings-btn').onclick = () => saveGeneralSettings(settings);
+        }
 
-            noteQuill = new Quill('#note-content-editor', {
-                theme: 'snow',
-                modules: { toolbar: [
-                    ['bold', 'italic', 'underline'], 
-                    [{'list': 'ordered'}, {'list': 'bullet'}],
-                    [{ 'color': [] }, { 'background': [] }],
-                    ['clean']
-                ]}
-            });
+       async function saveGeneralSettings(currentSettings) { 
+            showLoadingModal("جاري حفظ الإعدادات...");
+            try {
+                let logoUrl = currentSettings.logoUrl || null;
+                if (selectedFileStore.logo) {
+                    const compressedFile = await resizeAndCompressImage(selectedFileStore.logo, 400);
+                    logoUrl = await uploadImageToImgBB(compressedFile);
+                    selectedFileStore.logo = null;
+                }
 
-            if (note && note.content) {
-                noteQuill.root.innerHTML = note.content;
+                const settingsData = {
+                    logoUrl,
+                    isBannerActive: document.getElementById('banner-active-toggle').checked,
+                    bannerMessage: document.getElementById('banner-message').value,
+                    isRecommendationActive: document.getElementById('recommendation-active-toggle').checked,
+                    recommendationMessage: document.getElementById('recommendation-message').value,
+                    recommendationDailyFreq: parseInt(document.getElementById('recommendation-daily-freq').value, 10) || 1,
+                    recommendationWeeklyFreq: parseInt(document.getElementById('recommendation-weekly-freq').value, 10) || 3,
+                    shippingCost: parseFloat(document.getElementById('shipping-cost').value) || 0,
+                    freeShippingThreshold: parseFloat(document.getElementById('free-shipping-threshold').value) || null,
+                    isManuallyClosed: document.getElementById('manual-closed-toggle').checked,
+                    openTime: document.getElementById('open-time').value,
+                    closeTime: document.getElementById('close-time').value,
+                    closedMessage: document.getElementById('closed-message').value,
+                    socialLinks: {
+                        phone: document.getElementById('social-phone').value.trim(),
+                        whatsapp: document.getElementById('social-whatsapp').value.trim(),
+                        facebook: document.getElementById('social-facebook').value.trim(),
+                        instagram: document.getElementById('social-instagram').value.trim(),
+                        x: document.getElementById('social-x').value.trim(),
+                        tiktok: document.getElementById('social-tiktok').value.trim(),
+                        telegram1: document.getElementById('social-telegram1').value.trim(),
+                        telegram2: document.getElementById('social-telegram2').value.trim(),
+                        snapchat: document.getElementById('social-snapchat').value.trim(),
+                    },
+                    seoTitle: document.getElementById('seo-title').value.trim(),
+                    seoDescription: document.getElementById('seo-description').value.trim(),
+                    fbPixelId: document.getElementById('fb-pixel-id').value.trim(),
+                    gaId: document.getElementById('ga-id').value.trim(),
+                };
+
+                await setDoc(doc(db, "settings", "storeConfig"), settingsData, { merge: true });
+                
+                closeModal(); 
+
+                showModal(
+                    'نجاح',
+                    `<div class="text-center">
+                        <i class="fas fa-check-circle text-5xl text-green-500 mx-auto mb-4"></i>
+                        <p class="text-lg">تم تحديث إعدادات المتجر بنجاح!</p>
+                    </div>`,
+                    () => closeModal(),
+                    'حسنًا',
+                    false
+                );
+
+            } catch (error) {
+                closeModal();
+                showModal('خطأ فادح', `فشل حفظ الإعدادات: ${error.message}`, () => closeModal(), 'موافق', false);
             }
         }
-
-        function attachNoteActionListeners() {
-            document.querySelectorAll('.edit-note-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const note = notesCache.find(n => n.id === btn.dataset.id);
-                    if (note) showNoteModal(note);
-                };
-            });
-            document.querySelectorAll('.delete-note-btn').forEach(btn => {
-                btn.onclick = () => {
-                    showModal('تأكيد الحذف', 'هل أنت متأكد من حذف هذه الملاحظة نهائياً؟', async () => {
-                        showLoadingModal('جاري الحذف...');
-                        try {
-                            await deleteDoc(doc(db, "notes", btn.dataset.id));
-                            closeModal();
-                        } catch (error) {
-                            showModal('خطأ', 'فشل حذف الملاحظة.', () => closeModal(), 'موافق', false);
-                        }
-                    }, 'نعم, حذف', true);
-                };
-            });
-        }
-        
         // ===================================
         // General Modal & Helper Functions
         // ===================================
         function showModal(title, content, onConfirm, confirmText = 'حفظ', showCancel = true) {
             const modalContainer = document.getElementById('modal-container');
-            modalContainer.innerHTML = `
-                <div class="modal-backdrop" id="modal-backdrop">
-                    <div class="modal-content">
-                        <div class="flex justify-between items-center mb-4 border-b pb-3"><h3 class="text-xl font-bold">${title}</h3><button id="modal-close-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button></div>
-                        <div id="modal-body">${content}</div>
-                        <div class="flex justify-end gap-4 mt-6 border-t pt-4">
-                            ${showCancel ? `<button id="modal-cancel" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button>` : ''}
-                            <button id="modal-confirm" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700">${confirmText}</button>
-                        </div>
-                    </div>
-                </div>`;
+            modalContainer.innerHTML = `<div class="modal-backdrop" id="modal-backdrop"><div class="modal-content"><div class="flex justify-between items-center mb-4 border-b pb-3"><h3 class="text-xl font-bold">${title}</h3><button id="modal-close-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button></div><div id="modal-body">${content}</div><div class="flex justify-end gap-4 mt-6 border-t pt-4">${showCancel ? `<button id="modal-cancel" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button>` : ''}<button id="modal-confirm" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700">${confirmText}</button></div></div></div>`;
             if (showCancel) document.getElementById('modal-cancel').addEventListener('click', closeModal);
             document.getElementById('modal-close-btn').addEventListener('click', closeModal);
             document.getElementById('modal-backdrop').addEventListener('click', (e) => { if (e.target.id === 'modal-backdrop' && showCancel) closeModal(); });
             document.getElementById('modal-confirm').addEventListener('click', onConfirm);
         }
         function closeModal() { document.getElementById('modal-container').innerHTML = ''; }
-        function showLoadingModal(text = 'جاري الحفظ...') {
-             document.getElementById('modal-container').innerHTML = `<div class="modal-backdrop"><div class="modal-content text-center"><div class="loader mx-auto"></div><p class="mt-4 text-lg font-semibold text-gray-700">${text}</p></div></div>`;
-        }
+        function showLoadingModal(text = 'جاري الحفظ...') { document.getElementById('modal-container').innerHTML = `<div class="modal-backdrop"><div class="modal-content text-center"><div class="loader mx-auto"></div><p class="mt-4 text-lg font-semibold text-gray-700">${text}</p></div></div>`; }
         const adminPassword = document.getElementById('admin-password');
         const togglePasswordBtn = document.getElementById('toggle-password');
         if (togglePasswordBtn) {
@@ -1618,38 +1355,3 @@ ${itemsText}
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
