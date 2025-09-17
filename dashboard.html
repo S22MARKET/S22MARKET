@@ -436,7 +436,8 @@
             document.getElementById('add-category-btn').addEventListener('click', () => showCategoryModal());
             const list = document.getElementById('categories-list');
             
-            onSnapshot(query(collection(db, "categories"), orderBy("name")), (snapshot) => {
+onSnapshot(query(collection(db, "categories"), orderBy("orderIndex")), (snapshot) => {
+
                 categoriesCache = [];
                 list.innerHTML = snapshot.empty ? '<p class="text-center text-gray-500">لا توجد أقسام. أضف قسماً جديداً للبدء.</p>' : '';
                 snapshot.forEach(doc => {
@@ -479,6 +480,10 @@
 
             const content = `
                 <div><label class="font-semibold">اسم القسم الرئيسي</label><input type="text" id="category-name" class="mt-1 w-full p-2 border rounded" value="${category ? category.name : ''}" required></div>
+                <div class="mt-4"><label class="font-semibold">رقم الترتيب (الأصغر يظهر أولاً)</label><input type="number" id="category-order" class="mt-1 w-full p-2 border rounded" value="${category ? category.orderIndex || 0 : 0}"></div>
+
+                
+                
                 <div class="mt-4">
                     <label class="font-semibold">الفروع (Sub-categories)</label>
                     <div id="subcategories-container" class="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">${subcategoriesHtml}</div>
@@ -487,6 +492,9 @@
 
             showModal(title, content, async () => {
                 const name = document.getElementById('category-name').value.trim();
+const orderIndex = parseInt(document.getElementById('category-order').value, 10) || 0; 
+
+
                 if (!name) { alert('الرجاء إدخال اسم القسم الرئيسي.'); return; }
 
                 const subsData = [];
@@ -498,7 +506,7 @@
 
                 showLoadingModal();
                 try {
-                    const data = { name, subcategories: subsData };
+const data = { name, subcategories: subsData, orderIndex: orderIndex };
                     if (category) await updateDoc(doc(db, "categories", category.id), data);
                     else await addDoc(collection(db, "categories"), data);
                     closeModal();
@@ -1407,3 +1415,63 @@
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

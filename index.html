@@ -882,8 +882,7 @@
 
         async function fetchAndRenderCategories() {
             try {
-                const querySnapshot = await getDocs(query(collection(db, "categories"), orderBy("name")));
-                categoriesCache = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+const querySnapshot = await getDocs(query(collection(db, "categories"), orderBy("orderIndex")));                categoriesCache = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
                 elements.categoriesContainer.innerHTML = ''; 
 
