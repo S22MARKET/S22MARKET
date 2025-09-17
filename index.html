@@ -189,7 +189,7 @@
             whatsapp: `https://wa.me/${CONTACT_PHONE_NUMBER}`,
             facebook: "https://www.facebook.com/people/S22market/61563869504735/",
             instagram: "https://www.instagram.com/s22market2/",
-            telegram: "https://t.me/s22market_admin"
+            telegram: "https://t.me/S22MARKET"
         };
         
         const app = initializeApp(firebaseConfig);
@@ -229,6 +229,60 @@
             toast.innerHTML = `<i class="fas ${icon} text-xl sm:text-2xl"></i><span class="text-sm sm:text-base">${message}</span>`;
             elements.toastContainer.appendChild(toast);
             setTimeout(() => toast.remove(), 5000);
+        }
+
+        function showLoadingModal(text = 'جاري التحميل...') {
+            const modalHTML = `
+            <div class="modal-backdrop">
+                <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-sm w-full">
+                    <div class="loader mx-auto"></div>
+                    <p class="mt-4 text-lg font-semibold text-gray-700">${text}</p>
+                </div>
+            </div>`;
+            elements.modalContainer.innerHTML = modalHTML;
+        }
+
+        function showCountdownModal() {
+            return new Promise(resolve => {
+                const phrases = ["سبحان الله", "الحمد لله", "لا إله إلا الله", "الله أكبر", "استغفر الله"];
+                let countdown = 10;
+                let phraseIndex = 0;
+
+                const modalHTML = `
+                <div class="modal-backdrop">
+                    <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-sm w-full">
+                        <i class="fas fa-pray text-5xl text-blue-500 mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">لحظة من فضلك...</h2>
+                        <div id="countdown-content" class="h-16 flex flex-col justify-center">
+                            <p class="text-xl font-semibold text-gray-700">${phrases[phraseIndex]} <span class="font-bold text-2xl">(${countdown})</span></p>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">
+                            
+"
+لأَنْ أَقُولَ: سُبْحَانَ اللهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ؛ أَحَبُّ إِلَيَّ ممَّا طَلَعَتْ عليه الشَّمْسُ.
+الراوي : أبو هريرة | المحدث : مسلم | المصدر : صحيح مسلم
+الصفحة أو الرقم: 2695 | خلاصة حكم المحدث : [صحيح]
+التخريج : أخرجه مسلم (2695)
+
+"                            
+                            
+                            </p>
+                    </div>
+                </div>`;
+                elements.modalContainer.innerHTML = modalHTML;
+                const contentDiv = document.getElementById('countdown-content');
+
+                const interval = setInterval(() => {
+                    phraseIndex = (phraseIndex + 1) % phrases.length;
+                    countdown--;
+                    if (countdown < 0) {
+                        clearInterval(interval);
+                        resolve();
+                    } else {
+                        contentDiv.innerHTML = `<p class="text-xl font-semibold text-gray-700 animate-pulse">${phrases[phraseIndex]} <span class="font-bold text-2xl">(${countdown})</span></p>`;
+                    }
+                }, 1000);
+            });
         }
 
         // --- CART LOGIC ---
@@ -344,10 +398,36 @@
 
         window.updateCartQuantity = updateCartQuantity;
 
-        // --- CHECKOUT & COUPON LOGIC ---
+        // --- CHECKOUT & COUPON LOGIC (UPDATED) ---
         function showCheckoutModal(directProductId = null) {
             appliedCoupon = null; // Reset coupon on modal open
             const modalId = 'checkout-modal';
+            
+            // NEW: Check if the product has specific shipping options
+            const product = directProductId ? productsCache.find(p => p.id === directProductId) : null;
+            const hasSpecificShipping = product && product.shippingOptions && product.shippingOptions.length > 0;
+            
+            let locationInputHTML = '';
+            if (hasSpecificShipping) {
+                const options = product.shippingOptions.map(opt => `<option value="${opt.location}" data-cost="${opt.cost}">${opt.location}</option>`).join('');
+                locationInputHTML = `
+                <div>
+                    <label for="customer-location-select" class="font-semibold text-sm text-gray-700">اختر الولاية أو البلدية</label>
+                    <select id="customer-location-select" required class="mt-1 w-full p-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="" data-cost="0">-- اختر من القائمة --</option>
+                        ${options}
+                    </select>
+                </div>
+                `;
+            } else {
+                locationInputHTML = `
+                <div>
+                    <label for="customer-location-text" class="font-semibold text-sm text-gray-700">الولاية والبلدية (اكتب الولاية ثم البلدية)</label>
+                    <input type="text" id="customer-location-text" required class="mt-1 w-full p-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="مثال: عنابة، البوني">
+                </div>
+                `;
+            }
+
             const modalHTML = `
             <div class="modal-backdrop" id="modal-backdrop-${modalId}">
                 <div class="modal-content" style="max-width: 500px;">
@@ -365,10 +445,9 @@
                                 <label for="customer-contact" class="font-semibold text-sm text-gray-700">رقم الهاتف</label>
                                 <input type="tel" id="customer-contact" required class="mt-1 w-full p-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" dir="ltr">
                             </div>
-                            <div>
-                                <label for="customer-location" class="font-semibold text-sm text-gray-700">الولاية والبلدية  اكتب الولاية ثم البلدية </label>
-                                <input type="text" id="customer-location" required class="mt-1 w-full p-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="مثال: عنابة، البوني">
-                            </div>
+                            
+                            ${locationInputHTML}
+
                             <div>
                                 <label class="font-semibold text-sm text-gray-700">مكان التوصيل</label>
                                 <div class="mt-2 flex gap-4">
@@ -412,6 +491,12 @@
             document.getElementById('submit-order-btn').onclick = () => document.getElementById('order-form').requestSubmit();
             document.getElementById('apply-coupon-btn').onclick = () => applyCoupon(directProductId);
             
+            // NEW: Add event listener for the location select if it exists
+            const locationSelect = document.getElementById('customer-location-select');
+            if (locationSelect) {
+                locationSelect.onchange = () => updatePriceSummary(directProductId);
+            }
+
             updatePriceSummary(directProductId);
         }
 
@@ -481,6 +566,15 @@
             }
             
             let discount = 0;
+            let shippingCost = 0; // NEW: Initialize shipping cost
+
+            // NEW: Check for selected shipping cost
+            const locationSelect = document.getElementById('customer-location-select');
+            if (locationSelect && locationSelect.value) {
+                const selectedOption = locationSelect.options[locationSelect.selectedIndex];
+                shippingCost = parseFloat(selectedOption.dataset.cost) || 0;
+            }
+
             let finalTotal = subtotal;
 
             if (appliedCoupon) {
@@ -495,14 +589,20 @@
                     }
                     discount = (eligibleTotal * appliedCoupon.discountValue) / 100;
                 }
-                finalTotal = Math.max(0, subtotal - discount);
             }
 
-            let summaryHTML = `<div class="flex justify-between"><span>المجموع الفرعي:</span><span class="font-semibold">${subtotal.toLocaleString()} د.ج</span></div>`;
+            finalTotal = Math.max(0, subtotal - discount) + shippingCost; // NEW: Add shipping cost to final total
+
+            let summaryHTML = `<div class="flex justify-between"><span>سعر المنتجات:</span><span class="font-semibold">${subtotal.toLocaleString()} د.ج</span></div>`;
             if (discount > 0) {
                 summaryHTML += `<div class="flex justify-between text-green-600"><span>التخفيض:</span><span class="font-semibold">- ${Math.round(discount).toLocaleString()} د.ج</span></div>`;
             }
-             summaryHTML += `<div class="flex justify-between text-xl font-bold border-t pt-2 mt-2"><span>المجموع النهائي:</span><span class="text-blue-600">${Math.round(finalTotal).toLocaleString()} د.ج</span></div>`;
+            // NEW: Display shipping cost
+            if (shippingCost > 0) {
+                summaryHTML += `<div class="flex justify-between"><span>سعر التوصيل:</span><span class="font-semibold">${shippingCost.toLocaleString()} د.ج</span></div>`;
+            }
+
+            summaryHTML += `<div class="flex justify-between text-xl font-bold border-t pt-2 mt-2"><span>الإجمالي:</span><span class="text-blue-600">${Math.round(finalTotal).toLocaleString()} د.ج</span></div>`;
             
             summaryDiv.innerHTML = summaryHTML;
         }
@@ -515,8 +615,24 @@
 
             const customerName = document.getElementById('customer-name').value.trim();
             const customerContact = document.getElementById('customer-contact').value.trim();
-            const customerLocation = document.getElementById('customer-location').value.trim();
             const deliveryPreference = document.querySelector('input[name="delivery-preference"]:checked').value;
+            const customerInquiry = document.getElementById('customer-inquiry').value.trim();
+
+            // NEW: Get location and shipping cost from the correct input
+            let customerLocation, shippingCost = 0;
+            const locationSelect = document.getElementById('customer-location-select');
+            const locationText = document.getElementById('customer-location-text');
+            if (locationSelect) {
+                if (!locationSelect.value) {
+                    showToast("الرجاء اختيار منطقة التوصيل.", false);
+                    return;
+                }
+                const selectedOption = locationSelect.options[locationSelect.selectedIndex];
+                customerLocation = selectedOption.value;
+                shippingCost = parseFloat(selectedOption.dataset.cost) || 0;
+            } else if (locationText) {
+                customerLocation = locationText.value.trim();
+            }
 
             if (!customerName || !customerContact || !customerLocation) {
                 showToast("الرجاء ملء جميع الحقول الإلزامية.", false);
@@ -524,37 +640,27 @@
             }
 
             submitBtn.disabled = true;
-            await new Promise(resolve => {
-                let countdown = 5;
-                const phrases = ["الله اكبر", "الحمد لله", "استغفر الله", "سبحان الله", "محمد صلى الله عليه وسلم"];
-                let phraseIndex = 0;
-                const interval = setInterval(() => {
-                    submitBtn.innerHTML = `<span class="font-bold text-lg">${phrases[phraseIndex]} (${countdown})</span>`;
-                    phraseIndex = (phraseIndex + 1) % phrases.length;
-                    countdown--;
-                    if (countdown < 0) {
-                        clearInterval(interval);
-                        resolve();
-                    }
-                }, 1000);
-            });
+            elements.modalContainer.innerHTML = ''; // Close the checkout modal
 
-            submitBtn.innerHTML = '<span class="small-loader"></span> جاري الإرسال...';
+            await showCountdownModal();
+            showLoadingModal('جاري إرسال طلبك...');
             
             let orderItems, subtotal, discount = 0, finalTotal;
             if (directProductId) {
                 const product = productsCache.find(p => p.id === directProductId);
                 if (!product) {
                      showToast("حدث خطأ، المنتج غير موجود.", false);
-                     submitBtn.disabled = false;
-                     submitBtn.textContent = 'تأكيد وإرسال الطلب';
+                     elements.modalContainer.innerHTML = ''; // Close loading modal
+                     showCheckoutModal(directProductId); // Re-open checkout
                      return;
                 }
                 orderItems = [{ id: product.id, name: product.name.replace(/<[^>]*>?/gm, ''), quantity: 1, price: product.price }];
                 subtotal = product.price;
             } else {
                  if (cart.length === 0) {
-                    showToast("لا يمكنك إرسال طلب فارغ!", false); return;
+                    showToast("لا يمكنك إرسال طلب فارغ!", false); 
+                    elements.modalContainer.innerHTML = '';
+                    return;
                 }
                 orderItems = cart.map(item => ({ id: item.id, name: item.name.replace(/<[^>]*>?/gm, ''), quantity: item.quantity, price: item.price }));
                 subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -572,16 +678,18 @@
                     }
                     discount = (eligibleTotal * appliedCoupon.discountValue) / 100;
                 }
-                finalTotal = Math.max(0, subtotal - discount);
             }
+
+            finalTotal = Math.max(0, subtotal - discount) + shippingCost; // NEW: Add shipping to final total for saving
 
             try {
                 const orderData = {
                     customerName, customerContact, customerLocation, deliveryPreference,
-                    customerInquiry: document.getElementById('customer-inquiry').value.trim(),
+                    customerInquiry,
                     totalPrice: Math.round(finalTotal),
                     subtotal: subtotal,
                     discount: Math.round(discount),
+                    shippingCost: shippingCost, // NEW: Save shipping cost
                     couponCode: appliedCoupon ? appliedCoupon.code : null,
                     items: orderItems,
                     status: 'new',
@@ -595,7 +703,7 @@
                     await updateDoc(couponRef, { usageCount: increment(1) });
                 }
                 
-                elements.modalContainer.innerHTML = '';
+                elements.modalContainer.innerHTML = ''; // Close loading modal
                 showToast('تم إرسال طلبك بنجاح!');
                 
                 if (!directProductId) {
@@ -606,9 +714,10 @@
 
             } catch (error) {
                 console.error("Error submitting order: ", error);
+                elements.modalContainer.innerHTML = ''; // Close loading modal
                 showToast("حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.", false);
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'تأكيد وإرسال الطلب';
+                // Re-open checkout modal to allow user to try again
+                showCheckoutModal(directProductId);
             }
         }
 
@@ -868,9 +977,6 @@
             }
         }
 
-        // =======================================================
-        // ========== FETCH PRODUCTS - CORRECTED LOGIC ==========
-        // =======================================================
         async function fetchProducts() {
             if (isFetching) return;
             isFetching = true;
@@ -996,7 +1102,7 @@
             if (productId) {
                 highlightedProductId = productId; 
                 try {
-                    elements.modalContainer.innerHTML = `<div class="modal-backdrop"><div style="background-color: white; padding: 2rem; border-radius: 1rem;" class="text-center"><div class="loader mx-auto"></div><p class="mt-4">جاري تحميل المنتج...</p></div></div>`;
+                    showLoadingModal('جاري تحميل المنتج...');
                     
                     const productRef = doc(db, "products", productId);
                     const docSnap = await getDoc(productRef);

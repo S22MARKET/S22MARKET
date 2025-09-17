@@ -682,6 +682,16 @@
             const categoryOptions = categoriesCache.map(cat => `<option value="${cat.id}" ${product && product.categoryId === cat.id ? 'selected' : ''}>${cat.name}</option>`).join('');
             let existingImages = product ? (product.imageUrls || (product.imageUrl ? [product.imageUrl] : [])) : [];
             const existingImagesHTML = existingImages.map(url => `<div class="relative group"><img src="${url}" class="w-24 h-24 rounded object-cover border"><div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-white text-xs text-center">سيتم حذفها عند رفع صور جديدة</span></div></div>`).join('');
+            
+            // NEW: Shipping Options HTML
+            const shippingOptions = product?.shippingOptions || [];
+            let shippingOptionsHTML = shippingOptions.map(opt => `
+                <div class="flex items-center gap-2 mb-2 shipping-option-item">
+                    <input type="text" class="w-full p-2 border rounded shipping-location" value="${opt.location || ''}" placeholder="اسم الموقع (مثال: الجزائر العاصمة)">
+                    <input type="number" class="w-32 p-2 border rounded shipping-cost" value="${opt.cost || ''}" placeholder="السعر (د.ج)">
+                    <button type="button" class="text-red-500 remove-shipping-btn"><i class="fas fa-times-circle"></i></button>
+                </div>
+            `).join('');
 
             const content = `<div class="space-y-4">
                 <div><label class="font-semibold">اسم المنتج</label><div id="product-name-editor" class="mt-1 bg-white"></div></div>
@@ -699,6 +709,14 @@
                 </div>
                 <div><label class="font-semibold">الوصف</label><div id="product-description-editor" class="mt-1 bg-white" style="min-height: 150px;"></div></div>
                 <div><label class="font-semibold">موقع المنتج (اختياري)</label><input type="text" id="product-location" class="mt-1 w-full p-2 border rounded" value="${product?.location || ''}" placeholder="مثال: مستودع الجزائر العاصمة"></div>
+                
+                <div class="border-t pt-4 mt-4">
+                    <label class="font-semibold">أسعار التوصيل الخاصة بالمنتج (اختياري)</label>
+                    <p class="text-sm text-gray-500 mb-2">إذا تركتها فارغة، سيتم تطبيق إعدادات الشحن العامة.</p>
+                    <div id="shipping-options-container" class="space-y-2 bg-gray-50 p-3 rounded-md">${shippingOptionsHTML}</div>
+                    <button type="button" id="add-shipping-option-btn" class="text-sm mt-2 text-indigo-600 font-semibold hover:underline"><i class="fas fa-plus-circle mr-1"></i>إضافة سعر توصيل لموقع جديد</button>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 mt-4">
                     <div><label class="font-semibold text-gray-700">المورد (داخلي)</label><input type="text" id="product-supplier" class="mt-1 w-full p-2 border rounded" value="${product?.supplier || ''}" placeholder="اسم المورد أو الشركة"></div>
                     <div><label class="font-semibold text-gray-700">تواصل المورد (داخلي)</label><textarea id="product-supplier-contact" class="mt-1 w-full p-2 border rounded" rows="3" placeholder="أرقام الهواتف، الإيميل...">${product?.supplierContact || ''}</textarea></div>
@@ -725,6 +743,16 @@
 
                 if (!cleanName || isNaN(price) || !categoryId) return alert('يرجى ملء الحقول الإلزامية: اسم المنتج، السعر، والقسم الرئيسي.');
                 
+                // NEW: Collect shipping options
+                const shippingOptionsData = [];
+                document.querySelectorAll('.shipping-option-item').forEach(item => {
+                    const location = item.querySelector('.shipping-location').value.trim();
+                    const cost = parseFloat(item.querySelector('.shipping-cost').value);
+                    if(location && !isNaN(cost)) {
+                        shippingOptionsData.push({ location, cost });
+                    }
+                });
+                
                 try {
                     let newImageUrls = [];
                     if (imageFiles.length === 0 && product) newImageUrls = existingImages;
@@ -747,6 +775,7 @@
                         supplierContact: document.getElementById('product-supplier-contact').value.trim(),
                         profitValue: parseFloat(document.getElementById('product-profit-value').value) || 0,
                         profitType: document.getElementById('product-profit-type').value,
+                        shippingOptions: shippingOptionsData, // NEW: Add to product data
                         updatedAt: serverTimestamp() 
                     };
                     
@@ -780,6 +809,24 @@
                     reader.readAsDataURL(file);
                 });
             });
+
+            // NEW: Add event listeners for dynamic shipping options
+            const addShippingOption = () => {
+                const container = document.getElementById('shipping-options-container');
+                const newItem = document.createElement('div');
+                newItem.className = 'flex items-center gap-2 mb-2 shipping-option-item';
+                newItem.innerHTML = `
+                    <input type="text" class="w-full p-2 border rounded shipping-location" placeholder="اسم الموقع (مثال: وهران)">
+                    <input type="number" class="w-32 p-2 border rounded shipping-cost" placeholder="السعر (د.ج)">
+                    <button type="button" class="text-red-500 remove-shipping-btn"><i class="fas fa-times-circle"></i></button>
+                `;
+                newItem.querySelector('.remove-shipping-btn').onclick = () => newItem.remove();
+                container.appendChild(newItem);
+            };
+
+            document.getElementById('add-shipping-option-btn').onclick = addShippingOption;
+            document.querySelectorAll('.remove-shipping-btn').forEach(btn => btn.onclick = (e) => e.currentTarget.closest('.shipping-option-item').remove());
+            
             if (product?.categoryId) populateSubcategories(product.categoryId, product.subCategoryName);
         }
 
@@ -849,13 +896,16 @@
 
                     let deliveryDisplay = order.deliveryPreference === 'Home' ? '<span class="text-blue-600 font-semibold"><i class="fas fa-home mr-1"></i> للمنزل</span>' : (order.deliveryPreference === 'Office' ? '<span class="text-purple-600 font-semibold"><i class="fas fa-building mr-1"></i> للمكتب</span>' : '---');
                     const itemsHtml = (order.items || []).map(item => `<div>${item.quantity} x ${item.name}</div>`).join('');
+                    
+                    // NEW: Display specific shipping cost in total if available
+                    const totalPriceDisplay = order.shippingCost ? `${order.totalPrice.toLocaleString()} د.ج (شامل توصيل ${order.shippingCost.toLocaleString()} د.ج)` : `${(order.totalPrice || 0).toLocaleString()} د.ج`;
 
                     const row = tableBody.insertRow();
                     row.className = `border-b ${rowColor} transition-colors`;
                     row.innerHTML = `
                         <td data-label="العميل" class="p-3 font-semibold">${order.customerName}</td><td data-label="الهاتف" class="p-3 font-mono" dir="ltr"><a href="tel:${order.customerContact}" class="hover:underline">${order.customerContact}</a></td>
                         <td data-label="الموقع" class="p-3 text-sm font-medium">${order.customerLocation || '---'}</td><td data-label="نوع التوصيل" class="p-3 text-sm">${deliveryDisplay}</td>
-                        <td data-label="المنتجات" class="p-3 text-sm">${itemsHtml}</td><td data-label="المبلغ" class="p-3 font-mono">${(order.totalPrice || 0).toLocaleString()} د.ج</td>
+                        <td data-label="المنتجات" class="p-3 text-sm">${itemsHtml}</td><td data-label="المبلغ" class="p-3 font-mono">${totalPriceDisplay}</td>
                         <td data-label="الربح" class="p-3"><input type="number" class="profit-input w-24 p-1 border rounded text-center font-mono transition-colors" placeholder="0" value="${order.profit ?? defaultProfit}" data-id="${order.id}"></td>
                         <td data-label="ملاحظات" class="p-3 text-sm text-gray-600">${order.customerInquiry || '---'}</td>
                         <td data-label="الحالة" class="p-3 actions-cell"><select class="order-status-select p-2 rounded-lg border-gray-300 ${statusColor}" data-id="${order.id}"><option value="new" ${order.status === 'new' ? 'selected' : ''}>جديد</option><option value="completed" ${order.status === 'completed' ? 'selected' : ''}>مكتمل</option><option value="canceled" ${order.status === 'canceled' ? 'selected' : ''}>ملغي</option></select></td>
@@ -890,7 +940,9 @@
                 const order = ordersCache.find(o => o.id === e.currentTarget.dataset.id); if (!order) return;
                 const itemsText = (order.items || []).map(item => `   - ${item.quantity} x ${item.name}`).join('\n');
                 const deliveryPreferenceText = order.deliveryPreference === 'Home' ? 'المنزل' : (order.deliveryPreference === 'Office' ? 'المكتب' : 'غير محدد');
-                const messageToCopy = `السلام عليكم ورحمة الله تعالى وبركاته\n\n📋 **معلومات الطلبية** 📋\n\n👤 **اسم العميل:** ${order.customerName}\n📞 **رقم الهاتف:** ${order.customerContact}\n📦 **المنتج:**\n${itemsText}\n📍 **العنوان:** ${order.customerLocation}\n🚚 **التوصيل إلى:** ${deliveryPreferenceText}\n💰 **السعر الإجمالي:** ${order.totalPrice.toLocaleString()} د.ج`.trim();
+                // NEW: Add shipping cost to the copied message if available
+                const finalPriceText = order.shippingCost ? `${order.totalPrice.toLocaleString()} د.ج (شامل التوصيل)` : `${order.totalPrice.toLocaleString()} د.ج`;
+                const messageToCopy = `السلام عليكم ورحمة الله تعالى وبركاته\n\n📋 **معلومات الطلبية** 📋\n\n👤 **اسم العميل:** ${order.customerName}\n📞 **رقم الهاتف:** ${order.customerContact}\n📦 **المنتج:**\n${itemsText}\n📍 **العنوان:** ${order.customerLocation}\n🚚 **التوصيل إلى:** ${deliveryPreferenceText}\n💰 **السعر الإجمالي:** ${finalPriceText}`.trim();
                 navigator.clipboard.writeText(messageToCopy).then(() => {
                     const originalIcon = e.currentTarget.innerHTML;
                     e.currentTarget.innerHTML = '<i class="fas fa-check text-green-500 fa-lg"></i>';
