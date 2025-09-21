@@ -182,6 +182,16 @@
         const loginForm = document.getElementById('login-form');
         const loginError = document.getElementById('login-error');
         const logoutBtn = document.getElementById('logout-btn');
+        
+        // ===================================
+        // General Helper Functions
+        // ===================================
+        const getEl = (id) => document.getElementById(id);
+        const getVal = (id) => getEl(id)?.value || '';
+        const getNum = (id) => parseFloat(getVal(id));
+        const getInt = (id) => parseInt(getVal(id), 10);
+        const getChecked = (id) => getEl(id)?.checked || false;
+
 
         onAuthStateChanged(auth, user => {
             if (user) {
@@ -196,8 +206,8 @@
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('admin-email').value;
-            const password = document.getElementById('admin-password').value;
+            const email = getVal('admin-email');
+            const password = getVal('admin-password');
             loginError.classList.add('hidden');
             try {
                 await signInWithEmailAndPassword(auth, email, password);
@@ -290,7 +300,7 @@
                 `;
         }
         function updateAnalytics() {
-            if(!document.getElementById('total-products')) return; 
+            if(!getEl('total-products')) return; 
             
             const completedOrders = ordersCache.filter(o => o.status === 'completed');
             const incompleteOrders = ordersCache.filter(o => o.status === 'new');
@@ -301,11 +311,11 @@
 
             const avgProfit = completedOrdersCount > 0 ? totalProfit / completedOrdersCount : 0;
 
-            document.getElementById('total-products').textContent = productsCache.length;
-            document.getElementById('total-profit').textContent = `${totalProfit.toLocaleString()} د.ج`;
-            document.getElementById('avg-profit').textContent = `${avgProfit.toFixed(0).toLocaleString()} د.ج`;
-            document.getElementById('completed-orders').textContent = completedOrdersCount;
-            document.getElementById('incomplete-orders').textContent = incompleteOrdersCount;
+            getEl('total-products').textContent = productsCache.length;
+            getEl('total-profit').textContent = `${totalProfit.toLocaleString()} د.ج`;
+            getEl('avg-profit').textContent = `${avgProfit.toFixed(0).toLocaleString()} د.ج`;
+            getEl('completed-orders').textContent = completedOrdersCount;
+            getEl('incomplete-orders').textContent = incompleteOrdersCount;
 
             const last7Days = {};
             const last7DaysProfit = {};
@@ -331,7 +341,7 @@
             const chartLabels = Object.keys(last7Days).map(date => new Date(date).toLocaleDateString('ar-EG', { weekday: 'short', day: 'numeric'}));
             
             const ordersChartData = Object.values(last7Days);
-            const ordersCtx = document.getElementById('ordersChart')?.getContext('2d');
+            const ordersCtx = getEl('ordersChart')?.getContext('2d');
             if (ordersCtx) {
                 if (myChart) myChart.destroy();
                 myChart = new Chart(ordersCtx, {
@@ -352,7 +362,7 @@
             }
 
             const profitChartData = Object.values(last7DaysProfit);
-            const profitCtx = document.getElementById('profitChart')?.getContext('2d');
+            const profitCtx = getEl('profitChart')?.getContext('2d');
             if (profitCtx) {
                 if (profitChart) profitChart.destroy();
                 profitChart = new Chart(profitCtx, {
@@ -397,7 +407,7 @@
             const topProductsLabels = sortedProducts.map(p => p[0]);
             const topProductsData = sortedProducts.map(p => p[1]);
 
-            const topProductsCtx = document.getElementById('topProductsChart')?.getContext('2d');
+            const topProductsCtx = getEl('topProductsChart')?.getContext('2d');
             if (topProductsCtx) {
                 if (topProductsChart) topProductsChart.destroy();
                 topProductsChart = new Chart(topProductsCtx, {
@@ -431,13 +441,12 @@
         // Categories Section
         // ===================================
         function loadCategories() {
-            const panel = document.getElementById('categories-panel');
+            const panel = getEl('categories-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة الأقسام</h1><button id="add-category-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة قسم</button></div><div id="categories-list" class="space-y-4"></div>`;
-            document.getElementById('add-category-btn').addEventListener('click', () => showCategoryModal());
-            const list = document.getElementById('categories-list');
+            getEl('add-category-btn').addEventListener('click', () => showCategoryModal());
+            const list = getEl('categories-list');
             
-onSnapshot(query(collection(db, "categories"), orderBy("orderIndex")), (snapshot) => {
-
+            onSnapshot(query(collection(db, "categories"), orderBy("orderIndex")), (snapshot) => {
                 categoriesCache = [];
                 list.innerHTML = snapshot.empty ? '<p class="text-center text-gray-500">لا توجد أقسام. أضف قسماً جديداً للبدء.</p>' : '';
                 snapshot.forEach(doc => {
@@ -481,9 +490,6 @@ onSnapshot(query(collection(db, "categories"), orderBy("orderIndex")), (snapshot
             const content = `
                 <div><label class="font-semibold">اسم القسم الرئيسي</label><input type="text" id="category-name" class="mt-1 w-full p-2 border rounded" value="${category ? category.name : ''}" required></div>
                 <div class="mt-4"><label class="font-semibold">رقم الترتيب (الأصغر يظهر أولاً)</label><input type="number" id="category-order" class="mt-1 w-full p-2 border rounded" value="${category ? category.orderIndex || 0 : 0}"></div>
-
-                
-                
                 <div class="mt-4">
                     <label class="font-semibold">الفروع (Sub-categories)</label>
                     <div id="subcategories-container" class="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">${subcategoriesHtml}</div>
@@ -491,22 +497,21 @@ onSnapshot(query(collection(db, "categories"), orderBy("orderIndex")), (snapshot
                 </div>`;
 
             showModal(title, content, async () => {
-                const name = document.getElementById('category-name').value.trim();
-const orderIndex = parseInt(document.getElementById('category-order').value, 10) || 0; 
-
+                const name = getVal('category-name').trim();
+                const orderIndex = getInt('category-order') || 0;
 
                 if (!name) { alert('الرجاء إدخال اسم القسم الرئيسي.'); return; }
 
                 const subsData = [];
                 document.querySelectorAll('.subcategory-item').forEach(item => {
-                    const subName = item.querySelector('.sub-name').value.trim();
-                    const subActive = item.querySelector('.sub-active').checked;
+                    const subName = item.querySelector('.sub-name')?.value.trim();
+                    const subActive = item.querySelector('.sub-active')?.checked;
                     if(subName) subsData.push({ name: subName, active: subActive });
                 });
 
                 showLoadingModal();
                 try {
-const data = { name, subcategories: subsData, orderIndex: orderIndex };
+                    const data = { name, subcategories: subsData, orderIndex: orderIndex };
                     if (category) await updateDoc(doc(db, "categories", category.id), data);
                     else await addDoc(collection(db, "categories"), data);
                     closeModal();
@@ -518,7 +523,7 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
             });
 
             const addSubcategory = () => {
-                const container = document.getElementById('subcategories-container');
+                const container = getEl('subcategories-container');
                 const newItem = document.createElement('div');
                 newItem.className = 'flex items-center gap-2 mb-2 subcategory-item';
                 newItem.innerHTML = `
@@ -530,7 +535,7 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
                 container.appendChild(newItem);
             };
 
-            document.getElementById('add-subcategory-btn').onclick = addSubcategory;
+            getEl('add-subcategory-btn').onclick = addSubcategory;
             document.querySelectorAll('.remove-sub-btn').forEach(btn => btn.onclick = (e) => e.currentTarget.closest('.subcategory-item').remove());
         }
         function attachCategoryActionListeners() {
@@ -555,14 +560,14 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
         }
         
         // ===================================
-        // Products Section (MERGED AND UPGRADED)
+        // Products Section
         // ===================================
         function loadProducts() {
-            const panel = document.getElementById('products-panel');
+            const panel = getEl('products-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات</h1><button id="add-product-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div>
             <div id="products-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>`;
 
-            document.getElementById('add-product-btn').addEventListener('click', () => showProductModal());
+            getEl('add-product-btn').addEventListener('click', () => showProductModal());
             onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), (snapshot) => {
                 productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderProductsGrid();
@@ -570,7 +575,7 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
             });
         }
         function renderProductsGrid() {
-            const list = document.getElementById('products-list');
+            const list = getEl('products-list');
             list.innerHTML = productsCache.length === 0 ? '<p class="text-center text-gray-500 col-span-full mt-8">لا توجد منتجات. أضف منتجاً جديداً للبدء.</p>' : '';
             
             productsCache.forEach(product => {
@@ -620,8 +625,8 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
             attachProductActionListeners();
         }
         function populateSubcategories(categoryId, productSubCategory = null) {
-            const subCategoryContainer = document.getElementById('product-subcategory-container');
-            const subCategorySelect = document.getElementById('product-subcategory');
+            const subCategoryContainer = getEl('product-subcategory-container');
+            const subCategorySelect = getEl('product-subcategory');
             if (!subCategoryContainer || !subCategorySelect) return;
 
             const selectedCategory = categoriesCache.find(c => c.id === categoryId);
@@ -691,7 +696,6 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
             let existingImages = product ? (product.imageUrls || (product.imageUrl ? [product.imageUrl] : [])) : [];
             const existingImagesHTML = existingImages.map(url => `<div class="relative group"><img src="${url}" class="w-24 h-24 rounded object-cover border"><div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-white text-xs text-center">سيتم حذفها عند رفع صور جديدة</span></div></div>`).join('');
             
-            // NEW: Shipping Options HTML
             const shippingOptions = product?.shippingOptions || [];
             let shippingOptionsHTML = shippingOptions.map(opt => `
                 <div class="flex items-center gap-2 mb-2 shipping-option-item">
@@ -745,19 +749,21 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
                 const cleanName = DOMPurify.sanitize(nameHTML);
                 const cleanDescription = DOMPurify.sanitize(descriptionHTML);
 
-                const price = parseFloat(document.getElementById('product-price').value);
-                const categoryId = document.getElementById('product-category-select').value;
-                const imageFiles = document.getElementById('product-images').files;
+                const price = getNum('product-price');
+                const categoryId = getVal('product-category-select');
+                const imageFiles = getEl('product-images')?.files || [];
 
                 if (!cleanName || isNaN(price) || !categoryId) return alert('يرجى ملء الحقول الإلزامية: اسم المنتج، السعر، والقسم الرئيسي.');
                 
-                // NEW: Collect shipping options
                 const shippingOptionsData = [];
                 document.querySelectorAll('.shipping-option-item').forEach(item => {
-                    const location = item.querySelector('.shipping-location').value.trim();
-                    const cost = parseFloat(item.querySelector('.shipping-cost').value);
-                    if(location && !isNaN(cost)) {
-                        shippingOptionsData.push({ location, cost });
+                    const location = item.querySelector('.shipping-location')?.value.trim();
+                    const costVal = item.querySelector('.shipping-cost')?.value;
+                    if (location && costVal) {
+                        const cost = parseFloat(costVal);
+                        if (!isNaN(cost)) {
+                            shippingOptionsData.push({ location, cost });
+                        }
                     }
                 });
                 
@@ -775,15 +781,15 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
                     
                     const productData = {
                         name: cleanName, price, description: cleanDescription, categoryId, imageUrls: newImageUrls,
-                        availability: document.getElementById('product-availability').value,
-                        sku: document.getElementById('product-sku').value.trim(),
-                        location: document.getElementById('product-location').value.trim(),
-                        subCategoryName: document.getElementById('product-subcategory').value || null,
-                        supplier: document.getElementById('product-supplier').value.trim(),
-                        supplierContact: document.getElementById('product-supplier-contact').value.trim(),
-                        profitValue: parseFloat(document.getElementById('product-profit-value').value) || 0,
-                        profitType: document.getElementById('product-profit-type').value,
-                        shippingOptions: shippingOptionsData, // NEW: Add to product data
+                        availability: getVal('product-availability'),
+                        sku: getVal('product-sku').trim(),
+                        location: getVal('product-location').trim(),
+                        subCategoryName: getVal('product-subcategory') || null,
+                        supplier: getVal('product-supplier').trim(),
+                        supplierContact: getVal('product-supplier-contact').trim(),
+                        profitValue: getNum('product-profit-value') || 0,
+                        profitType: getVal('product-profit-type'),
+                        shippingOptions: shippingOptionsData,
                         updatedAt: serverTimestamp() 
                     };
                     
@@ -802,9 +808,9 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
             descriptionQuill = new Quill('#product-description-editor', { theme: 'snow', modules: { toolbar: fullToolbarOptions } });
             if (product) { if(product.name) nameQuill.root.innerHTML = product.name; if(product.description) descriptionQuill.root.innerHTML = product.description; }
 
-            document.getElementById('product-category-select').addEventListener('change', (e) => populateSubcategories(e.target.value));
-            document.getElementById('product-images').addEventListener('change', (e) => {
-                const previewContainer = document.getElementById('image-preview-container');
+            getEl('product-category-select').addEventListener('change', (e) => populateSubcategories(e.target.value));
+            getEl('product-images').addEventListener('change', (e) => {
+                const previewContainer = getEl('image-preview-container');
                 previewContainer.innerHTML = '';
                 Array.from(e.target.files).forEach(file => {
                     const reader = new FileReader();
@@ -818,9 +824,8 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
                 });
             });
 
-            // NEW: Add event listeners for dynamic shipping options
             const addShippingOption = () => {
-                const container = document.getElementById('shipping-options-container');
+                const container = getEl('shipping-options-container');
                 const newItem = document.createElement('div');
                 newItem.className = 'flex items-center gap-2 mb-2 shipping-option-item';
                 newItem.innerHTML = `
@@ -832,7 +837,7 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
                 container.appendChild(newItem);
             };
 
-            document.getElementById('add-shipping-option-btn').onclick = addShippingOption;
+            getEl('add-shipping-option-btn').onclick = addShippingOption;
             document.querySelectorAll('.remove-shipping-btn').forEach(btn => btn.onclick = (e) => e.currentTarget.closest('.shipping-option-item').remove());
             
             if (product?.categoryId) populateSubcategories(product.categoryId, product.subCategoryName);
@@ -864,7 +869,7 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
         // Orders Section
         // ===================================
         function loadOrders() {
-            const panel = document.getElementById('orders-panel');
+            const panel = getEl('orders-panel');
             panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">الطلبات الواردة</h1>
                        <div class="overflow-x-auto bg-white rounded-xl shadow-md">
                          <table class="w-full text-right responsive-table">
@@ -880,7 +885,7 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
                            <tbody id="orders-table-body"></tbody>
                          </table>
                        </div>`;
-            const tableBody = document.getElementById('orders-table-body');
+            const tableBody = getEl('orders-table-body');
             
             onSnapshot(query(collection(db, "orders"), orderBy("createdAt", "desc")), (snapshot) => {
                 ordersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -905,7 +910,6 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
                     let deliveryDisplay = order.deliveryPreference === 'Home' ? '<span class="text-blue-600 font-semibold"><i class="fas fa-home mr-1"></i> للمنزل</span>' : (order.deliveryPreference === 'Office' ? '<span class="text-purple-600 font-semibold"><i class="fas fa-building mr-1"></i> للمكتب</span>' : '---');
                     const itemsHtml = (order.items || []).map(item => `<div>${item.quantity} x ${item.name}</div>`).join('');
                     
-                    // NEW: Display specific shipping cost in total if available
                     const totalPriceDisplay = order.shippingCost ? `${order.totalPrice.toLocaleString()} د.ج (شامل توصيل ${order.shippingCost.toLocaleString()} د.ج)` : `${(order.totalPrice || 0).toLocaleString()} د.ج`;
 
                     const row = tableBody.insertRow();
@@ -948,7 +952,6 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
                 const order = ordersCache.find(o => o.id === e.currentTarget.dataset.id); if (!order) return;
                 const itemsText = (order.items || []).map(item => `   - ${item.quantity} x ${item.name}`).join('\n');
                 const deliveryPreferenceText = order.deliveryPreference === 'Home' ? 'المنزل' : (order.deliveryPreference === 'Office' ? 'المكتب' : 'غير محدد');
-                // NEW: Add shipping cost to the copied message if available
                 const finalPriceText = order.shippingCost ? `${order.totalPrice.toLocaleString()} د.ج (شامل التوصيل)` : `${order.totalPrice.toLocaleString()} د.ج`;
                 const messageToCopy = `السلام عليكم ورحمة الله تعالى وبركاته\n\n📋 **معلومات الطلبية** 📋\n\n👤 **اسم العميل:** ${order.customerName}\n📞 **رقم الهاتف:** ${order.customerContact}\n📦 **المنتج:**\n${itemsText}\n📍 **العنوان:** ${order.customerLocation}\n🚚 **التوصيل إلى:** ${deliveryPreferenceText}\n💰 **السعر الإجمالي:** ${finalPriceText}`.trim();
                 navigator.clipboard.writeText(messageToCopy).then(() => {
@@ -969,24 +972,24 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
         }
         
         // ===================================
-        // NEW Coupons Section (IMPROVED)
+        // Coupons Section
         // ===================================
         function loadCoupons() {
-            const panel = document.getElementById('coupons-panel');
+            const panel = getEl('coupons-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold">إدارة الكوبونات</h1><button id="add-coupon-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة كوبون</button></div>
                 <div class="overflow-x-auto bg-white rounded-xl shadow-md">
                 <table class="w-full text-right responsive-table"><thead class="bg-gray-100"><tr>
                     <th class="p-3">الكود</th><th class="p-3">نوع/قيمة التخفيض</th><th class="p-3">الحالة</th>
                     <th class="p-3">الاستخدام</th><th class="p-3">مرات النسخ</th><th class="p-3">فترة الصلاحية</th><th class="p-3">إجراءات</th>
                 </tr></thead><tbody id="coupons-table-body"></tbody></table></div>`;
-            document.getElementById('add-coupon-btn').onclick = () => showCouponModal();
+            getEl('add-coupon-btn').onclick = () => showCouponModal();
             onSnapshot(query(collection(db, "coupons"), orderBy("createdAt", "desc")), snapshot => {
                 couponsCache = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
                 renderCouponsTable();
             });
         }
         function renderCouponsTable() {
-            const tBody = document.getElementById('coupons-table-body');
+            const tBody = getEl('coupons-table-body');
             tBody.innerHTML = couponsCache.length === 0 ? `<tr><td colspan="7" class="p-8 text-center">لم تقم بإضافة أي كوبونات بعد.</td></tr>` : '';
             
             couponsCache.forEach(coupon => {
@@ -1063,22 +1066,26 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
             </div>`;
 
             showModal(coupon ? 'تعديل كوبون' : 'إضافة كوبون', content, async () => {
-                const startDate = document.getElementById('coupon-start').value;
-                const expiryDate = document.getElementById('coupon-expiry').value;
+                const startDate = getVal('coupon-start');
+                const expiryDate = getVal('coupon-expiry');
+                const discountValue = getNum('coupon-value');
+                const appliesTo = getVal('coupon-applies-to');
+
                 const data = {
-                    code: document.getElementById('coupon-code').value.trim().toUpperCase(),
-                    discountType: document.getElementById('coupon-type').value,
-                    discountValue: parseFloat(document.getElementById('coupon-value').value),
+                    code: getVal('coupon-code').trim().toUpperCase(),
+                    discountType: getVal('coupon-type'),
+                    discountValue: discountValue,
                     startsAt: startDate ? Timestamp.fromDate(new Date(startDate)) : null,
                     expiresAt: expiryDate ? Timestamp.fromDate(new Date(expiryDate)) : null,
-                    usageLimit: parseInt(document.getElementById('coupon-usage-limit').value, 10) || null,
-                    appliesTo: document.getElementById('coupon-applies-to').value,
-                    productIds: document.getElementById('coupon-applies-to').value === 'specific_products' ? Array.from(document.getElementById('coupon-products').selectedOptions).map(opt => opt.value) : [],
-                    isActive: document.getElementById('coupon-active-toggle').checked,
+                    usageLimit: getInt('coupon-usage-limit') || null,
+                    appliesTo: appliesTo,
+                    productIds: appliesTo === 'specific_products' ? Array.from(getEl('coupon-products').selectedOptions).map(opt => opt.value) : [],
+                    isActive: getChecked('coupon-active-toggle'),
                     updatedAt: serverTimestamp()
                 };
                 if(!data.code || isNaN(data.discountValue)) return alert('الرجاء إدخال الكود وقيمة التخفيض.');
                 if(data.appliesTo === 'specific_products' && data.productIds.length === 0) return alert('الرجاء اختيار منتج واحد على الأقل.');
+                
                 showLoadingModal();
                 try {
                     if (coupon) await updateDoc(doc(db, "coupons", coupon.id), data);
@@ -1089,8 +1096,8 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
                 }
             });
 
-            const appliesToSelect = document.getElementById('coupon-applies-to');
-            const productsContainer = document.getElementById('coupon-products-container');
+            const appliesToSelect = getEl('coupon-applies-to');
+            const productsContainer = getEl('coupon-products-container');
             const toggleProducts = () => productsContainer.classList.toggle('hidden', appliesToSelect.value !== 'specific_products');
             appliesToSelect.onchange = toggleProducts;
             if (coupon?.appliesTo === 'specific_products' && coupon.productIds) {
@@ -1103,10 +1110,10 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
         // Inquiries Section 
         // ===================================
         function loadInquiries() { 
-            const panel = document.getElementById('inquiries-panel'); 
+            const panel = getEl('inquiries-panel'); 
             panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">الرسائل والطلبات الواردة</h1><div class="overflow-x-auto bg-white rounded-xl shadow-md"><table class="w-full text-right responsive-table"><thead class="bg-gray-100"><tr><th class="p-4">النوع</th><th class="p-4">الرسالة/الطلب</th><th class="p-4">معلومات التواصل</th><th class="p-4">المشرف</th><th class="p-4">الحالة</th><th class="p-4">التاريخ</th><th class="p-4">إجراءات</th></tr></thead><tbody id="inquiries-table-body"></tbody></table></div>`; 
             onSnapshot(query(collection(db, "inquiries"), orderBy("createdAt", "desc")), (snapshot) => { 
-                const tableBody = document.getElementById('inquiries-table-body'); 
+                const tableBody = getEl('inquiries-table-body'); 
                 tableBody.innerHTML = snapshot.empty ? `<tr><td colspan="7" class="p-8 text-center text-gray-500">لا توجد رسائل حاليًا.</td></tr>` : ''; 
                 snapshot.forEach(doc => { 
                     const inquiry = { id: doc.id, ...doc.data() }; 
@@ -1133,13 +1140,13 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
         // Applications Section
         // ===================================
         function loadApplications() {
-            const panel = document.getElementById('applications-panel');
+            const panel = getEl('applications-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة التطبيقات</h1><button id="add-app-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة تطبيق</button></div>
             <div class="overflow-x-auto"><table class="w-full text-right responsive-table"><thead class="bg-gray-100"><tr><th class="p-3">الأيقونة</th><th class="p-3">الاسم</th><th class="p-3">رابط التحميل (Android)</th><th class="p-3">رابط التحميل (iPhone)</th><th class="p-3">إجراءات</th></tr></thead><tbody id="apps-table-body"></tbody></table></div>`;
-            document.getElementById('add-app-btn').addEventListener('click', () => showApplicationModal());
+            getEl('add-app-btn').addEventListener('click', () => showApplicationModal());
             onSnapshot(query(collection(db, "applications"), orderBy("createdAt", "desc")), (snapshot) => {
                 applicationsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const tableBody = document.getElementById('apps-table-body');
+                const tableBody = getEl('apps-table-body');
                 tableBody.innerHTML = snapshot.empty ? '<tr><td colspan="5" class="p-8 text-center text-gray-500">لا توجد تطبيقات.</td></tr>' : '';
                 applicationsCache.forEach(app => {
                     const row = tableBody.insertRow();
@@ -1153,15 +1160,24 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
             const title = app ? 'تعديل التطبيق' : 'إضافة تطبيق جديد';
             const content = `<div class="space-y-4"><div><label class="font-semibold">اسم التطبيق</label><input type="text" id="app-name" class="mt-1 w-full p-2 border rounded" value="${app?.name || ''}" required></div><div><label class="font-semibold">الوصف</label><textarea id="app-description" class="mt-1 w-full p-2 border rounded" rows="4">${app?.description || ''}</textarea></div><div><label class="font-semibold">رابط أيقونة التطبيق</label><input type="text" id="app-icon-url" class="mt-1 w-full p-2 border rounded" value="${app?.iconUrl || ''}" required></div><div class="border-t pt-4 space-y-4"><h4 class="font-bold text-gray-800">روابط التحميل</h4><div><label class="font-semibold flex items-center gap-2 text-gray-700"><i class="fab fa-google-play text-lg"></i> رابط التطبيق على Google Play</label><input type="text" id="app-google-play-url" class="mt-1 w-full p-2 border rounded" value="${app?.googlePlayUrl || ''}"></div><div><label class="font-semibold flex items-center gap-2 text-green-700"><i class="fas fa-file-archive text-lg"></i> رابط التحميل المباشر (ملف APK)</label><input type="text" id="app-apk-url" class="mt-1 w-full p-2 border rounded" value="${app?.apkUrl || ''}"></div><div><label class="font-semibold flex items-center gap-2 text-sky-600"><i class="fab fa-telegram text-lg"></i> رابط التطبيق على Telegram</label><input type="text" id="app-telegram-url" class="mt-1 w-full p-2 border rounded" value="${app?.telegramUrl || ''}"></div><div><label class="font-semibold flex items-center gap-2 text-black"><i class="fab fa-apple text-lg"></i> رابط التطبيق على App Store (للآيفون)</label><input type="text" id="app-ios-url" class="mt-1 w-full p-2 border rounded" value="${app?.iosUrl || ''}"></div></div></div>`;
             showModal(title, content, async () => {
-                const name = document.getElementById('app-name').value.trim();
-                const iconUrl = document.getElementById('app-icon-url').value.trim();
-                const googlePlayUrl = document.getElementById('app-google-play-url').value.trim(); const apkUrl = document.getElementById('app-apk-url').value.trim(); const telegramUrl = document.getElementById('app-telegram-url').value.trim(); const iosUrl = document.getElementById('app-ios-url').value.trim();
+                const name = getVal('app-name').trim();
+                const iconUrl = getVal('app-icon-url').trim();
+                const googlePlayUrl = getVal('app-google-play-url').trim(); 
+                const apkUrl = getVal('app-apk-url').trim(); 
+                const telegramUrl = getVal('app-telegram-url').trim(); 
+                const iosUrl = getVal('app-ios-url').trim();
+
                 if (!name || !iconUrl) return alert('يرجى ملء اسم التطبيق ورابط الأيقونة.');
                 if (!googlePlayUrl && !apkUrl && !telegramUrl && !iosUrl) return alert('يجب توفير رابط تحميل واحد على الأقل.');
 
                 try {
                     showLoadingModal('جاري حفظ البيانات...');
-                    const appData = { name, description: document.getElementById('app-description').value.trim(), iconUrl, googlePlayUrl, apkUrl, telegramUrl, iosUrl, updatedAt: serverTimestamp() };
+                    const appData = { 
+                        name, 
+                        description: getVal('app-description').trim(), 
+                        iconUrl, googlePlayUrl, apkUrl, telegramUrl, iosUrl, 
+                        updatedAt: serverTimestamp() 
+                    };
                     if (app) await updateDoc(doc(db, "applications", app.id), appData);
                     else { appData.createdAt = serverTimestamp(); await addDoc(collection(db, "applications"), appData); }
                     closeModal();
@@ -1170,8 +1186,8 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
         }
         function attachApplicationActionListeners() {
             document.querySelectorAll('.edit-app-btn').forEach(btn => btn.onclick = () => showApplicationModal(applicationsCache.find(a => a.id === btn.dataset.id)));
-            document.querySelectorAll('.delete-app-btn').forEach(btn => btn.onclick = async () => {
-                if (confirm('هل أنت متأكد من حذف هذا التطبيق؟')) await deleteDoc(doc(db, "applications", btn.dataset.id));
+            document.querySelectorAll('.delete-app-btn').forEach(btn => btn.onclick = async (e) => {
+                if (confirm('هل أنت متأكد من حذف هذا التطبيق؟')) await deleteDoc(doc(db, "applications", e.currentTarget.dataset.id));
             });
         }
 
@@ -1179,12 +1195,12 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
         // Notepad Section
         // ===================================
         function loadNotepad() {
-            const panel = document.getElementById('notepad-panel');
+            const panel = getEl('notepad-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">المفكرة الاحترافية</h1><button id="add-note-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة ملاحظة</button></div><div id="notes-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>`;
-            document.getElementById('add-note-btn').addEventListener('click', () => showNoteModal());
+            getEl('add-note-btn').addEventListener('click', () => showNoteModal());
             onSnapshot(query(collection(db, "notes"), orderBy("updatedAt", "desc")), (snapshot) => {
                 notesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const listContainer = document.getElementById('notes-list');
+                const listContainer = getEl('notes-list');
                 listContainer.innerHTML = snapshot.empty ? '<p class="text-center text-gray-500 col-span-full mt-8">لا توجد ملاحظات.</p>' : '';
                 notesCache.forEach(note => {
                     const statusMap = { 'Pending': { text: 'قيد الانتظار', color: 'bg-yellow-100 text-yellow-800' }, 'In Progress': { text: 'قيد التنفيذ', color: 'bg-blue-100 text-blue-800' }, 'Resolved': { text: 'تمت التسوية', color: 'bg-green-100 text-green-800' } };
@@ -1208,12 +1224,19 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
             const content = `<div class="space-y-4"><div><label class="font-semibold">عنوان الملاحظة</label><input type="text" id="note-title" class="mt-1 w-full p-2 border rounded" value="${note?.title || ''}" required></div><div><label class="font-semibold">المحتوى</label><div id="note-content-editor" class="mt-1 bg-white" style="min-height: 150px;"></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="font-semibold">المبلغ المالي (د.ج)</label><input type="number" id="note-amount" class="mt-1 w-full p-2 border rounded" placeholder="اختياري" value="${note?.amount || ''}"></div><div><label class="font-semibold">الحالة</label><select id="note-status" class="mt-1 w-full p-2 border rounded bg-white"><option value="Pending" ${note?.status === 'Pending' ? 'selected' : ''}>قيد الانتظار</option><option value="In Progress" ${note?.status === 'In Progress' ? 'selected' : ''}>قيد التنفيذ</option><option value="Resolved" ${note?.status === 'Resolved' ? 'selected' : ''}>تمت التسوية</option></select></div></div><div><label class="font-semibold">ربط بمورد (اختياري)</label><select id="note-linked-supplier" class="mt-1 w-full p-2 border rounded bg-white"><option value="">-- بدون ربط --</option>${supplierOptions}</select></div></div>`;
             let noteQuill;
             showModal(title, content, async () => {
-                const noteTitle = document.getElementById('note-title').value.trim();
+                const noteTitle = getVal('note-title').trim();
                 const noteContentHTML = noteQuill.root.innerHTML.trim();
                 if (!noteTitle || noteContentHTML === '<p><br></p>') return alert('يرجى إدخال عنوان ومحتوى للملاحظة.');
                 
                 const cleanContent = DOMPurify.sanitize(noteContentHTML);
-                const noteData = { title: noteTitle, content: cleanContent, amount: parseFloat(document.getElementById('note-amount').value) || 0, status: document.getElementById('note-status').value, linkedSupplier: document.getElementById('note-linked-supplier').value, updatedAt: serverTimestamp() };
+                const noteData = { 
+                    title: noteTitle, 
+                    content: cleanContent, 
+                    amount: getNum('note-amount') || 0, 
+                    status: getVal('note-status'), 
+                    linkedSupplier: getVal('note-linked-supplier'), 
+                    updatedAt: serverTimestamp() 
+                };
                 showLoadingModal('جاري الحفظ...');
                 try {
                     if (note) await updateDoc(doc(db, "notes", note.id), noteData);
@@ -1226,14 +1249,14 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
         }
         function attachNoteActionListeners() {
             document.querySelectorAll('.edit-note-btn').forEach(btn => btn.onclick = () => showNoteModal(notesCache.find(n => n.id === btn.dataset.id)));
-            document.querySelectorAll('.delete-note-btn').forEach(btn => btn.onclick = async () => { if (confirm('هل أنت متأكد من حذف هذه الملاحظة نهائياً؟')) await deleteDoc(doc(db, "notes", btn.dataset.id)); });
+            document.querySelectorAll('.delete-note-btn').forEach(btn => btn.onclick = async (e) => { if (confirm('هل أنت متأكد من حذف هذه الملاحظة نهائياً؟')) await deleteDoc(doc(db, "notes", e.currentTarget.dataset.id)); });
         }
 
         // ===================================
-        // Store Settings Section (UPGRADED)
+        // Store Settings Section
         // ===================================
-    async function loadStoreSettings() {
-            const panel = document.getElementById('settings-panel');
+        async function loadStoreSettings() {
+            const panel = getEl('settings-panel');
             panel.innerHTML = `<div class="loader mx-auto mt-10"></div>`;
             const docRef = doc(db, "settings", "storeConfig");
             const docSnap = await getDoc(docRef);
@@ -1317,15 +1340,18 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
                     <button id="save-settings-btn" class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700">حفظ كل الإعدادات</button>
                 </div>`;
             
-            document.getElementById('logo-image-file').onchange = (e) => {
+            getEl('logo-image-file').onchange = (e) => {
                 if(e.target.files && e.target.files[0]) {
                     selectedFileStore.logo = e.target.files[0];
                     const reader = new FileReader();
-                    reader.onload = (ev) => document.querySelector('#logo-image-preview img').src = ev.target.result;
+                    reader.onload = (ev) => {
+                        const previewImg = document.querySelector('#logo-image-preview img');
+                        if (previewImg) previewImg.src = ev.target.result;
+                    };
                     reader.readAsDataURL(selectedFileStore.logo);
                 }
             };
-            document.getElementById('save-settings-btn').onclick = () => saveGeneralSettings(settings);
+            getEl('save-settings-btn').onclick = () => saveGeneralSettings(settings);
         }
 
        async function saveGeneralSettings(currentSettings) { 
@@ -1340,33 +1366,33 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
 
                 const settingsData = {
                     logoUrl,
-                    isBannerActive: document.getElementById('banner-active-toggle').checked,
-                    bannerMessage: document.getElementById('banner-message').value,
-                    isRecommendationActive: document.getElementById('recommendation-active-toggle').checked,
-                    recommendationMessage: document.getElementById('recommendation-message').value,
-                    recommendationDailyFreq: parseInt(document.getElementById('recommendation-daily-freq').value, 10) || 1,
-                    recommendationWeeklyFreq: parseInt(document.getElementById('recommendation-weekly-freq').value, 10) || 3,
-                    shippingCost: parseFloat(document.getElementById('shipping-cost').value) || 0,
-                    freeShippingThreshold: parseFloat(document.getElementById('free-shipping-threshold').value) || null,
-                    isManuallyClosed: document.getElementById('manual-closed-toggle').checked,
-                    openTime: document.getElementById('open-time').value,
-                    closeTime: document.getElementById('close-time').value,
-                    closedMessage: document.getElementById('closed-message').value,
+                    isBannerActive: getChecked('banner-active-toggle'),
+                    bannerMessage: getVal('banner-message'),
+                    isRecommendationActive: getChecked('recommendation-active-toggle'),
+                    recommendationMessage: getVal('recommendation-message'),
+                    recommendationDailyFreq: getInt('recommendation-daily-freq') || 1,
+                    recommendationWeeklyFreq: getInt('recommendation-weekly-freq') || 3,
+                    shippingCost: getNum('shipping-cost') || 0,
+                    freeShippingThreshold: getNum('free-shipping-threshold') || null,
+                    isManuallyClosed: getChecked('manual-closed-toggle'),
+                    openTime: getVal('open-time'),
+                    closeTime: getVal('close-time'),
+                    closedMessage: getVal('closed-message'),
                     socialLinks: {
-                        phone: document.getElementById('social-phone').value.trim(),
-                        whatsapp: document.getElementById('social-whatsapp').value.trim(),
-                        facebook: document.getElementById('social-facebook').value.trim(),
-                        instagram: document.getElementById('social-instagram').value.trim(),
-                        x: document.getElementById('social-x').value.trim(),
-                        tiktok: document.getElementById('social-tiktok').value.trim(),
-                        telegram1: document.getElementById('social-telegram1').value.trim(),
-                        telegram2: document.getElementById('social-telegram2').value.trim(),
-                        snapchat: document.getElementById('social-snapchat').value.trim(),
+                        phone: getVal('social-phone').trim(),
+                        whatsapp: getVal('social-whatsapp').trim(),
+                        facebook: getVal('social-facebook').trim(),
+                        instagram: getVal('social-instagram').trim(),
+                        x: getVal('social-x').trim(),
+                        tiktok: getVal('social-tiktok').trim(),
+                        telegram1: getVal('social-telegram1').trim(),
+                        telegram2: getVal('social-telegram2').trim(),
+                        snapchat: getVal('social-snapchat').trim(),
                     },
-                    seoTitle: document.getElementById('seo-title').value.trim(),
-                    seoDescription: document.getElementById('seo-description').value.trim(),
-                    fbPixelId: document.getElementById('fb-pixel-id').value.trim(),
-                    gaId: document.getElementById('ga-id').value.trim(),
+                    seoTitle: getVal('seo-title').trim(),
+                    seoDescription: getVal('seo-description').trim(),
+                    fbPixelId: getVal('fb-pixel-id').trim(),
+                    gaId: getVal('ga-id').trim(),
                 };
 
                 await setDoc(doc(db, "settings", "storeConfig"), settingsData, { merge: true });
@@ -1390,88 +1416,32 @@ const data = { name, subcategories: subsData, orderIndex: orderIndex };
             }
         }
         // ===================================
-        // General Modal & Helper Functions
+        // Modal & Auth UI Functions
         // ===================================
         function showModal(title, content, onConfirm, confirmText = 'حفظ', showCancel = true) {
-            const modalContainer = document.getElementById('modal-container');
+            const modalContainer = getEl('modal-container');
             modalContainer.innerHTML = `<div class="modal-backdrop" id="modal-backdrop"><div class="modal-content"><div class="flex justify-between items-center mb-4 border-b pb-3"><h3 class="text-xl font-bold">${title}</h3><button id="modal-close-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button></div><div id="modal-body">${content}</div><div class="flex justify-end gap-4 mt-6 border-t pt-4">${showCancel ? `<button id="modal-cancel" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button>` : ''}<button id="modal-confirm" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700">${confirmText}</button></div></div></div>`;
-            if (showCancel) document.getElementById('modal-cancel').addEventListener('click', closeModal);
-            document.getElementById('modal-close-btn').addEventListener('click', closeModal);
-            document.getElementById('modal-backdrop').addEventListener('click', (e) => { if (e.target.id === 'modal-backdrop' && showCancel) closeModal(); });
-            document.getElementById('modal-confirm').addEventListener('click', onConfirm);
+            if (showCancel) getEl('modal-cancel').addEventListener('click', closeModal);
+            getEl('modal-close-btn').addEventListener('click', closeModal);
+            getEl('modal-backdrop').addEventListener('click', (e) => { if (e.target.id === 'modal-backdrop' && showCancel) closeModal(); });
+            getEl('modal-confirm').addEventListener('click', onConfirm);
         }
-        function closeModal() { document.getElementById('modal-container').innerHTML = ''; }
-        function showLoadingModal(text = 'جاري الحفظ...') { document.getElementById('modal-container').innerHTML = `<div class="modal-backdrop"><div class="modal-content text-center"><div class="loader mx-auto"></div><p class="mt-4 text-lg font-semibold text-gray-700">${text}</p></div></div>`; }
-        const adminPassword = document.getElementById('admin-password');
-        const togglePasswordBtn = document.getElementById('toggle-password');
-        if (togglePasswordBtn) {
+        function closeModal() { getEl('modal-container').innerHTML = ''; }
+        function showLoadingModal(text = 'جاري الحفظ...') { getEl('modal-container').innerHTML = `<div class="modal-backdrop"><div class="modal-content text-center"><div class="loader mx-auto"></div><p class="mt-4 text-lg font-semibold text-gray-700">${text}</p></div></div>`; }
+        
+        const adminPassword = getEl('admin-password');
+        const togglePasswordBtn = getEl('toggle-password');
+        if (togglePasswordBtn && adminPassword) {
             togglePasswordBtn.addEventListener('click', () => {
                 const type = adminPassword.getAttribute('type') === 'password' ? 'text' : 'password';
                 adminPassword.setAttribute('type', type);
-                togglePasswordBtn.querySelector('i').classList.toggle('fa-eye');
-                togglePasswordBtn.querySelector('i').classList.toggle('fa-eye-slash');
+                const icon = togglePasswordBtn.querySelector('i');
+                if (icon) {
+                    icon.classList.toggle('fa-eye');
+                    icon.classList.toggle('fa-eye-slash');
+                }
             });
         }
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
