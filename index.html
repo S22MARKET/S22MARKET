@@ -1522,3 +1522,249 @@
     
     </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+    /* أنماط خاصة بنافذة الإشعار الجديدة */
+    @keyframes fadeInBackdrop {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideInUpModal {
+        from { transform: translateY(50px) scale(0.95); opacity: 0; }
+        to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .welcome-modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(17, 24, 39, 0.6); /* لون داكن مع شفافية */
+        backdrop-filter: blur(8px);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        animation: fadeInBackdrop 0.4s ease-out;
+    }
+
+    .welcome-modal-content {
+        background: linear-gradient(145deg, #ffffff, #f7f9fc);
+        border-radius: 1.5rem; /* حواف أكثر دائرية */
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        width: 100%;
+        max-width: 550px;
+        max-height: 90vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid rgba(226, 232, 240, 0.5);
+        animation: slideInUpModal 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .welcome-modal-header {
+        background-color: var(--primary-color, #3b82f6);
+        color: white;
+        padding: 1rem 1.5rem;
+        text-align: center;
+        position: relative;
+    }
+
+    .welcome-modal-header h2 {
+        font-family: 'Tajawal', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 800;
+    }
+    
+    .welcome-modal-body {
+        padding: 2rem 1.5rem;
+        text-align: center;
+        overflow-y: auto;
+    }
+
+    .welcome-modal-body p {
+        color: var(--text-secondary, #475569);
+        font-size: 1.1rem;
+        line-height: 1.8;
+    }
+
+    .highlights-container {
+        margin-top: 1.5rem;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+        text-align: right; /* محاذاة لليمين */
+    }
+
+    @media (min-width: 640px) {
+        .highlights-container {
+             grid-template-columns: 1fr 1fr; /* عمودان على الشاشات الأكبر */
+        }
+    }
+
+
+    .highlight-item {
+        background-color: #f8fafc;
+        border: 1px solid var(--border-color, #e2e8f0);
+        border-radius: 1rem;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .highlight-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        border-color: var(--primary-color, #3b82f6);
+    }
+
+    .highlight-icon {
+        font-size: 1.75rem;
+        width: 4rem;
+        height: 4rem;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        color: white;
+    }
+
+    .highlight-text h4 {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--text-primary, #1e293b);
+        margin-bottom: 0.25rem;
+    }
+
+    .highlight-text p {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: var(--text-secondary, #475569);
+    }
+
+    .welcome-modal-footer {
+        padding: 1.5rem;
+        background-color: #f8fafc;
+        border-top: 1px solid var(--border-color, #e2e8f0);
+    }
+
+    .close-welcome-modal-btn {
+        width: 100%;
+        background-color: var(--primary-hover, #2563eb);
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+        padding: 0.85rem 1rem;
+        border-radius: 0.75rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+    }
+
+    .close-welcome-modal-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 7px 20px rgba(37, 99, 235, 0.3);
+    }
+
+</style>
+
+<div id="welcome-notification-modal" class="welcome-modal-backdrop">
+    <div class="welcome-modal-content">
+        
+        <header class="welcome-modal-header">
+            <h2>السلام عليكم في متجركم S22MARKET</h2>
+        </header>
+
+        <main class="welcome-modal-body">
+            <i class="fas fa-hands-helping" style="font-size: 3rem; color: var(--primary-color, #3b82f6); margin-bottom: 1rem;"></i>
+            <p>
+                نرحب بزوّارنا الكرام وزائراتنا الكريمات! يسعدنا أن نحيطكم علمًا بآخر تحديثاتنا ومفاجآتنا.
+            </p>
+
+            <div class="highlights-container">
+                <div class="highlight-item">
+                    <div class="highlight-icon" style="background-color: #f59e0b;">
+                        <i class="fas fa-hamburger"></i>
+                    </div>
+                    <div class="highlight-text">
+                        <h4>جناح الأطعمة الجديد</h4>
+                        <p>سيباشر عمله رسميًا يوم <strong>الجمعة مساءً</strong> بإذن الله، مع أشهى الخيارات.</p>
+                    </div>
+                </div>
+
+                <div class="highlight-item">
+                    <div class="highlight-icon" style="background-color: #10b981;">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <div class="highlight-text">
+                        <h4>لا تفوتوا الكوبونات!</h4>
+                        <p>اكتشفوا قسم الكوبونات الجديد واستفيدوا من تخفيضات حصرية ومميزة.</p>
+                    </div>
+                </div>
+            </div>
+             <p style="margin-top: 1.5rem; font-size: 1rem;">
+                نؤكد لكم استمرارنا في تقديم جميع المزايا الحالية، وترقبوا المزيد من المفاجآت القادمة التي نعمل عليها خصيصًا لكم!
+            </p>
+        </main>
+
+        <footer class="welcome-modal-footer">
+            <button id="close-welcome-modal-btn" class="close-welcome-modal-btn">رائع!</button>
+        </footer>
+
+    </div>
+</div>
+
+<script>
+    // جافاسكريبت للتحكم في النافذة
+    const welcomeModal = document.getElementById('welcome-notification-modal');
+    const closeWelcomeBtn = document.getElementById('close-welcome-modal-btn');
+
+    // دالة الإغلاق
+    const closeTheModal = () => {
+        // يمكنك إضافة حركة خروج هنا إذا أردت
+        welcomeModal.style.display = 'none';
+        
+        // حفظ حالة "تم العرض" في Local Storage لمنع ظهورها مجدداً في نفس الجلسة
+        sessionStorage.setItem('welcomeModalShown', 'true');
+    };
+
+    // عند الضغط على زر الإغلاق
+    closeWelcomeBtn.addEventListener('click', closeTheModal);
+
+    // عند الضغط خارج النافذة
+    welcomeModal.addEventListener('click', (event) => {
+        if (event.target === welcomeModal) {
+            closeTheModal();
+        }
+    });
+
+    // عرض النافذة فقط إذا لم تظهر من قبل في هذه الجلسة
+    document.addEventListener('DOMContentLoaded', () => {
+        if (sessionStorage.getItem('welcomeModalShown') !== 'true') {
+            welcomeModal.style.display = 'flex';
+        } else {
+            welcomeModal.style.display = 'none';
+        }
+    });
+</script>
