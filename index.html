@@ -36,6 +36,14 @@
             0%, 100% { box-shadow: 0 0 8px var(--danger-color), 0 0 12px var(--danger-color); }
             50% { box-shadow: 0 0 16px #f87171, 0 0 25px #f87171; }
         }
+        /* Animation for reordered products */
+        @keyframes highlight-reorder {
+            from { background-color: #fefce8; /* light yellow */ }
+            to { background-color: var(--bg-card); }
+        }
+        .product-card.reordered {
+            animation: highlight-reorder 1.5s ease;
+        }
 
         /* Loaders & Spinners */
         .loader {
@@ -120,11 +128,13 @@
         #close-btn { font-size: 2.5rem; }
         .side-bar .navbar { padding-top: 1rem; flex-grow: 1; overflow-y: auto; }
         .side-bar .navbar a {
-            display: flex; align-items: center; gap: 1.5rem; padding: 1.2rem 2rem;
+            display: flex; align-items: center; gap: 1.5rem; padding: 1rem 2rem;
             font-size: 1.1rem; font-weight: 500; color: var(--text-secondary); transition: all .2s;
+            border-right: 4px solid transparent; cursor: pointer;
         }
-        .side-bar .navbar a:hover {
+        .side-bar .navbar a:hover, .side-bar .navbar a.active {
             background-color: var(--bg-body); color: var(--primary-color); padding-right: 2.5rem;
+            border-right-color: var(--primary-color);
         }
         .side-bar .navbar a i { font-size: 1.5rem; width: 2.5rem; text-align: center; }
 
@@ -135,6 +145,44 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             position: sticky; top: 100px;
         }
+        /* Style for the subcategory filter container */
+        #subcategories-filter-container {
+            transition: all 0.4s ease-in-out;
+            transform-origin: top;
+        }
+        #subcategories-filter-container.hidden {
+            opacity: 0;
+            transform: scaleY(0.8);
+            height: 0;
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            border-top: 0 !important;
+            overflow: hidden;
+        }
+        /* Style for the subcategory filter pills/buttons */
+        .subcat-filter-btn {
+            background-color: var(--bg-body);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 9999px; /* pill shape */
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .subcat-filter-btn:hover {
+            background-color: #dbeafe; /* light blue */
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .subcat-filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+        }
+
         .product-card {
             background-color: var(--bg-card); border-radius: 1rem;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
@@ -160,12 +208,7 @@
             transition: transform 0.5s ease;
         }
         .product-card:hover .product-image { transform: scale(1.1); }
-        .category-filter-btn.active {
-            background-color: var(--primary-color) !important;
-            color: white !important;
-            font-weight: 700;
-        }
-
+        
         /* Responsive Design */
         @media (max-width: 768px) {
             .filter-aside { position: static; margin-bottom: 1.5rem; }
@@ -185,32 +228,35 @@
             <div id="close-btn" class="fas fa-times icon-btn"></div>
         </div>
         <nav class="navbar">
-            <a href="home_MED02.html"><i class="fas fa-home"></i><span>الرئيسية</span></a>
-            <a href="s22market.html"><i class="fas fa-store" style="color: rgb(251, 200, 34);"></i><span>متجر طلبة الـ 22 (S22MARKET)</span></a>
-            <a href="MED02_BANK_دروس.html"><i class="fas fa-chalkboard-user"></i><span>بنك الدروس</span></a>
-            <a href="MED02_BANK_EXAM.html"><i class="fas fa-file-alt"></i><span>بنك الاختبارات</span></a>
-            <a href="#"><i class="fas fa-project-diagram"></i><span>بنك الخرائط الذهنية</span></a>
-            <a href="#"><i class="fas fa-clone"></i><span>بنك بطاقات الذاكرة</span></a>
-            <a href="JADAWL_2MED.html"><i class="fas fa-clipboard-list"></i><span>جداول المراجعة</span></a>
-            <a href="#"><i class="fas fa-chart-line"></i><span>تحليل الأسئلة</span></a>
-            <a href="DRIVER_MED02.html"><i class="fas fa-folder"></i><span>الدرايفات</span></a>
-            <a href="KAM_BAKIYA_LI.html"><i class="fas fa-stopwatch"></i><span>عداد اختبارك (كم بقي لك)</span></a>
-            <a href="moyen_MED02_.html" class="calculate-average-button"><i class="fas fa-calculator"></i><span>حِسَابُ ٱلْمُعَدَّلِ</span></a>
-            <a href="#" class="alert-btn" onclick="toggleModal()" aria-label="فتح نافذة التنبيه الطبي"><i class="fas fa-exclamation-triangle"></i><span>زر الخطر مهم لكل مسلم ومسلمة</span></a>
-            <a href="ٱخْتِمْ قُرْآنَكَ يَشْفَعْ لَكَ.html"><i class="fas fa-quran"></i><span>وردك اليومي من القران الكريم</span></a>
-            <a href="اِقْرَأْ أَذْكَارَكَ تَشْفَعْ لَكَ.html"><i class="fas fa-praying-hands"></i><span>زر الاستغفار والتسبيح</span></a>
-            <a href="#" class="TAWASLE_ADAT_TAHDITAT_MED02-btn" id="TAWASLE_ADAT_TAHDITAT_MED02Btn" data-count="3" onclick="TAWASLE_ADAT_TAHDITAT_MED02_togglePopup()"><i class="fas fa-sync-alt"></i><span>التحديثات والإشعارات</span></a>
-            <a href="WAJIBATI_ADAT_EALM.html"><i class="fas fa-clipboard-check"></i><span>واجباتي</span></a>
-            <a href="#"><i class="fas fa-user-tie"></i><span>مشرفونا</span></a>
-            <a href="DA3MONA_ADATEALM.html"><i class="fas fa-hands-helping"></i><span>دعمنا</span></a>
-            <a href="#" class="medical-alert-btn" onclick="medicalTogglePopup()" aria-label="فتح نافذة تواصل معنا"><i class="fas fa-headset"></i><span>تواصل معنا</span></a>
+            <div class="p-4 space-y-4">
+                 <a href="#" id="sidebar-food-btn" class="w-full bg-amber-500 text-white font-bold py-3 px-4 rounded-lg text-lg hover:bg-amber-600 transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg">
+                    <i class="fas fa-utensils"></i>
+                    <span>أطعمة</span>
+                </a>
+                <a href="#" id="sidebar-add-product-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg hover:bg-blue-700 transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>إضافة منتج</span>
+                </a>
+            </div>
+            
+            <div class="px-6 py-2">
+                 <h3 class="text-lg font-bold text-gray-800 border-b pb-2">الأقسام</h3>
+            </div>
+            <div id="sidebar-categories-container" class="py-2">
+                <div class="text-center p-4"><div class="loader mx-auto"></div></div>
+            </div>
         </nav>
+        <div class="mt-auto p-4 border-t border-gray-200">
+            <a href="#" id="sidebar-complaint-btn" class="w-full header-btn text-gray-700 bg-gray-100 hover:bg-gray-200 flex items-center justify-center gap-2 border border-gray-200">
+                <i class="fas fa-flag"></i> <span>شكوى/رأي</span>
+            </a>
+        </div>
     </aside>
 
     <div id="page-container">
         <header class="main-header">
             <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                <div id="menu-btn" class="icon-btn md:hidden">
+                <div id="menu-btn" class="icon-btn">
                     <i class="fas fa-bars"></i>
                 </div>
                 
@@ -226,18 +272,13 @@
                         <i class="fas fa-shopping-cart"></i>
                         <span id="cart-badge" class="absolute -top-2 -left-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white hidden">0</span>
                     </button>
-                    <button id="add-product-btn" class="header-btn text-white bg-blue-600 hover:bg-blue-700 flex items-center gap-2">
-                        <i class="fas fa-plus-circle"></i> <span>إضافة منتج</span>
-                    </button>
-                    <button id="add-complaint-btn" class="header-btn text-gray-700 bg-gray-200 hover:bg-gray-300 flex items-center gap-2">
-                        <i class="fas fa-flag"></i> <span>شكوى/رأي</span>
-                    </button>
-                </div>
+                    </div>
             </div>
         </header>
 
         <main class="max-w-7xl mx-auto py-6 sm:py-8 md:py-10 px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8">
+                
                 <aside class="md:col-span-1 filter-aside">
                     <h3 class="text-xl font-bold mb-4 border-b pb-3">البحث والتصنيف</h3>
                     <div class="space-y-4">
@@ -249,13 +290,6 @@
                             </div>
                         </div>
 
-                        <div class="mb-4">
-                            <button id="food-section-btn" class="w-full bg-amber-500 text-white font-bold py-3 px-4 rounded-lg text-lg hover:bg-amber-600 transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg">
-                                <i class="fas fa-utensils"></i>
-                                <span>أطعمة</span>
-                            </button>
-                        </div>
-
                         <div>
                             <label for="price-filter" class="font-semibold text-gray-700 text-sm">ترتيب حسب السعر</label>
                             <select id="price-filter" class="mt-1 w-full p-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -264,13 +298,9 @@
                                 <option value="desc">من الأغلى للأرخص</option>
                             </select>
                         </div>
-                        <div>
-                            <h4 class="font-semibold text-gray-700 text-sm mb-2">الأقسام</h4>
-                            <div id="store-categories" class="space-y-2">
-                                <div class="text-center p-4"><div class="loader mx-auto"></div></div>
-                            </div>
-                        </div>
                     </div>
+                    <div id="subcategories-filter-container" class="mt-4 pt-4 border-t hidden">
+                        </div>
                 </aside>
 
                 <div class="md:col-span-3">
@@ -298,20 +328,19 @@
     <div id="toast-container"></div>
 
     <script type="module">
-        // --- Original JavaScript code remains here ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, getDoc, addDoc, query, orderBy, serverTimestamp, where, limit, startAfter, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         const firebaseConfig = {
-            apiKey: "AIzaSyAxEq-nkLDc3_HM38xb3mhb8ekSXmuFQ7I",
-            authDomain: "s22market-4bdb9.firebaseapp.com",
-            databaseURL: "https://s22market-4bdb9-default-rtdb.firebaseio.com",
-            projectId: "s22market-4bdb9",
-            storageBucket: "s22market-4bdb9.appspot.com",
-            messagingSenderId: "1029564929614",
-            appId: "1:1029564929614:web:2866722c34cf1fb2b8951f",
-            measurementId: "G-VH16M3Q33V"
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
         };
+        
         const CONTACT_PHONE_NUMBER = "213699443914"; 
         const SOCIAL_LINKS = {
             whatsapp: `https://wa.me/${CONTACT_PHONE_NUMBER}`,
@@ -325,7 +354,6 @@
 
         let productsCache = [];
         let categoriesCache = [];
-        let featuredProduct = null;
         let lastVisibleProduct = null;
         let isFetching = false;
         const PRODUCTS_PER_PAGE = 12;
@@ -340,14 +368,17 @@
             grid: document.getElementById('products-grid'),
             loader: document.getElementById('store-loader'),
             noProductsMsg: document.getElementById('no-products-msg'),
-            categoriesContainer: document.getElementById('store-categories'),
             searchInput: document.getElementById('search-input'),
             priceFilter: document.getElementById('price-filter'),
             socialLinksContainer: document.getElementById('social-links-container'),
-            addProductBtn: document.getElementById('add-product-btn'),
-            addComplaintBtn: document.getElementById('add-complaint-btn'),
             cartBtn: document.getElementById('cart-btn'),
             cartBadge: document.getElementById('cart-badge')
+        };
+
+        const closeSidebar = () => {
+            document.querySelector('.side-bar')?.classList.remove('active');
+            document.querySelector('.overlay')?.classList.remove('active');
+            document.body.style.overflow = 'auto';
         };
         
         function showToast(message, isSuccess = true) {
@@ -988,42 +1019,142 @@
                 });
             });
         }
-
+        
         async function fetchAndRenderCategories() {
+            const sidebarCategoriesContainer = document.getElementById('sidebar-categories-container');
+            
             try {
                 const querySnapshot = await getDocs(query(collection(db, "categories"), orderBy("orderIndex")));
                 categoriesCache = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                elements.categoriesContainer.innerHTML = ''; 
-
-                const allButton = document.createElement('button');
-                allButton.className = 'category-filter-btn w-full text-right p-2 rounded-md font-semibold transition-colors active'; 
-                allButton.textContent = 'كل المنتجات';
+                sidebarCategoriesContainer.innerHTML = ''; 
+                
+                const allButton = document.createElement('a');
+                allButton.href = "#";
+                allButton.className = 'category-filter-btn active';
+                allButton.innerHTML = `<i class="fas fa-store"></i> <span>كل المنتجات</span>`;
                 allButton.dataset.id = 'all';
-                elements.categoriesContainer.appendChild(allButton);
+                sidebarCategoriesContainer.appendChild(allButton);
                 
                 categoriesCache.forEach(category => {
-                    const categoryButton = document.createElement('button');
-                    categoryButton.className = 'category-filter-btn w-full text-right p-2 rounded-md font-semibold transition-colors';
-                    categoryButton.textContent = category.name;
+                    const categoryButton = document.createElement('a');
+                    categoryButton.href = "#";
+                    categoryButton.className = 'category-filter-btn';
+                    categoryButton.innerHTML = `<i class="fas fa-chevron-left"></i> <span>${category.name}</span>`;
                     categoryButton.dataset.id = category.id;
-                    elements.categoriesContainer.appendChild(categoryButton);
+                    sidebarCategoriesContainer.appendChild(categoryButton);
                 });
 
-                elements.categoriesContainer.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('category-filter-btn')) {
-                        elements.categoriesContainer.querySelectorAll('.category-filter-btn').forEach(btn => btn.classList.remove('active'));
-                        e.target.classList.add('active');
-                        resetAndFetchProducts();
-                    }
-                });
-
-            } catch (error) {
+            } catch (error)
+            {
                 console.error("Error fetching categories: ", error);
-                elements.categoriesContainer.innerHTML = '<p class="text-red-500">فشل في تحميل الأقسام</p>';
+                const errorMsg = '<p class="text-red-500 p-4">فشل في تحميل الأقسام</p>';
+                sidebarCategoriesContainer.innerHTML = errorMsg;
             }
         }
         
+        // =======================================================================
+        // START: UNIFIED AND ROBUST FILTERING LOGIC
+        // =======================================================================
+
+        /**
+         * This is the centralized function that handles all filtering.
+         * It checks the active main category, subcategory, and search term, 
+         * and updates the visibility of all product cards accordingly.
+         */
+        function applyAllFilters() {
+            const activeMainCategory = document.querySelector('#sidebar-categories-container .category-filter-btn.active')?.dataset.id || 'all';
+            
+            const subcatContainer = document.getElementById('subcategories-filter-container');
+            const activeSubCategoryButton = subcatContainer.classList.contains('hidden') 
+                ? null 
+                : subcatContainer.querySelector('.subcat-filter-btn.active');
+            
+            const activeSubCategory = activeSubCategoryButton ? activeSubCategoryButton.dataset.subcategory : 'all';
+            const searchTerm = elements.searchInput.value.toLowerCase().trim();
+
+            const allCardsInGrid = Array.from(elements.grid.querySelectorAll('.product-card'));
+            let hasVisibleProducts = false;
+
+            allCardsInGrid.forEach(card => {
+                const cardMainCategory = card.dataset.category;
+                const cardSubCategory = card.dataset.subcategory;
+                const cardTitle = card.querySelector('h3').title.toLowerCase();
+
+                const isInCategory = (activeMainCategory === 'all' || cardMainCategory === activeMainCategory);
+                const isInSubcategory = (activeSubCategory === 'all' || cardSubCategory === activeSubCategory);
+                const matchesSearch = (searchTerm === '' || cardTitle.includes(searchTerm));
+
+                if (isInCategory && isInSubcategory && matchesSearch) {
+                    card.style.display = 'flex';
+                    hasVisibleProducts = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            elements.noProductsMsg.classList.toggle('hidden', hasVisibleProducts);
+            elements.grid.classList.toggle('hidden', !hasVisibleProducts);
+        }
+
+        /**
+         * This handles clicks on subcategory filter buttons.
+         */
+        function handleSubcategoryFilter(e) {
+            const button = e.target.closest('.subcat-filter-btn');
+            if (!button) return;
+
+            e.preventDefault();
+            this.querySelectorAll('.subcat-filter-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            applyAllFilters();
+        }
+
+        // =======================================================================
+        // END: UNIFIED AND ROBUST FILTERING LOGIC
+        // =======================================================================
+
+
+        function displaySubcategoryFilters(categoryId) {
+            const subcatContainer = document.getElementById('subcategories-filter-container');
+            if (!subcatContainer) return;
+
+            if (categoryId === 'all') {
+                subcatContainer.innerHTML = '';
+                subcatContainer.classList.add('hidden');
+                return;
+            }
+
+            const category = categoriesCache.find(c => c.id === categoryId);
+            const activeSubcategories = category?.subcategories?.filter(s => s.active) || [];
+
+            if (activeSubcategories.length === 0) {
+                subcatContainer.innerHTML = '';
+                subcatContainer.classList.add('hidden');
+                return;
+            }
+
+            let buttonsHTML = `<button class="subcat-filter-btn active" data-subcategory="all">الكل</button>`;
+            activeSubcategories.forEach(sub => {
+                // Trim whitespace when creating the button to ensure clean data
+                const cleanSubName = sub.name.trim();
+                buttonsHTML += `<button class="subcat-filter-btn" data-subcategory="${cleanSubName}">${cleanSubName}</button>`;
+            });
+
+            const containerHTML = `
+                <h3 class="font-semibold text-gray-700 text-sm mb-2">تصفية حسب الفرع</h3>
+                <div class="flex flex-wrap gap-2">
+                    ${buttonsHTML}
+                </div>
+            `;
+            
+            subcatContainer.innerHTML = containerHTML;
+            subcatContainer.classList.remove('hidden');
+
+            subcatContainer.addEventListener('click', handleSubcategoryFilter);
+        }
+
         function createProductCard(product) {
             const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : (product.imageUrl || '');
             const card = document.createElement('div');
@@ -1032,6 +1163,9 @@
                 cardClasses += ' highlighted-product';
             }
             card.className = cardClasses;
+            // Trim whitespace when setting the dataset to prevent matching errors
+            card.dataset.subcategory = (product.subCategoryName || '').trim();
+            card.dataset.category = product.categoryId || '';
 
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = product.name;
@@ -1074,7 +1208,7 @@
             elements.grid.appendChild(card);
         }
 
-        async function fetchProducts() {
+        async function fetchProducts(fetchAll = false) {
             if (isFetching) return;
             isFetching = true;
             
@@ -1083,16 +1217,10 @@
 
             try {
                 const priceSort = elements.priceFilter.value;
-                const activeCategoryBtn = document.querySelector('.category-filter-btn.active');
-                const selectedCategoryId = activeCategoryBtn ? activeCategoryBtn.dataset.id : 'all';
+                const mustRefetch = fetchAll || priceSort !== 'default';
 
                 let q = collection(db, "products");
-                
                 let constraints = [];
-                
-                if (selectedCategoryId !== 'all') {
-                    constraints.push(where("categoryId", "==", selectedCategoryId));
-                }
 
                 if (priceSort === 'asc') {
                     constraints.push(orderBy("price", "asc"));
@@ -1102,35 +1230,37 @@
                     constraints.push(orderBy("createdAt", "desc"));
                 }
                 
-                if(lastVisibleProduct) {
+                if(!mustRefetch && lastVisibleProduct) {
                     constraints.push(startAfter(lastVisibleProduct));
                 }
 
-                constraints.push(limit(PRODUCTS_PER_PAGE));
+                if(!mustRefetch) {
+                   constraints.push(limit(PRODUCTS_PER_PAGE));
+                }
 
                 const finalQuery = query(q, ...constraints);
                 const documentSnapshots = await getDocs(finalQuery);
 
-                const newProducts = [];
-                documentSnapshots.forEach(doc => newProducts.push({ id: doc.id, ...doc.data() }));
+                const newProducts = documentSnapshots.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                if(mustRefetch) {
+                    productsCache = newProducts;
+                } else {
+                    newProducts.forEach(p => {
+                        if (!productsCache.some(pc => pc.id === p.id)) {
+                            productsCache.push(p);
+                        }
+                    });
+                }
                 
-                newProducts.forEach(p => {
-                    if (!productsCache.some(pc => pc.id === p.id)) {
-                        productsCache.push(p);
-                    }
-                });
-
-                renderPage(newProducts);
-
+                renderPage(newProducts, mustRefetch);
                 lastVisibleProduct = documentSnapshots.docs[documentSnapshots.docs.length - 1];
                 
-                if (documentSnapshots.empty || newProducts.length < PRODUCTS_PER_PAGE) {
-                     if(loadMoreBtn) loadMoreBtn.classList.add('hidden');
-                } else {
-                     if(loadMoreBtn) {
-                         loadMoreBtn.classList.remove('hidden');
-                         loadMoreBtn.innerHTML = 'تحميل المزيد';
-                     }
+                const hasMore = !documentSnapshots.empty && newProducts.length >= PRODUCTS_PER_PAGE && !mustRefetch;
+
+                if (loadMoreBtn) {
+                    loadMoreBtn.classList.toggle('hidden', !hasMore);
+                    loadMoreBtn.innerHTML = 'تحميل المزيد';
                 }
 
             } catch (error) {
@@ -1142,31 +1272,34 @@
             }
         }
 
-        function renderPage(products) {
+
+        function renderPage(products, clearExisting = false) {
+            if(clearExisting) {
+                elements.grid.innerHTML = '';
+            }
+
             products.forEach(product => {
                 createProductCard(product);
             });
             
-            if (elements.grid.children.length === 0) {
-                elements.noProductsMsg.classList.remove('hidden');
-                elements.grid.classList.add('hidden');
-            } else {
-                 elements.noProductsMsg.classList.add('hidden');
-                 elements.grid.classList.remove('hidden');
-            }
+            // After rendering, apply filters to ensure correct visibility
+            applyAllFilters();
 
             const oldBtn = document.getElementById('load-more-btn');
             if(oldBtn) oldBtn.remove();
+            
+            const hasMore = products.length === PRODUCTS_PER_PAGE && !clearExisting;
 
-            if (products.length === PRODUCTS_PER_PAGE) {
+            if (hasMore) {
                 const loadMoreBtn = document.createElement('button');
                 loadMoreBtn.id = 'load-more-btn';
                 loadMoreBtn.className = 'sm:col-span-2 lg:col-span-3 mt-4 w-full bg-gray-700 text-white font-bold py-3 px-5 rounded-lg text-lg hover:bg-gray-800 transition-colors';
                 loadMoreBtn.textContent = 'تحميل المزيد';
-                loadMoreBtn.onclick = fetchProducts;
+                loadMoreBtn.onclick = () => fetchProducts(false);
                 elements.grid.parentNode.insertBefore(loadMoreBtn, elements.grid.nextSibling);
             }
         }
+
 
         function resetAndFetchProducts() {
             productsCache = [];
@@ -1179,7 +1312,7 @@
             const oldBtn = document.getElementById('load-more-btn');
             if(oldBtn) oldBtn.remove();
             
-            fetchProducts();
+            fetchProducts(true);
         }
         
         async function handleDirectProductLink() {
@@ -1287,8 +1420,35 @@
                 window.location.href = 'https://s22market.github.io/TEXMEX/';
             }, 5000);
         }
+
+        function setupSidebar() {
+            const body = document.body;
+            const overlay = document.querySelector('.overlay');
+            const sideBar = document.querySelector('.side-bar');
+            const menuBtn = document.querySelector('#menu-btn');
+            const closeBtn = document.querySelector('#close-btn');
+
+            const openSidebar = () => {
+                sideBar.classList.add('active');
+                overlay.classList.add('active');
+                body.style.overflow = 'hidden';
+            };
+
+            if (menuBtn) {
+                menuBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openSidebar();
+                });
+            }
+
+            // closeSidebar is already defined globally, so we can use it
+            if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+            if (overlay) overlay.addEventListener('click', closeSidebar);
+        }
         
         async function initializeStore() {
+            setupSidebar(); // Setup sidebar functionality
+
             elements.socialLinksContainer.innerHTML = `
                 <a href="${SOCIAL_LINKS.whatsapp}" target="_blank" class="w-12 h-12 flex items-center justify-center bg-green-500 rounded-full text-2xl hover:bg-green-600 transition-transform hover:scale-110"><i class="fab fa-whatsapp"></i></a>
                 <a href="${SOCIAL_LINKS.facebook}" target="_blank" class="w-12 h-12 flex items-center justify-center bg-blue-600 rounded-full text-2xl hover:bg-blue-700 transition-transform hover:scale-110"><i class="fab fa-facebook-f"></i></a>
@@ -1296,10 +1456,23 @@
                 <a href="${SOCIAL_LINKS.telegram}" target="_blank" class="w-12 h-12 flex items-center justify-center bg-sky-500 rounded-full text-2xl hover:bg-sky-600 transition-transform hover:scale-110"><i class="fab fa-telegram"></i></a>
             `;
 
+            // Setup Event Listeners that only need to be attached once
             document.getElementById('secondary-confirm-btn').addEventListener('click', showSecondaryConfirmationModal);
-            document.getElementById('food-section-btn').addEventListener('click', showFoodWelcomeModal);
-
-
+            document.getElementById('sidebar-food-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                showFoodWelcomeModal();
+                closeSidebar();
+            });
+            document.getElementById('sidebar-add-product-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                showInquiryModal('product');
+                closeSidebar();
+            });
+            document.getElementById('sidebar-complaint-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                showInquiryModal('complaint');
+                closeSidebar();
+            });
             elements.grid.addEventListener('click', (e) => {
                 const detailsTrigger = e.target.closest('.product-details-trigger');
                 const cartBtn = e.target.closest('.add-to-cart-btn');
@@ -1311,72 +1484,41 @@
                     showProductDetailModal(detailsTrigger.dataset.id);
                 }
             });
-
             window.addEventListener('popstate', () => {
                 elements.modalContainer.innerHTML = '';
                 if(window.location.hash.startsWith('#product')) {
                     history.replaceState(null, null, window.location.pathname + window.location.search);
                 }
             });
-
-            elements.addProductBtn.addEventListener('click', () => showInquiryModal('product'));
-            elements.addComplaintBtn.addEventListener('click', () => showInquiryModal('complaint'));
             elements.cartBtn.addEventListener('click', showCartModal);
             
-            elements.searchInput.addEventListener('input', () => {
-                const searchTerm = elements.searchInput.value.toLowerCase().trim();
-                let foundProducts = false;
-                document.querySelectorAll('#products-grid > div').forEach(card => {
-                    const title = card.querySelector('h3').title.toLowerCase();
-                    const isVisible = title.includes(searchTerm);
-                    card.style.display = isVisible ? 'flex' : 'none';
-                    if(isVisible) foundProducts = true;
-                });
-                elements.noProductsMsg.style.display = !foundProducts && searchTerm ? 'block' : 'none';
+            // Link search and price filter changes to their respective functions
+            elements.searchInput.addEventListener('input', applyAllFilters);
+            elements.priceFilter.addEventListener('change', resetAndFetchProducts);
+
+            // Main category click handler
+            document.getElementById('sidebar-categories-container').addEventListener('click', (e) => {
+                const button = e.target.closest('.category-filter-btn');
+                if (button) {
+                    e.preventDefault();
+                    document.getElementById('sidebar-categories-container').querySelectorAll('.category-filter-btn').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    const categoryId = button.dataset.id;
+                    displaySubcategoryFilters(categoryId);
+                    applyAllFilters();
+                    closeSidebar();
+                }
             });
 
-            elements.priceFilter.addEventListener('change', () => resetAndFetchProducts());
-
+            // --- Initial Load ---
             await handleDirectProductLink();
-            
             loadCartFromStorage();
             await fetchAndRenderCategories();
-            resetAndFetchProducts();
+            await fetchProducts(true);
         }
 
         initializeStore();
     </script>
-    <script>
-        // --- New Sidebar JavaScript ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const body = document.body;
-            const overlay = document.querySelector('.overlay');
-            const sideBar = document.querySelector('.side-bar');
-            const menuBtn = document.querySelector('#menu-btn');
-            const closeBtn = document.querySelector('#close-btn');
-
-            const closeAllPopups = () => {
-                sideBar.classList.remove('active');
-                overlay.classList.remove('active');
-                body.style.overflow = 'auto';
-            };
-
-            if (menuBtn) {
-                menuBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    sideBar.classList.add('active');
-                    overlay.classList.add('active');
-                    body.style.overflow = 'hidden';
-                });
-            }
-
-            if (closeBtn) closeBtn.addEventListener('click', closeAllPopups);
-            if (overlay) overlay.addEventListener('click', closeAllPopups);
-            
-            document.querySelectorAll('.side-bar .navbar a').forEach(link => {
-                link.addEventListener('click', closeAllPopups);
-            });
-        });
-    </script>
-</body>
+    
+    </body>
 </html>
