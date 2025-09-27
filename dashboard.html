@@ -75,31 +75,56 @@
 </head>
 <body>
 
-    <div id="login-page" class="min-h-screen flex items-center justify-center bg-gray-50">
-        <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-lg text-center">
-            <i class="fas fa-user-shield text-5xl text-indigo-600 mb-4"></i>
-            <h2 class="text-3xl font-extrabold text-gray-900 mb-2">لوحة التحكم</h2>
-            <p class="text-gray-600 mb-6">الرجاء تسجيل الدخول للمتابعة.</p>
-            <form id="login-form">
-                <div class="space-y-4">
-                    <input type="email" id="admin-email" class="w-full px-4 py-3 bg-gray-100 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 transition" placeholder="البريد الإلكتروني" required>
-                    <div class="relative">
-                        <input type="password" id="admin-password" class="w-full px-4 py-3 bg-gray-100 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 transition" placeholder="كلمة المرور" required>
-                        <button type="button" id="toggle-password" class="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                            <i class="fas fa-eye-slash"></i>
-                        </button>
-                    </div>
-                </div>
-                <p id="login-error" class="hidden text-red-500 mt-3">البريد الإلكتروني أو كلمة المرور غير صحيحة.</p>
-                <button type="submit" class="w-full mt-6 bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition-colors text-lg">
-                    <i class="fas fa-sign-in-alt mr-2"></i> دخول
+<div id="login-page" class="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+    <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl space-y-6">
+        <div class="text-center">
+            <i class="fas fa-shield-alt text-6xl text-indigo-600 mb-4"></i>
+            <h2 class="text-3xl font-extrabold text-gray-900">لوحة تحكم S22 Market</h2>
+            <p class="mt-2 text-sm text-gray-600">
+                مرحباً بك مجدداً! الرجاء تسجيل الدخول للمتابعة.
+            </p>
+        </div>
+
+        <form id="login-form" class="space-y-6">
+            <div>
+                <label for="admin-email" class="sr-only">البريد الإلكتروني</label>
+                <input id="admin-email" name="email" type="email" autocomplete="email" required
+                       class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                       placeholder="البريد الإلكتروني">
+            </div>
+
+            <div class="relative">
+                <label for="admin-password" class="sr-only">كلمة المرور</label>
+                <input id="admin-password" name="password" type="password" autocomplete="current-password" required
+                       class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                       placeholder="كلمة المرور">
+                <button type="button" id="toggle-password"
+                        class="absolute inset-y-0 left-0 flex items-center px-4 text-gray-500 hover:text-indigo-600 focus:outline-none">
+                    <i class="fas fa-eye-slash"></i>
                 </button>
-            </form>
-             <a href="index.html" class="block w-full mt-4 bg-gray-200 text-gray-700 font-bold py-3 rounded-lg hover:bg-gray-300 transition-colors text-lg">
-                <i class="fas fa-arrow-left mr-2"></i> العودة للمتجر
+            </div>
+
+            <p id="login-error" class="hidden text-sm text-red-600 text-center">
+                <i class="fas fa-exclamation-circle mr-1"></i> البريد الإلكتروني أو كلمة المرور غير صحيحة.
+            </p>
+
+            <div>
+                <button type="submit"
+                        class="w-full flex justify-center py-3 px-4 border border-transparent text-lg font-bold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300">
+                    <i class="fas fa-sign-in-alt ml-2"></i> دخول
+                </button>
+            </div>
+        </form>
+
+        <div class="text-center mt-4">
+             <a href="index.html"
+                class="font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
+                 <i class="fas fa-arrow-left ml-1"></i> العودة إلى المتجر
             </a>
         </div>
     </div>
+</div>
+
 
     <div id="dashboard-page" class="hidden">
         <div class="relative min-h-screen md:flex">
@@ -117,6 +142,11 @@
                 <nav class="flex-1 p-2 space-y-2">
                     <a href="#analytics" class="dashboard-tab active-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chart-line fa-fw mr-3"></i> لوحة التحكم</a>
                     <a href="#products" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
+               
+<a href="#productRequests" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700">
+    <i class="fas fa-user-plus fa-fw mr-3"></i> طلبات الزوار
+</a>
+
                     <a href="#categories" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
                     <a href="#orders" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
                     <a href="#coupons" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-tags fa-fw mr-3"></i> الكوبونات</a>
@@ -124,6 +154,9 @@
                     <a href="#applications" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
                     <a href="#notepad" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
                     <a href="#settings" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
+               
+               
+               
                 </nav>
                 <div class="p-4 border-t border-gray-700">
                     <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
@@ -133,6 +166,7 @@
             <main class="flex-1 p-4 md:p-8 overflow-y-auto">
                 <div id="analytics-panel" class="dashboard-panel"></div>
                 <div id="products-panel" class="dashboard-panel hidden"></div>
+                <div id="productRequests-panel" class="dashboard-panel hidden"></div>
                 <div id="categories-panel" class="dashboard-panel hidden"></div>
                 <div id="orders-panel" class="dashboard-panel hidden"></div>
                 <div id="coupons-panel" class="dashboard-panel hidden"></div>
@@ -151,7 +185,6 @@
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, serverTimestamp, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // IMPORTANT: Replace this with your Firebase project configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
             authDomain: "s22market-4e3e6.firebaseapp.com",
@@ -183,9 +216,6 @@
         const loginError = document.getElementById('login-error');
         const logoutBtn = document.getElementById('logout-btn');
         
-        // ===================================
-        // General Helper Functions
-        // ===================================
         const getEl = (id) => document.getElementById(id);
         const getVal = (id) => getEl(id)?.value || '';
         const getNum = (id) => parseFloat(getVal(id));
@@ -251,12 +281,10 @@
             loadInquiries(); 
             loadApplications();
             loadNotepad();
+            loadProductRequests();
             loadStoreSettings();
         }
         
-        // ===================================
-        // Analytics Section
-        // ===================================
         function loadAnalytics() {
             const panel = document.getElementById('analytics-panel');
             panel.innerHTML = `
@@ -437,9 +465,6 @@
                 });
         }}
         
-        // ===================================
-        // Categories Section
-        // ===================================
         function loadCategories() {
             const panel = getEl('categories-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة الأقسام</h1><button id="add-category-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة قسم</button></div><div id="categories-list" class="space-y-4"></div>`;
@@ -559,9 +584,6 @@
             });
         }
         
-        // ===================================
-        // Products Section
-        // ===================================
         function loadProducts() {
             const panel = getEl('products-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات</h1><button id="add-product-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div>
@@ -624,19 +646,25 @@
             });
             attachProductActionListeners();
         }
-        function populateSubcategories(categoryId, productSubCategory = null) {
+
+        function populateSubcategories(categoryId, productSubCategoryInfo = null) {
             const subCategoryContainer = getEl('product-subcategory-container');
             const subCategorySelect = getEl('product-subcategory');
             if (!subCategoryContainer || !subCategorySelect) return;
 
             const selectedCategory = categoriesCache.find(c => c.id === categoryId);
-            const activeSubcategories = selectedCategory?.subcategories?.filter(s => s.active) || [];
+            const activeSubcategories = (selectedCategory?.subcategories || [])
+                .filter(s => s.active)
+                .map((sub, index) => ({
+                    ...sub,
+                    id: sub.id || `${categoryId}-${index}`
+                }));
 
             if (activeSubcategories.length > 0) {
                 subCategorySelect.innerHTML = '<option value="">اختر فرع...</option>';
                 activeSubcategories.forEach(sub => {
-                    const isSelected = sub.name === productSubCategory ? 'selected' : '';
-                    subCategorySelect.innerHTML += `<option value="${sub.name}" ${isSelected}>${sub.name}</option>`;
+                    const isSelected = productSubCategoryInfo && sub.id === productSubCategoryInfo.id;
+                    subCategorySelect.innerHTML += `<option value="${sub.name}" data-id="${sub.id}" ${isSelected ? 'selected' : ''}>${sub.name}</option>`;
                 });
                 subCategoryContainer.classList.remove('hidden');
             } else {
@@ -644,6 +672,21 @@
                 subCategorySelect.innerHTML = '';
             }
         }
+
+        async function uploadImageToImgBB(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('key', "ac296feb5a275923598bdbfd4f9aed8c");
+            const response = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`ImgBB upload failed with status ${response.status}: ${errorText}`);
+            }
+            const result = await response.json();
+            if (result.success) return result.data.url;
+            else throw new Error(`ImgBB Error: ${result.error.message}`);
+        }
+        
         function resizeAndCompressImage(file, maxWidth = 800, quality = 0.85) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -675,20 +718,6 @@
                 };
                 reader.onerror = error => reject(error);
             });
-        }
-        async function uploadImageToImgBB(file) {
-            const formData = new FormData();
-            formData.append('image', file);
-            // Replace with your ImgBB API key if you have one, or use another image hosting service
-            formData.append('key', "ac296feb5a275923598bdbfd4f9aed8c"); // Example Key - get your own
-            const response = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`ImgBB upload failed with status ${response.status}: ${errorText}`);
-            }
-            const result = await response.json();
-            if (result.success) return result.data.url;
-            else throw new Error(`ImgBB Error: ${result.error.message}`);
         }
 
         function showProductModal(product = null) {
@@ -741,6 +770,7 @@
             </div>`;
 
             let nameQuill, descriptionQuill;
+
             showModal(title, content, async () => {
                 let nameHTML = nameQuill.root.innerHTML.trim();
                 let descriptionHTML = descriptionQuill.root.innerHTML.trim();
@@ -753,43 +783,66 @@
                 const price = getNum('product-price');
                 const categoryId = getVal('product-category-select');
                 const imageFiles = getEl('product-images')?.files || [];
+                const availability = getVal('product-availability');
+                const sku = getVal('product-sku').trim();
+                const location = getVal('product-location').trim();
+                const supplier = getVal('product-supplier').trim();
+                const supplierContact = getVal('product-supplier-contact').trim();
+                const profitValue = getNum('product-profit-value') || 0;
+                const profitType = getVal('product-profit-type');
 
-                if (!cleanName || isNaN(price) || !categoryId) return alert('يرجى ملء الحقول الإلزامية: اسم المنتج، السعر، والقسم الرئيسي.');
+                const subcatSelect = getEl('product-subcategory');
+                const selectedSubcatOption = subcatSelect && subcatSelect.selectedIndex > -1 ? subcatSelect.options[subcatSelect.selectedIndex] : null;
+                const subCategoryName = selectedSubcatOption ? selectedSubcatOption.value : null;
+                const subCategoryID = selectedSubcatOption ? selectedSubcatOption.dataset.id : null;
                 
                 const shippingOptionsData = [];
                 document.querySelectorAll('.shipping-option-item').forEach(item => {
-                    const location = item.querySelector('.shipping-location')?.value.trim();
+                    const loc = item.querySelector('.shipping-location')?.value.trim();
                     const costVal = item.querySelector('.shipping-cost')?.value;
-                    if (location && costVal) {
+                    if (loc && costVal) {
                         const cost = parseFloat(costVal);
-                        if (!isNaN(cost)) {
-                            shippingOptionsData.push({ location, cost });
-                        }
+                        if (!isNaN(cost)) shippingOptionsData.push({ location: loc, cost });
                     }
                 });
+
+                if (!cleanName || isNaN(price) || !categoryId) {
+                    return alert('يرجى ملء الحقول الإلزامية: اسم المنتج، السعر، والقسم الرئيسي.');
+                }
                 
                 try {
                     let newImageUrls = [];
-                    if (imageFiles.length === 0 && product) newImageUrls = existingImages;
+                    if (imageFiles.length === 0 && product) {
+                        newImageUrls = product.imageUrls || (product.imageUrl ? [product.imageUrl] : []);
+                    }
+                    
                     if (imageFiles.length > 0) {
                         showLoadingModal(`جاري ضغط ورفع الصور (${imageFiles.length})...`);
                         const uploadPromises = Array.from(imageFiles).map(file => resizeAndCompressImage(file).then(uploadImageToImgBB));
                         newImageUrls = await Promise.all(uploadPromises);
                     }
-                    if (newImageUrls.length === 0 && !product) return alert('يجب رفع صورة واحدة على الأقل للمنتج الجديد.');
+
+                    if (newImageUrls.length === 0 && !product) {
+                        return alert('يجب رفع صورة واحدة على الأقل للمنتج الجديد.');
+                    }
 
                     showLoadingModal('جاري حفظ البيانات...');
                     
                     const productData = {
-                        name: cleanName, price, description: cleanDescription, categoryId, imageUrls: newImageUrls,
-                        availability: getVal('product-availability'),
-                        sku: getVal('product-sku').trim(),
-                        location: getVal('product-location').trim(),
-                        subCategoryName: getVal('product-subcategory') || null,
-                        supplier: getVal('product-supplier').trim(),
-                        supplierContact: getVal('product-supplier-contact').trim(),
-                        profitValue: getNum('product-profit-value') || 0,
-                        profitType: getVal('product-profit-type'),
+                        name: cleanName,
+                        price,
+                        description: cleanDescription,
+                        categoryId,
+                        imageUrls: newImageUrls,
+                        availability,
+                        sku,
+                        location,
+                        subCategoryName,
+                        subCategoryID,
+                        supplier,
+                        supplierContact,
+                        profitValue,
+                        profitType,
                         shippingOptions: shippingOptionsData,
                         updatedAt: serverTimestamp() 
                     };
@@ -801,9 +854,11 @@
                         await addDoc(collection(db, "products"), productData);
                     }
                     closeModal();
-                } catch (error) { showModal('خطأ فادح', `فشل حفظ المنتج: ${error.message}`, () => closeModal(), 'موافق', false); }
+                } catch (error) {
+                    showModal('خطأ فادح', `فشل حفظ المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
+                }
             });
-
+            
             const fullToolbarOptions = [['bold', 'italic', 'underline', 'strike'],[{ 'list': 'ordered'}, { 'list': 'bullet' }],[{ 'align': [] }],[{ 'color': [] }, { 'background': [] }],['link'],['clean']];
             nameQuill = new Quill('#product-name-editor', { theme: 'snow', modules: { toolbar: [ ['bold', 'italic', 'underline'], [{ 'color': [] }] ] } });
             descriptionQuill = new Quill('#product-description-editor', { theme: 'snow', modules: { toolbar: fullToolbarOptions } });
@@ -841,7 +896,9 @@
             getEl('add-shipping-option-btn').onclick = addShippingOption;
             document.querySelectorAll('.remove-shipping-btn').forEach(btn => btn.onclick = (e) => e.currentTarget.closest('.shipping-option-item').remove());
             
-            if (product?.categoryId) populateSubcategories(product.categoryId, product.subCategoryName);
+            if (product?.categoryId) {
+                populateSubcategories(product.categoryId, { id: product.subCategoryID });
+            }
         }
 
         function attachProductActionListeners() {
@@ -866,9 +923,6 @@
             });
         }
         
-        // ===================================
-        // Orders Section
-        // ===================================
         function loadOrders() {
             const panel = getEl('orders-panel');
             panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">الطلبات الواردة</h1>
@@ -972,9 +1026,6 @@
             });
         }
         
-        // ===================================
-        // Coupons Section
-        // ===================================
         function loadCoupons() {
             const panel = getEl('coupons-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold">إدارة الكوبونات</h1><button id="add-coupon-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة كوبون</button></div>
@@ -1107,9 +1158,6 @@
             toggleProducts();
         }
 
-        // ===================================
-        // Inquiries Section 
-        // ===================================
         function loadInquiries() { 
             const panel = getEl('inquiries-panel'); 
             panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">الرسائل والطلبات الواردة</h1><div class="overflow-x-auto bg-white rounded-xl shadow-md"><table class="w-full text-right responsive-table"><thead class="bg-gray-100"><tr><th class="p-4">النوع</th><th class="p-4">الرسالة/الطلب</th><th class="p-4">معلومات التواصل</th><th class="p-4">المشرف</th><th class="p-4">الحالة</th><th class="p-4">التاريخ</th><th class="p-4">إجراءات</th></tr></thead><tbody id="inquiries-table-body"></tbody></table></div>`; 
@@ -1137,9 +1185,6 @@
             document.querySelectorAll('.delete-inquiry-btn').forEach(btn => btn.onclick = async () => { if (confirm('هل أنت متأكد من حذف هذه الرسالة نهائياً؟')) await deleteDoc(doc(db, "inquiries", btn.dataset.id)); }); 
         }
 
-        // ===================================
-        // Applications Section
-        // ===================================
         function loadApplications() {
             const panel = getEl('applications-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة التطبيقات</h1><button id="add-app-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة تطبيق</button></div>
@@ -1192,9 +1237,6 @@
             });
         }
 
-        // ===================================
-        // Notepad Section
-        // ===================================
         function loadNotepad() {
             const panel = getEl('notepad-panel');
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">المفكرة الاحترافية</h1><button id="add-note-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة ملاحظة</button></div><div id="notes-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>`;
@@ -1253,9 +1295,6 @@
             document.querySelectorAll('.delete-note-btn').forEach(btn => btn.onclick = async (e) => { if (confirm('هل أنت متأكد من حذف هذه الملاحظة نهائياً؟')) await deleteDoc(doc(db, "notes", e.currentTarget.dataset.id)); });
         }
 
-        // ===================================
-        // Store Settings Section
-        // ===================================
         async function loadStoreSettings() {
             const panel = getEl('settings-panel');
             panel.innerHTML = `<div class="loader mx-auto mt-10"></div>`;
@@ -1416,9 +1455,7 @@
                 showModal('خطأ فادح', `فشل حفظ الإعدادات: ${error.message}`, () => closeModal(), 'موافق', false);
             }
         }
-        // ===================================
-        // Modal & Auth UI Functions
-        // ===================================
+        
         function showModal(title, content, onConfirm, confirmText = 'حفظ', showCancel = true) {
             const modalContainer = getEl('modal-container');
             modalContainer.innerHTML = `<div class="modal-backdrop" id="modal-backdrop"><div class="modal-content"><div class="flex justify-between items-center mb-4 border-b pb-3"><h3 class="text-xl font-bold">${title}</h3><button id="modal-close-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button></div><div id="modal-body">${content}</div><div class="flex justify-end gap-4 mt-6 border-t pt-4">${showCancel ? `<button id="modal-cancel" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button>` : ''}<button id="modal-confirm" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700">${confirmText}</button></div></div></div>`;
@@ -1441,6 +1478,156 @@
                     icon.classList.toggle('fa-eye');
                     icon.classList.toggle('fa-eye-slash');
                 }
+            });
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+        function loadProductRequests() {
+            const panel = getEl('productRequests-panel');
+            panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">طلبات إضافة المنتجات من الزوار</h1>
+                       <div id="product-requests-list" class="space-y-6"></div>`;
+
+            onSnapshot(query(collection(db, "productRequests"), orderBy("createdAt", "desc")), (snapshot) => {
+                const list = getEl('product-requests-list');
+                list.innerHTML = snapshot.empty ? '<div class="text-center p-8 bg-white rounded-lg shadow-md"><p class="text-gray-500 text-lg">لا توجد طلبات لإضافة منتجات حاليًا.</p></div>' : '';
+
+                snapshot.forEach(doc => {
+                    const request = { id: doc.id, ...doc.data() };
+                    const date = request.createdAt?.toDate().toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
+                    const statusColor = request.status === 'approved' ? 'border-green-500' : (request.status === 'rejected' ? 'border-red-500' : 'border-yellow-500');
+                    const deliveryOptionsMap = {
+                        self_delivery: 'يوفر التوصيل بنفسه',
+                        s22_delivery: 'يريد من المتجر توفير التوصيل',
+                        later: 'سيتم التنسيق لاحقاً'
+                    };
+
+                    const imagesHTML = (request.imageUrls || []).map(url => `
+                        <a href="${url}" target="_blank" class="block w-20 h-20">
+                           <img src="${url}" class="w-full h-full object-cover rounded-md border hover:opacity-80 transition-opacity">
+                        </a>
+                    `).join('');
+
+                    const card = document.createElement('div');
+                    card.className = `bg-white p-5 rounded-xl shadow-lg border-l-4 ${statusColor} transition-shadow hover:shadow-xl`;
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-extrabold text-gray-800">${request.productName}</h3>
+                                <p class="text-sm text-gray-500 mt-1">القسم المقترح: <strong>${request.categoryName}</strong> ${request.suggestedCategory ? `(اقتراح جديد: ${request.suggestedCategory})` : ''}</p>
+                            </div>
+                            <span class="text-xs font-mono text-gray-400">${date}</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-gray-700 mb-2">الصور المرفقة:</h4>
+                            <div class="flex flex-wrap gap-3">${imagesHTML || '<p class="text-sm text-gray-400">لا توجد صور.</p>'}</div>
+                        </div>
+
+                        <div class="my-4 p-4 bg-gray-50 rounded-lg text-gray-700 text-sm">${request.productDescription}</div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-4 border-t border-b py-4">
+                            <div><strong class="block text-gray-500">الكمية المتوفرة</strong><span class="font-bold text-lg">${request.quantity || 'غير محدد'}</span></div>
+                            <div><strong class="block text-gray-500">منطقة البيع</strong><span class="font-semibold">${request.sellingArea || 'غير محدد'}</span></div>
+                            <div><strong class="block text-gray-500">التوصيل</strong><span class="font-semibold">${deliveryOptionsMap[request.deliveryOption] || 'غير محدد'}</span></div>
+                        </div>
+
+                        <div class="pt-3">
+                            <h4 class="font-semibold mb-2 text-gray-700">معلومات مقدم الطلب:</h4>
+                            <p><strong>الاسم:</strong> ${request.userName}</p>
+                            <p><strong>الهاتف:</strong> <a href="tel:${request.userPhone}" class="text-blue-600 hover:underline">${request.userPhone}</a></p>
+                            <p><strong>البريد:</strong> <a href="mailto:${request.userEmail}" class="text-blue-600 hover:underline">${request.userEmail}</a></p>
+                            <p><strong>التخصص:</strong> ${request.userSpecialty || 'لم يحدد'}</p>
+                        </div>
+
+                        ${request.status !== 'approved' ? `
+                        <div class="flex justify-end gap-3 mt-5">
+                            <button class="reject-request-btn text-red-600 font-semibold py-2 px-4 rounded-lg hover:bg-red-50 transition-colors" data-id="${request.id}">
+                               <i class="fas fa-trash-alt mr-2"></i> حذف ورفض الطلب
+                            </button>
+                            <button class="approve-request-btn bg-green-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-green-700 transition-transform hover:scale-105" data-id='${JSON.stringify(request)}'>
+                                <i class="fas fa-plus mr-2"></i> إنشاء منتج من هذا الطلب
+                            </button>
+                        </div>` : `
+                        <div class="mt-5 p-3 bg-green-100 text-green-800 text-center rounded-lg font-semibold">
+                            <i class="fas fa-check-circle mr-2"></i> تمت الموافقة على هذا الطلب وإنشاء منتج منه.
+                        </div>
+                        `}
+                    `;
+                    list.appendChild(card);
+                });
+                attachRequestActionListeners();
+            });
+        }
+
+
+
+function attachRequestActionListeners() {
+            document.querySelectorAll('.approve-request-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const requestDataString = btn.dataset.id;
+                    try {
+                        // Firebase Timestamps might not be serializable directly, handle safely
+                        const requestData = JSON.parse(requestDataString, (key, value) => {
+                            if (typeof value === 'object' && value !== null && value.seconds) {
+                                return new Date(value.seconds * 1000);
+                            }
+                            return value;
+                        });
+
+                        const category = categoriesCache.find(c => c.name === requestData.categoryName);
+                        
+                        const deliveryOptionsMap = {
+                            self_delivery: 'يوفر التوصيل بنفسه',
+                            s22_delivery: 'يريد من المتجر توفير التوصيل',
+                            later: 'سيتم التنسيق لاحقاً'
+                        };
+
+                        const prefilledProduct = {
+                            name: `<h3>${requestData.productName}</h3>`,
+                            description: `<p>${requestData.productDescription}</p>`,
+                            categoryId: category ? category.id : '',
+                            supplier: requestData.userName,
+                            supplierContact: `الهاتف: ${requestData.userPhone}\nالبريد: ${requestData.userEmail}\nالتخصص: ${requestData.userSpecialty}\n\n-- ملاحظات الطلب --\nالكمية: ${requestData.quantity}\nمنطقة البيع: ${requestData.sellingArea}\nالتوصيل: ${deliveryOptionsMap[requestData.deliveryOption]}`,
+                            imageUrls: requestData.imageUrls || [], // Pass the image URLs
+                            location: requestData.sellingArea, // Pre-fill product location
+                        };
+                        
+                        // Navigate to products tab and show the modal
+                        document.querySelector('a[href="#products"]').click();
+                        showProductModal(prefilledProduct);
+
+                        // Mark request as approved
+                        updateDoc(doc(db, "productRequests", requestData.id), { status: "approved" });
+
+                    } catch (e) {
+                        console.error("Failed to parse request data or show modal:", e);
+                        alert("حدث خطأ أثناء معالجة الطلب.");
+                    }
+                };
+            });
+
+            document.querySelectorAll('.reject-request-btn').forEach(btn => {
+                btn.onclick = async () => {
+                    if (confirm('هل أنت متأكد من رفض هذا الطلب وحذفه نهائياً؟')) {
+                        try {
+                           await deleteDoc(doc(db, "productRequests", btn.dataset.id));
+                        } catch(error) {
+                           console.error("Error deleting request:", error);
+                           alert("حدث خطأ أثناء حذف الطلب.");
+                        }
+                    }
+                };
             });
         }
     </script>

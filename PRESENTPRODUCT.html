@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل المنتج</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --secondary-color: #10b981;
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --border-color: #e2e8f0;
+        }
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-body); color: var(--text-primary); }
+        html { scroll-behavior: smooth; }
+
+        /* General Improvements */
+        button, a { transition: all 0.2s ease-in-out; }
+        button:hover, a:hover { filter: brightness(1.05); }
+        button:active { transform: scale(0.98); }
+        
+        /* Loader */
+        .loader {
+            border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color);
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Product Gallery */
+        .main-image-container {
+            aspect-ratio: 1 / 1;
+            background-color: #f8fafc;
+        }
+        .main-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            cursor: zoom-in;
+        }
+        .thumbnails-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 0.75rem;
+        }
+        .thumbnail {
+            aspect-ratio: 1 / 1;
+            border: 2px solid transparent;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .thumbnail:hover {
+            border-color: var(--primary-hover);
+        }
+        .thumbnail.active {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0.375rem;
+        }
+        
+        /* Product Description */
+        .product-description h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .product-description h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; margin-top: 1.5rem; }
+        .product-description p { margin-bottom: 1rem; line-height: 1.8; }
+        .product-description ul { list-style-type: disc; margin-right: 1.5rem; margin-bottom: 1rem; }
+
+        /* Sticky Bar for Mobile */
+        .sticky-actions-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background-color: var(--bg-card);
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
+            z-index: 800;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <a href="index.html" class="text-2xl text-gray-600 hover:text-blue-600">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <h1 onclick="location.href='index.html'" class="cursor-pointer text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+                S22<span class="text-blue-600">MARKET</span>
+            </h1>
+            <a href="index.html#cart" id="cart-btn" class="relative text-2xl text-gray-600 hover:text-blue-600">
+                <i class="fas fa-shopping-cart"></i>
+            </a>
+        </div>
+    </header>
+
+    <main id="page-content" class="max-w-7xl mx-auto py-6 sm:py-8 md:py-10 px-4 sm:px-6 lg:px-8 hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            <div id="product-gallery">
+                <div class="main-image-container bg-white rounded-lg shadow-md flex items-center justify-center p-4">
+                    <img id="main-product-image" src="" alt="صورة المنتج الرئيسية" class="main-image">
+                </div>
+                <div id="thumbnails" class="thumbnails-container mt-4">
+                    </div>
+            </div>
+
+            <div id="product-info">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex justify-between items-start gap-4">
+                        <h1 id="product-name" class="flex-grow text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight"></h1>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                             <button id="copy-link-btn" title="نسخ الرابط" class="w-12 h-12 rounded-full bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600 flex items-center justify-center text-xl transition-colors">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button id="share-btn" title="مشاركة المنتج" class="w-12 h-12 rounded-full bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600 flex items-center justify-center text-xl transition-colors">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p id="product-location" class="text-gray-500 text-md mt-2 mb-4">
+                        <i class="fas fa-map-marker-alt fa-fw mr-1 text-gray-400"></i>
+                        <span></span>
+                    </p>
+                    <div class="my-6">
+                        <span id="product-price" class="text-blue-600 text-5xl font-extrabold"></span>
+                    </div>
+
+                    <div class="mt-8 space-y-4">
+                        <button id="direct-order-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg text-xl flex items-center justify-center gap-3 transform hover:scale-105 transition-transform">
+                            <i class="fas fa-shipping-fast"></i>
+                            <span>اطلب الآن</span>
+                        </button>
+                        <button id="add-to-cart-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg text-xl flex items-center justify-center gap-3 transform hover:scale-105 transition-transform">
+                            <i class="fas fa-cart-plus"></i>
+                            <span>أضف للسلة</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md mt-8">
+                    <h2 class="text-2xl font-bold mb-4 border-b pb-3">وصف المنتج</h2>
+                    <div id="product-description" class="product-description text-gray-700 space-y-4">
+                        </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="lg:hidden h-28"></div> <div id="mobile-sticky-bar" class="sticky-actions-bar lg:hidden">
+            <div class="grid grid-cols-2 gap-3">
+                 <button id="direct-order-btn-mobile" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg text-lg flex items-center justify-center gap-2"><i class="fas fa-shipping-fast"></i> اطلب الآن</button>
+                 <button id="add-to-cart-btn-mobile" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg text-lg flex items-center justify-center gap-2"><i class="fas fa-cart-plus"></i> أضف للسلة</button>
+            </div>
+        </div>
+    </main>
+
+    <div id="page-loader" class="text-center py-20 flex flex-col justify-center items-center h-screen">
+        <div class="loader mx-auto"></div>
+        <p class="mt-4 text-gray-600">جاري تحميل المنتج...</p>
+    </div>
+
+    <div id="modal-container"></div>
+    <div id="toast-container"></div>
+    
+    <style>
+        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1001; }
+        .toast {
+            background-color: var(--secondary-color); color: white; padding: 1rem 1.5rem; border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 0.75rem;
+            animation: slideInUp 0.5s, fadeOut 0.5s 4.5s forwards;
+        }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(20px); } }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let currentProduct = null;
+
+        const elements = {
+            pageLoader: document.getElementById('page-loader'),
+            pageContent: document.getElementById('page-content'),
+            productName: document.getElementById('product-name'),
+            productLocation: document.getElementById('product-location').querySelector('span'),
+            productPrice: document.getElementById('product-price'),
+            productDescription: document.getElementById('product-description'),
+            mainImage: document.getElementById('main-product-image'),
+            thumbnailsContainer: document.getElementById('thumbnails'),
+            addToCartBtn: document.getElementById('add-to-cart-btn'),
+            directOrderBtn: document.getElementById('direct-order-btn'),
+            addToCartBtnMobile: document.getElementById('add-to-cart-btn-mobile'),
+            directOrderBtnMobile: document.getElementById('direct-order-btn-mobile'),
+            shareBtn: document.getElementById('share-btn'),
+            copyLinkBtn: document.getElementById('copy-link-btn'), // <-- إضافة جديدة
+            toastContainer: document.getElementById('toast-container'),
+        };
+
+        function showToast(message, isSuccess = true) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${isSuccess ? 'bg-green-500' : 'bg-red-500'}`;
+            toast.innerHTML = `<i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-exclamation-circle'} text-xl"></i><span>${message}</span>`;
+            elements.toastContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
+        }
+
+        function renderProduct(product) {
+            currentProduct = product;
+            const productNamePlainText = product.name.replace(/<[^>]*>?/gm, '');
+
+            document.title = productNamePlainText; 
+            elements.productName.innerHTML = product.name;
+            elements.productLocation.textContent = product.location || 'غير محدد';
+            elements.productPrice.textContent = `${product.price.toLocaleString()} د.ج`;
+            elements.productDescription.innerHTML = product.description || '<p>لا يوجد وصف لهذا المنتج.</p>';
+
+            const images = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls : (product.imageUrl ? [product.imageUrl] : ['https://placehold.co/600x600']);
+            elements.mainImage.src = images[0];
+            elements.mainImage.alt = productNamePlainText;
+
+            elements.thumbnailsContainer.innerHTML = '';
+            if (images.length > 1) {
+                images.forEach((img, index) => {
+                    const thumbDiv = document.createElement('div');
+                    thumbDiv.className = `thumbnail ${index === 0 ? 'active' : ''}`;
+                    thumbDiv.dataset.image = img;
+                    thumbDiv.innerHTML = `<img src="${img}" alt="صورة مصغرة ${index + 1}">`;
+                    elements.thumbnailsContainer.appendChild(thumbDiv);
+                });
+                elements.thumbnailsContainer.classList.remove('hidden');
+            } else {
+                elements.thumbnailsContainer.classList.add('hidden');
+            }
+
+            elements.pageLoader.classList.add('hidden');
+            elements.pageContent.classList.remove('hidden');
+        }
+
+        async function fetchProduct(productId) {
+            const storedProduct = sessionStorage.getItem('currentProduct');
+            if (storedProduct) {
+                const productData = JSON.parse(storedProduct);
+                if (productData.id === productId) {
+                    renderProduct(productData);
+                    return;
+                }
+            }
+            try {
+                const docRef = doc(db, "products", productId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    renderProduct({ id: docSnap.id, ...docSnap.data() });
+                } else {
+                    elements.pageLoader.innerHTML = '<p class="text-red-500 text-xl">عفواً، هذا المنتج غير موجود.</p>';
+                }
+            } catch (error) {
+                console.error("Error fetching product:", error);
+                elements.pageLoader.innerHTML = '<p class="text-red-500 text-xl">حدث خطأ أثناء تحميل المنتج.</p>';
+            }
+        }
+        
+        function addToCart() {
+            if (!currentProduct) return;
+            let cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
+            const productNamePlainText = currentProduct.name.replace(/<[^>]*>?/gm, '');
+            const existingItem = cart.find(item => item.id === currentProduct.id);
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({ ...currentProduct, quantity: 1 });
+            }
+            localStorage.setItem('s22market_cart', JSON.stringify(cart));
+            showToast(`تمت إضافة "${productNamePlainText}" إلى السلة!`);
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get('product');
+
+            if (productId) {
+                fetchProduct(productId);
+            } else {
+                elements.pageLoader.innerHTML = '<p class="text-xl">لم يتم تحديد أي منتج.</p>';
+            }
+
+            elements.thumbnailsContainer.addEventListener('click', (e) => {
+                const thumb = e.target.closest('.thumbnail');
+                if (thumb) {
+                    elements.mainImage.src = thumb.dataset.image;
+                    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                    thumb.classList.add('active');
+                }
+            });
+            
+            elements.addToCartBtn.onclick = addToCart;
+            elements.addToCartBtnMobile.onclick = addToCart;
+            
+            const handleDirectOrder = () => {
+                if(currentProduct) {
+                    sessionStorage.setItem('directOrderProductId', currentProduct.id);
+                    window.location.href = 'index.html';
+                }
+            };
+            
+            elements.directOrderBtn.onclick = handleDirectOrder;
+            elements.directOrderBtnMobile.onclick = handleDirectOrder;
+
+            elements.shareBtn.onclick = async () => {
+                if (!currentProduct) return;
+                const productNamePlainText = currentProduct.name.replace(/<[^>]*>?/gm, '');
+                const productUrl = window.location.href;
+                const shareData = {
+                    title: productNamePlainText,
+                    text: `تحقق من هذا المنتج الرائع: ${productNamePlainText}`,
+                    url: productUrl
+                };
+                try {
+                    if (navigator.share) {
+                        await navigator.share(shareData);
+                    } else {
+                        await navigator.clipboard.writeText(productUrl);
+                        showToast('تم نسخ رابط المنتج!');
+                    }
+                } catch(err) {
+                    console.error("Share failed:", err);
+                    await navigator.clipboard.writeText(productUrl);
+                    showToast('تم نسخ الرابط كخيار بديل.');
+                }
+            };
+            
+            // --- *** وظيفة زر نسخ الرابط الجديدة *** ---
+            elements.copyLinkBtn.onclick = async () => {
+                const productUrl = window.location.href;
+                try {
+                    await navigator.clipboard.writeText(productUrl);
+                    showToast('تم نسخ رابط المنتج بنجاح!');
+                } catch (err) {
+                    console.error('فشل نسخ الرابط: ', err);
+                    showToast('فشل نسخ الرابط', false);
+                }
+            };
+            // --- *** نهاية الوظيفة الجديدة *** ---
+        });
+    </script>
+</body>
+</html>
