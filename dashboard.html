@@ -44,6 +44,8 @@
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+        .shake { animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both; }
 
         .ql-toolbar { border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem; }
         .ql-container { border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem; min-height: 80px; }
@@ -142,11 +144,7 @@
                 <nav class="flex-1 p-2 space-y-2">
                     <a href="#analytics" class="dashboard-tab active-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chart-line fa-fw mr-3"></i> لوحة التحكم</a>
                     <a href="#products" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
-               
-<a href="#productRequests" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700">
-    <i class="fas fa-user-plus fa-fw mr-3"></i> طلبات الزوار
-</a>
-
+                    <a href="#productRequests" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-user-plus fa-fw mr-3"></i> طلبات الزوار</a>
                     <a href="#categories" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
                     <a href="#orders" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
                     <a href="#coupons" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-tags fa-fw mr-3"></i> الكوبونات</a>
@@ -154,9 +152,6 @@
                     <a href="#applications" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
                     <a href="#notepad" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
                     <a href="#settings" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
-               
-               
-               
                 </nav>
                 <div class="p-4 border-t border-gray-700">
                     <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
@@ -183,7 +178,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, serverTimestamp, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, serverTimestamp, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
@@ -572,14 +567,15 @@
             });
             document.querySelectorAll('.delete-category-btn').forEach(btn => {
                 btn.onclick = async () => {
-                    if (confirm('هل أنت متأكد من حذف هذا القسم؟ سيؤثر هذا على المنتجات المرتبطة به.')) {
+                     showDeleteConfirmationModal(async () => {
                         try {
                             await deleteDoc(doc(db, "categories", btn.dataset.id));
+                            closeModal();
                         } catch (error) {
                              console.error("Error deleting category:", error);
-                             alert("حدث خطأ أثناء الحذف: " + error.message);
+                             showModal('خطأ', "حدث خطأ أثناء الحفظ: " + error.message, closeModal, 'موافق', false);
                         }
-                    }
+                    });
                 };
             });
         }
@@ -589,13 +585,22 @@
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات</h1><button id="add-product-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div>
             <div id="products-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>`;
 
-            getEl('add-product-btn').addEventListener('click', () => showProductModal());
-            onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), (snapshot) => {
+            // [+] START: NEW LOGIC - Show choice modal on add
+            getEl('add-product-btn').addEventListener('click', () => showProductTypeChoiceModal());
+            // [-] END: NEW LOGIC
+            
+            const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+           
+            onSnapshot(q, (snapshot) => {
                 productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderProductsGrid();
                 updateAnalytics();
+            }, (error) => {
+                console.error("Error fetching products in real-time: ", error);
+                alert("حدث خطأ في تحديث قائمة المنتجات. قد تحتاج إلى تحديث الصفحة لرؤية التغييرات. المشكلة غالبًا بسبب فهرس ناقص في قاعدة البيانات، يرجى مراجعة الكونسول.");
             });
         }
+
         function renderProductsGrid() {
             const list = getEl('products-list');
             list.innerHTML = productsCache.length === 0 ? '<p class="text-center text-gray-500 col-span-full mt-8">لا توجد منتجات. أضف منتجاً جديداً للبدء.</p>' : '';
@@ -616,6 +621,13 @@
                         availabilityBadge = '<span class="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">متوفر</span>';
                 }
 
+                // [+] START: NEW LOGIC - Add badge for direct order products
+                let orderTypeBadge = '';
+                if(product.orderMethod === 'direct') {
+                    orderTypeBadge = '<span class="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-full"><i class="fas fa-paper-plane mr-1"></i>طلب مباشر</span>';
+                }
+                // [-] END: NEW LOGIC
+
                 const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : (product.imageUrl || 'https://placehold.co/300x160/e2e8f0/94a3b8?text=No+Image');
 
                 let profitDisplay = '';
@@ -628,6 +640,7 @@
 
                 card.innerHTML = `
                     ${availabilityBadge}
+                    ${orderTypeBadge}
                     <img src="${image}" class="w-full h-40 object-cover rounded-lg mb-4 bg-gray-100">
                     <div class="description-content font-bold text-xl mb-2">${product.name || ''}</div>
                     <div class="flex-grow text-gray-600 text-sm mb-3">${product.supplier ? `<i class="fas fa-user-tie fa-fw mr-1 text-gray-400"></i>${product.supplier}` : ''}</div>
@@ -719,9 +732,51 @@
                 reader.onerror = error => reject(error);
             });
         }
+        
+        // [+] START: NEW LOGIC - Modal to choose product type
+        function showProductTypeChoiceModal() {
+            const title = "إضافة منتج جديد";
+            const content = `
+                <p class="text-center text-lg text-gray-700 mb-6">اختر طريقة تسجيل المنتج التي تناسبك:</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <button id="add-traditional-product" class="text-center p-6 bg-blue-50 hover:bg-blue-100 rounded-lg border-2 border-blue-200 hover:border-blue-400 transition-all">
+                        <i class="fas fa-shopping-cart text-5xl text-blue-500 mb-4"></i>
+                        <h3 class="text-xl font-bold text-blue-800">منتج تقليدي</h3>
+                        <p class="text-sm text-gray-600 mt-2">يضاف إلى السلة ويتم طلبه عبر الموقع.</p>
+                    </button>
+                    <button id="add-direct-product" class="text-center p-6 bg-green-50 hover:bg-green-100 rounded-lg border-2 border-green-200 hover:border-green-400 transition-all">
+                        <i class="fas fa-paper-plane text-5xl text-green-500 mb-4"></i>
+                        <h3 class="text-xl font-bold text-green-800">منتج بطلب مباشر</h3>
+                        <p class="text-sm text-gray-600 mt-2">يتم طلبه عبر واتساب، فيسبوك، إلخ.</p>
+                    </button>
+                </div>
+            `;
+            // We pass null for onConfirm because the buttons inside the modal handle the action
+            showModal(title, content, null, '', false); 
 
-        function showProductModal(product = null) {
-            const title = product ? 'تعديل المنتج' : 'إضافة منتج جديد';
+            getEl('add-traditional-product').onclick = () => {
+                closeModal();
+                showProductModal('traditional');
+            };
+            getEl('add-direct-product').onclick = () => {
+                closeModal();
+                showProductModal('direct');
+            };
+            // Hide the default confirm/cancel buttons
+            getEl('modal-confirm').parentElement.classList.add('hidden');
+        }
+        // [-] END: NEW LOGIC
+
+        // [+] START: REFACTORED LOGIC - Main Product Modal
+        function showProductModal(productType, product = null) {
+            const isDirectOrder = productType === 'direct';
+            let title = '';
+            if (product) {
+                title = isDirectOrder ? 'تعديل منتج (طلب مباشر)' : 'تعديل منتج (تقليدي)';
+            } else {
+                title = isDirectOrder ? 'إضافة منتج بطلب مباشر' : 'إضافة منتج تقليدي';
+            }
+            
             const categoryOptions = categoriesCache.map(cat => `<option value="${cat.id}" ${product && product.categoryId === cat.id ? 'selected' : ''}>${cat.name}</option>`).join('');
             let existingImages = product ? (product.imageUrls || (product.imageUrl ? [product.imageUrl] : [])) : [];
             const existingImagesHTML = existingImages.map(url => `<div class="relative group"><img src="${url}" class="w-24 h-24 rounded object-cover border"><div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-white text-xs text-center">سيتم حذفها عند رفع صور جديدة</span></div></div>`).join('');
@@ -734,8 +789,40 @@
                     <button type="button" class="text-red-500 remove-shipping-btn"><i class="fas fa-times-circle"></i></button>
                 </div>
             `).join('');
+            
+            // Conditional HTML for order method specific fields
+            let orderSpecificHTML = '';
+            if (isDirectOrder) {
+                orderSpecificHTML = `
+                <div class="border-t pt-4 mt-4">
+                    <h3 class="font-bold text-lg text-green-700 mb-2">روابط التواصل المباشر (مطلوبة)</h3>
+                    <div class="mt-2 space-y-3 bg-green-50 p-4 rounded-lg border border-green-200">
+                        <p class="text-sm text-gray-600">أدخل روابط التواصل التي ستظهر للزبون. اترك الحقل فارغاً إذا لم ترد عرضه.</p>
+                        <div>
+                            <label class="font-semibold text-sm flex items-center gap-2"><i class="fab fa-whatsapp text-green-500"></i> رقم واتساب</label>
+                            <input type="text" id="contact-link-whatsapp" class="mt-1 w-full p-2 border rounded" dir="ltr" placeholder="213..." value="${product?.directContactLinks?.whatsapp || ''}">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-sm flex items-center gap-2"><i class="fab fa-facebook text-blue-600"></i> رابط فيسبوك</label>
+                            <input type="url" id="contact-link-facebook" class="mt-1 w-full p-2 border rounded" placeholder="https://facebook.com/..." value="${product?.directContactLinks?.facebook || ''}">
+                        </div>
+                         <div>
+                            <label class="font-semibold text-sm flex items-center gap-2"><i class="fab fa-instagram text-pink-500"></i> رابط انستغرام</label>
+                            <input type="url" id="contact-link-instagram" class="mt-1 w-full p-2 border rounded" placeholder="https://instagram.com/..." value="${product?.directContactLinks?.instagram || ''}">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-sm flex items-center gap-2"><i class="fab fa-telegram text-sky-500"></i> رابط تيليجرام</label>
+                            <input type="url" id="contact-link-telegram" class="mt-1 w-full p-2 border rounded" placeholder="https://t.me/..." value="${product?.directContactLinks?.telegram || ''}">
+                        </div>
+                         <div>
+                            <label class="font-semibold text-sm flex items-center gap-2"><i class="fas fa-phone-alt text-teal-500"></i> رقم هاتف للاتصال</label>
+                            <input type="tel" id="contact-link-phone" class="mt-1 w-full p-2 border rounded" dir="ltr" placeholder="0..." value="${product?.directContactLinks?.phone || ''}">
+                        </div>
+                    </div>
+                </div>`;
+            }
 
-            const content = `<div class="space-y-4">
+            const commonFields = `<div class="space-y-4">
                 <div><label class="font-semibold">اسم المنتج</label><div id="product-name-editor" class="mt-1 bg-white"></div></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div><label class="font-semibold">السعر (د.ج)</label><input type="number" id="product-price" class="mt-1 w-full p-2 border rounded" value="${product?.price || ''}" required></div>
@@ -759,6 +846,8 @@
                     <button type="button" id="add-shipping-option-btn" class="text-sm mt-2 text-indigo-600 font-semibold hover:underline"><i class="fas fa-plus-circle mr-1"></i>إضافة سعر توصيل لموقع جديد</button>
                 </div>
 
+                ${orderSpecificHTML}
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 mt-4">
                     <div><label class="font-semibold text-gray-700">المورد (داخلي)</label><input type="text" id="product-supplier" class="mt-1 w-full p-2 border rounded" value="${product?.supplier || ''}" placeholder="اسم المورد أو الشركة"></div>
                     <div><label class="font-semibold text-gray-700">تواصل المورد (داخلي)</label><textarea id="product-supplier-contact" class="mt-1 w-full p-2 border rounded" rows="3" placeholder="أرقام الهواتف، الإيميل...">${product?.supplierContact || ''}</textarea></div>
@@ -771,7 +860,7 @@
 
             let nameQuill, descriptionQuill;
 
-            showModal(title, content, async () => {
+            showModal(title, commonFields, async () => {
                 let nameHTML = nameQuill.root.innerHTML.trim();
                 let descriptionHTML = descriptionQuill.root.innerHTML.trim();
                 if (nameHTML === '<p><br></p>') nameHTML = '';
@@ -782,19 +871,6 @@
 
                 const price = getNum('product-price');
                 const categoryId = getVal('product-category-select');
-                const imageFiles = getEl('product-images')?.files || [];
-                const availability = getVal('product-availability');
-                const sku = getVal('product-sku').trim();
-                const location = getVal('product-location').trim();
-                const supplier = getVal('product-supplier').trim();
-                const supplierContact = getVal('product-supplier-contact').trim();
-                const profitValue = getNum('product-profit-value') || 0;
-                const profitType = getVal('product-profit-type');
-
-                const subcatSelect = getEl('product-subcategory');
-                const selectedSubcatOption = subcatSelect && subcatSelect.selectedIndex > -1 ? subcatSelect.options[subcatSelect.selectedIndex] : null;
-                const subCategoryName = selectedSubcatOption ? selectedSubcatOption.value : null;
-                const subCategoryID = selectedSubcatOption ? selectedSubcatOption.dataset.id : null;
                 
                 const shippingOptionsData = [];
                 document.querySelectorAll('.shipping-option-item').forEach(item => {
@@ -810,7 +886,20 @@
                     return alert('يرجى ملء الحقول الإلزامية: اسم المنتج، السعر، والقسم الرئيسي.');
                 }
                 
+                const directContactLinks = {
+                    whatsapp: isDirectOrder ? getVal('contact-link-whatsapp').trim() : '',
+                    facebook: isDirectOrder ? getVal('contact-link-facebook').trim() : '',
+                    instagram: isDirectOrder ? getVal('contact-link-instagram').trim() : '',
+                    telegram: isDirectOrder ? getVal('contact-link-telegram').trim() : '',
+                    phone: isDirectOrder ? getVal('contact-link-phone').trim() : ''
+                };
+
+                if (isDirectOrder && Object.values(directContactLinks).every(link => !link)) {
+                    return alert('لمنتجات الطلب المباشر، يجب إدخال وسيلة تواصل واحدة على الأقل.');
+                }
+                
                 try {
+                    const imageFiles = getEl('product-images')?.files || [];
                     let newImageUrls = [];
                     if (imageFiles.length === 0 && product) {
                         newImageUrls = product.imageUrls || (product.imageUrl ? [product.imageUrl] : []);
@@ -828,31 +917,37 @@
 
                     showLoadingModal('جاري حفظ البيانات...');
                     
+                    const subcatSelect = getEl('product-subcategory');
+                    const selectedSubcatOption = subcatSelect && subcatSelect.selectedIndex > -1 ? subcatSelect.options[subcatSelect.selectedIndex] : null;
+                    
                     const productData = {
                         name: cleanName,
-                        price,
+                        price: price,
                         description: cleanDescription,
-                        categoryId,
+                        categoryId: categoryId,
                         imageUrls: newImageUrls,
-                        availability,
-                        sku,
-                        location,
-                        subCategoryName,
-                        subCategoryID,
-                        supplier,
-                        supplierContact,
-                        profitValue,
-                        profitType,
+                        availability: getVal('product-availability'),
+                        sku: getVal('product-sku').trim(),
+                        location: getVal('product-location').trim(),
+                        subCategoryName: selectedSubcatOption ? selectedSubcatOption.value : null,
+                        subCategoryID: selectedSubcatOption ? selectedSubcatOption.dataset.id : null,
+                        supplier: getVal('product-supplier').trim(),
+                        supplierContact: getVal('product-supplier-contact').trim(),
+                        profitValue: getNum('product-profit-value') || 0,
+                        profitType: getVal('product-profit-type'),
                         shippingOptions: shippingOptionsData,
-                        updatedAt: serverTimestamp() 
+                        orderMethod: productType,
+                        directContactLinks: directContactLinks,
+                        updatedAt: serverTimestamp()
                     };
                     
                     if (product) {
                         await updateDoc(doc(db, "products", product.id), productData);
                     } else {
-                        productData.createdAt = serverTimestamp(); 
+                        productData.createdAt = serverTimestamp();
                         await addDoc(collection(db, "products"), productData);
                     }
+                    
                     closeModal();
                 } catch (error) {
                     showModal('خطأ فادح', `فشل حفظ المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
@@ -900,16 +995,29 @@
                 populateSubcategories(product.categoryId, { id: product.subCategoryID });
             }
         }
+        // [-] END: REFACTORED LOGIC
 
         function attachProductActionListeners() {
-            document.querySelectorAll('.edit-product-btn').forEach(btn => btn.onclick = () => showProductModal(productsCache.find(p => p.id === btn.dataset.id)));
-            document.querySelectorAll('.delete-product-btn').forEach(btn => btn.onclick = async () => {
-                if(confirm('هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.')) {
-                    try {
-                        await deleteDoc(doc(db, "products", btn.dataset.id));
-                    } catch(error) {
-                        alert(`فشل حذف المنتج: ${error.message}`);
-                    }
+            // [+] START: NEW LOGIC - Open the correct modal for editing
+            document.querySelectorAll('.edit-product-btn').forEach(btn => btn.onclick = () => {
+                const productToEdit = productsCache.find(p => p.id === btn.dataset.id);
+                if (productToEdit) {
+                    const type = productToEdit.orderMethod || 'traditional'; // Default to traditional if not set
+                    showProductModal(type, productToEdit);
+                }
+            });
+            // [-] END: NEW LOGIC
+
+            document.querySelectorAll('.delete-product-btn').forEach(btn => {
+                btn.onclick = async () => {
+                    showDeleteConfirmationModal(async () => {
+                        try {
+                            await deleteDoc(doc(db, "products", btn.dataset.id));
+                            closeModal();
+                        } catch(error) {
+                            showModal('خطأ',`فشل حذف المنتج: ${error.message}`, closeModal, 'موافق', false);
+                        }
+                    });
                 }
             });
             document.querySelectorAll('.copy-product-link-btn').forEach(btn => btn.onclick = (e) => {
@@ -1015,13 +1123,16 @@
                     setTimeout(() => { e.currentTarget.innerHTML = originalIcon; }, 2500);
                 });
             });
-            document.querySelectorAll('.delete-order-btn').forEach(btn => btn.onclick = async () => {
-                if(confirm('هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.')) {
-                     try {
-                        await deleteDoc(doc(db, "orders", btn.dataset.id));
-                    } catch(error) {
-                        alert(`فشل حذف الطلب: ${error.message}`);
-                    }
+            document.querySelectorAll('.delete-order-btn').forEach(btn => {
+                btn.onclick = () => {
+                     showDeleteConfirmationModal(async () => {
+                        try {
+                            await deleteDoc(doc(db, "orders", btn.dataset.id));
+                            closeModal();
+                        } catch(error) {
+                            showModal('خطأ',`فشل حذف الطلب: ${error.message}`, closeModal, 'موافق', false);
+                        }
+                    });
                 }
             });
         }
@@ -1084,14 +1195,15 @@
             });
 
             document.querySelectorAll('.edit-coupon-btn').forEach(btn => btn.onclick = e => showCouponModal(couponsCache.find(c => c.id === e.currentTarget.dataset.id)));
-            document.querySelectorAll('.delete-coupon-btn').forEach(btn => btn.onclick = async e => {
-                if (confirm('هل أنت متأكد من حذف هذا الكوبون؟')) {
+            document.querySelectorAll('.delete-coupon-btn').forEach(btn => btn.onclick = e => {
+                showDeleteConfirmationModal(async () => {
                     try {
                         await deleteDoc(doc(db, "coupons", e.currentTarget.dataset.id));
+                        closeModal();
                     } catch(error) {
-                         alert(`فشل حذف الكوبون: ${error.message}`);
+                         showModal('خطأ', `فشل حذف الكوبون: ${error.message}`, closeModal, 'موافق', false);
                     }
-                }
+                });
             });
         }
         function showCouponModal(coupon = null) {
@@ -1182,7 +1294,12 @@
         function attachInquiryActionListeners() { 
             document.querySelectorAll('.inquiry-status-select').forEach(select => select.onchange = async (e) => await updateDoc(doc(db, "inquiries", e.target.dataset.id), { status: e.target.value })); 
             document.querySelectorAll('.supervisor-input').forEach(input => input.addEventListener('change', async (e) => await updateDoc(doc(db, "inquiries", e.target.dataset.id), { supervisor: e.target.value.trim() })));
-            document.querySelectorAll('.delete-inquiry-btn').forEach(btn => btn.onclick = async () => { if (confirm('هل أنت متأكد من حذف هذه الرسالة نهائياً؟')) await deleteDoc(doc(db, "inquiries", btn.dataset.id)); }); 
+            document.querySelectorAll('.delete-inquiry-btn').forEach(btn => btn.onclick = async () => { 
+                showDeleteConfirmationModal(async () => {
+                    await deleteDoc(doc(db, "inquiries", btn.dataset.id));
+                    closeModal();
+                });
+            }); 
         }
 
         function loadApplications() {
@@ -1233,7 +1350,10 @@
         function attachApplicationActionListeners() {
             document.querySelectorAll('.edit-app-btn').forEach(btn => btn.onclick = () => showApplicationModal(applicationsCache.find(a => a.id === btn.dataset.id)));
             document.querySelectorAll('.delete-app-btn').forEach(btn => btn.onclick = async (e) => {
-                if (confirm('هل أنت متأكد من حذف هذا التطبيق؟')) await deleteDoc(doc(db, "applications", e.currentTarget.dataset.id));
+                showDeleteConfirmationModal(async () => {
+                    await deleteDoc(doc(db, "applications", e.currentTarget.dataset.id));
+                    closeModal();
+                });
             });
         }
 
@@ -1292,7 +1412,12 @@
         }
         function attachNoteActionListeners() {
             document.querySelectorAll('.edit-note-btn').forEach(btn => btn.onclick = () => showNoteModal(notesCache.find(n => n.id === btn.dataset.id)));
-            document.querySelectorAll('.delete-note-btn').forEach(btn => btn.onclick = async (e) => { if (confirm('هل أنت متأكد من حذف هذه الملاحظة نهائياً؟')) await deleteDoc(doc(db, "notes", e.currentTarget.dataset.id)); });
+            document.querySelectorAll('.delete-note-btn').forEach(btn => btn.onclick = async (e) => { 
+                showDeleteConfirmationModal(async () => {
+                    await deleteDoc(doc(db, "notes", e.currentTarget.dataset.id));
+                    closeModal();
+                });
+            });
         }
 
         async function loadStoreSettings() {
@@ -1467,6 +1592,53 @@
         function closeModal() { getEl('modal-container').innerHTML = ''; }
         function showLoadingModal(text = 'جاري الحفظ...') { getEl('modal-container').innerHTML = `<div class="modal-backdrop"><div class="modal-content text-center"><div class="loader mx-auto"></div><p class="mt-4 text-lg font-semibold text-gray-700">${text}</p></div></div>`; }
         
+        function showDeleteConfirmationModal(onConfirm) {
+            const confirmationText = "S22MARKET";
+            const content = `
+                <div class="text-center">
+                    <i class="fas fa-exclamation-triangle text-5xl text-red-500 mb-4"></i>
+                    <p class="text-lg font-bold mb-2">هل أنت متأكد تماماً؟</p>
+                    <p class="text-gray-600 mb-4">هذا الإجراء لا يمكن التراجع عنه. لتأكيد الحذف، الرجاء كتابة <strong class="font-mono text-red-700">${confirmationText}</strong> في الحقل أدناه.</p>
+                    <input type="text" id="delete-confirmation-input" class="w-full p-2 border rounded-md text-center font-mono tracking-widest" placeholder="${confirmationText}">
+                    <p id="delete-error-msg" class="text-red-600 text-sm mt-2 hidden">النص غير متطابق.</p>
+                </div>
+            `;
+            showModal('تأكيد الحذف النهائي', content, () => {
+                 const input = getEl('delete-confirmation-input');
+                 if(input.value === confirmationText) {
+                     showLoadingModal('جاري الحذف...');
+                     onConfirm();
+                 } else {
+                     const errorMsg = getEl('delete-error-msg');
+                     input.classList.add('border-red-500', 'shake');
+                     errorMsg.classList.remove('hidden');
+                     setTimeout(() => input.classList.remove('shake'), 820);
+                 }
+            }, 'تأكيد الحذف', true);
+
+            const confirmBtn = getEl('modal-confirm');
+            const inputField = getEl('delete-confirmation-input');
+            confirmBtn.disabled = true;
+            confirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            confirmBtn.classList.remove('hover:bg-indigo-700');
+            confirmBtn.style.backgroundColor = '#dc2626'; // Red color for delete button
+            confirmBtn.style.borderColor = '#dc2626';
+
+            inputField.addEventListener('input', () => {
+                if (inputField.value === confirmationText) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    confirmBtn.classList.add('hover:bg-red-700');
+                    inputField.classList.remove('border-red-500');
+                    getEl('delete-error-msg').classList.add('hidden');
+                } else {
+                    confirmBtn.disabled = true;
+                    confirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    confirmBtn.classList.remove('hover:bg-red-700');
+                }
+            });
+        }
+        
         const adminPassword = getEl('admin-password');
         const togglePasswordBtn = getEl('toggle-password');
         if (togglePasswordBtn && adminPassword) {
@@ -1481,18 +1653,6 @@
             });
         }
         
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
         function loadProductRequests() {
             const panel = getEl('productRequests-panel');
             panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">طلبات إضافة المنتجات من الزوار</h1>
@@ -1570,20 +1730,16 @@
             });
         }
 
-
-
-function attachRequestActionListeners() {
+        function attachRequestActionListeners() {
             document.querySelectorAll('.approve-request-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const requestDataString = btn.dataset.id;
+                btn.onclick = async () => {
+                    const button = btn;
+                    button.disabled = true;
+                    button.innerHTML = '<div class="loader !w-6 !h-6 !border-4 mx-auto"></div>';
+
                     try {
-                        // Firebase Timestamps might not be serializable directly, handle safely
-                        const requestData = JSON.parse(requestDataString, (key, value) => {
-                            if (typeof value === 'object' && value !== null && value.seconds) {
-                                return new Date(value.seconds * 1000);
-                            }
-                            return value;
-                        });
+                        const requestDataString = btn.dataset.id;
+                        const requestData = JSON.parse(requestDataString);
 
                         const category = categoriesCache.find(c => c.name === requestData.categoryName);
                         
@@ -1593,40 +1749,85 @@ function attachRequestActionListeners() {
                             later: 'سيتم التنسيق لاحقاً'
                         };
 
-                        const prefilledProduct = {
-                            name: `<h3>${requestData.productName}</h3>`,
-                            description: `<p>${requestData.productDescription}</p>`,
-                            categoryId: category ? category.id : '',
-                            supplier: requestData.userName,
-                            supplierContact: `الهاتف: ${requestData.userPhone}\nالبريد: ${requestData.userEmail}\nالتخصص: ${requestData.userSpecialty}\n\n-- ملاحظات الطلب --\nالكمية: ${requestData.quantity}\nمنطقة البيع: ${requestData.sellingArea}\nالتوصيل: ${deliveryOptionsMap[requestData.deliveryOption]}`,
-                            imageUrls: requestData.imageUrls || [], // Pass the image URLs
-                            location: requestData.sellingArea, // Pre-fill product location
-                        };
-                        
-                        // Navigate to products tab and show the modal
-                        document.querySelector('a[href="#products"]').click();
-                        showProductModal(prefilledProduct);
+                        const productDescription = `<p>${requestData.productDescription}</p>`;
+                        const supplierContactInfo = `الهاتف: ${requestData.userPhone}\nالبريد: ${requestData.userEmail}\nالتخصص: ${requestData.userSpecialty}\n\n-- ملاحظات الطلب --\nالكمية: ${requestData.quantity}\nمنطقة البيع: ${requestData.sellingArea}\nالتوصيل: ${deliveryOptionsMap[requestData.deliveryOption]}`;
 
-                        // Mark request as approved
-                        updateDoc(doc(db, "productRequests", requestData.id), { status: "approved" });
+                        const newProductData = {
+                            name: `<h3>${requestData.productName}</h3>`,
+                            price: 0, 
+                            description: productDescription,
+                            categoryId: category ? category.id : '',
+                            subCategoryName: null,
+                            subCategoryID: null,
+                            supplier: requestData.userName,
+                            supplierContact: supplierContactInfo,
+                            imageUrls: requestData.imageUrls || [],
+                            location: requestData.sellingArea,
+                            availability: 'available',
+                            sku: '',
+                            profitValue: 0,
+                            profitType: 'fixed',
+                            shippingOptions: [],
+                            orderMethod: 'traditional',
+                            directContactLinks: {
+                                whatsapp: '',
+                                facebook: '',
+                                instagram: '',
+                                telegram: '',
+                                phone: ''
+                            },
+                            createdAt: serverTimestamp(),
+                            updatedAt: serverTimestamp()
+                        };
+
+                        const productRef = await addDoc(collection(db, "products"), newProductData);
+                        
+                        await updateDoc(doc(db, "productRequests", requestData.id), { status: "approved" });
+
+                        showModal(
+                            'نجاح',
+                            `<div class="text-center">
+                                <i class="fas fa-check-circle text-5xl text-green-500 mx-auto mb-4"></i>
+                                <p class="text-lg">تم إنشاء المنتج بنجاح!</p>
+                                <p class="text-sm text-gray-600 mt-2">يمكنك الآن تعديل سعره وتفاصيله من قسم المنتجات.</p>
+                            </div>`,
+                            () => {
+                                closeModal();
+                                document.querySelector('a[href="#products"]').click();
+                                setTimeout(() => {
+                                    const newCard = Array.from(document.querySelectorAll('.edit-product-btn')).find(button => button.dataset.id === productRef.id)?.closest('.bg-white');
+                                    if(newCard) {
+                                        newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        newCard.style.transition = 'all 0.3s ease';
+                                        newCard.style.boxShadow = '0 0 25px rgba(79, 70, 229, 0.7)';
+                                        setTimeout(() => { newCard.style.boxShadow = ''; }, 3000);
+                                    }
+                                }, 500);
+                            },
+                            'حسنًا',
+                            false
+                        );
 
                     } catch (e) {
-                        console.error("Failed to parse request data or show modal:", e);
-                        alert("حدث خطأ أثناء معالجة الطلب.");
+                        console.error("Failed to create product from request:", e);
+                        alert("حدث خطأ فادح أثناء إنشاء المنتج: " + e.message);
+                        button.disabled = false;
+                        button.innerHTML = '<i class="fas fa-plus mr-2"></i> إنشاء منتج من هذا الطلب';
                     }
                 };
             });
 
             document.querySelectorAll('.reject-request-btn').forEach(btn => {
                 btn.onclick = async () => {
-                    if (confirm('هل أنت متأكد من رفض هذا الطلب وحذفه نهائياً؟')) {
+                     showDeleteConfirmationModal(async () => {
                         try {
                            await deleteDoc(doc(db, "productRequests", btn.dataset.id));
+                           closeModal();
                         } catch(error) {
                            console.error("Error deleting request:", error);
-                           alert("حدث خطأ أثناء حذف الطلب.");
+                           showModal('خطأ', "حدث خطأ أثناء حذف الطلب.", closeModal, 'موافق', false);
                         }
-                    }
+                    });
                 };
             });
         }
