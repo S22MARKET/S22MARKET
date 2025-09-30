@@ -1031,20 +1031,27 @@
         } catch (error) { console.error(error); } finally { elements.loader.classList.add('hidden'); }
     }
     
-    async function handleDirectProductLink() {
-        const params = new URLSearchParams(window.location.search);
-        const productId = params.get('product');
-        if (!productId) return;
+   async function handleDirectProductLink() {
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get('product');
+    if (!productId) return;
 
-        highlightedProductId = productId;
-        applyFiltersAndRender();
-        
+    highlightedProductId = productId;
+    applyFiltersAndRender(); // سيعرض هذا كل المنتجات مع تطبيق التظليل على المنتج المطلوب
+
+    // ننتظر قليلاً قبل محاولة التمرير
+    setTimeout(() => {
         const productCard = document.getElementById(`product-card-${productId}`);
         if (productCard) {
             productCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-    }
-    
+    }, 100); // تأخير بسيط بمقدار 100 ملي ثانية يكفي
+}
+
+
+
+
+
     function showDhikrModal() {
         let countdown = 5;
         const phrases = ["سبحان الله", "الحمد لله", "أستغفر الله العظيم", "محمد صلى الله عليه وسلم", ""];
