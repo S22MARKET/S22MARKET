@@ -1022,8 +1022,7 @@
             });
             document.querySelectorAll('.copy-product-link-btn').forEach(btn => btn.onclick = (e) => {
                 const button = e.currentTarget;
-                const productUrl = `${window.location.origin}/index.html?product=${button.dataset.id}`;
-                navigator.clipboard.writeText(productUrl).then(() => {
+const productUrl = `https://s22market.github.io/S22MARKET/index.html?product=${button.dataset.id}`;                navigator.clipboard.writeText(productUrl).then(() => {
                     const originalIcon = button.innerHTML;
                     button.innerHTML = '<i class="fas fa-check text-green-500"></i>'; 
                     setTimeout(() => { button.innerHTML = originalIcon; }, 2000);
