@@ -144,6 +144,7 @@
                 <nav class="flex-1 p-2 space-y-2">
                     <a href="#analytics" class="dashboard-tab active-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chart-line fa-fw mr-3"></i> لوحة التحكم</a>
                     <a href="#products" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
+                    <a href="#offers" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-star fa-fw mr-3"></i> العروض</a>
                     <a href="#productRequests" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-user-plus fa-fw mr-3"></i> طلبات الزوار</a>
                     <a href="#categories" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
                     <a href="#orders" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
@@ -161,6 +162,7 @@
             <main class="flex-1 p-4 md:p-8 overflow-y-auto">
                 <div id="analytics-panel" class="dashboard-panel"></div>
                 <div id="products-panel" class="dashboard-panel hidden"></div>
+                <div id="offers-panel" class="dashboard-panel hidden"></div>
                 <div id="productRequests-panel" class="dashboard-panel hidden"></div>
                 <div id="categories-panel" class="dashboard-panel hidden"></div>
                 <div id="orders-panel" class="dashboard-panel hidden"></div>
@@ -193,9 +195,11 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const generateUniqueId = () => 'sub_' + Math.random().toString(36).substring(2, 11);
 
         let categoriesCache = [];
         let productsCache = [];
+        let offersCache = []; // [+] NEW: Cache for offers
         let ordersCache = [];
         let couponsCache = [];
         let applicationsCache = [];
@@ -271,6 +275,7 @@
             loadAnalytics();
             loadCategories();
             loadProducts();
+            loadOffers(); // [+] NEW: Load offers
             loadOrders();
             loadCoupons();
             loadInquiries(); 
@@ -495,69 +500,88 @@
                 attachCategoryActionListeners();
             });
         }
-        function showCategoryModal(category = null) {
-            const title = category ? 'تعديل القسم' : 'إضافة قسم جديد';
-            const subcategories = category?.subcategories || [];
+      function showCategoryModal(category = null) {
+    const title = category ? 'تعديل القسم' : 'إضافة قسم جديد';
+    
+    // التأكد من أن كل فرع لديه ID فريد (مهم للتوافق مع البيانات القديمة)
+    const subcategories = (category?.subcategories || []).map(sub => ({
+        ...sub,
+        id: sub.id || generateUniqueId() // أنشئ ID إذا لم يكن موجوداً
+    }));
 
-            let subcategoriesHtml = subcategories.map((sub, index) => `
-                <div class="flex items-center gap-2 mb-2 subcategory-item">
-                    <input type="text" class="w-full p-2 border rounded sub-name" value="${sub.name || ''}" placeholder="اسم الفرع">
-                    <label class="flex items-center gap-1 cursor-pointer text-sm"><input type="checkbox" class="sub-active" ${sub.active ? 'checked' : ''}> فعال</label>
-                    <button type="button" class="text-red-500 remove-sub-btn"><i class="fas fa-times-circle"></i></button>
-                </div>
-            `).join('');
+    let subcategoriesHtml = subcategories.map((sub) => `
+        <div class="flex items-center gap-2 mb-2 subcategory-item" data-id="${sub.id}">
+            <input type="text" class="w-full p-2 border rounded sub-name" value="${sub.name || ''}" placeholder="اسم الفرع">
+            <label class="flex items-center gap-1 cursor-pointer text-sm">
+                <input type="checkbox" class="sub-active" ${sub.active ? 'checked' : ''}> فعال
+            </label>
+            <button type="button" class="text-red-500 remove-sub-btn"><i class="fas fa-times-circle"></i></button>
+        </div>
+    `).join('');
 
-            const content = `
-                <div><label class="font-semibold">اسم القسم الرئيسي</label><input type="text" id="category-name" class="mt-1 w-full p-2 border rounded" value="${category ? category.name : ''}" required></div>
-                <div class="mt-4"><label class="font-semibold">رقم الترتيب (الأصغر يظهر أولاً)</label><input type="number" id="category-order" class="mt-1 w-full p-2 border rounded" value="${category ? category.orderIndex || 0 : 0}"></div>
-                <div class="mt-4">
-                    <label class="font-semibold">الفروع (Sub-categories)</label>
-                    <div id="subcategories-container" class="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">${subcategoriesHtml}</div>
-                    <button type="button" id="add-subcategory-btn" class="text-sm mt-2 text-indigo-600 font-semibold hover:underline"><i class="fas fa-plus-circle mr-1"></i>إضافة فرع جديد</button>
-                </div>`;
+    const content = `
+        <div><label class="font-semibold">اسم القسم الرئيسي</label><input type="text" id="category-name" class="mt-1 w-full p-2 border rounded" value="${category ? category.name : ''}" required></div>
+        <div class="mt-4"><label class="font-semibold">رقم الترتيب (الأصغر يظهر أولاً)</label><input type="number" id="category-order" class="mt-1 w-full p-2 border rounded" value="${category ? category.orderIndex || 0 : 0}"></div>
+        <div class="mt-4">
+            <label class="font-semibold">الفروع (Sub-categories)</label>
+            <div id="subcategories-container" class="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">${subcategoriesHtml}</div>
+            <button type="button" id="add-subcategory-btn" class="text-sm mt-2 text-indigo-600 font-semibold hover:underline"><i class="fas fa-plus-circle mr-1"></i>إضافة فرع جديد</button>
+        </div>`;
 
-            showModal(title, content, async () => {
-                const name = getVal('category-name').trim();
-                const orderIndex = getInt('category-order') || 0;
+    showModal(title, content, async () => {
+        const name = getVal('category-name').trim();
+        const orderIndex = getInt('category-order') || 0;
 
-                if (!name) { alert('الرجاء إدخال اسم القسم الرئيسي.'); return; }
+        if (!name) { alert('الرجاء إدخال اسم القسم الرئيسي.'); return; }
 
-                const subsData = [];
-                document.querySelectorAll('.subcategory-item').forEach(item => {
-                    const subName = item.querySelector('.sub-name')?.value.trim();
-                    const subActive = item.querySelector('.sub-active')?.checked;
-                    if(subName) subsData.push({ name: subName, active: subActive });
-                });
+        const subsData = [];
+        document.querySelectorAll('.subcategory-item').forEach(item => {
+            const subName = item.querySelector('.sub-name')?.value.trim();
+            const subActive = item.querySelector('.sub-active')?.checked;
+            // احصل على الـ ID القديم أو أنشئ واحداً جديداً
+            const subId = item.dataset.id || generateUniqueId(); 
+            if(subName) subsData.push({ id: subId, name: subName, active: subActive });
+        });
 
-                showLoadingModal();
-                try {
-                    const data = { name, subcategories: subsData, orderIndex: orderIndex };
-                    if (category) await updateDoc(doc(db, "categories", category.id), data);
-                    else await addDoc(collection(db, "categories"), data);
-                    closeModal();
-                } catch (error) {
-                    console.error("Error saving category:", error);
-                    alert("حدث خطأ أثناء الحفظ: " + error.message);
-                    closeModal();
-                }
-            });
-
-            const addSubcategory = () => {
-                const container = getEl('subcategories-container');
-                const newItem = document.createElement('div');
-                newItem.className = 'flex items-center gap-2 mb-2 subcategory-item';
-                newItem.innerHTML = `
-                    <input type="text" class="w-full p-2 border rounded sub-name" placeholder="اسم الفرع">
-                    <label class="flex items-center gap-1 cursor-pointer text-sm"><input type="checkbox" class="sub-active" checked> فعال</label>
-                    <button type="button" class="text-red-500 remove-sub-btn"><i class="fas fa-times-circle"></i></button>
-                `;
-                newItem.querySelector('.remove-sub-btn').onclick = () => newItem.remove();
-                container.appendChild(newItem);
-            };
-
-            getEl('add-subcategory-btn').onclick = addSubcategory;
-            document.querySelectorAll('.remove-sub-btn').forEach(btn => btn.onclick = (e) => e.currentTarget.closest('.subcategory-item').remove());
+        showLoadingModal();
+        try {
+            const data = { name, subcategories: subsData, orderIndex: orderIndex };
+            if (category) await updateDoc(doc(db, "categories", category.id), data);
+            else await addDoc(collection(db, "categories"), data);
+            closeModal();
+        } catch (error) {
+            console.error("Error saving category:", error);
+            alert("حدث خطأ أثناء الحفظ: " + error.message);
+            closeModal();
         }
+    });
+
+    const addSubcategory = () => {
+        const container = getEl('subcategories-container');
+        const newItem = document.createElement('div');
+        newItem.className = 'flex items-center gap-2 mb-2 subcategory-item';
+        // عند إضافة فرع جديد، يتم إعطاؤه ID مباشرة
+        newItem.dataset.id = generateUniqueId(); 
+        newItem.innerHTML = `
+            <input type="text" class="w-full p-2 border rounded sub-name" placeholder="اسم الفرع">
+            <label class="flex items-center gap-1 cursor-pointer text-sm"><input type="checkbox" class="sub-active" checked> فعال</label>
+            <button type="button" class="text-red-500 remove-sub-btn"><i class="fas fa-times-circle"></i></button>
+        `;
+        newItem.querySelector('.remove-sub-btn').onclick = () => newItem.remove();
+        container.appendChild(newItem);
+    };
+
+    getEl('add-subcategory-btn').onclick = addSubcategory;
+    document.querySelectorAll('.remove-sub-btn').forEach(btn => btn.onclick = (e) => e.currentTarget.closest('.subcategory-item').remove());
+}
+
+
+
+
+
+
+
+
         function attachCategoryActionListeners() {
             document.querySelectorAll('.edit-category-btn').forEach(btn => {
                 btn.onclick = () => {
@@ -585,9 +609,7 @@
             panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات</h1><button id="add-product-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div>
             <div id="products-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>`;
 
-            // [+] START: NEW LOGIC - Show choice modal on add
             getEl('add-product-btn').addEventListener('click', () => showProductTypeChoiceModal());
-            // [-] END: NEW LOGIC
             
             const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
            
@@ -621,12 +643,10 @@
                         availabilityBadge = '<span class="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">متوفر</span>';
                 }
 
-                // [+] START: NEW LOGIC - Add badge for direct order products
                 let orderTypeBadge = '';
                 if(product.orderMethod === 'direct') {
                     orderTypeBadge = '<span class="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-full"><i class="fas fa-paper-plane mr-1"></i>طلب مباشر</span>';
                 }
-                // [-] END: NEW LOGIC
 
                 const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : (product.imageUrl || 'https://placehold.co/300x160/e2e8f0/94a3b8?text=No+Image');
 
@@ -660,32 +680,39 @@
             attachProductActionListeners();
         }
 
-        function populateSubcategories(categoryId, productSubCategoryInfo = null) {
-            const subCategoryContainer = getEl('product-subcategory-container');
-            const subCategorySelect = getEl('product-subcategory');
-            if (!subCategoryContainer || !subCategorySelect) return;
 
-            const selectedCategory = categoriesCache.find(c => c.id === categoryId);
-            const activeSubcategories = (selectedCategory?.subcategories || [])
-                .filter(s => s.active)
-                .map((sub, index) => ({
-                    ...sub,
-                    id: sub.id || `${categoryId}-${index}`
-                }));
 
-            if (activeSubcategories.length > 0) {
-                subCategorySelect.innerHTML = '<option value="">اختر فرع...</option>';
-                activeSubcategories.forEach(sub => {
-                    const isSelected = productSubCategoryInfo && sub.id === productSubCategoryInfo.id;
-                    subCategorySelect.innerHTML += `<option value="${sub.name}" data-id="${sub.id}" ${isSelected ? 'selected' : ''}>${sub.name}</option>`;
-                });
-                subCategoryContainer.classList.remove('hidden');
-            } else {
-                subCategoryContainer.classList.add('hidden');
-                subCategorySelect.innerHTML = '';
-            }
-        }
 
+
+
+function populateSubcategories(categoryId, productSubCategoryInfo = null) {
+    const subCategoryContainer = getEl('product-subcategory-container');
+    const subCategorySelect = getEl('product-subcategory');
+    if (!subCategoryContainer || !subCategorySelect) return;
+
+    const selectedCategory = categoriesCache.find(c => c.id === categoryId);
+    
+    // تأكد أن كل فرع لديه ID قبل عرضه
+    const allSubcategories = (selectedCategory?.subcategories || []).map(sub => ({
+        ...sub,
+        id: sub.id || generateUniqueId() // احترازي: أنشئ ID إذا لم يكن موجوداً
+    }));
+
+    const activeSubcategories = allSubcategories.filter(s => s.active);
+
+    if (activeSubcategories.length > 0) {
+        subCategorySelect.innerHTML = '<option value="">اختر فرع...</option>';
+        activeSubcategories.forEach(sub => {
+            // استخدم الـ ID الحقيقي والثابت 'sub.id'
+            const isSelected = productSubCategoryInfo && sub.id === productSubCategoryInfo.id;
+            subCategorySelect.innerHTML += `<option value="${sub.name}" data-id="${sub.id}" ${isSelected ? 'selected' : ''}>${sub.name}</option>`;
+        });
+        subCategoryContainer.classList.remove('hidden');
+    } else {
+        subCategoryContainer.classList.add('hidden');
+        subCategorySelect.innerHTML = '';
+    }
+}
         async function uploadImageToImgBB(file) {
             const formData = new FormData();
             formData.append('image', file);
@@ -733,7 +760,6 @@
             });
         }
         
-        // [+] START: NEW LOGIC - Modal to choose product type
         function showProductTypeChoiceModal() {
             const title = "إضافة منتج جديد";
             const content = `
@@ -751,7 +777,6 @@
                     </button>
                 </div>
             `;
-            // We pass null for onConfirm because the buttons inside the modal handle the action
             showModal(title, content, null, '', false); 
 
             getEl('add-traditional-product').onclick = () => {
@@ -762,12 +787,9 @@
                 closeModal();
                 showProductModal('direct');
             };
-            // Hide the default confirm/cancel buttons
             getEl('modal-confirm').parentElement.classList.add('hidden');
         }
-        // [-] END: NEW LOGIC
 
-        // [+] START: REFACTORED LOGIC - Main Product Modal
         function showProductModal(productType, product = null) {
             const isDirectOrder = productType === 'direct';
             let title = '';
@@ -790,7 +812,6 @@
                 </div>
             `).join('');
             
-            // Conditional HTML for order method specific fields
             let orderSpecificHTML = '';
             if (isDirectOrder) {
                 orderSpecificHTML = `
@@ -995,18 +1016,14 @@
                 populateSubcategories(product.categoryId, { id: product.subCategoryID });
             }
         }
-        // [-] END: REFACTORED LOGIC
-
         function attachProductActionListeners() {
-            // [+] START: NEW LOGIC - Open the correct modal for editing
             document.querySelectorAll('.edit-product-btn').forEach(btn => btn.onclick = () => {
                 const productToEdit = productsCache.find(p => p.id === btn.dataset.id);
                 if (productToEdit) {
-                    const type = productToEdit.orderMethod || 'traditional'; // Default to traditional if not set
+                    const type = productToEdit.orderMethod || 'traditional'; 
                     showProductModal(type, productToEdit);
                 }
             });
-            // [-] END: NEW LOGIC
 
             document.querySelectorAll('.delete-product-btn').forEach(btn => {
                 btn.onclick = async () => {
@@ -1030,6 +1047,144 @@ const productUrl = `https://s22market.github.io/S22MARKET/index.html?product=${b
             });
         }
         
+        // [+] START: NEW FUNCTIONS FOR OFFERS MANAGEMENT
+        function loadOffers() {
+            const panel = getEl('offers-panel');
+            panel.innerHTML = `<div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800">إدارة العروض</h1>
+                <button id="add-offer-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700">
+                    <i class="fas fa-plus mr-2"></i> إضافة عرض
+                </button>
+            </div>
+            <div id="offers-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>`;
+            
+            getEl('add-offer-btn').addEventListener('click', () => showOfferModal());
+
+            onSnapshot(query(collection(db, "offers"), orderBy("createdAt", "desc")), (snapshot) => {
+                offersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderOffersGrid();
+            });
+        }
+
+        function renderOffersGrid() {
+            const list = getEl('offers-list');
+            list.innerHTML = offersCache.length === 0 ? '<p class="text-center text-gray-500 col-span-full mt-8">لا توجد عروض. أضف عرضاً جديداً للبدء.</p>' : '';
+            
+            offersCache.forEach(offer => {
+                const card = document.createElement('div');
+                card.className = `bg-white p-4 rounded-xl shadow-md flex flex-col`;
+                
+                const image = offer.imageUrl || 'https://placehold.co/300x160/e2e8f0/94a3b8?text=No+Image';
+
+                card.innerHTML = `
+                    <img src="${image}" class="w-full h-40 object-cover rounded-lg mb-4 bg-gray-100">
+                    <h3 class="font-bold text-xl mb-2">${offer.title}</h3>
+                    <p class="flex-grow text-gray-600 text-sm mb-3">${offer.description || ''}</p>
+                    <p class="text-lg font-bold text-indigo-600">${(offer.price || 0).toLocaleString()} د.ج</p>
+                    <div class="border-t mt-4 pt-3 flex justify-end gap-2">
+                        <button class="edit-offer-btn text-gray-400 hover:text-indigo-600" data-id="${offer.id}" title="تعديل"><i class="fas fa-edit"></i></button>
+                        <button class="delete-offer-btn text-gray-400 hover:text-red-600" data-id="${offer.id}" title="حذف"><i class="fas fa-trash"></i></button>
+                    </div>`;
+                list.appendChild(card);
+            });
+            attachOfferActionListeners();
+        }
+
+        function showOfferModal(offer = null) {
+            const title = offer ? 'تعديل العرض' : 'إضافة عرض جديد';
+            const content = `<div class="space-y-4">
+                <div><label class="font-semibold">عنوان العرض</label><input type="text" id="offer-title" class="mt-1 w-full p-2 border rounded" value="${offer?.title || ''}" required></div>
+                <div><label class="font-semibold">وصف العرض</label><textarea id="offer-description" class="mt-1 w-full p-2 border rounded" rows="3">${offer?.description || ''}</textarea></div>
+                <div><label class="font-semibold">سعر العرض (د.ج)</label><input type="number" id="offer-price" class="mt-1 w-full p-2 border rounded" value="${offer?.price || ''}" required></div>
+                <div class="border-t pt-4">
+                    <label class="font-semibold">صورة العرض</label>
+                    <input type="file" id="offer-image" class="mt-1 w-full p-2 border rounded text-sm" accept="image/*">
+                    ${offer ? `<p class="text-sm text-gray-500 mt-1">الصورة الحالية. رفع صورة جديدة سيقوم باستبدالها.</p><div class="flex flex-wrap gap-2 mt-2"><img src="${offer.imageUrl}" class="w-24 h-24 rounded object-cover border"></div>` : ''}
+                    <div id="offer-image-preview" class="flex flex-wrap gap-2 mt-2"></div>
+                </div>
+            </div>`;
+
+            showModal(title, content, async () => {
+                const offerTitle = getVal('offer-title').trim();
+                const offerPrice = getNum('offer-price');
+
+                if (!offerTitle || isNaN(offerPrice)) {
+                    return alert('يرجى ملء عنوان العرض وسعره.');
+                }
+
+                try {
+                    const imageFile = getEl('offer-image')?.files[0];
+                    let imageUrl = offer?.imageUrl || null;
+
+                    if (imageFile) {
+                        showLoadingModal('جاري ضغط ورفع الصورة...');
+                        const compressedFile = await resizeAndCompressImage(imageFile);
+                        imageUrl = await uploadImageToImgBB(compressedFile);
+                    }
+                    
+                    if (!imageUrl && !offer) {
+                         return alert('يجب رفع صورة للعرض الجديد.');
+                    }
+
+                    showLoadingModal('جاري حفظ البيانات...');
+                    
+                    const offerData = {
+                        title: offerTitle,
+                        description: getVal('offer-description').trim(),
+                        price: offerPrice,
+                        imageUrl: imageUrl,
+                        updatedAt: serverTimestamp()
+                    };
+                    
+                    if (offer) {
+                        await updateDoc(doc(db, "offers", offer.id), offerData);
+                    } else {
+                        offerData.createdAt = serverTimestamp();
+                        await addDoc(collection(db, "offers"), offerData);
+                    }
+                    closeModal();
+                } catch (error) {
+                    showModal('خطأ فادح', `فشل حفظ العرض: ${error.message}`, () => closeModal(), 'موافق', false);
+                }
+            });
+
+            getEl('offer-image').addEventListener('change', (e) => {
+                const previewContainer = getEl('offer-image-preview');
+                previewContainer.innerHTML = '';
+                if (e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const img = document.createElement('img');
+                        img.src = ev.target.result;
+                        img.className = 'w-24 h-24 rounded object-cover border';
+                        previewContainer.appendChild(img);
+                    }
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+        }
+
+        function attachOfferActionListeners() {
+            document.querySelectorAll('.edit-offer-btn').forEach(btn => btn.onclick = () => {
+                const offerToEdit = offersCache.find(o => o.id === btn.dataset.id);
+                if (offerToEdit) showOfferModal(offerToEdit);
+            });
+
+            document.querySelectorAll('.delete-offer-btn').forEach(btn => {
+                btn.onclick = async () => {
+                    showDeleteConfirmationModal(async () => {
+                        try {
+                            await deleteDoc(doc(db, "offers", btn.dataset.id));
+                            closeModal();
+                        } catch(error) {
+                            showModal('خطأ',`فشل حذف العرض: ${error.message}`, closeModal, 'موافق', false);
+                        }
+                    });
+                }
+            });
+        }
+        // [-] END: NEW FUNCTIONS FOR OFFERS MANAGEMENT
+
         function loadOrders() {
             const panel = getEl('orders-panel');
             panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">الطلبات الواردة</h1>
