@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Market - العروض والباقات</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #3b82f6; --secondary-color: #10b981; --bg-body: #f1f5f9; 
+            --bg-card: #ffffff; --text-primary: #1e293b; --border-color: #e2e8f0;
+        }
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-body); color: var(--text-primary); }
+        .loader {
+            border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color);
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .offer-card-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+        }
+        .offer-card {
+            background-color: var(--bg-card);
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid var(--border-color);
+            height: 100%;
+        }
+        .offer-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <a href="index.html" class="text-2xl text-gray-600 hover:text-blue-600" title="العودة للصفحة الرئيسية">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <h1 onclick="location.href='index.html'" class="cursor-pointer text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+                S22<span class="text-blue-600">MARKET</span>
+            </h1>
+            <a href="index.html#cart" class="relative text-2xl text-gray-600 hover:text-blue-600">
+                <i class="fas fa-shopping-cart"></i>
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800">العروض والباقات الحصرية</h1>
+            <p class="mt-2 text-lg text-gray-600">اكتشف أفضل العروض التي نقدمها خصيصاً لك.</p>
+        </div>
+
+        <div id="page-loader" class="text-center py-20"><div class="loader mx-auto"></div><p class="mt-4 text-gray-600">جاري تحميل العروض...</p></div>
+        <div id="offers-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <div id="no-offers-msg" class="hidden text-center py-20 bg-white rounded-xl shadow-sm">
+            <i class="fas fa-tags text-4xl text-gray-400"></i>
+            <p class="mt-4 text-xl font-semibold text-gray-500">لا توجد عروض متاحة حاليًا. ترقب جديدنا!</p>
+        </div>
+    </main>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        const firebaseConfig = {
+             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const elements = {
+            grid: document.getElementById('offers-grid'),
+            loader: document.getElementById('page-loader'),
+            noOffersMsg: document.getElementById('no-offers-msg'),
+        };
+
+        function createOfferCard(offer) {
+            const cardLink = document.createElement('a');
+            cardLink.href = `PRESENTPRODUCT.html?offer=${offer.id}`;
+            cardLink.className = 'offer-card-link';
+
+            const card = document.createElement('div');
+            card.className = 'offer-card';
+            const image = offer.imageUrl || 'https://placehold.co/400x200/a7b5c9/ffffff?text=Offer';
+            
+            card.innerHTML = `
+                <img src="${image}" alt="${offer.title}" class="w-full h-56 object-cover" loading="lazy">
+                <div class="p-5 flex flex-col flex-grow">
+                    <h3 class="text-xl font-bold text-gray-900">${offer.title}</h3>
+                    <p class="text-gray-600 mt-2 text-sm flex-grow">${offer.description || ''}</p>
+                    <div class="mt-4 pt-4 border-t flex justify-between items-center">
+                        <span class="text-2xl font-extrabold text-blue-600">${(offer.price || 0).toLocaleString()} د.ج</span>
+                        <span class="text-blue-600 font-semibold py-2 px-4 rounded-lg">
+                            عرض التفاصيل <i class="fas fa-arrow-left mr-2"></i>
+                        </span>
+                    </div>
+                </div>
+            `;
+            cardLink.appendChild(card);
+            return cardLink;
+        }
+
+        async function initializePage() {
+            try {
+                const snapshot = await getDocs(query(collection(db, "offers"), orderBy("createdAt", "desc")));
+                const offers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                if (offers.length > 0) {
+                    const fragment = document.createDocumentFragment();
+                    offers.forEach(offer => fragment.appendChild(createOfferCard(offer)));
+                    elements.grid.appendChild(fragment);
+                    elements.grid.classList.remove('hidden');
+                } else {
+                    elements.noOffersMsg.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Error loading offers:", error);
+                elements.grid.innerHTML = '<p class="text-red-500 col-span-full">حدث خطأ أثناء تحميل العروض.</p>';
+            } finally {
+                elements.loader.classList.add('hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initializePage);
+    </script>
+</body>
+</html>

@@ -93,7 +93,7 @@
             cursor: pointer; 
             transition: transform 0.2s; 
         }
-        #lightbox .close-btn:hover { transform: scale(1.1); }
+        .close-btn:hover { transform: scale(1.1); }
 
         /* --- Toast Notification Styles --- */
         #toast-container { 
@@ -120,7 +120,7 @@
             gap: 0.75rem;
             animation: slideInUp 0.5s, fadeOut 0.5s 4.5s forwards;
         }
-        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; translateY(0); } }
         @keyframes fadeOut { to { opacity: 0; transform: translateY(20px); } }
 
     </style>
@@ -145,11 +145,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             <div id="product-gallery">
                 <div class="main-image-container bg-white rounded-lg shadow-md flex items-center justify-center p-2 overflow-hidden">
-                    <picture>
-                        <source id="main-image-webp" srcset="" type="image/webp">
-                        <source id="main-image-jpeg" srcset="" type="image/jpeg">
-                        <img id="main-product-image" src="" alt="صورة المنتج الرئيسية" class="w-full h-full object-contain" loading="lazy">
-                    </picture>
+                    <img id="main-product-image" src="" alt="صورة المنتج الرئيسية" class="w-full h-full object-contain" loading="lazy">
                 </div>
                 <div id="thumbnails" class="grid grid-cols-4 sm:grid-cols-5 gap-3 mt-4"></div>
             </div>
@@ -167,7 +163,7 @@
                             </button>
                         </div>
                     </div>
-                    <p id="product-location" class="text-slate-500 text-md mt-2 mb-4"><i class="fas fa-map-marker-alt fa-fw mr-1 text-slate-400"></i><span></span></p>
+                    <p id="product-location-container" class="text-slate-500 text-md mt-2 mb-4"><i class="fas fa-map-marker-alt fa-fw mr-1 text-slate-400"></i><span id="product-location"></span></p>
                     <div class="my-6"><span id="product-price" class="text-blue-600 text-5xl font-extrabold"></span></div>
 
                     <div class="mt-8 space-y-4">
@@ -181,7 +177,7 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-lg shadow-md mt-8">
-                    <h2 class="text-2xl font-bold mb-4 border-b pb-3 text-slate-800">وصف المنتج</h2>
+                    <h2 class="text-2xl font-bold mb-4 border-b pb-3 text-slate-800">الوصف</h2>
                     <div id="product-description" class="prose max-w-none text-slate-700 space-y-4 leading-relaxed"></div>
                 </div>
             </div>
@@ -195,16 +191,16 @@
                 <span class="text-xs text-slate-500">السعر</span>
                 <p id="mobile-sticky-price" class="text-lg font-bold text-blue-600"></p>
             </div>
-            <div class="flex-grow grid grid-cols-2 gap-2">
-                <button id="add-to-cart-btn-mobile" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg text-base flex items-center justify-center gap-2"><i class="fas fa-cart-plus"></i> أضف للسلة</button>
-                <button id="direct-order-btn-mobile" class="w-full bg-green-600 text-white font-semibold py-3 rounded-lg text-base flex items-center justify-center gap-2"><i class="fas fa-shipping-fast"></i> اطلب الآن</button>
+            <div id="mobile-buttons-container" class="flex-grow grid grid-cols-2 gap-2">
+                 <button id="add-to-cart-btn-mobile" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg text-base flex items-center justify-center gap-2"><i class="fas fa-cart-plus"></i> أضف للسلة</button>
+                 <button id="direct-order-btn-mobile" class="w-full bg-green-600 text-white font-semibold py-3 rounded-lg text-base flex items-center justify-center gap-2"><i class="fas fa-shipping-fast"></i> اطلب الآن</button>
             </div>
         </div>
     </div>
     
     <div id="page-loader" class="text-center py-20 flex flex-col justify-center items-center min-h-screen">
         <div class="loader"></div>
-        <p class="mt-4 text-slate-600">جاري تحميل المنتج...</p>
+        <p class="mt-4 text-slate-600">جاري تحميل البيانات...</p>
     </div>
 
     <div id="lightbox">
@@ -215,11 +211,9 @@
     <div id="toast-container"></div>
 
     <script type="module">
-        // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
             authDomain: "s22market-4e3e6.firebaseapp.com",
@@ -230,30 +224,27 @@
             measurementId: "G-MWYNCVP4WQ"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Global variable for the current product
         let currentProduct = null;
 
-        // DOM Elements
         const elements = {
             pageLoader: document.getElementById('page-loader'),
             pageContent: document.getElementById('page-content'),
             productName: document.getElementById('product-name'),
-            productLocation: document.getElementById('product-location').querySelector('span'),
+            productLocation: document.getElementById('product-location'),
+            productLocationContainer: document.getElementById('product-location-container'),
             productPrice: document.getElementById('product-price'),
             mobileStickyPrice: document.getElementById('mobile-sticky-price'),
             productDescription: document.getElementById('product-description'),
             mainImage: document.getElementById('main-product-image'),
-            mainImageWebp: document.getElementById('main-image-webp'),
-            mainImageJpeg: document.getElementById('main-image-jpeg'),
             thumbnailsContainer: document.getElementById('thumbnails'),
             addToCartBtn: document.getElementById('add-to-cart-btn'),
             directOrderBtn: document.getElementById('direct-order-btn'),
             addToCartBtnMobile: document.getElementById('add-to-cart-btn-mobile'),
             directOrderBtnMobile: document.getElementById('direct-order-btn-mobile'),
+            mobileButtonsContainer: document.getElementById('mobile-buttons-container'),
             shareBtn: document.getElementById('share-btn'),
             copyLinkBtn: document.getElementById('copy-link-btn'),
             toastContainer: document.getElementById('toast-container'),
@@ -263,11 +254,6 @@
             mainImageContainer: document.querySelector('.main-image-container')
         };
 
-        /**
-         * Shows a toast notification.
-         * @param {string} message The message to display.
-         * @param {boolean} isSuccess Whether the toast is for a success or error message.
-         */
         function showToast(message, isSuccess = true) {
             const toast = document.createElement('div');
             toast.className = `toast ${isSuccess ? 'bg-green-500' : 'bg-red-500'}`;
@@ -277,64 +263,30 @@
             setTimeout(() => toast.remove(), 5000);
         }
 
-        /**
-         * Updates the main product image.
-         * @param {string} newImageUrl The URL of the new image to display.
-         */
         function updateMainImage(newImageUrl) {
-            // Assuming WebP has the same name but different extension
-            const webpUrl = newImageUrl.replace(/\.(jpg|jpeg|png)$/, '.webp');
-            elements.mainImageWebp.srcset = webpUrl;
-            elements.mainImageJpeg.srcset = newImageUrl;
-            elements.mainImage.src = newImageUrl; // Fallback
-            elements.lightboxImage.src = newImageUrl; // Update lightbox image as well
+            elements.mainImage.src = newImageUrl;
+            elements.lightboxImage.src = newImageUrl;
         }
 
-        /**
-         * Generates and injects JSON-LD structured data for SEO.
-         * @param {object} product The product data object.
-         */
-        function injectStructuredData(product) {
-            const schema = {
-                "@context": "https://schema.org/",
-                "@type": "Product",
-                "name": product.name.replace(/<[^>]*>?/gm, ''),
-                "image": product.imageUrls || [product.imageUrl],
-                "description": product.description.substring(0, 200).replace(/<[^>]*>?/gm, ''),
-                "sku": product.id,
-                "offers": {
-                    "@type": "Offer",
-                    "url": window.location.href,
-                    "priceCurrency": "DZD",
-                    "price": product.price,
-                    "availability": "https://schema.org/InStock",
-                    "itemCondition": "https://schema.org/NewCondition"
-                }
-            };
-
-            const script = document.createElement('script');
-            script.type = 'application/ld+json';
-            script.textContent = JSON.stringify(schema);
-            document.head.appendChild(script);
-        }
-
-        /**
-         * Renders the product data on the page.
-         * @param {object} product The product data object.
-         */
         function renderProduct(product) {
             currentProduct = product;
-            const productNamePlainText = product.name.replace(/<[^>]*>?/gm, '');
-            const priceFormatted = `${product.price.toLocaleString()} د.ج`;
+            const productNamePlainText = (product.name || '').replace(/<[^>]*>?/gm, '');
+            const priceFormatted = `${(product.price || 0).toLocaleString()} د.ج`;
             
             document.title = productNamePlainText;
             elements.productName.innerHTML = product.name;
-            elements.productLocation.textContent = product.location || 'غير محدد';
             elements.productPrice.textContent = priceFormatted;
             elements.mobileStickyPrice.textContent = priceFormatted;
-            elements.productDescription.innerHTML = product.description || '<p>لا يوجد وصف لهذا المنتج.</p>';
+            elements.productDescription.innerHTML = product.description || '<p>لا يوجد وصف.</p>';
 
-            const images = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls : (product.imageUrl ? [product.imageUrl] : ['https://placehold.co/600x600/E2E8F0/475569?text=No+Image']);
+            if (product.location) {
+                elements.productLocation.textContent = product.location;
+                elements.productLocationContainer.classList.remove('hidden');
+            } else {
+                elements.productLocationContainer.classList.add('hidden');
+            }
+
+            const images = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls : ['https://placehold.co/600x600/E2E8F0/475569?text=No+Image'];
             
             updateMainImage(images[0]);
             elements.mainImage.alt = productNamePlainText;
@@ -353,34 +305,45 @@
                 elements.thumbnailsContainer.classList.add('hidden');
             }
 
-            injectStructuredData(product);
+            // --- Button Logic ---
+            const isDirectOrder = product.orderMethod === 'direct';
+            const isOffer = product.isOffer === true;
+
+            elements.directOrderBtn.classList.toggle('hidden', !isDirectOrder || isOffer);
+            elements.directOrderBtnMobile.classList.toggle('hidden', !isDirectOrder || isOffer);
+            
+            elements.addToCartBtn.classList.toggle('hidden', isDirectOrder && !isOffer);
+            elements.addToCartBtnMobile.classList.toggle('hidden', isDirectOrder && !isOffer);
+
+            if (isDirectOrder || isOffer) {
+                elements.mobileButtonsContainer.classList.remove('grid-cols-2');
+                elements.mobileButtonsContainer.classList.add('grid-cols-1');
+            } else {
+                elements.mobileButtonsContainer.classList.remove('grid-cols-1');
+                elements.mobileButtonsContainer.classList.add('grid-cols-2');
+            }
+
 
             elements.pageLoader.classList.add('hidden');
             elements.pageContent.classList.remove('hidden');
         }
 
-        /**
-         * Fetches product data from Firestore.
-         * @param {string} productId The ID of the product to fetch.
-         */
-        async function fetchProduct(productId) {
-            try {
-                const docRef = doc(db, "products", productId);
+        async function fetchItem(collectionName, itemId) {
+             try {
+                const docRef = doc(db, collectionName, itemId);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
-                    renderProduct({ id: docSnap.id, ...docSnap.data() });
+                    return { id: docSnap.id, ...docSnap.data() };
                 } else {
-                    elements.pageLoader.innerHTML = '<p class="text-red-500 text-xl">عفواً، هذا المنتج غير موجود.</p>';
+                    return null;
                 }
             } catch (error) {
-                console.error("Error fetching product:", error);
-                elements.pageLoader.innerHTML = '<p class="text-red-500 text-xl">حدث خطأ أثناء تحميل المنتج.</p>';
+                console.error(`Error fetching from ${collectionName}:`, error);
+                throw error;
             }
         }
 
-        /**
-         * Adds the current product to the cart in localStorage.
-         */
+
         function addToCart() {
             if (!currentProduct) return;
             let cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
@@ -390,32 +353,25 @@
             if (existingItem) {
                 existingItem.quantity = (existingItem.quantity || 1) + 1;
             } else {
-                cart.push({ ...currentProduct, quantity: 1 });
+                cart.push({
+                     id: currentProduct.id,
+                     name: currentProduct.name,
+                     price: currentProduct.price,
+                     imageUrls: currentProduct.imageUrls,
+                     quantity: 1 
+                });
             }
             localStorage.setItem('s22market_cart', JSON.stringify(cart));
-            showToast(`تمت إضافة "${productNamePlainText}" إلى السلة!`);
+            showToast(`تمت الإضافة إلى السلة!`);
         }
-
-        /**
-         * Handles the direct order process.
-         */
-        function handleDirectOrder() {
-            if (currentProduct) {
-                sessionStorage.setItem('directOrderProductId', currentProduct.id);
-                window.location.href = 'index.html'; // Or checkout page
-            }
-        }
-
-        /**
-         * Shares the product link using Web Share API or copies to clipboard.
-         */
+        
         async function shareProduct() {
             if (!currentProduct) return;
             const productNamePlainText = currentProduct.name.replace(/<[^>]*>?/gm, '');
             const productUrl = window.location.href;
             const shareData = {
                 title: productNamePlainText,
-                text: `تحقق من هذا المنتج الرائع: ${productNamePlainText}`,
+                text: `شاهد هذا العرض الرائع: ${productNamePlainText}`,
                 url: productUrl
             };
             try {
@@ -423,41 +379,63 @@
                     await navigator.share(shareData);
                 } else {
                     await navigator.clipboard.writeText(productUrl);
-                    showToast('تم نسخ رابط المنتج!');
+                    showToast('تم نسخ الرابط!');
                 }
             } catch (err) {
                 console.error("Share failed:", err);
-                // Fallback to copy
                 await navigator.clipboard.writeText(productUrl);
                 showToast('تم نسخ الرابط كخيار بديل.');
             }
         }
 
-        /**
-         * Copies the product link to the clipboard.
-         */
         async function copyLink() {
-            const productUrl = window.location.href;
-            try {
-                await navigator.clipboard.writeText(productUrl);
-                showToast('تم نسخ رابط المنتج بنجاح!');
-            } catch (err) {
-                console.error('Failed to copy link: ', err);
-                showToast('فشل نسخ الرابط', false);
-            }
+            await navigator.clipboard.writeText(window.location.href);
+            showToast('تم نسخ الرابط بنجاح!');
         }
 
 
-        // Event Listeners
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
             const productId = params.get('product');
+            const offerId = params.get('offer');
+            
+            let data = null;
+            let errorMsg = '';
 
-            if (productId) {
-                fetchProduct(productId);
-            } else {
-                elements.pageLoader.innerHTML = '<p class="text-xl">لم يتم تحديد أي منتج.</p>';
+            try {
+                if (productId) {
+                    data = await fetchItem('products', productId);
+                    if (!data) errorMsg = 'عفواً، هذا المنتج غير موجود.';
+                } else if (offerId) {
+                    const offerData = await fetchItem('offers', offerId);
+                    if (offerData) {
+                        // Adapt offer data to product structure
+                        data = {
+                            id: offerData.id,
+                            name: offerData.title,
+                            description: offerData.description,
+                            price: offerData.price,
+                            imageUrls: [offerData.imageUrl],
+                            location: 'عرض خاص',
+                            isOffer: true // Flag to identify it as an offer
+                        };
+                    } else {
+                        errorMsg = 'عفواً، هذا العرض غير موجود.';
+                    }
+                } else {
+                    errorMsg = 'لم يتم تحديد أي منتج أو عرض.';
+                }
+
+                if (data) {
+                    renderProduct(data);
+                } else {
+                     elements.pageLoader.innerHTML = `<p class="text-red-500 text-xl">${errorMsg}</p>`;
+                }
+
+            } catch (error) {
+                 elements.pageLoader.innerHTML = '<p class="text-red-500 text-xl">حدث خطأ أثناء تحميل البيانات.</p>';
             }
+
 
             elements.thumbnailsContainer.addEventListener('click', (e) => {
                 const thumb = e.target.closest('.thumbnail');
@@ -468,7 +446,6 @@
                 }
             });
 
-            // Lightbox events
             elements.mainImageContainer.addEventListener('click', () => elements.lightbox.classList.add('active'));
             elements.closeLightboxBtn.addEventListener('click', () => elements.lightbox.classList.remove('active'));
             elements.lightbox.addEventListener('click', (e) => {
@@ -477,13 +454,11 @@
                 }
             });
             
-            // Button Clicks
             elements.addToCartBtn.onclick = addToCart;
             elements.addToCartBtnMobile.onclick = addToCart;
-            elements.directOrderBtn.onclick = handleDirectOrder;
-            elements.directOrderBtnMobile.onclick = handleDirectOrder;
             elements.shareBtn.onclick = shareProduct;
             elements.copyLinkBtn.onclick = copyLink;
+            // The direct order button logic is handled inside renderProduct
         });
     </script>
 </body>

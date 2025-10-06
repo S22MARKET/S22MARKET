@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Market - المنتجات</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #3b82f6; --bg-body: #f1f5f9; --bg-card: #ffffff;
+            --text-primary: #1e293b; --border-color: #e2e8f0;
+        }
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-body); color: var(--text-primary); }
+        html { scroll-behavior: smooth; }
+        .loader {
+            border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color);
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .product-card {
+            background-color: var(--bg-card); border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden;
+            display: flex; flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid var(--border-color);
+        }
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+        }
+        .product-image-container { aspect-ratio: 1 / 1; overflow: hidden; position: relative; }
+        .product-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .product-card:hover .product-image { transform: scale(1.1); }
+        .product-card-content { padding: 1rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .product-card-title { font-size: 1.1rem; font-weight: 700; line-height: 1.4; height: 2.8em; overflow: hidden; }
+        .product-card-price { color: var(--primary-color); font-size: 1.5rem; font-weight: 800; margin-top: 0.5rem; margin-bottom: 1rem; }
+        .product-card-actions { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border-color); }
+
+        .filter-buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+        .filter-button {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+        .filter-button.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+        }
+        .filter-button:not(.active) {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+         .filter-button:not(.active):hover {
+            background-color: #d1d5db;
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <a href="index.html" class="text-2xl text-gray-600 hover:text-blue-600" title="العودة للصفحة الرئيسية">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <h1 onclick="location.href='index.html'" class="cursor-pointer text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+                S22<span class="text-blue-600">MARKET</span>
+            </h1>
+            <a href="index.html#cart" class="relative text-2xl text-gray-600 hover:text-blue-600">
+                <i class="fas fa-shopping-cart"></i>
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md mb-8">
+            <h1 id="page-title" class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-4">جاري تحميل القسم...</h1>
+            
+            <div id="filter-buttons-container" class="filter-buttons-container">
+                </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3"><i class="fas fa-search text-gray-400"></i></span>
+                        <input type="text" id="search-input" placeholder="ابحث داخل هذا القسم..." class="w-full pr-10 pl-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <select id="price-filter" class="w-full p-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="default">ترتيب افتراضي</option>
+                        <option value="asc">من الأرخص للأغلى</option>
+                        <option value="desc">من الأغلى للأرخص</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-loader" class="text-center py-20"><div class="loader mx-auto"></div><p class="mt-4 text-gray-600">جاري تحميل المنتجات...</p></div>
+        <div id="products-grid" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+        <div id="no-products-msg" class="hidden text-center py-20 bg-white rounded-xl shadow-sm">
+            <i class="fas fa-store-slash text-4xl text-gray-400"></i>
+            <p class="mt-4 text-xl font-semibold text-gray-500">لا توجد منتجات تطابق بحثك في هذا القسم.</p>
+        </div>
+    </main>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        const firebaseConfig = {
+             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let allProducts = [];
+        let allCategories = [];
+        let currentFilter = { type: null, id: null };
+        let searchDebounceTimer;
+
+        const elements = {
+            grid: document.getElementById('products-grid'),
+            loader: document.getElementById('page-loader'),
+            noProductsMsg: document.getElementById('no-products-msg'),
+            searchInput: document.getElementById('search-input'),
+            priceFilter: document.getElementById('price-filter'),
+            pageTitle: document.getElementById('page-title'),
+            filterButtons: document.getElementById('filter-buttons-container'),
+        };
+
+        function getFilterFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('category')) {
+                currentFilter = { type: 'category', id: params.get('category') };
+            } else if (params.has('subcategory')) {
+                currentFilter = { type: 'subcategory', id: params.get('subcategory') };
+            } else {
+                elements.pageTitle.textContent = "لم يتم تحديد قسم";
+                elements.loader.classList.add('hidden');
+            }
+        }
+
+        // [*] FIXED: Function now generates <button> elements for dynamic filtering
+        function updatePageTitleAndFilters() {
+            let parentCategory = null;
+            let currentSubcategory = null;
+
+            if (currentFilter.type === 'category') {
+                parentCategory = allCategories.find(c => c.id === currentFilter.id);
+            } else if (currentFilter.type === 'subcategory') {
+                for (const cat of allCategories) {
+                    const sub = (cat.subcategories || []).find(s => s.id === currentFilter.id);
+                    if (sub) {
+                        parentCategory = cat;
+                        currentSubcategory = sub;
+                        break;
+                    }
+                }
+            }
+
+            if (parentCategory) {
+                const pageTitleText = currentSubcategory ? `${parentCategory.name} - ${currentSubcategory.name}` : `قسم: ${parentCategory.name}`;
+                elements.pageTitle.textContent = pageTitleText;
+                document.title = pageTitleText;
+
+                const activeSubcategories = parentCategory.subcategories?.filter(s => s.active && s.id) || [];
+                
+                if (activeSubcategories.length > 0) {
+                    // Using <button> instead of <a> for instant client-side filtering
+                    let buttonsHTML = `<button class="filter-button ${!currentSubcategory ? 'active' : ''}" data-filter-type="category" data-filter-id="${parentCategory.id}">كل منتجات القسم</button>`;
+                    
+                    activeSubcategories.forEach(sub => {
+                        buttonsHTML += `<button class="filter-button ${currentSubcategory && currentSubcategory.id === sub.id ? 'active' : ''}" data-filter-type="subcategory" data-filter-id="${sub.id}">${sub.name}</button>`;
+                    });
+                    elements.filterButtons.innerHTML = buttonsHTML;
+                } else {
+                    elements.filterButtons.innerHTML = '';
+                }
+
+            } else {
+                elements.pageTitle.textContent = 'قسم غير معروف';
+                elements.filterButtons.innerHTML = '';
+            }
+        }
+        
+        function renderProducts() {
+            let productsToRender = [...allProducts];
+
+            // 1. Filter by the currently selected category/subcategory
+            if (currentFilter.type === 'category') {
+                productsToRender = productsToRender.filter(p => p.categoryId === currentFilter.id);
+            } else if (currentFilter.type === 'subcategory') {
+                productsToRender = productsToRender.filter(p => p.subCategoryID === currentFilter.id);
+            }
+
+            // 2. Filter by search term
+            const searchTerm = elements.searchInput.value.trim().toLowerCase();
+            if (searchTerm) {
+                productsToRender = productsToRender.filter(p => {
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = p.name;
+                    return (tempDiv.textContent || tempDiv.innerText || "").toLowerCase().includes(searchTerm);
+                });
+            }
+
+            // 3. Sort by price
+            const priceSort = elements.priceFilter.value;
+            if (priceSort === 'asc') productsToRender.sort((a, b) => a.price - b.price);
+            else if (priceSort === 'desc') productsToRender.sort((a, b) => b.price - a.price);
+
+            // 4. Display results
+            elements.grid.innerHTML = '';
+            if (productsToRender.length > 0) {
+                const fragment = document.createDocumentFragment();
+                productsToRender.forEach(product => fragment.appendChild(createProductCard(product)));
+                elements.grid.appendChild(fragment);
+                elements.grid.classList.remove('hidden');
+                elements.noProductsMsg.classList.add('hidden');
+            } else {
+                elements.grid.classList.add('hidden');
+                elements.noProductsMsg.classList.remove('hidden');
+            }
+
+            elements.loader.classList.add('hidden');
+        }
+
+        function createProductCard(product) {
+            const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : 'https://placehold.co/400x400';
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            const productNamePlainText = product.name.replace(/<[^>]*>?/gm, '');
+
+            card.innerHTML = `
+                <a href="PRESENTPRODUCT.html?product=${product.id}" class="block">
+                    <div class="product-image-container">
+                        <img src="${image}" alt="${productNamePlainText}" class="product-image" loading="lazy">
+                    </div>
+                    <div class="product-card-content">
+                        <h3 class="product-card-title">${product.name}</h3>
+                        <p class="product-card-price">${product.price.toLocaleString()} د.ج</p>
+                    </div>
+                </a>
+                <div class="product-card-actions p-4">
+                     <a href="PRESENTPRODUCT.html?product=${product.id}" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 text-sm">
+                        <i class="fas fa-eye"></i> عرض التفاصيل
+                    </a>
+                </div>`;
+            return card;
+        }
+
+        async function initializePage() {
+            getFilterFromURL();
+            if (!currentFilter.type) return;
+
+            try {
+                const productsQuery = query(collection(db, "products"), orderBy("createdAt", "desc"));
+                const categoriesQuery = query(collection(db, "categories"), orderBy("orderIndex"));
+
+                const [productsSnapshot, categoriesSnapshot] = await Promise.all([
+                    getDocs(productsQuery),
+                    getDocs(categoriesQuery)
+                ]);
+
+                allProducts = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                allCategories = categoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                updatePageTitleAndFilters();
+                renderProducts();
+
+            } catch (error) {
+                console.error("Error loading data:", error);
+                elements.loader.innerHTML = '<p class="text-red-500">حدث خطأ أثناء تحميل البيانات.</p>';
+            }
+
+            elements.searchInput.addEventListener('input', () => {
+                clearTimeout(searchDebounceTimer);
+                searchDebounceTimer = setTimeout(renderProducts, 300);
+            });
+            elements.priceFilter.addEventListener('change', renderProducts);
+            
+            // [+] NEW: Event listener for dynamic filtering on button click
+            elements.filterButtons.addEventListener('click', (e) => {
+                const button = e.target.closest('.filter-button');
+                if (!button || button.classList.contains('active')) return;
+
+                // Update the current filter state
+                currentFilter.type = button.dataset.filterType;
+                currentFilter.id = button.dataset.filterId;
+                
+                // Update active class on buttons
+                elements.filterButtons.querySelectorAll('.filter-button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                // Re-render the product list with the new filter
+                renderProducts();
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initializePage);
+    </script>
+</body>
+</html>
