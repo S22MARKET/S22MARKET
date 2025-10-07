@@ -43,7 +43,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* ظل احترافي */
             cursor: pointer;
             z-index: 1000; /* للتأكد من أنه فوق كل العناصر */
-            transition: background-color 0.3s, transform 0.3s; /* تأثيرات حركة ناعمة */
+            transition: all 0.3s; /* تأثيرات حركة ناعمة لكل الخصائص */
         }
 
         /* --- تأثير عند مرور الفأرة أو اللمس --- */
@@ -51,6 +51,18 @@
             background-color: #e64a19; /* لون أغمق قليلاً */
             transform: translateX(-50%) scale(1.1); /* يكبر حجمه قليلاً */
         }
+        
+        /* ---  تحسينات خاصة بالهواتف والشاشات الصغيرة --- */
+        /* Media Query: يتم تطبيق هذه الأنماط فقط إذا كان عرض الشاشة 600 بكسل أو أقل */
+        @media (max-width: 600px) {
+            .floating-button {
+                width: 50px; /* تصغير عرض الزر */
+                height: 50px; /* تصغير ارتفاع الزر */
+                font-size: 24px; /* تصغير حجم الأيقونة */
+                bottom: 20px; /* تقليل المسافة من الأسفل */
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -77,6 +89,5 @@
         }
     </script>
         
-    </body>
-
+</body>
 </html>
