@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEXMEX Market</title>
+    <style>
+        /* --- إعدادات أساسية للصفحة --- */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; /* لإخفاء شريط التمرير الخاص بالصفحة الرئيسية */
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* --- حاوية عرض الموقع (iframe) --- */
+        .iframe-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* --- تصميم الزر العائم --- */
+        .floating-button {
+            position: fixed; /* يبقى في مكانه عند التمرير */
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%); /* لتوسيط الزر أفقيًا بالضبط */
+            width: 60px;
+            height: 60px;
+            background-color: #ff5722; /* لون برتقالي مميز */
+            color: white;
+            border-radius: 50%; /* يجعله دائريًا */
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px; /* حجم أيقونة السهم */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* ظل احترافي */
+            cursor: pointer;
+            z-index: 1000; /* للتأكد من أنه فوق كل العناصر */
+            transition: background-color 0.3s, transform 0.3s; /* تأثيرات حركة ناعمة */
+        }
+
+        /* --- تأثير عند مرور الفأرة أو اللمس --- */
+        .floating-button:hover {
+            background-color: #e64a19; /* لون أغمق قليلاً */
+            transform: translateX(-50%) scale(1.1); /* يكبر حجمه قليلاً */
+        }
+    </style>
+</head>
+<body>
+
+    <button class="floating-button" onclick="goBack()" title="الرجوع للخلف">
+        &#8617;
+    </button>
+
+    <iframe class="iframe-container" src="https://s22market.github.io/TEXMEX/" frameborder="0"></iframe>
+
+    <script>
+        // --- وظيفة الجافاسكربت للرجوع للصفحة السابقة ---
+        function goBack() {
+            // تتحقق إذا كان هناك صفحة سابقة في سجل المتصفح
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // في حال عدم وجود صفحة سابقة (مثل فتح الرابط مباشرة)
+                // يمكن هنا توجيهه لصفحة رئيسية معينة
+                console.log("لا يوجد سجل تصفح للرجوع إليه.");
+                // على سبيل المثال، يمكنك إضافة تنبيه للمستخدم
+                // alert("لا توجد صفحة سابقة للعودة إليها.");
+            }
+        }
+    </script>
+        
+    </body>
+
+</html>
