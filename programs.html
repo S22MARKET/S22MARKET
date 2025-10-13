@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>البرامج الدراسية - أكاديمية جيل المستقبل</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary-color: #3b82f6; --bg-body: #f8fafc; --text-primary: #1e293b; --active-bg: #eff6ff; }
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-body); color: var(--text-primary); }
+        .active-link { background-color: var(--active-bg); color: var(--primary-color); font-weight: 700; border-right: 4px solid var(--primary-color); }
+        .sidebar-link:hover { background-color: var(--active-bg); color: var(--primary-color); transform: translateX(-4px); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex">
+        <aside id="sidebar" class="fixed top-0 right-0 h-full bg-white shadow-lg w-64 transform transition-transform translate-x-full lg:translate-x-0 lg:static z-50">
+            <div class="p-5 border-b text-center"><a href="index.html" class="text-2xl font-extrabold text-gray-800">جيل <span class="text-blue-600">المستقبل</span></a></div>
+            <nav class="flex flex-col p-4 space-y-2">
+                <a href="index.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link"><i class="fas fa-home fa-fw text-xl w-6 text-center"></i><span>الرئيسية</span></a>
+                <a href="programs.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link active-link"><i class="fas fa-book-open fa-fw text-xl w-6 text-center"></i><span>البرامج الدراسية</span></a>
+           <a href="salles.html" class="text-slate-700 hover:text-sky-500 transition font-semibold">القاعات</a>
+                <a href="schedule.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link"><i class="fas fa-calendar-alt fa-fw text-xl w-6 text-center"></i><span>الجدول الزمني</span></a>
+                <a href="news.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link"><i class="fas fa-newspaper fa-fw text-xl w-6 text-center"></i><span>آخر الأخبار</span></a>
+                <a href="contact.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link"><i class="fas fa-envelope fa-fw text-xl w-6 text-center"></i><span>تواصل معنا</span></a>
+                <a href="dashboard.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link mt-8 border-t pt-4"><i class="fas fa-user-shield fa-fw text-xl w-6 text-center"></i><span>دخول الإدارة</span></a>
+            </nav>
+        </aside>
+
+        <div class="flex-1 min-w-0">
+            <header class="lg:hidden bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-40">
+                <a href="index.html" class="text-xl font-extrabold text-gray-800">جيل <span class="text-blue-600">المستقبل</span></a>
+                <button id="menu-btn" class="text-2xl text-gray-600"><i class="fas fa-bars"></i></button>
+            </header>
+
+            <main class="container mx-auto px-4 py-16">
+                <h1 class="text-4xl font-bold text-center mb-12">برامجنا الدراسية</h1>
+                <div id="programs-container" class="space-y-8 max-w-4xl mx-auto">
+                    <p class="text-center text-gray-500">جاري تحميل البرامج...</p>
+                </div>
+            </main>
+        </div>
+        <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+    </div>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyB-VyUd5FUMb0KCUROhQRqoyOL1V7Noguk",
+          authDomain: "akadimiat-jyl-almustaqbal.firebaseapp.com",
+          projectId: "akadimiat-jyl-almustaqbal",
+          storageBucket: "akadimiat-jyl-almustaqbal.appspot.com",
+          messagingSenderId: "495523964077",
+          appId: "1:495523964077:web:c73b443dd98733ab0a9224",
+          measurementId: "G-8HY9WHV1Z1"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const menuBtn = document.getElementById('menu-btn');
+            const toggleSidebar = () => { sidebar.classList.toggle('translate-x-full'); overlay.classList.toggle('hidden'); };
+            if (menuBtn) menuBtn.addEventListener('click', toggleSidebar);
+            if (overlay) overlay.addEventListener('click', toggleSidebar);
+            loadPrograms();
+        });
+
+        async function loadPrograms() {
+            const container = document.getElementById('programs-container');
+            const q = query(collection(db, "programs"), orderBy("createdAt", "desc"));
+            const snapshot = await getDocs(q);
+
+            if (snapshot.empty) {
+                container.innerHTML = '<p class="text-center text-gray-500">سيتم إضافة البرامج قريباً.</p>';
+                return;
+            }
+
+            container.innerHTML = snapshot.docs.map(doc => {
+                const program = doc.data();
+                return `
+                    <div class="bg-white p-6 rounded-lg shadow-md transition hover:shadow-xl border-r-4 border-blue-600">
+                        <h2 class="text-2xl font-bold text-blue-700 mb-3">${program.title}</h2>
+                        <p class="text-gray-600 mb-4">${program.description}</p>
+                        <div class="border-t pt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-md text-gray-700">
+                            <div class="flex items-center gap-2"><i class="fas fa-chalkboard-teacher text-blue-500 fa-fw"></i><strong>الأستاذ:</strong> <span>${program.teacher || 'N/A'}</span></div>
+                            <div class="flex items-center gap-2"><i class="fas fa-layer-group text-blue-500 fa-fw"></i><strong>المستوى:</strong> <span>${program.level || 'N/A'}</span></div>
+                            <div class="flex items-center gap-2"><i class="fas fa-school text-blue-500 fa-fw"></i><strong>القاعة:</strong> <span>${program.hall || 'N/A'}</span></div>
+                            <div class="flex items-center gap-2"><i class="fas fa-clock text-blue-500 fa-fw"></i><strong>التوقيت:</strong> <span class="font-mono">${program.startTime || ''} - ${program.endTime || ''}</span></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>

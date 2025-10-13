@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الجدول الزمني للحصص</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(8, minmax(100px, 1fr));
+            gap: 4px;
+        }
+        .schedule-header, .time-slot, .schedule-cell {
+            background-color: white;
+            padding: 8px;
+            text-align: center;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+        .schedule-header {
+            background-color: #1e293b;
+            color: white;
+            font-weight: bold;
+        }
+        .time-slot {
+            background-color: #374151;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .schedule-cell {
+            min-height: 80px;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .session {
+            padding: 4px;
+            border-radius: 4px;
+            color: #1f2937;
+            font-size: 0.8rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .session-subject { font-weight: bold; }
+        .session-teacher, .session-hall { font-size: 0.75rem; }
+        .current-day { background-color: #fef9c3; }
+        .session-now { background-color: #dcfce7 !important; border: 1px solid #4ade80; }
+        .session-past { background-color: #f3f4f6; color: #6b7280; }
+        .session-upcoming { background-color: #ffedd5 !important; }
+        .tabs button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #e5e7eb;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+        }
+        .tabs button.active {
+            background-color: #2563eb;
+            color: white;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <main class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-center mb-8">الجدول الزمني للحصص</h1>
+
+        <div id="tabs-container" class="tabs flex flex-wrap gap-2 mb-4"></div>
+        <div id="schedule-container" class="space-y-8"></div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyB-VyUd5FUMb0KCUROhQRqoyOL1V7Noguk",
+          authDomain: "akadimiat-jyl-almustaqbal.firebaseapp.com",
+          projectId: "akadimiat-jyl-almustaqbal",
+          storageBucket: "akadimiat-jyl-almustaqbal.appspot.com",
+          messagingSenderId: "495523964077",
+          appId: "1:495523964077:web:c73b443dd98733ab0a9224"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function loadSchedule() {
+            const snapshot = await getDocs(collection(db, "schedules"));
+            if (snapshot.empty) {
+                document.getElementById('schedule-container').innerHTML = '<p class="text-center">الجدول غير متوفر حاليًا.</p>';
+                return;
+            }
+            const allSessions = snapshot.docs.map(doc => doc.data());
+            const levels = [...new Set(allSessions.map(s => s.level))];
+
+            const tabsContainer = document.getElementById('tabs-container');
+            const scheduleContainer = document.getElementById('schedule-container');
+            tabsContainer.innerHTML = '';
+            scheduleContainer.innerHTML = '';
+
+            levels.forEach((level, index) => {
+                const button = document.createElement('button');
+                button.textContent = `الطور ${level}`;
+                button.onclick = () => showTab(level);
+                tabsContainer.appendChild(button);
+
+                const content = document.createElement('div');
+                content.id = `content-${level}`;
+                content.className = 'tab-content';
+                content.innerHTML = `
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-blue-600">${level}</h2>
+                        <button onclick="downloadSchedule('${level}')" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2">
+                            <i class="fas fa-download"></i> تحميل الجدول
+                        </button>
+                    </div>
+                    <div id="table-${level}" class="schedule-grid"></div>
+                `;
+                scheduleContainer.appendChild(content);
+
+                if (index === 0) {
+                    button.classList.add('active');
+                    content.classList.add('active');
+                }
+
+                renderScheduleForLevel(level, allSessions.filter(s => s.level === level));
+            });
+        }
+
+        function showTab(level) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+            document.getElementById(`content-${level}`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function renderScheduleForLevel(level, sessions) {
+            const container = document.getElementById(`table-${level}`);
+            const days = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+            const timeSlots = generateTimeSlots(sessions);
+
+            let html = '<div class="schedule-header">التوقيت</div>';
+            days.forEach(day => html += `<div class="schedule-header">${day}</div>`);
+
+            const now = new Date();
+            const todayIndex = now.getDay();
+            const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+            timeSlots.forEach(slot => {
+                html += `<div class="time-slot">${slot}</div>`;
+                days.forEach((day, dayIndex) => {
+                    const session = findSession(sessions, dayIndex, slot);
+                    const isToday = dayIndex === todayIndex;
+                    const cellClass = isToday ? 'current-day' : '';
+                    let sessionHtml = '';
+
+                    if (session) {
+                        const [startH, startM] = session.startTime.split(':').map(Number);
+                        const startTimeMinutes = startH * 60 + startM;
+                        const [endH, endM] = session.endTime.split(':').map(Number);
+                        const endTimeMinutes = endH * 60 + endM;
+
+                        let statusClass = '';
+                        if (isToday) {
+                            if (nowMinutes >= startTimeMinutes && nowMinutes < endTimeMinutes) {
+                                statusClass = 'session-now';
+                            } else if (nowMinutes >= endTimeMinutes) {
+                                statusClass = 'session-past';
+                            } else {
+                                statusClass = 'session-upcoming';
+                            }
+                        }
+
+                        sessionHtml = `
+                            <div class="session ${statusClass}">
+                                <div class="session-subject">${session.subject}</div>
+                                <div class="session-teacher">${session.teacherName}</div>
+                                <div class="session-hall"><i class="fas fa-school"></i> ${session.hall}</div>
+                            </div>
+                        `;
+                    }
+                    html += `<div class="schedule-cell ${cellClass}">${sessionHtml}</div>`;
+                });
+            });
+            container.innerHTML = html;
+        }
+
+        function generateTimeSlots(sessions) {
+            const times = new Set();
+            sessions.forEach(s => {
+                times.add(s.startTime);
+            });
+            return Array.from(times).sort();
+        }
+
+        function findSession(sessions, dayIndex, startTime) {
+            return sessions.find(s => s.dayIndex === dayIndex && s.startTime === startTime);
+        }
+
+        window.downloadSchedule = async function(level) {
+            const { jsPDF } = window.jspdf;
+            const table = document.getElementById(`table-${level}`);
+            const canvas = await html2canvas(table);
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({
+                orientation: 'landscape',
+            });
+            const imgProps= pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`جدول-${level}.pdf`);
+        }
+
+        loadSchedule();
+        setInterval(loadSchedule, 60000); // Refresh every minute
+    </script>
+</body>
+</html>

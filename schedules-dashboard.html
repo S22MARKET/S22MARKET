@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الجدول الزمني - لوحة التحكم المطورة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
+        .hidden { display: none; }
+        .active-tab { background-color: #2563eb; color: white; }
+        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 40; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); animation: fadeIn 0.3s; }
+        .modal-content { background-color: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 550px; z-index: 50; max-height: 90vh; overflow-y: auto; }
+        .spinner, .table-spinner { border: 4px solid rgba(0,0,0,0.1); border-radius: 50%; border-top: 4px solid #3b82f6; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: auto; }
+        .spinner { border-top-color: #fff; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border-bottom: 1px solid #e2e8f0; padding: 12px 10px; text-align: right; vertical-align: middle; }
+        thead { background-color: #1e293b; color: #f8fafc; }
+        tbody tr:hover { background-color: #f1f5f9; }
+        #toast-container { position: fixed; bottom: 20px; left: 20px; z-index: 100; }
+        .toast { background-color: #2d3748; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 10px; animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards; }
+        .toast.success { background-color: #2f855a; }
+        .toast.error { background-color: #c53030; }
+        .form-label { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 500; color: #374151; }
+        .date-type-toggle { display: flex; border-radius: 0.5rem; border: 1px solid #d1d5db; overflow: hidden; }
+        .date-type-toggle label { flex: 1; text-align: center; padding: 0.75rem; cursor: pointer; background-color: #f9fafb; color: #374151; transition: all 0.2s; }
+        .date-type-toggle input[type="radio"] { display: none; }
+        .date-type-toggle input[type="radio"]:checked + label { background-color: #3b82f6; color: white; font-weight: bold; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    </style>
+</head>
+<body>
+<div id="dashboard-page">
+    <div class="relative min-h-screen md:flex">
+        <aside class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform md:relative md:translate-x-0 transition duration-300 z-30">
+            <div class="p-3 text-center border-b border-gray-700"><h2 class="text-2xl font-bold">جيل المستقبل</h2></div>
+            <nav class="flex-1 p-2 space-y-2">
+                <a href="dashboard.html#analytics" class="flex items-center px-4 py-3 rounded-md hover:bg-blue-700"><i class="fas fa-chart-line fa-fw ml-3"></i> الملخص العام</a>
+                <a href="schedules-dashboard.html" class="active-tab flex items-center px-4 py-3 rounded-md"><i class="fas fa-calendar-alt fa-fw ml-3"></i> إدارة الجدول الزمني</a>
+                <a href="programs-dashboard.html" class="flex items-center px-4 py-3 rounded-md hover:bg-blue-700"><i class="fas fa-book-open fa-fw ml-3"></i> إدارة البرامج</a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+            <div id="schedule-panel">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold">إدارة الجدول الزمني</h1>
+                    <button id="add-schedule-btn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 shadow-lg hover:bg-blue-700 transition"><i class="fas fa-plus"></i> إضافة حصة</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
+                    <div class="bg-white p-5 rounded-xl shadow flex items-center gap-4">
+                        <i class="fas fa-calendar-check fa-2x text-blue-500"></i>
+                        <div>
+                            <p class="text-gray-500">إجمالي الحصص</p>
+                            <p id="stats-total-schedules" class="text-2xl font-bold">0</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow flex items-center gap-4">
+                        <i class="fas fa-book fa-2x text-green-500"></i>
+                        <div>
+                            <p class="text-gray-500">البرامج المتاحة</p>
+                            <p id="stats-total-programs" class="text-2xl font-bold">0</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow flex items-center gap-4">
+                        <i class="fas fa-school fa-2x text-purple-500"></i>
+                        <div>
+                            <p class="text-gray-500">القاعات المستخدمة</p>
+                            <p id="stats-used-halls" class="text-2xl font-bold">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl shadow-md mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                        <input type="text" id="search-input" placeholder="ابحث عن مادة, أستاذ..." class="w-full p-2.5 border rounded-md focus:ring-2 focus:ring-blue-500 lg:col-span-1">
+                        <select id="filter-level" class="w-full p-2.5 border rounded-md"><option value="">كل المستويات</option></select>
+                        <select id="filter-teacher" class="w-full p-2.5 border rounded-md"><option value="">كل الأساتذة</option></select>
+                        <select id="filter-hall" class="w-full p-2.5 border rounded-md"><option value="">كل القاعات</option></select>
+                        <button id="clear-filters-btn" class="bg-gray-200 text-gray-800 font-bold p-2.5 rounded-md hover:bg-gray-300 w-full lg:w-auto">مسح الفلاتر</button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md overflow-x-auto">
+                    <table>
+                        <thead><tr><th>اليوم/التاريخ</th><th>المادة</th><th>الأستاذ</th><th>القاعة</th><th>التوقيت</th><th>الإجراءات</th></tr></thead>
+                        <tbody id="schedules-table">
+                            <tr><td colspan="6" class="text-center p-8"><div class="table-spinner"></div><p class="mt-2">جاري تحميل البيانات...</p></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div id="modal-container"></div>
+<div id="toast-container"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot, query, orderBy, addDoc, doc, updateDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    
+    // --- Firebase Configuration ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyB-VyUd5FUMb0KCUROhQRqoyOL1V7Noguk",
+      authDomain: "akadimiat-jyl-almustaqbal.firebaseapp.com",
+      projectId: "akadimiat-jyl-almustaqbal",
+      storageBucket: "akadimiat-jyl-almustaqbal.appspot.com",
+      messagingSenderId: "495523964077",
+      appId: "1:495523964077:web:c73b443dd98733ab0a9224"
+    };
+
+    // --- App Initialization ---
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const App = {};
+
+    // --- State Management ---
+    let allSchedules = [];
+    let allPrograms = [];
+    let allHalls = [];
+    let isDataLoaded = false;
+
+    // --- Authentication ---
+    onAuthStateChanged(auth, user => {
+        if (!user) { window.location.href = 'dashboard.html'; }
+    });
+
+    // --- Data Fetching & Caching ---
+    const fetchPrerequisites = async () => {
+        const programsPromise = getDocs(collection(db, "programs"));
+        const hallsPromise = getDocs(collection(db, "halls"));
+        
+        const [programsSnap, hallsSnap] = await Promise.all([programsPromise, hallsPromise]);
+
+        allPrograms = programsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        allHalls = hallsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        isDataLoaded = true;
+        
+        populateFilterDropdowns();
+        updateStats();
+    };
+
+    // --- UI Rendering ---
+    const renderTable = (schedules) => {
+        const tableBody = document.getElementById('schedules-table');
+        if (schedules.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-gray-500"><i class="fas fa-info-circle fa-2x mb-2"></i><p>لا توجد نتائج تطابق بحثك أو لم يتم إضافة حصص بعد.</p></td></tr>`;
+            return;
+        }
+        tableBody.innerHTML = '';
+        schedules.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.specificDate ? `<span class="bg-purple-100 text-purple-700 font-semibold px-2 py-1 rounded-full text-sm">${item.specificDate}</span>` : `<span class="bg-gray-100 text-gray-700 font-semibold px-2 py-1 rounded-full text-sm">${item.day}</span>`}</td>
+                <td><div class="font-bold">${item.subject}</div><div class="text-sm text-gray-500">${item.level}</div></td>
+                <td>${item.teacherName}</td>
+                <td>${item.hall}</td>
+                <td><span class="font-mono bg-gray-200 px-2 py-1 rounded">${item.startTime} - ${item.endTime}</span></td>
+                <td class="flex items-center gap-2">
+                    <button class="edit-btn text-yellow-500 hover:text-yellow-700 text-lg" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button class="delete-btn text-red-500 hover:text-red-700 text-lg" title="حذف"><i class="fas fa-trash"></i></button>
+                </td>`;
+            row.querySelector('.edit-btn').addEventListener('click', () => App.showScheduleModal(item));
+            row.querySelector('.delete-btn').addEventListener('click', async () => {
+                if (confirm(`هل أنت متأكد من حذف حصة "${item.subject}"؟`)) {
+                    await deleteDoc(doc(db, "schedules", item.id));
+                    App.showToast('تم حذف الحصة', 'success');
+                }
+            });
+            tableBody.appendChild(row);
+        });
+    };
+
+    const updateStats = () => {
+        document.getElementById('stats-total-schedules').textContent = allSchedules.length;
+        document.getElementById('stats-total-programs').textContent = allPrograms.length;
+        const usedHalls = new Set(allSchedules.map(s => s.hall));
+        document.getElementById('stats-used-halls').textContent = usedHalls.size;
+    };
+
+    // --- Filtering Logic ---
+    const applyFilters = () => {
+        const searchTerm = document.getElementById('search-input').value.toLowerCase();
+        const levelFilter = document.getElementById('filter-level').value;
+        const teacherFilter = document.getElementById('filter-teacher').value;
+        const hallFilter = document.getElementById('filter-hall').value;
+
+        const filteredSchedules = allSchedules.filter(s => {
+            const matchesSearch = searchTerm === '' ||
+                s.subject.toLowerCase().includes(searchTerm) ||
+                s.teacherName.toLowerCase().includes(searchTerm) ||
+                s.level.toLowerCase().includes(searchTerm);
+            
+            const matchesLevel = levelFilter === '' || s.level === levelFilter;
+            const matchesTeacher = teacherFilter === '' || s.teacherName === teacherFilter;
+            const matchesHall = hallFilter === '' || s.hall === hallFilter;
+
+            return matchesSearch && matchesLevel && matchesTeacher && matchesHall;
+        });
+        renderTable(filteredSchedules);
+    };
+
+    const populateFilterDropdowns = () => {
+        const levels = [...new Set(allPrograms.map(p => p.level))];
+        const teachers = [...new Set(allPrograms.map(p => p.teacher))];
+        const halls = [...new Set(allHalls.map(h => h.name))];
+
+        const levelSelect = document.getElementById('filter-level');
+        levelSelect.innerHTML = '<option value="">كل المستويات</option>' + levels.map(l => `<option value="${l}">${l}</option>`).join('');
+
+        const teacherSelect = document.getElementById('filter-teacher');
+        teacherSelect.innerHTML = '<option value="">كل الأساتذة</option>' + teachers.map(t => `<option value="${t}">${t}</option>`).join('');
+
+        const hallSelect = document.getElementById('filter-hall');
+        hallSelect.innerHTML = '<option value="">كل القاعات</option>' + halls.map(h => `<option value="${h}">${h}</option>`).join('');
+    };
+
+    // --- Main Data Listener ---
+    onSnapshot(query(collection(db, "schedules"), orderBy("dayIndex"), orderBy("startTime")), (snapshot) => {
+        allSchedules = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (!isDataLoaded) fetchPrerequisites();
+        applyFilters();
+        updateStats();
+    });
+
+    // --- Event Listeners ---
+    document.getElementById('add-schedule-btn').addEventListener('click', () => App.showScheduleModal());
+    document.getElementById('search-input').addEventListener('input', applyFilters);
+    document.getElementById('filter-level').addEventListener('change', applyFilters);
+    document.getElementById('filter-teacher').addEventListener('change', applyFilters);
+    document.getElementById('filter-hall').addEventListener('change', applyFilters);
+    document.getElementById('clear-filters-btn').addEventListener('click', () => {
+        document.getElementById('search-input').value = '';
+        document.getElementById('filter-level').value = '';
+        document.getElementById('filter-teacher').value = '';
+        document.getElementById('filter-hall').value = '';
+        applyFilters();
+    });
+
+    // --- Modal and Form Logic ---
+    App.showScheduleModal = async (item = null) => {
+        if (!isDataLoaded) {
+            App.showToast('البيانات الأولية لم تحمل بعد، يرجى الانتظار', 'error');
+            return;
+        }
+
+        const programsByLevel = allPrograms.reduce((acc, p) => {
+            if (!acc[p.level]) acc[p.level] = [];
+            acc[p.level].push(p);
+            return acc;
+        }, {});
+
+        let programsOptions = '';
+        for (const level in programsByLevel) {
+            programsOptions += `<optgroup label="الطور ${level}">`;
+            programsOptions += programsByLevel[level].map(p => 
+                `<option value="${p.id}" data-details='${JSON.stringify(p)}' ${item?.programId === p.id ? 'selected' : ''}>${p.title} - ${p.teacher}</option>`
+            ).join('');
+            programsOptions += `</optgroup>`;
+        }
+        
+        const hallsOptions = allHalls.map(h => `<option value="${h.name}" ${item?.hall === h.name ? 'selected' : ''}>${h.name}</option>`).join('');
+        
+        const days = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+        const daysOptions = days.map((day, index) => `<option value="${index}" ${item?.dayIndex === index ? 'selected' : ''}>${day}</option>`).join('');
+
+        const content = `<div class="modal-content">
+            <div class="flex justify-between items-center mb-6 border-b pb-3">
+                <h2 class="text-2xl font-bold">${item ? 'تعديل حصة' : 'إضافة حصة جديدة'}</h2>
+                <button class="cancel-btn text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            <form id="schedule-form" class="space-y-5">
+                <div>
+                    <label for="schedule-program" class="form-label"><i class="fas fa-book fa-fw text-gray-500"></i> اختر المادة (البرنامج)</label>
+                    <select id="schedule-program" required class="w-full p-2.5 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">${programsOptions}</select>
+                </div>
+                <div>
+                    <label for="schedule-hall" class="form-label"><i class="fas fa-school fa-fw text-gray-500"></i> اختر القاعة</label>
+                    <select id="schedule-hall" required class="w-full p-2.5 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"><option value="">-- اختر القاعة --</option>${hallsOptions}</select>
+                </div>
+                
+                <div>
+                    <label class="form-label"><i class="fas fa-calendar-day fa-fw text-gray-500"></i> اختر نوع وتاريخ الحصة</label>
+                    <div class="date-type-toggle">
+                        <input type="radio" id="type-recurring" name="dateType" value="recurring" ${item && item.day ? 'checked' : !item ? 'checked' : ''}>
+                        <label for="type-recurring">يوم متكرر بالأسبوع</label>
+                        <input type="radio" id="type-specific" name="dateType" value="specific" ${item?.specificDate ? 'checked' : ''}>
+                        <label for="type-specific">تاريخ محدد (لمرة واحدة)</label>
+                    </div>
+                </div>
+
+                <div id="recurring-date-panel">
+                    <select id="schedule-day" class="w-full p-2.5 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">${daysOptions}</select>
+                </div>
+                <div id="specific-date-panel" class="hidden">
+                    <input type="date" id="schedule-date" value="${item?.specificDate || new Date().toISOString().split('T')[0]}" class="w-full p-2.5 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="schedule-start" class="form-label"><i class="fas fa-clock fa-fw text-gray-500"></i> وقت البدء</label>
+                        <input type="time" id="schedule-start" required class="w-full p-2.5 border rounded-md font-mono" value="${item?.startTime || ''}">
+                    </div>
+                     <div>
+                        <label for="schedule-end" class="form-label"><i class="far fa-clock fa-fw text-gray-500"></i> وقت الانتهاء</label>
+                        <input type="time" id="schedule-end" required class="w-full p-2.5 border rounded-md font-mono" value="${item?.endTime || ''}">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t mt-6">
+                    <button type="button" class="cancel-btn bg-gray-200 text-gray-800 font-bold px-5 py-2 rounded-lg hover:bg-gray-300">إلغاء</button>
+                    <button type="submit" id="save-schedule-btn" class="bg-blue-600 text-white font-bold px-5 py-2 rounded-lg w-28 flex justify-center items-center hover:bg-blue-700">حفظ</button>
+                </div>
+            </form></div>`;
+        document.getElementById('modal-container').innerHTML = `<div class="modal-backdrop">${content}</div>`;
+        
+        // --- Modal interal logic ---
+        const recurringPanel = document.getElementById('recurring-date-panel');
+        const specificPanel = document.getElementById('specific-date-panel');
+        const recurringRadio = document.getElementById('type-recurring');
+        const specificRadio = document.getElementById('type-specific');
+        const scheduleDaySelect = document.getElementById('schedule-day');
+        const scheduleDateInput = document.getElementById('schedule-date');
+
+        function toggleDatePanels() {
+            if (recurringRadio.checked) {
+                recurringPanel.classList.remove('hidden'); specificPanel.classList.add('hidden');
+                scheduleDaySelect.required = true; scheduleDateInput.required = false;
+            } else {
+                recurringPanel.classList.add('hidden'); specificPanel.classList.remove('hidden');
+                scheduleDaySelect.required = false; scheduleDateInput.required = true;
+            }
+        }
+        toggleDatePanels();
+        recurringRadio.onchange = toggleDatePanels;
+        specificRadio.onchange = toggleDatePanels;
+
+        document.querySelector('.modal-backdrop').addEventListener('click', (e) => { if(e.target === e.currentTarget) App.closeModal() });
+        document.querySelectorAll('.cancel-btn').forEach(btn => btn.onclick = App.closeModal);
+
+        document.getElementById('schedule-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const saveBtn = document.getElementById('save-schedule-btn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<div class="spinner"></div>';
+
+            try {
+                // Collect form data
+                const programSelect = document.getElementById('schedule-program');
+                const selectedOption = programSelect.options[programSelect.selectedIndex];
+                const programDetails = JSON.parse(selectedOption.dataset.details);
+                const startTime = document.getElementById('schedule-start').value;
+                const endTime = document.getElementById('schedule-end').value;
+
+                if (endTime <= startTime) {
+                    App.showToast('وقت الانتهاء يجب أن يكون بعد وقت البدء', 'error');
+                    return; // Stop execution
+                }
+
+                let data = {
+                    programId: programDetails.id,
+                    subject: programDetails.title,
+                    teacherName: programDetails.teacher,
+                    level: programDetails.level,
+                    hall: document.getElementById('schedule-hall').value,
+                    startTime: startTime,
+                    endTime: endTime,
+                };
+
+                const dateType = document.querySelector('input[name="dateType"]:checked').value;
+                if (dateType === 'recurring') {
+                    const daySelect = document.getElementById('schedule-day');
+                    data.dayIndex = parseInt(daySelect.value);
+                    data.day = daySelect.options[daySelect.selectedIndex].text;
+                    data.specificDate = null;
+                } else {
+                    data.specificDate = document.getElementById('schedule-date').value;
+                    const dateObj = new Date(data.specificDate + 'T00:00:00'); // Avoid timezone issues
+                    data.day = dateObj.toLocaleDateString('ar-EG', { weekday: 'long' });
+                    data.dayIndex = (dateObj.getUTCDay() + 1) % 7; // Adjust for Arabic week start
+                }
+
+                // --- CONFLICT DETECTION ---
+                const conflict = checkForConflict(data, item?.id);
+                if (conflict.hasConflict) {
+                    App.showToast(conflict.message, 'error');
+                    return; // Stop execution
+                }
+
+                if (item) { await updateDoc(doc(db, "schedules", item.id), data); } 
+                else { await addDoc(collection(db, "schedules"), data); }
+                
+                App.closeModal();
+                App.showToast(item ? 'تم تعديل الحصة بنجاح' : 'تمت إضافة الحصة بنجاح', 'success');
+            } catch (error) {
+                console.error("Error saving schedule: ", error);
+                App.showToast('حدث خطأ أثناء الحفظ', 'error');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = 'حفظ';
+            }
+        };
+    };
+
+    // --- Utility Functions ---
+    const checkForConflict = (newSchedule, editingId = null) => {
+        const newStart = newSchedule.startTime;
+        const newEnd = newSchedule.endTime;
+
+        for (const existing of allSchedules) {
+            if (existing.id === editingId) continue; // Skip self when editing
+
+            const datesMatch = (newSchedule.specificDate && newSchedule.specificDate === existing.specificDate) ||
+                               (!newSchedule.specificDate && !existing.specificDate && newSchedule.dayIndex === existing.dayIndex);
+
+            if (datesMatch) {
+                // Check for time overlap: (StartA < EndB) and (EndA > StartB)
+                const timesOverlap = newStart < existing.endTime && newEnd > existing.startTime;
+                
+                if (timesOverlap) {
+                    if (existing.hall === newSchedule.hall) {
+                        return { hasConflict: true, message: `تعارض: القاعة "${newSchedule.hall}" محجوزة بالفعل في هذا التوقيت.` };
+                    }
+                    if (existing.teacherName === newSchedule.teacherName) {
+                        return { hasConflict: true, message: `تعارض: الأستاذ "${newSchedule.teacherName}" لديه حصة أخرى في هذا التوقيت.` };
+                    }
+                }
+            }
+        }
+        return { hasConflict: false };
+    };
+
+    App.closeModal = () => { document.getElementById('modal-container').innerHTML = ''; };
+    App.showToast = (message, type = 'success') => {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<span>${message}</span>`;
+        document.getElementById('toast-container').appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+    };
+
+</script>
+</body>
+</html>

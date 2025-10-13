@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المركز المالي - أكاديمية جيل المستقبل</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
+        .dashboard-item { background: #fff; padding: 15px; border-radius: .75rem; text-align: center; border: 1px solid #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .dashboard-item .value { font-size: 1.6rem; font-weight: 700; }
+        .dashboard-item .label { font-size: 0.9rem; color: #64748b; font-weight: 600; }
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #dee2e6; padding: 12px; text-align: right; vertical-align: middle; }
+        thead { background-color: #212529; color: #f8f9fa; }
+        tbody tr:nth-child(even) { background-color: #f8f9fa; }
+        .btn-sm { padding: 4px 8px; font-size: 0.8rem; border-radius: 0.25rem; }
+        .btn-warning { background-color: #ffc107; color: #000; }
+        .btn-danger { background-color: #dc3545; color: #fff; }
+        .btn-print { color: #0ea5e9; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-box { background: #fff; padding: 25px; border-radius: .75rem; width: 100%; max-width: 450px; transform: scale(0.95); transition: transform 0.3s ease; }
+        .modal-overlay.visible .modal-box { transform: scale(1); }
+    </style>
+</head>
+<body>
+
+<div class="relative min-h-screen md:flex">
+    <aside class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform md:relative md:translate-x-0 z-30">
+        <div class="p-3 text-center border-b border-gray-700">
+            <h2 class="text-2xl font-bold">جيل المستقبل</h2>
+        </div>
+        <nav class="flex-1 p-2 space-y-2">
+            <a href="dashboard.html#analytics" class="flex items-center px-4 py-3 rounded-md hover:bg-blue-700"><i class="fas fa-chart-line fa-fw mr-3"></i> لوحة التحكم</a>
+            <a href="finance.html" class="bg-blue-600 text-white flex items-center px-4 py-3 rounded-md"><i class="fas fa-coins fa-fw mr-3"></i> المركز المالي</a>
+            <a href="employees.html" class="flex items-center px-4 py-3 rounded-md hover:bg-blue-700"><i class="fas fa-users fa-fw mr-3"></i> شؤون الموظفين</a>
+        </nav>
+        <div class="p-4 border-t border-gray-700">
+            <a href="index.html" class="w-full text-center bg-gray-600 py-2 rounded-md hover:bg-gray-700 transition-colors block"><i class="fas fa-home mr-2"></i> العودة للموقع</a>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+        <h1 class="text-3xl font-bold mb-6">المركز المالي</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div class="dashboard-item"><div id="summary-income" class="value text-green-600">0</div><div class="label">إجمالي الدخل</div></div>
+            <div class="dashboard-item"><div id="summary-expenses" class="value text-red-600">0</div><div class="label">إجمالي المصاريف</div></div>
+            <div class="dashboard-item"><div id="summary-profit" class="value text-blue-600">0</div><div class="label">صافي الربح</div></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <h2 class="text-xl font-bold mb-4 border-b pb-2">إنشاء وصل دفع للطالب</h2>
+                <form id="receipt-form" class="space-y-4">
+                    <input type="text" id="student-name" placeholder="اسم الطالب" required class="w-full p-2 border rounded">
+                    <input type="number" id="payment-amount" placeholder="المبلغ المدفوع (دج)" required class="w-full p-2 border rounded">
+                    <input type="text" id="payment-for" placeholder="مقابل (مثال: رسوم شهر أكتوبر)" required class="w-full p-2 border rounded">
+                    <select id="payment-method" class="w-full p-2 border rounded">
+                        <option value="نقداً">نقداً</option>
+                        <option value="تحويل بنكي">تحويل بنكي</option>
+                        <option value="CCP">CCP</option>
+                    </select>
+                    <button type="submit" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg text-lg">إنشاء وطباعة الوصل</button>
+                </form>
+            </div>
+            
+             <div class="bg-white p-6 rounded-xl shadow-md">
+                <h2 class="text-xl font-bold mb-4 border-b pb-2">تسجيل مصروف عام</h2>
+                <form id="expense-form" class="space-y-4">
+                     <input type="text" id="expense-desc" placeholder="بيان المصروف (فاتورة كهرباء)" required class="w-full p-2 border rounded">
+                     <input type="number" id="expense-amount" placeholder="المبلغ (دج)" required class="w-full p-2 border rounded">
+                     <select id="expense-category" class="w-full p-2 border rounded">
+                        <option value="فواتير وخدمات">فواتير وخدمات</option>
+                        <option value="صيانة وتشغيل">صيانة وتشغيل</option>
+                        <option value="مستلزمات مكتبية">مستلزمات مكتبية</option>
+                        <option value="رواتب وأجور">رواتب وأجور</option>
+                        <option value="مصاريف أخرى">مصاريف أخرى</option>
+                     </select>
+                     <button type="submit" class="w-full bg-red-500 text-white font-bold py-3 rounded-lg">تسجيل المصروف</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="mt-8 bg-white p-6 rounded-xl shadow-md">
+             <h2 class="text-xl font-bold mb-4 border-b pb-2">حساب دخل حصص الأساتذة</h2>
+             <form id="session-income-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
+                <div class="lg:col-span-2">
+                    <label for="teacher-select" class="block text-sm font-medium text-gray-700">اسم الأستاذ</label>
+                    <select id="teacher-select" required class="mt-1 w-full p-2 border rounded"></select>
+                </div>
+                <div>
+                    <label for="teacher-level-select" class="block text-sm font-medium text-gray-700">المستوى</label>
+                    <select id="teacher-level-select" required class="mt-1 w-full p-2 border rounded" disabled><option>اختر أستاذ أولاً</option></select>
+                </div>
+                <div>
+                    <label for="teacher-subject-select" class="block text-sm font-medium text-gray-700">المقياس</label>
+                    <select id="teacher-subject-select" required class="mt-1 w-full p-2 border rounded" disabled><option>اختر أستاذ أولاً</option></select>
+                </div>
+                <div>
+                    <label for="student-count" class="block text-sm font-medium text-gray-700">عدد الطلاب</label>
+                    <input type="number" id="student-count" placeholder="0" required class="mt-1 w-full p-2 border rounded">
+                </div>
+                <div class="lg:col-span-1">
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg">حساب وتسجيل</button>
+                </div>
+             </form>
+        </div>
+        
+        <div class="mt-8 bg-white p-6 rounded-xl shadow-md">
+            <h2 class="text-xl font-bold mb-4">سجل المعاملات المالية</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead><tr><th>التاريخ</th><th>النوع</th><th>البيان / الفئة</th><th>المبلغ</th><th>إجراءات</th></tr></thead>
+                    <tbody id="transactions-log"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="edit-expense-modal" class="modal-overlay">
+    <div class="modal-box">
+        <h3 class="text-xl font-bold mb-4">تعديل المصروف</h3>
+        <form id="edit-expense-form" class="space-y-4">
+            <input type="hidden" id="edit-expense-id">
+            <input type="text" id="edit-expense-desc" required class="w-full p-2 border rounded">
+            <input type="number" id="edit-expense-amount" required class="w-full p-2 border rounded">
+            <select id="edit-expense-category" class="w-full p-2 border rounded">
+                <option value="فواتير وخدمات">فواتير وخدمات</option>
+                <option value="صيانة وتشغيل">صيانة وتشغيل</option>
+                <option value="مستلزمات مكتبية">مستلزمات مكتبية</option>
+                <option value="رواتب وأجور">رواتب وأجور</option>
+                <option value="مصاريف أخرى">مصاريف أخرى</option>
+            </select>
+            <div class="flex justify-end gap-3 mt-4"><button type="button" class="cancel-btn bg-gray-500 text-white px-4 py-2 rounded">إلغاء</button><button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">حفظ</button></div>
+        </form>
+    </div>
+</div>
+
+<div id="notification-modal" class="modal-overlay">
+    <div class="modal-box text-center">
+        <p id="notification-message" class="mb-4 text-lg"></p>
+        <button class="close-notification-btn bg-blue-600 text-white px-6 py-2 rounded">موافق</button>
+    </div>
+</div>
+
+<div id="confirmation-modal" class="modal-overlay">
+    <div class="modal-box">
+        <h3 class="text-xl font-bold mb-4">تأكيد الحذف</h3>
+        <p class="mb-3">هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.</p>
+        <div class="space-y-3">
+             <label for="password-confirm" class="block text-sm font-medium text-gray-700">للتأكيد، أدخل كلمة المرور: S22MARKET</label>
+             <input type="password" id="password-confirm" class="w-full p-2 border rounded">
+             <p id="password-error" class="text-red-500 text-sm hidden">كلمة المرور غير صحيحة.</p>
+        </div>
+        <div class="flex justify-end gap-3 mt-4"><button type="button" class="cancel-confirm-btn bg-gray-500 text-white px-4 py-2 rounded">إلغاء</button><button type="button" id="confirm-delete-btn" class="bg-red-600 text-white px-4 py-2 rounded">تأكيد</button></div>
+    </div>
+</div>
+
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, orderBy, doc, getDoc, updateDoc, deleteDoc, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB-VyUd5FUMb0KCUROhQRqoyOL1V7Noguk",
+      authDomain: "akadimiat-jyl-almustaqbal.firebaseapp.com",
+      projectId: "akadimiat-jyl-almustaqbal",
+      storageBucket: "akadimiat-jyl-almustaqbal.appspot.com",
+      messagingSenderId: "495523964077",
+      appId: "1:495523964077:web:c73b443dd98733ab0a9224",
+      measurementId: "G-8HY9WHV1Z1"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    let dbReady = false;
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            if (!dbReady) {
+                initializeAppLogic();
+                dbReady = true;
+            }
+        } else {
+            signInAnonymously(auth).catch((error) => console.error("Anonymous sign-in failed:", error));
+        }
+    });
+
+    function initializeAppLogic() {
+        const transactionsCollection = collection(db, "transactions");
+        const employeesCollection = collection(db, "employees");
+        
+        const showNotificationModal = (message) => {
+            document.getElementById('notification-message').textContent = message;
+            document.getElementById('notification-modal').classList.add('visible');
+        }
+        const showConfirmationModal = (onConfirm) => {
+            const modal = document.getElementById('confirmation-modal');
+            modal.classList.add('visible');
+            const confirmBtn = modal.querySelector('#confirm-delete-btn');
+            const passInput = modal.querySelector('#password-confirm');
+            const passError = modal.querySelector('#password-error');
+            passInput.value = '';
+            passError.classList.add('hidden');
+            const handler = () => {
+                if(passInput.value === 'S22MARKET') {
+                    onConfirm();
+                    modal.classList.remove('visible');
+                } else {
+                    passError.classList.remove('hidden');
+                }
+            };
+            confirmBtn.onclick = handler;
+        }
+        document.querySelector('.close-notification-btn').addEventListener('click', () => document.getElementById('notification-modal').classList.remove('visible'));
+        document.querySelector('.cancel-confirm-btn').addEventListener('click', () => document.getElementById('confirmation-modal').classList.remove('visible'));
+
+        function loadFinancialSummary() {
+            onSnapshot(query(transactionsCollection), (snapshot) => {
+                let income = 0, expenses = 0;
+                snapshot.forEach(doc => {
+                    const t = doc.data();
+                    if (['student_payment', 'session_income'].includes(t.type)) income += t.amount;
+                    else if (t.type === 'expense') expenses += t.amount;
+                });
+                document.getElementById('summary-income').textContent = `${income.toLocaleString()} دج`;
+                document.getElementById('summary-expenses').textContent = `${expenses.toLocaleString()} دج`;
+                document.getElementById('summary-profit').textContent = `${(income - expenses).toLocaleString()} دج`;
+            });
+        }
+        
+        async function loadTeachers() {
+            const teacherSelect = document.getElementById('teacher-select');
+            const q = query(employeesCollection, where("role", "==", "أستاذ"), orderBy("name"));
+            onSnapshot(q, (snapshot) => {
+                teacherSelect.innerHTML = snapshot.empty ? '<option value="">لا يوجد أساتذة</option>' : '<option value="">-- اختر أستاذ --</option>';
+                snapshot.forEach(doc => {
+                    const teacher = { id: doc.id, ...doc.data() };
+                    const option = document.createElement('option');
+                    option.value = teacher.id;
+                    option.textContent = teacher.name;
+                    teacherSelect.appendChild(option);
+                });
+            });
+        }
+
+        document.getElementById('teacher-select').addEventListener('change', async (e) => {
+            const teacherId = e.target.value;
+            const levelSelect = document.getElementById('teacher-level-select');
+            const subjectSelect = document.getElementById('teacher-subject-select');
+            levelSelect.innerHTML = '<option>...</option>'; subjectSelect.innerHTML = '<option>...</option>';
+            levelSelect.disabled = true; subjectSelect.disabled = true;
+            if(!teacherId) return;
+
+            const teacherDoc = await getDoc(doc(db, "employees", teacherId));
+            if(teacherDoc.exists()){
+                const teacher = teacherDoc.data();
+                levelSelect.innerHTML = (teacher.levels || []).map(l => `<option value="${l}">${l}</option>`).join('');
+                subjectSelect.innerHTML = (teacher.subjects || []).map(s => `<option value="${s}">${s}</option>`).join('');
+                levelSelect.disabled = false; subjectSelect.disabled = false;
+            }
+        });
+        
+        function printReceipt(data) {
+            const receiptHTML = `
+                <div style="border: 2px solid #333; padding: 25px; max-width: 800px; margin: 20px auto; background: #fff; direction: rtl; font-family: 'Tajawal', sans-serif;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 15px;">
+                        <div><h1 style="font-size: 24px; margin: 0; color: #2563eb;">أكاديمية جيل المستقبل</h1><p style="margin: 0; font-size: 14px;">بيئة تعليمية مبتكرة</p></div>
+                        <h2 style="font-size: 28px; margin: 0;">وصل قبض</h2>
+                    </div>
+                    <div style="padding: 20px 0; font-size: 14px;">
+                        <p><strong>رقم الوصل:</strong> RCPT-${data.receiptId}</p>
+                        <p><strong>التاريخ:</strong> ${data.date}</p>
+                        <p><strong>المستلم منه:</strong> ${data.payerName}</p>
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                        <thead><tr style="background-color: #f0f2f5;"><th style="border: 1px solid #ccc; padding: 10px; text-align: right;">البيان</th><th style="border: 1px solid #ccc; padding: 10px; text-align: right;">المبلغ</th></tr></thead>
+                        <tbody><tr><td style="border: 1px solid #ccc; padding: 10px;">${data.forReason}</td><td style="border: 1px solid #ccc; padding: 10px; font-weight: bold;">${data.amount.toLocaleString()} دج</td></tr></tbody>
+                    </table>
+                     <div style="margin-top: 20px; text-align: left; font-size: 16px;"><p><strong>طريقة الدفع:</strong> ${data.method || 'غير محدد'}</p><p style="font-weight: bold; font-size: 18px;">الإجمالي: ${data.amount.toLocaleString()} دج</p></div>
+                    <div style="margin-top: 50px; text-align: center; border-top: 1px dashed #999; padding-top: 15px;"><p><strong>ختم وتوقيع الإدارة</strong></p></div>
+                </div>`;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write('<html><head><title>طباعة وصل</title><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet"></head><body dir="rtl">');
+            printWindow.document.write(receiptHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
+        }
+
+        function loadTransactionsLog() {
+            const logBody = document.getElementById('transactions-log');
+            const q = query(transactionsCollection, orderBy("createdAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                logBody.innerHTML = snapshot.empty ? '<tr><td colspan="5" class="text-center p-4">لا توجد معاملات.</td></tr>' : '';
+                snapshot.forEach(docSnap => {
+                    const t = { id: docSnap.id, ...docSnap.data() };
+                    const typeMap = { 'student_payment': 'قبض طالب', 'expense': 'مصروف', 'session_income': 'دخل حصة' };
+                    const isIncome = ['student_payment', 'session_income'].includes(t.type);
+                    
+                    let actionsHtml = `<button class="btn-sm btn-danger delete-btn" data-id="${t.id}">حذف</button>`;
+                    if (isIncome) {
+                        actionsHtml = `<button class="text-xl btn-print print-btn" title="طباعة الوصل"><i class="fas fa-print"></i></button>` + actionsHtml;
+                    } else if (t.isFromEmployeeModule) {
+                        actionsHtml = '—'; // Cannot delete salary from here
+                    }
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${t.createdAt?.toDate().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit' }) || ''}</td>
+                        <td class="font-semibold ${isIncome ? 'text-green-600' : 'text-red-600'}">${typeMap[t.type] || ''}</td>
+                        <td>${t.description}</td>
+                        <td class="font-bold">${t.amount.toLocaleString()} دج</td>
+                        <td class="flex items-center gap-4">${actionsHtml}</td>`;
+                    logBody.appendChild(row);
+                    
+                    row.querySelector('.delete-btn')?.addEventListener('click', (e) => {
+                        showConfirmationModal(() => {
+                            deleteDoc(doc(db, "transactions", e.currentTarget.dataset.id));
+                            showNotificationModal('تم الحذف بنجاح.');
+                        });
+                    });
+
+                    row.querySelector('.print-btn')?.addEventListener('click', () => {
+                        let receiptData = {
+                            receiptId: t.id.substring(0, 8).toUpperCase(),
+                            date: t.createdAt.toDate().toLocaleDateString('ar-EG'),
+                            amount: t.amount,
+                            forReason: t.description,
+                            payerName: "غير محدد",
+                            method: t.method || "نقداً"
+                        };
+                        
+                        if(t.type === 'student_payment'){
+                            // Extract student name from description if possible
+                             const match = t.description.match(/وصل دفع للطالب: (.*?)( -|$)/);
+                             if (match) receiptData.payerName = match[1];
+                        } else if (t.type === 'session_income' && t.details) {
+                            receiptData.payerName = `حصة الأستاذ ${t.details.teacherName}`;
+                        }
+                        
+                        printReceipt(receiptData);
+                    });
+                });
+            });
+        }
+
+        document.getElementById('receipt-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const studentName = document.getElementById('student-name').value;
+            const amount = Number(document.getElementById('payment-amount').value);
+            const forReason = document.getElementById('payment-for').value;
+            const method = document.getElementById('payment-method').value;
+            try {
+                const docRef = await addDoc(transactionsCollection, { type: 'student_payment', description: `وصل دفع للطالب: ${studentName} - مقابل: ${forReason}`, amount, method, createdAt: serverTimestamp() });
+                printReceipt({ payerName: studentName, amount, forReason, method, date: new Date().toLocaleDateString('ar-EG'), receiptId: docRef.id.substring(0,8).toUpperCase() });
+                e.target.reset();
+            } catch (error) { showNotificationModal("حدث خطأ."); }
+        });
+
+        document.getElementById('expense-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const description = document.getElementById('expense-desc').value;
+            const amount = Number(document.getElementById('expense-amount').value);
+            const category = document.getElementById('expense-category').value;
+            await addDoc(transactionsCollection, { type: 'expense', description, amount, category, createdAt: serverTimestamp() });
+            e.target.reset();
+            showNotificationModal('تم تسجيل المصروف بنجاح');
+        });
+        
+        document.getElementById('session-income-form').addEventListener('submit', async (e) => {
+             e.preventDefault();
+             const teacherSelect = document.getElementById('teacher-select');
+             const teacherId = teacherSelect.value;
+             const teacherName = teacherSelect.options[teacherSelect.selectedIndex].text;
+             const studentCount = Number(document.getElementById('student-count').value);
+             const level = document.getElementById('teacher-level-select').value;
+             const subject = document.getElementById('teacher-subject-select').value;
+             const chairPrice = 100;
+             const totalIncome = studentCount * chairPrice;
+             if (!teacherId || !level || !subject || studentCount <= 0) { showNotificationModal('يرجى ملء جميع الحقول بشكل صحيح.'); return; }
+             try {
+                await addDoc(transactionsCollection, {
+                    type: 'session_income',
+                    description: `دخل حصة لـ ${teacherName} (${level} - ${subject}) - ${studentCount} طالب`,
+                    amount: totalIncome,
+                    details: { teacherId, teacherName, studentCount, chairPrice, level, subject },
+                    createdAt: serverTimestamp()
+                });
+                e.target.reset();
+                showNotificationModal(`تم تسجيل دخل بقيمة ${totalIncome.toLocaleString()} دج.`);
+             } catch (error) { console.error("Error:", error); }
+        });
+
+        loadFinancialSummary();
+        loadTransactionsLog();
+        loadTeachers();
+    }
+</script>
+</body>
+</html>

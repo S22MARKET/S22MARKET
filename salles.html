@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>القاعات الدراسية - أكاديمية جيل المستقبل</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary-color: #0ea5e9; --secondary-color: #0f172a; --bg-light: #f8fafc; }
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-light); color: #0f172a; }
+        .active-link { color: var(--primary-color); font-weight: 700; }
+        .sidebar-link:hover { color: var(--primary-color); }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .card-hover:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
+        #hall-modal-backdrop.show { display: flex; }
+        #hall-modal-content.show { transform: scale(1); opacity: 1; }
+        .thumbnail-active { border: 2px solid var(--primary-color); }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <aside id="sidebar" class="fixed top-0 right-0 h-full bg-white shadow-xl w-72 transform transition-transform duration-300 translate-x-full lg:hidden z-50">
+        <div class="p-5 border-b flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-extrabold text-slate-800">جيل <span class="text-sky-500">المستقبل</span></a>
+            <button id="close-btn" class="text-2xl text-slate-500">&times;</button>
+        </div>
+        <nav class="flex flex-col p-4 space-y-2">
+            <a href="index.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link"><i class="fas fa-home fa-fw text-xl w-6 text-center"></i><span>الرئيسية</span></a>
+            <a href="programs.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link"><i class="fas fa-book-open fa-fw text-xl w-6 text-center"></i><span>البرامج الدراسية</span></a>
+            <a href="salles.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link active-link"><i class="fas fa-school fa-fw text-xl w-6 text-center"></i><span>القاعات</span></a>
+            <a href="schedule.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link"><i class="fas fa-calendar-alt fa-fw text-xl w-6 text-center"></i><span>الجدول الزمني</span></a>
+            <a href="news.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link"><i class="fas fa-newspaper fa-fw text-xl w-6 text-center"></i><span>آخر الأخبار</span></a>
+            <a href="contact.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link"><i class="fas fa-envelope fa-fw text-xl w-6 text-center"></i><span>تواصل معنا</span></a>
+            <a href="dashboard.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link mt-8 border-t pt-4"><i class="fas fa-user-shield fa-fw text-xl w-6 text-center"></i><span>دخول الإدارة</span></a>
+        </nav>
+    </aside>
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+    <div class="flex-1 min-w-0">
+        <header class="bg-white shadow-md py-4 px-6 flex justify-between items-center sticky top-0 z-30 w-full">
+            <a href="index.html" class="text-2xl font-extrabold text-slate-800">جيل <span class="text-sky-500">المستقبل</span></a>
+            <nav class="hidden lg:flex items-center gap-8">
+                <a href="index.html" class="text-slate-700 hover:text-sky-500 transition font-semibold">الرئيسية</a>
+                <a href="programs.html" class="text-slate-700 hover:text-sky-500 transition font-semibold">البرامج الدراسية</a>
+                <a href="salles.html" class="text-slate-700 hover:text-sky-500 transition font-semibold active-link">القاعات</a>
+                <a href="schedule.html" class="text-slate-700 hover:text-sky-500 transition font-semibold">الجدول الزمني</a>
+                <a href="news.html" class="text-slate-700 hover:text-sky-500 transition font-semibold">آخر الأخبار</a>
+                <a href="contact.html" class="text-slate-700 hover:text-sky-500 transition font-semibold">تواصل معنا</a>
+            </nav>
+            <a href="contact.html" class="hidden lg:inline-block bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-6 rounded-lg transition">ابدأ الآن</a>
+            <button id="menu-btn" class="lg:hidden text-2xl text-slate-600"><i class="fas fa-bars"></i></button>
+        </header>
+        <main class="container mx-auto px-4 py-16">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-extrabold text-slate-800">قاعاتنا الدراسية</h1>
+                <p class="text-slate-600 mt-4 max-w-2xl mx-auto">بيئة تعليمية مجهزة بأحدث الوسائل لضمان تجربة تعليمية مريحة ومحفزة لطلابنا.</p>
+            </div>
+            <div id="halls-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="text-center p-4 col-span-full"><div class="loader mx-auto"></div></div>
+            </div>
+        </main>
+        
+        <footer class="bg-slate-800 text-white mt-16">
+            <div class="container mx-auto px-6 py-12">
+                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-right">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">أكاديمية جيل المستقبل</h3>
+                        <p class="text-slate-400">وجهتك الأولى للتميز التعليمي وبناء مستقبل مشرق.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">روابط سريعة</h3>
+                        <ul class="space-y-2">
+                            <li><a href="programs.html" class="text-slate-400 hover:text-white">البرامج الدراسية</a></li>
+                            <li><a href="schedule.html" class="text-slate-400 hover:text-white">الجدول الزمني</a></li>
+                            <li><a href="news.html" class="text-slate-400 hover:text-white">آخر الأخبار</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">تواصل معنا</h3>
+                        <ul class="space-y-2 text-slate-400" aria-label="contact-info">
+                           <li><i class="fas fa-phone-alt ml-2"></i><span data-id="phone">(سيتم جلبه من الإعدادات)</span></li>
+                           <li><i class="fab fa-whatsapp ml-2"></i><span data-id="whatsapp">(سيتم جلبه من الإعدادات)</span></li>
+                           <li><i class="fab fa-facebook-f ml-2"></i><span data-id="facebook">(سيتم جلبه من الإعدادات)</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="border-t border-slate-700 mt-8 pt-6 text-center text-slate-500">
+                    <p>&copy; <span id="current-year"></span> أكاديمية جيل المستقبل. جميع الحقوق محفوظة.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <div id="hall-modal-backdrop" class="fixed inset-0 bg-black bg-opacity-75 z-[999] hidden items-center justify-center p-4 transition-opacity duration-300">
+        <div id="hall-modal-content" class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col md:flex-row transform transition-transform duration-300 scale-95 opacity-0">
+            <div class="w-full md:w-3/5 bg-slate-900 relative flex items-center justify-center rounded-t-lg md:rounded-r-lg md:rounded-t-none">
+                <img id="modal-main-image" src="" alt="صورة القاعة" class="w-full h-64 md:h-full object-contain transition-transform duration-300">
+                <button id="modal-prev-btn" class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 z-10"><i class="fas fa-chevron-left"></i></button>
+                <button id="modal-next-btn" class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 z-10"><i class="fas fa-chevron-right"></i></button>
+                <div id="modal-thumbnails" class="absolute bottom-2 left-0 right-0 p-2 flex justify-center gap-2 overflow-x-auto">
+                    </div>
+            </div>
+            <div class="w-full md:w-2/5 p-6 flex flex-col">
+                 <div class="flex-grow overflow-y-auto pr-2">
+                    <h2 id="modal-hall-name" class="text-3xl font-bold text-slate-800 mb-4"></h2>
+                    <p id="modal-hall-description" class="text-slate-600 leading-relaxed"></p>
+                </div>
+                <button id="modal-close-btn" class="mt-6 bg-sky-500 text-white py-2 px-4 rounded-lg self-center w-full md:w-auto hover:bg-sky-600 transition-colors">إغلاق</button>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyB-VyUd5FUMb0KCUROhQRqoyOL1V7Noguk",
+          authDomain: "akadimiat-jyl-almustaqbal.firebaseapp.com",
+          projectId: "akadimiat-jyl-almustaqbal",
+          storageBucket: "akadimiat-jyl-almustaqbal.appspot.com",
+          messagingSenderId: "495523964077",
+          appId: "1:495523964077:web:c73b443dd98733ab0a9224",
+          measurementId: "G-8HY9WHV1Z1"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Sidebar and Header Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const menuBtn = document.getElementById('menu-btn');
+            const closeBtn = document.getElementById('close-btn');
+            const toggleSidebar = () => { sidebar.classList.toggle('translate-x-full'); overlay.classList.toggle('hidden'); };
+            if (menuBtn) menuBtn.addEventListener('click', toggleSidebar);
+            if (closeBtn) closeBtn.addEventListener('click', toggleSidebar);
+            if (overlay) overlay.addEventListener('click', toggleSidebar);
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+            loadHalls();
+            loadFooterContactInfo();
+            initializeHallModal();
+        });
+
+        async function loadHalls() {
+            const container = document.getElementById('halls-container');
+            const q = query(collection(db, "halls"), orderBy("createdAt", "desc"));
+            const snapshot = await getDocs(q);
+
+            if (snapshot.empty) {
+                container.innerHTML = '<p class="text-center text-slate-500 col-span-full">سيتم إضافة القاعات قريباً.</p>';
+                return;
+            }
+
+            container.innerHTML = snapshot.docs.map(doc => {
+                const hall = doc.data();
+                const images = hall.imageUrls || [hall.imageUrl]; // Handle both new and old data structure
+                const firstImage = images[0] || 'https://placehold.co/600x400/e2e8f0/e2e8f0';
+
+                return `
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col transition card-hover cursor-pointer hall-card"
+                         data-name="${hall.name}"
+                         data-description="${hall.description}"
+                         data-images='${JSON.stringify(images)}'>
+                        <img src="${firstImage}" alt="${hall.name}" class="w-full h-56 object-cover">
+                        <div class="p-6 flex flex-col flex-grow">
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">${hall.name}</h3>
+                            <p class="text-slate-600 flex-grow">${hall.description.substring(0, 100)}${hall.description.length > 100 ? '...' : ''}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        async function loadFooterContactInfo() {
+            const docSnap = await getDoc(doc(db, "settings", "general"));
+            if (docSnap.exists()) {
+                const links = docSnap.data().socialLinks || {};
+                 if(links.phone1) document.querySelector('footer span[data-id="phone"]').textContent = links.phone1;
+                 if(links.whatsapp1) document.querySelector('footer span[data-id="whatsapp"]').textContent = links.whatsapp1;
+                 if(links.facebook1) document.querySelector('footer span[data-id="facebook"]').textContent = 'صفحتنا على فيسبوك';
+            }
+        }
+
+        function initializeHallModal() {
+            const backdrop = document.getElementById('hall-modal-backdrop');
+            const modalContent = document.getElementById('hall-modal-content');
+            const closeBtn = document.getElementById('modal-close-btn');
+            const hallsContainer = document.getElementById('halls-container');
+
+            const hallNameEl = document.getElementById('modal-hall-name');
+            const hallDescEl = document.getElementById('modal-hall-description');
+            const mainImageEl = document.getElementById('modal-main-image');
+            const thumbnailsContainer = document.getElementById('modal-thumbnails');
+            const nextBtn = document.getElementById('modal-next-btn');
+            const prevBtn = document.getElementById('modal-prev-btn');
+
+            let currentImages = [];
+            let currentIndex = 0;
+
+            function updateCarousel() {
+                if (currentImages.length === 0) return;
+                mainImageEl.src = currentImages[currentIndex];
+                
+                document.querySelectorAll('.thumbnail-img').forEach((thumb, index) => {
+                    thumb.classList.toggle('thumbnail-active', index === currentIndex);
+                });
+                
+                prevBtn.classList.toggle('hidden', currentImages.length <= 1);
+                nextBtn.classList.toggle('hidden', currentImages.length <= 1);
+            }
+
+            function showNextImage() {
+                currentIndex = (currentIndex + 1) % currentImages.length;
+                updateCarousel();
+            }
+
+            function showPrevImage() {
+                currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+                updateCarousel();
+            }
+
+            function openModal(hallCard) {
+                const name = hallCard.dataset.name;
+                const description = hallCard.dataset.description;
+                currentImages = JSON.parse(hallCard.dataset.images).filter(img => img); // Filter out null/empty URLs
+                if(currentImages.length === 0) currentImages.push('https://placehold.co/600x400/e2e8f0/e2e8f0');
+                
+                currentIndex = 0;
+
+                hallNameEl.textContent = name;
+                hallDescEl.textContent = description;
+
+                thumbnailsContainer.innerHTML = currentImages.map((src, index) => 
+                    `<img src="${src}" class="w-16 h-16 object-cover rounded-md cursor-pointer thumbnail-img" data-index="${index}">`
+                ).join('');
+
+                updateCarousel();
+                
+                backdrop.classList.remove('hidden');
+                backdrop.classList.add('show');
+                setTimeout(() => {
+                    modalContent.classList.add('show');
+                }, 10);
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                modalContent.classList.remove('show');
+                setTimeout(() => {
+                    backdrop.classList.add('hidden');
+                    backdrop.classList.remove('show');
+                    document.body.style.overflow = 'auto';
+                }, 300);
+            }
+
+            hallsContainer.addEventListener('click', (e) => {
+                const hallCard = e.target.closest('.hall-card');
+                if (hallCard) {
+                    openModal(hallCard);
+                }
+            });
+
+            thumbnailsContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('thumbnail-img')) {
+                    currentIndex = parseInt(e.target.dataset.index);
+                    updateCarousel();
+                }
+            });
+            
+            nextBtn.addEventListener('click', showNextImage);
+            prevBtn.addEventListener('click', showPrevImage);
+            closeBtn.addEventListener('click', closeModal);
+            backdrop.addEventListener('click', (e) => {
+                if (e.target === backdrop) {
+                    closeModal();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

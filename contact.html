@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تواصل معنا - أكاديمية جيل المستقبل</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+     <style>
+        :root {
+            --primary-color: #3b82f6; --bg-body: #f8fafc; --text-primary: #1e293b;
+            --active-bg: #eff6ff;
+        }
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-body); color: var(--text-primary); }
+        .active-link { background-color: var(--active-bg); color: var(--primary-color); font-weight: 700; border-right: 4px solid var(--primary-color); }
+        .sidebar-link:hover { background-color: var(--active-bg); color: var(--primary-color); transform: translateX(-4px); }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex">
+        <aside id="sidebar" class="fixed top-0 right-0 h-full bg-white shadow-lg w-64 transform transition-transform translate-x-full lg:translate-x-0 lg:static z-50">
+            <div class="p-5 border-b text-center">
+                <a href="index.html" class="text-2xl font-extrabold text-gray-800">جيل <span class="text-blue-600">المستقبل</span></a>
+            </div>
+            <nav class="flex flex-col p-4 space-y-2">
+                <a href="index.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link">
+                    <i class="fas fa-home fa-fw text-xl w-6 text-center"></i>
+                    <span>الرئيسية</span>
+                </a>
+                <a href="programs.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link">
+                    <i class="fas fa-book-open fa-fw text-xl w-6 text-center"></i>
+                    <span>البرامج الدراسية</span>
+                </a>
+                <a href="schedule.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link">
+                    <i class="fas fa-calendar-alt fa-fw text-xl w-6 text-center"></i>
+                    <span>الجدول الزمني</span>
+                </a>
+                <a href="salles.html" class="text-slate-700 hover:text-sky-500 transition font-semibold">القاعات</a>
+                <a href="news.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link">
+                    <i class="fas fa-newspaper fa-fw text-xl w-6 text-center"></i>
+                    <span>آخر الأخبار</span>
+                </a>
+                <a href="contact.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link active-link">
+                    <i class="fas fa-envelope fa-fw text-xl w-6 text-center"></i>
+                    <span>تواصل معنا</span>
+                </a>
+                <a href="dashboard.html" class="flex items-center gap-4 p-3 rounded-lg transition-all sidebar-link mt-8 border-t pt-4">
+                    <i class="fas fa-user-shield fa-fw text-xl w-6 text-center"></i>
+                    <span>دخول الإدارة</span>
+                </a>
+            </nav>
+        </aside>
+
+        <div class="flex-1 min-w-0">
+            <header class="lg:hidden bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-40">
+                <a href="index.html" class="text-xl font-extrabold text-gray-800">جيل <span class="text-blue-600">المستقبل</span></a>
+                <button id="menu-btn" class="text-2xl text-gray-600">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </header>
+
+            <main class="container mx-auto px-4 py-16">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
+                    <div>
+                         <h1 class="text-4xl font-bold mb-6">تواصل معنا</h1>
+                         <p class="text-lg text-gray-600 mb-8">نحن هنا للإجابة على جميع استفساراتكم. يمكنكم ملء النموذج أو التواصل معنا مباشرة.</p>
+                         <div id="social-links-container" class="space-y-4">
+                             </div>
+                    </div>
+                    <div>
+                        <form id="inquiry-form" class="w-full p-8 bg-white rounded-lg shadow-lg space-y-6">
+                            <h2 class="text-2xl font-bold text-center mb-4">أرسل رسالة</h2>
+                            <input type="text" id="inquiry-name" placeholder="الاسم الكامل *" required class="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500">
+                            <input type="tel" id="inquiry-phone" placeholder="رقم الهاتف *" required class="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500">
+                            <textarea id="inquiry-message" rows="5" placeholder="اكتب استفسارك هنا... *" required class="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"></textarea>
+                            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-md text-lg hover:bg-blue-700 transition-all flex items-center justify-center">إرسال الرسالة</button>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+    </div>
+    
+    <div id="modal-container"></div>
+    
+     <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, doc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        const firebaseConfig = {
+          apiKey: "AIzaSyB-VyUd5FUMb0KCUROhQRqoyOL1V7Noguk",
+          authDomain: "akadimiat-jyl-almustaqbal.firebaseapp.com",
+          projectId: "akadimiat-jyl-almustaqbal",
+          storageBucket: "akadimiat-jyl-almustaqbal.appspot.com",
+          messagingSenderId: "495523964077",
+          appId: "1:495523964077:web:c73b443dd98733ab0a9224",
+          measurementId: "G-8HY9WHV1Z1"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const menuBtn = document.getElementById('menu-btn');
+
+            const toggleSidebar = () => {
+                sidebar.classList.toggle('translate-x-full');
+                overlay.classList.toggle('hidden');
+            };
+
+            if (menuBtn) menuBtn.addEventListener('click', toggleSidebar);
+            if (overlay) overlay.addEventListener('click', toggleSidebar);
+
+            loadContactInfo();
+        });
+        
+        const modalContainer = document.getElementById('modal-container');
+        const showModal = (content) => {
+            modalContainer.innerHTML = `<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm">${content}</div>`;
+        };
+        const closeModal = () => { modalContainer.innerHTML = ''; };
+        window.closeModal = closeModal;
+
+        async function loadContactInfo() {
+            const socialContainer = document.getElementById('social-links-container');
+            const docSnap = await getDoc(doc(db, "settings", "general"));
+            if (docSnap.exists()) {
+                const settings = docSnap.data();
+                let linksHTML = '';
+                const links = settings.socialLinks || {};
+                
+                const createLink = (key, value, icon, text) => {
+                    if (!value) return '';
+                    let url = value;
+                    if (key.includes('whatsapp')) url = `https://wa.me/${value.replace(/[^0-9]/g, '')}`;
+                    if (key.includes('phone')) url = `tel:${value}`;
+                    return `<a href="${url}" target="_blank" class="flex items-center gap-4 p-3 bg-white rounded-md shadow-sm hover:bg-gray-100 transition-colors"><i class="${icon} text-2xl text-blue-600 w-8 text-center"></i><span class="font-semibold text-gray-700">${text}</span></a>`;
+                };
+
+                linksHTML += createLink('phone1', links.phone1, 'fas fa-phone-alt', 'الهاتف');
+                linksHTML += createLink('whatsapp1', links.whatsapp1, 'fab fa-whatsapp', 'واتساب');
+                linksHTML += createLink('facebook1', links.facebook1, 'fab fa-facebook-f', 'فيسبوك');
+                socialContainer.innerHTML = linksHTML || '<p>لم يتم إضافة معلومات التواصل بعد.</p>';
+            }
+        }
+
+        const inquiryForm = document.getElementById('inquiry-form');
+        inquiryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = inquiryForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="loader"></div>';
+
+            try {
+                await addDoc(collection(db, "inquiries"), {
+                    fullName: document.getElementById('inquiry-name').value,
+                    phone: document.getElementById('inquiry-phone').value,
+                    message: document.getElementById('inquiry-message').value,
+                    status: 'new',
+                    createdAt: serverTimestamp()
+                });
+                inquiryForm.reset();
+                showModal(`<div class="bg-white rounded-lg shadow-xl max-w-sm w-full text-center p-6"><div class="text-green-500 text-5xl mb-4"><i class="fas fa-check-circle"></i></div><h3 class="text-xl font-bold mb-2">تم الإرسال بنجاح!</h3><p class="text-gray-600 mb-6">شكراً لتواصلك معنا.</p><button onclick="closeModal()" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">حسنًا</button></div>`);
+            } catch (error) {
+                showModal(`<div class="bg-white rounded-lg shadow-xl max-w-sm w-full text-center p-6"><div class="text-red-500 text-5xl mb-4"><i class="fas fa-exclamation-circle"></i></div><h3 class="text-xl font-bold mb-2">حدث خطأ</h3><p class="text-gray-600 mb-6">فشل إرسال الرسالة. يرجى المحاولة مرة أخرى.</p><button onclick="closeModal()" class="bg-red-600 text-white font-bold py-2 px-6 rounded-lg">إغلاق</button></div>`);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+    </script>
+</body>
+</html>
