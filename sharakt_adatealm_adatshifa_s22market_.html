@@ -52,6 +52,14 @@
                 transform: translateX(0);
             }
         }
+        /* Simple style for inline SVG icons */
+        .icon {
+            display: inline-block;
+            width: 1.2em;
+            height: 1.2em;
+            vertical-align: middle;
+            margin-right: 0.5em;
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
@@ -118,6 +126,27 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- NEW: Individual Platform Visits Details Section -->
+                <div class="mt-16">
+                    <div class="text-center mb-8">
+                        <h3 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">تفاصيل زيارات المنصات</h3>
+                    </div>
+                    <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                        <div class="bg-white dark:bg-gray-700 p-6 rounded-2xl shadow-lg">
+                            <p id="stats-visits-shifa" class="text-4xl font-extrabold text-amber-500"><span class="loader"></span></p>
+                            <p class="mt-2 text-lg font-bold text-gray-800 dark:text-white">زيارات منصة شفاء</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 p-6 rounded-2xl shadow-lg">
+                            <p id="stats-visits-elm" class="text-4xl font-extrabold text-amber-500"><span class="loader"></span></p>
+                            <p class="mt-2 text-lg font-bold text-gray-800 dark:text-white">زيارات منصة علم</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 p-6 rounded-2xl shadow-lg">
+                            <p id="stats-visits-market" class="text-4xl font-extrabold text-amber-500"><span class="loader"></span></p>
+                            <p class="mt-2 text-lg font-bold text-gray-800 dark:text-white">زيارات متجر الطلبة</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -135,8 +164,12 @@
                         <p class="font-semibold text-lg mb-2 text-gray-800 dark:text-white">تطبيق التبرع بالدم</p>
                         <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">يهدف هذا التطبيق الإنساني لتسهيل عملية التبرع بالدم، وإنشاء شبكة فعالة تربط المتبرعين بالمحتاجين بشكل عاجل ومنظم.</p>
                         <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col gap-3">
-                            <a href="التبرع بالدم أداة شفاء.apk" id="download-shifa" class="w-full text-center bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">تحميل: التبرع بالدم.apk</a>
+                            <a href="التبرع بالدم أداة شفاء.apk" id="download-shifa" class="w-full text-center bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 flex items-center justify-center">
+                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.95 4.05C21.4 5.5 22 7.74 22 10.04V10C22 12.24 21.4 14.5 19.95 15.95L18.54 14.54C19.5 13.57 20 12.04 20 10C20 7.96 19.5 6.43 18.54 5.46L19.95 4.05M4.05 19.95C5.5 21.4 7.74 22 10.04 22H10C12.24 22 14.5 21.4 15.95 19.95L14.54 18.54C13.57 19.5 12.04 20 10 20C7.96 20 6.43 19.5 5.46 18.54L4.05 19.95M16.95 8.5C17.3 8.85 17.5 9.42 17.5 10C17.5 10.58 17.3 11.15 16.95 11.5L15.54 10.09L16.95 8.5M7.05 15.5C6.7 15.15 6.5 14.58 6.5 14C6.5 13.42 6.7 12.85 7.05 12.5L8.46 13.91L7.05 15.5M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"/></svg>
+                                <span>تحميل لأندرويد (.apk)</span>
+                            </a>
                             <a href="https://adatshifa.github.io/altabarue_bialdam/home_altabarue_bialdam.html" id="platform-shifa" target="_blank" class="w-full text-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">فتح المنصة</a>
+                            <button id="copy-link-shifa" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">نسخ رابط المنصة</button>
                         </div>
                     </div>
 
@@ -146,8 +179,12 @@
                         <p class="font-semibold text-lg mb-2 text-gray-800 dark:text-white">تطبيق الطب</p>
                         <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">منصة تعليمية متكاملة تهدف إلى دعم طلبة الكليات الطبية وتوفير المصادر والأدوات اللازمة لتسهيل مسيرتهم الدراسية.</p>
                         <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col gap-3">
-                            <a href="الطب أداة علم .apk" id="download-elm" class="w-full text-center bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">تحميل: الطب أداة علم.apk</a>
+                             <a href="الطب أداة علم .apk" id="download-elm" class="w-full text-center bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 flex items-center justify-center">
+                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.95 4.05C21.4 5.5 22 7.74 22 10.04V10C22 12.24 21.4 14.5 19.95 15.95L18.54 14.54C19.5 13.57 20 12.04 20 10C20 7.96 19.5 6.43 18.54 5.46L19.95 4.05M4.05 19.95C5.5 21.4 7.74 22 10.04 22H10C12.24 22 14.5 21.4 15.95 19.95L14.54 18.54C13.57 19.5 12.04 20 10 20C7.96 20 6.43 19.5 5.46 18.54L4.05 19.95M16.95 8.5C17.3 8.85 17.5 9.42 17.5 10C17.5 10.58 17.3 11.15 16.95 11.5L15.54 10.09L16.95 8.5M7.05 15.5C6.7 15.15 6.5 14.58 6.5 14C6.5 13.42 6.7 12.85 7.05 12.5L8.46 13.91L7.05 15.5M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"/></svg>
+                                <span>تحميل لأندرويد (.apk)</span>
+                            </a>
                             <a href="https://s22mcs.github.io/S22MCS02-/adatealm_med.html" id="platform-elm" target="_blank" class="w-full text-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">فتح المنصة</a>
+                             <button id="copy-link-elm" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">نسخ رابط المنصة</button>
                         </div>
                     </div>
 
@@ -157,8 +194,12 @@
                         <p class="font-semibold text-lg mb-2 text-gray-800 dark:text-white">سوق متكامل للطالب</p>
                         <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">منصة شاملة توفر كل ما يحتاجه الطالب، وتتيح لهم عرض سلعهم وخدماتهم للبيع، مما يخلق بيئة اقتصادية طلابية متكاملة.</p>
                         <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col gap-3">
-                            <a href="S22MARKET.apk" id="download-market" class="w-full text-center bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">تحميل: متجر الطلبة.apk</a>
+                             <a href="S22MARKET.apk" id="download-market" class="w-full text-center bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 flex items-center justify-center">
+                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.95 4.05C21.4 5.5 22 7.74 22 10.04V10C22 12.24 21.4 14.5 19.95 15.95L18.54 14.54C19.5 13.57 20 12.04 20 10C20 7.96 19.5 6.43 18.54 5.46L19.95 4.05M4.05 19.95C5.5 21.4 7.74 22 10.04 22H10C12.24 22 14.5 21.4 15.95 19.95L14.54 18.54C13.57 19.5 12.04 20 10 20C7.96 20 6.43 19.5 5.46 18.54L4.05 19.95M16.95 8.5C17.3 8.85 17.5 9.42 17.5 10C17.5 10.58 17.3 11.15 16.95 11.5L15.54 10.09L16.95 8.5M7.05 15.5C6.7 15.15 6.5 14.58 6.5 14C6.5 13.42 6.7 12.85 7.05 12.5L8.46 13.91L7.05 15.5M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"/></svg>
+                                <span>تحميل لأندرويد (.apk)</span>
+                            </a>
                             <a href="https://s22market.github.io/S22MARKET/" id="platform-market" target="_blank" class="w-full text-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">فتح المنصة</a>
+                             <button id="copy-link-market" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">نسخ رابط المنصة</button>
                         </div>
                     </div>
                 </div>
@@ -188,7 +229,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, setDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // --- UPDATED: Your new Firebase project configuration ---
+        // Your Firebase project configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC_M8gdp2jAA1mIGTzGbNlGHYxsbqk6ezs",
             authDomain: "sharaka-ee447.firebaseapp.com",
@@ -217,10 +258,7 @@
             
             container.appendChild(toast);
 
-            // Remove toast after 3 seconds
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
+            setTimeout(() => { toast.remove(); }, 3000);
         }
         
         // --- Firebase Counter Function ---
@@ -229,82 +267,109 @@
                 await setDoc(statsDocRef, { [fieldName]: increment(1) }, { merge: true });
             } catch (error) {
                 console.error(`Failed to increment counter for ${fieldName}:`, error);
-                throw error; // Propagate error to be handled by caller
+                throw error;
             }
         }
 
         // --- Real-time Stats Listener ---
         onSnapshot(statsDocRef, (docSnap) => {
-            const pageVisitsEl = document.getElementById('stats-page-visits');
-            const totalDownloadsEl = document.getElementById('stats-total-downloads');
-            const platformVisitsEl = document.getElementById('stats-platform-visits');
-            const downloadsShifaEl = document.getElementById('stats-downloads-shifa');
-            const downloadsElmEl = document.getElementById('stats-downloads-elm');
-            const downloadsMarketEl = document.getElementById('stats-downloads-market');
+            const UIElements = {
+                pageVisits: document.getElementById('stats-page-visits'),
+                totalDownloads: document.getElementById('stats-total-downloads'),
+                platformVisits: document.getElementById('stats-platform-visits'),
+                downloadsShifa: document.getElementById('stats-downloads-shifa'),
+                downloadsElm: document.getElementById('stats-downloads-elm'),
+                downloadsMarket: document.getElementById('stats-downloads-market'),
+                visitsShifa: document.getElementById('stats-visits-shifa'),
+                visitsElm: document.getElementById('stats-visits-elm'),
+                visitsMarket: document.getElementById('stats-visits-market'),
+            };
             
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                const pageVisits = data.page_visits || 0;
-                const downloadShifa = data.download_shifa || 0;
-                const downloadElm = data.download_elm || 0;
-                const downloadMarket = data.download_market || 0;
-                const platformShifa = data.platform_shifa || 0;
-                const platformElm = data.platform_elm || 0;
-                const platformMarket = data.platform_market || 0;
+                const counters = {
+                    page_visits: data.page_visits || 0,
+                    download_shifa: data.download_shifa || 0,
+                    download_elm: data.download_elm || 0,
+                    download_market: data.download_market || 0,
+                    platform_shifa: data.platform_shifa || 0,
+                    platform_elm: data.platform_elm || 0,
+                    platform_market: data.platform_market || 0,
+                };
 
-                const totalDownloads = downloadShifa + downloadElm + downloadMarket;
-                const totalPlatformVisits = platformShifa + platformElm + platformMarket;
+                const totalDownloads = counters.download_shifa + counters.download_elm + counters.download_market;
+                const totalPlatformVisits = counters.platform_shifa + counters.platform_elm + counters.platform_market;
 
-                pageVisitsEl.textContent = pageVisits;
-                totalDownloadsEl.textContent = totalDownloads;
-                platformVisitsEl.textContent = totalPlatformVisits;
-                downloadsShifaEl.textContent = downloadShifa;
-                downloadsElmEl.textContent = downloadElm;
-                downloadsMarketEl.textContent = downloadMarket;
+                UIElements.pageVisits.textContent = counters.page_visits;
+                UIElements.totalDownloads.textContent = totalDownloads;
+                UIElements.platformVisits.textContent = totalPlatformVisits;
+                UIElements.downloadsShifa.textContent = counters.download_shifa;
+                UIElements.downloadsElm.textContent = counters.download_elm;
+                UIElements.downloadsMarket.textContent = counters.download_market;
+                UIElements.visitsShifa.textContent = counters.platform_shifa;
+                UIElements.visitsElm.textContent = counters.platform_elm;
+                UIElements.visitsMarket.textContent = counters.platform_market;
 
             } else {
-                const zero = '0';
-                [pageVisitsEl, totalDownloadsEl, platformVisitsEl, downloadsShifaEl, downloadsElmEl, downloadsMarketEl].forEach(el => el.textContent = zero);
+                Object.values(UIElements).forEach(el => el.textContent = '0');
                 console.log("Stats document not found. It will be created on the first user action.");
             }
         });
 
         // --- Event Listeners on Page Load ---
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Register page visit
-            incrementCounter('page_visits').catch(err => {
-                console.error("Could not register page visit. This might be due to ad-blockers or network issues.");
-            });
+            incrementCounter('page_visits').catch(err => console.error("Could not register page visit."));
 
-            // 2. Setup download buttons with improved logic
             const setupDownloadButton = (buttonId, counterName) => {
                 const button = document.getElementById(buttonId);
                 if (!button) return;
-
                 button.addEventListener('click', async (e) => {
-                    e.preventDefault(); // Prevent immediate download
+                    e.preventDefault();
                     const url = e.currentTarget.href;
                     showToast('...جاري تسجيل التحميل وبدء التنزيل', 'info');
-
                     try {
                         await incrementCounter(counterName);
-                        window.location.href = url; // Start download on success
+                        window.location.href = url;
                     } catch (error) {
                         showToast('فشل تسجيل التحميل، لكن التنزيل سيبدأ', 'error');
-                        window.location.href = url; // Still allow download on failure
+                        window.location.href = url;
                     }
                 });
             };
 
+            const setupCopyButton = (buttonId, platformLinkId, counterName) => {
+                const button = document.getElementById(buttonId);
+                const platformLink = document.getElementById(platformLinkId);
+                if (!button || !platformLink) return;
+
+                button.addEventListener('click', async () => {
+                    const url = platformLink.href;
+                    try {
+                        await navigator.clipboard.writeText(url);
+                        showToast('تم نسخ الرابط بنجاح!', 'success');
+                        // Increment counter on successful copy
+                        incrementCounter(counterName);
+                    } catch (err) {
+                        showToast('فشل نسخ الرابط.', 'error');
+                        console.error('Failed to copy: ', err);
+                    }
+                });
+            };
+
+            // Setup all buttons
             setupDownloadButton('download-shifa', 'download_shifa');
             setupDownloadButton('download-elm', 'download_elm');
             setupDownloadButton('download-market', 'download_market');
 
-            // 3. Register platform visit clicks
             document.getElementById('platform-shifa').addEventListener('click', () => incrementCounter('platform_shifa'));
             document.getElementById('platform-elm').addEventListener('click', () => incrementCounter('platform_elm'));
             document.getElementById('platform-market').addEventListener('click', () => incrementCounter('platform_market'));
+            
+            setupCopyButton('copy-link-shifa', 'platform-shifa', 'platform_shifa');
+            setupCopyButton('copy-link-elm', 'platform-elm', 'platform_elm');
+            setupCopyButton('copy-link-market', 'platform-market', 'platform_market');
         });
     </script>
 </body>
 </html>
+
