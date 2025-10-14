@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أداة علم وشفاء بالشراكة مع S22MARKET</title>
+    <title>أداة علم وشفاء بالشراكة مع S22MARKET | لوحة الإحصائيات</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,160 +13,112 @@
         .hero-bg { background-color: #1a202c; background-image: radial-gradient(circle at 1px 1px, #374151 1px, transparent 0); background-size: 20px 20px; }
         .card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
         .card:hover { transform: translateY(-10px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
-        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .sort-button.active { background-color: #3730a3; box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.5); font-weight: bold; }
-        @media screen and (max-width: 768px) {
-            .responsive-table thead { display: none; }
-            .responsive-table tr { display: block; margin-bottom: 1.5rem; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); border: none; }
-            .responsive-table td { display: flex; justify-content: space-between; align-items: center; padding: 1rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
-            .dark .responsive-table td { border-bottom: 1px solid #4a5568; }
-            .responsive-table td:last-child { border-bottom: none; }
-            .responsive-table td::before { content: attr(data-label); font-weight: bold; text-align: right; margin-left: 1rem; }
+        /* Simple loader for stats */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
 
-    <div id="info-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 max-w-lg w-full text-center transform transition-all" style="animation: fadeIn 0.3s ease-out;">
-            <h2 class="text-2xl md:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mb-4">تنبيه هام جداً</h2>
-            <div class="text-gray-700 dark:text-gray-300 space-y-4 text-base md:text-lg">
-                <p>للحصول على روابط التطبيقات المتوفرة حاليًا على متجر <span class="font-bold text-green-500">Google Play</span>، يجب عليك إرسال بريدك الإلكتروني (Gmail) الذي تستخدمه في المتجر.</p>
-                <hr class="border-gray-200 dark:border-gray-600">
-                <p>في حالة <span class="font-bold text-yellow-500">عدم توفرك على جهاز أندرويد</span>، فقط أخبر البوت بذلك، وسيقدم لك البدائل المتوفرة على شكل مواقع ويب.</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">مع العلم أن تجربة استخدام تطبيقات متجر Google Play أفضل وأكثر تكاملاً.</p>
-            </div>
-            <button id="close-modal-btn" class="mt-8 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                فهمت، متابعة
-            </button>
-        </div>
-    </div>
-
-
     <main id="landing-page">
+        <!-- قسم الترحيب -->
         <section class="hero-bg text-white shadow-lg">
             <div class="container mx-auto px-6 py-20 text-center">
                 <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">السلام عليكم ورحمـة الله وبركاته</h1>
                 <p class="mt-4 text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">نتشرف اليوم بتقديم تطبيقاتنا الجديدة والمبتكرة، ثمرة شراكة استراتيجية بين **أداة علم** و **أداة شفاء** و **S22MARKET**.</p>
-                <a href="#get-apps" class="mt-8 inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full text-lg transition-transform transform hover:scale-105">
-                    احصل على التطبيقات
+                <a href="#applications" class="mt-8 inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full text-lg transition-transform transform hover:scale-105">
+                    اكتشف التطبيقات
                 </a>
             </div>
         </section>
 
-        <section id="get-apps" class="py-16 sm:py-24">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">كيفية الوصول إلى تطبيقاتنا</h2>
-                    <p class="mt-3 text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">للوصول إلى تطبيقاتنا، يرجى مسح رمز QR أو التواصل مباشرة مع البوت على تيليجرام.</p>
-                </div>
-                
-                <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8 items-center bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl">
-                    <div class="text-center">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">تواصل مع البوت مباشرة</h3>
-                        <p class="mb-5 text-gray-600 dark:text-gray-400">انقر على الزر أدناه لمراسلة بوت الدعم والحصول على روابط التطبيقات مباشرة على تيليجرام.</p>
-                        <a href="https://t.me/s22market_admin" target="_blank" class="w-full inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform transform hover:scale-105">
-                            @s22market_admin
-                        </a>
-                    </div>
-                    <div class="text-center border-t-2 md:border-t-0 md:border-r-2 border-gray-200 dark:border-gray-700 pt-8 md:pt-0 md:pr-8">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://t.me/s22market_admin" alt="QR Code for Telegram Bot" class="mx-auto rounded-lg shadow-md">
-                        <p class="mt-4 font-semibold text-gray-700 dark:text-gray-300">امسح الرمز للوصول للبوت</p>
-                    </div>
-                </div>
-
-                <div id="email-form-container" class="max-w-4xl mx-auto mt-10 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl text-center">
-                </div>
-                 <div id="message-box-public" class="fixed top-5 left-1/2 -translate-x-1/2 p-4 rounded-lg text-white shadow-lg text-center hidden z-50 transition-opacity duration-300"></div>
-            </div>
-        </section>
-
+        <!-- قسم الإحصائيات الديناميكي -->
         <section id="stats" class="bg-gray-50 dark:bg-gray-800 py-16 sm:py-24">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
-                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">مشاريعنا بالأرقام</h2>
-                    <p class="mt-3 text-gray-600 dark:text-gray-400">نظرة سريعة وجذابة على ما نقدمه حاليًا.</p>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">مشاريعنا بالأرقام (مباشر)</h2>
+                    <p class="mt-3 text-gray-600 dark:text-gray-400">إحصائيات لحظية يتم تحديثها تلقائياً بفضل Firebase.</p>
                 </div>
-                <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
                     <div class="bg-white dark:bg-gray-700 p-8 rounded-2xl shadow-lg">
-                        <p class="text-6xl font-extrabold text-indigo-500">3</p>
-                        <p class="mt-2 text-xl font-bold text-gray-800 dark:text-white">تطبيقات متوفرة حاليًا</p>
-                        <p class="text-gray-600 dark:text-gray-400 mt-1">هي باكورة مشاريعنا والقادم أفضل.</p>
+                        <p id="stats-page-visits" class="text-5xl font-extrabold text-indigo-500"><span class="loader"></span></p>
+                        <p class="mt-2 text-xl font-bold text-gray-800 dark:text-white">إجمالي زيارات الصفحة</p>
                     </div>
                     <div class="bg-white dark:bg-gray-700 p-8 rounded-2xl shadow-lg">
-                        <p class="text-6xl font-extrabold text-red-500">100%</p>
-                        <p class="mt-2 text-xl font-bold text-gray-800 dark:text-white">خدمة مجتمعية</p>
-                        <p class="text-gray-600 dark:text-gray-400 mt-1">تهدف مشاريعنا لخدمة المجتمع الطلابي والإنساني.</p>
+                        <p id="stats-total-downloads" class="text-5xl font-extrabold text-teal-500"><span class="loader"></span></p>
+                        <p class="mt-2 text-xl font-bold text-gray-800 dark:text-white">إجمالي التحميلات</p>
                     </div>
-                     <div class="bg-white dark:bg-gray-700 p-8 rounded-2xl shadow-lg">
-                        <p class="text-6xl font-extrabold text-green-500">∞</p>
-                        <p class="mt-2 text-xl font-bold text-gray-800 dark:text-white">من المشاريع القادمة</p>
-                        <p class="text-gray-600 dark:text-gray-400 mt-1">نعمل باستمرار على تطوير المزيد من الأدوات المبتكرة.</p>
+                    <div class="bg-white dark:bg-gray-700 p-8 rounded-2xl shadow-lg">
+                        <p id="stats-platform-visits" class="text-5xl font-extrabold text-amber-500"><span class="loader"></span></p>
+                        <p class="mt-2 text-xl font-bold text-gray-800 dark:text-white">إجمالي زيارات المنصات</p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-700 p-8 rounded-2xl shadow-lg">
+                        <p class="text-5xl font-extrabold text-green-500">∞</p>
+                        <p class="mt-2 text-xl font-bold text-gray-800 dark:text-white">مشاريع قادمة</p>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- قسم التطبيقات مع أزرار التتبع -->
         <section id="applications" class="bg-white dark:bg-black py-16 sm:py-24">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
-                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">تطبيقاتنـا المبتكرة</h2>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">تطبيقاتنـا ومنصاتنـا</h2>
                     <p class="mt-3 text-gray-600 dark:text-gray-400">هذه هي بعض مشاريعنا الحالية المتوفرة، والمزيد قادم بإذن الله!</p>
                 </div>
-
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- بطاقة أداة شفاء -->
                     <div class="card bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-lg p-8 flex flex-col border-t-4 border-red-500">
                         <h3 class="text-2xl font-bold mb-3 text-red-500">أداة شفاء</h3>
-                        <div class="mb-4 text-sm">
-                            <span class="font-bold bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 py-1 px-3 rounded-full">ينتمي لـ: أداة شفاء</span>
-                        </div>
                         <p class="font-semibold text-lg mb-2 text-gray-800 dark:text-white">تطبيق التبرع بالدم</p>
-                        <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">بصفته أول مشاريع "أداة شفاء"، يهدف هذا التطبيق الإنساني لتسهيل عملية التبرع بالدم، وإنشاء شبكة فعالة تربط المتبرعين بالمحتاجين بشكل عاجل ومنظم لإنقاذ الأرواح.</p>
-                        <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
-                            <p class="font-bold text-gray-800 dark:text-white">الفئة المستهدفة:</p>
-                            <p class="text-gray-600 dark:text-gray-400">كل البشر، وخاصة المسلمين الساعين للأجر والثواب.</p>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">يهدف هذا التطبيق الإنساني لتسهيل عملية التبرع بالدم، وإنشاء شبكة فعالة تربط المتبرعين بالمحتاجين بشكل عاجل ومنظم.</p>
+                        <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col gap-3">
+                            <a href="#" id="download-shifa" class="w-full text-center bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">تحميل: التبرع بالدم.apk</a>
+                            <a href="https://adatshifa.github.io/altabarue_bialdam/home_altabarue_bialdam.html" id="platform-shifa" target="_blank" class="w-full text-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">فتح المنصة</a>
                         </div>
                     </div>
 
+                    <!-- بطاقة أداة علم -->
                     <div class="card bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-lg p-8 flex flex-col border-t-4 border-indigo-500">
                         <h3 class="text-2xl font-bold mb-3 text-indigo-500">أداة علم</h3>
-                         <div class="mb-4 text-sm">
-                            <span class="font-bold bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 py-1 px-3 rounded-full">ينتمي لـ: أداة علم</span>
-                        </div>
-                        <p class="font-semibold text-lg mb-2 text-gray-800 dark:text-white">تطبيقات الطب والصيدلة</p>
-                        <div class="text-right space-y-2 text-gray-600 dark:text-gray-300 mb-4 flex-grow">
-                             <p>منصة تعليمية متكاملة تهدف إلى دعم طلبة الكليات الطبية وتوفير المصادر والأدوات اللازمة لتسهيل مسيرتهم الدراسية.</p>
-                             <ul class="mt-3 list-disc list-inside">
-                                <li><span class="font-bold text-green-500">✓</span> **تطبيق الطب:** متوفر حاليًا للسنوات الثلاث الأولى، وسيتم إدراج باقي السنوات قريبًا.</li>
-                                <li><span class="font-bold text-yellow-500">!</span> **تطبيق الصيدلة وطب الأسنان:** يتم العمل عليهما حاليًا وسيتم إطلاقهما في المستقبل القريب.</li>
-                             </ul>
-                        </div>
-                         <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
-                            <p class="font-bold text-gray-800 dark:text-white">الفئة المستهدفة:</p>
-                            <p class="text-gray-600 dark:text-gray-400">طلبة الطب، خاصةً طلاب السنة الأولى والثانية والثالثة.</p>
+                        <p class="font-semibold text-lg mb-2 text-gray-800 dark:text-white">تطبيق الطب</p>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">منصة تعليمية متكاملة تهدف إلى دعم طلبة الكليات الطبية وتوفير المصادر والأدوات اللازمة لتسهيل مسيرتهم الدراسية.</p>
+                        <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col gap-3">
+                            <a href="#" id="download-elm" class="w-full text-center bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">تحميل: الطب أداة علم.apk</a>
+                            <a href="https://s22mcs.github.io/S22MCS02-/adatealm_med.html" id="platform-elm" target="_blank" class="w-full text-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">فتح المنصة</a>
                         </div>
                     </div>
 
+                    <!-- بطاقة متجر الطلبة -->
                     <div class="card bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-lg p-8 flex flex-col border-t-4 border-green-500">
                         <h3 class="text-2xl font-bold mb-3 text-green-500">متجر الطلبة</h3>
-                         <div class="mb-4 text-sm">
-                            <span class="font-bold bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 py-1 px-3 rounded-full">ينتمي لـ: S22MARKET</span>
-                        </div>
                         <p class="font-semibold text-lg mb-2 text-gray-800 dark:text-white">سوق متكامل للطالب</p>
-                        <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">منصة شاملة توفر كل ما يحتاجه الطالب من أدوات دراسية، مستلزمات، وحتى الأطعمة. الأهم من ذلك، أنها تتيح للطلاب عرض سلعهم وخدماتهم للبيع، مما يخلق بيئة اقتصادية طلابية مصغرة ومتكاملة.</p>
-                        <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
-                            <p class="font-bold text-gray-800 dark:text-white">الفئة المستهدفة:</p>
-                            <p class="text-gray-600 dark:text-gray-400">جميع الطلبة، وحتى غير الطلبة الراغبين في البيع أو الشراء.</p>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">منصة شاملة توفر كل ما يحتاجه الطالب، وتتيح لهم عرض سلعهم وخدماتهم للبيع، مما يخلق بيئة اقتصادية طلابية متكاملة.</p>
+                        <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col gap-3">
+                            <a href="#" id="download-market" class="w-full text-center bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">تحميل: متجر الطلبة.apk</a>
+                            <a href="https://s22market.github.io/S22MARKET/" id="platform-market" target="_blank" class="w-full text-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">فتح المنصة</a>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
         
+        <!-- قسم تذييل الصفحة -->
         <footer class="bg-gray-800 dark:bg-black text-white py-10">
             <div class="container mx-auto px-6 text-center">
-                 <p class="text-2xl font-bold mb-4">انضموا إلى مجتمعاتنا</p>
+                <p class="text-2xl font-bold mb-4">انضموا إلى مجتمعاتنا</p>
                 <p class="text-gray-400 mb-6">يمكنكم الاطلاع على آخر أخبارنا ومشاريعنا عبر متابعة صفحاتنا على تيليجرام.</p>
                 <div class="flex justify-center items-center gap-6 flex-wrap mb-8">
                     <a href="https://t.me/adatealm" target="_blank" class="font-bold hover:text-indigo-400 transition">أداة علم</a>
@@ -175,336 +127,97 @@
                 </div>
                 <div class="text-sm text-gray-500 border-t border-gray-700 pt-6">
                     <p>&copy; 2025 - جميع الحقوق محفوظة. تم التطوير بالشراكة بين أداة علم، أداة شفاء، و S22MARKET.</p>
-                    <button id="admin-access-btn" class="mt-4 text-gray-600 hover:text-gray-400 text-xs">Admin Access</button>
                 </div>
             </div>
         </footer>
     </main>
 
-    <div id="admin-panel" class="hidden">
-         <div id="password-prompt-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6 sm:p-8">
-                <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-white mb-4">الوصول مطلوب</h2>
-                <p class="text-center text-gray-600 dark:text-gray-300 mb-6">الرجاء إدخال كلمة المرور للمتابعة.</p>
-                <form id="password-form">
-                    <input type="password" id="file-password-input" placeholder="كلمة المرور" class="w-full text-center px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white" required>
-                    <p id="password-error" class="text-red-500 text-sm text-center mt-2 hidden">كلمة المرور غير صحيحة.</p>
-                    <button type="submit" class="w-full mt-5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105">
-                        دخول
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <div id="page-content" class="hidden">
-            <header class="bg-white dark:bg-gray-800 shadow-md">
-                <div class="container mx-auto px-4 sm:px-6 md:px-8 py-4 flex justify-between items-center">
-                    <h1 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">لوحة تحكم المشرفين</h1>
-                    <div>
-                        <button id="back-to-landing-btn" class="text-gray-600 dark:text-gray-300 hover:text-indigo-500 ml-4">عودة للصفحة الرئيسية</button>
-                        <button id="sign-out-btn" class="hidden bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">تسجيل الخروج</button>
-                    </div>
-                </div>
-            </header>
-
-            <main id="app-container" class="container mx-auto p-4 sm:p-6 md:p-8">
-                <div id="admin-login-view">
-                    <div class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mt-16">
-                        <div class="p-8">
-                            <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white mb-6">تسجيل دخول المشرف</h2>
-                            <form id="admin-login-form" class="space-y-5">
-                                <input type="email" id="admin-email" placeholder="البريد الإلكتروني" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white" required>
-                                <input type="password" id="admin-password" placeholder="كلمة المرور" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white" required>
-                                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105">
-                                    دخول
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="admin-dashboard-view" class="hidden">
-                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">البريد الإلكتروني للمستخدمين المهتمين</h2>
-                    <div id="loader" class="flex justify-center mt-16"><div class="loader"></div></div>
-                    <div id="table-container" class="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow-md hidden">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 responsive-table">
-                            <thead class="bg-gray-50 dark:bg-gray-700">
-                                <tr>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">البريد الإلكتروني</th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">تاريخ الإرسال</th>
-                                </tr>
-                            </thead>
-                            <tbody id="leads-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"></tbody>
-                        </table>
-                         <div id="no-leads-message" class="hidden text-center py-12">
-                            <p class="text-gray-500 dark:text-gray-400 text-xl">لا يوجد أي بريد إلكتروني مسجل حتى الآن.</p>
-                        </div>
-                    </div>
-                </div>
-                <div id="message-box-admin" class="fixed top-5 left-1/2 -translate-x-1/2 p-4 rounded-lg text-white shadow-lg text-center hidden z-50 transition-opacity duration-300"></div>
-            </main>
-        </div>
-    </div>
-
+    <!-- Firebase SDK Integration -->
     <script type="module">
-        // --- Modal Logic ---
+        // استيراد الدوال اللازمة من Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, setDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // إعدادات Firebase الخاصة بتطبيقك
+        //هام: حافظ على سرية هذه المفاتيح قدر الإمكان.
+        const firebaseConfig = {
+            apiKey: "AIzaSyDAEbxYuAHu5stGx5c02VbgsUKBhoidTeA",
+            authDomain: "informationpassmemberessystem.firebaseapp.com",
+            databaseURL: "https://informationpassmemberessystem-default-rtdb.firebaseio.com",
+            projectId: "informationpassmemberessystem",
+            storageBucket: "informationpassmemberessystem.firebasestorage.app",
+            messagingSenderId: "890696552799",
+            appId: "1:890696552799:web:be8337d59438c2747466ea",
+            measurementId: "G-J7W6G8LY6P"
+        };
+
+        // تهيئة Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // تحديد المسار للمستند الذي سيخزن الإحصائيات في Firestore
+        // سيتم إنشاء مستند واحد فقط لتسهيل الأمر
+        const statsDocRef = doc(db, "pageStats", "counters");
+
+        // دالة لزيادة قيمة عداد معين
+        async function incrementCounter(fieldName) {
+            try {
+                // `setDoc` مع `merge: true` يقوم بإنشاء المستند إذا لم يكن موجودًا أو تحديثه
+                // `increment(1)` تضمن زيادة الرقم بأمان حتى لو قام عدة مستخدمين بالضغط في نفس اللحظة
+                await setDoc(statsDocRef, { [fieldName]: increment(1) }, { merge: true });
+            } catch (error) {
+                console.error(`Failed to increment counter for ${fieldName}:`, error);
+            }
+        }
+
+        // الاستماع للتغيرات في مستند الإحصائيات وعرضها بشكل لحظي
+        onSnapshot(statsDocRef, (docSnap) => {
+            const pageVisitsEl = document.getElementById('stats-page-visits');
+            const totalDownloadsEl = document.getElementById('stats-total-downloads');
+            const platformVisitsEl = document.getElementById('stats-platform-visits');
+            
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                const pageVisits = data.page_visits || 0;
+                const downloadShifa = data.download_shifa || 0;
+                const downloadElm = data.download_elm || 0;
+                const downloadMarket = data.download_market || 0;
+                const platformShifa = data.platform_shifa || 0;
+                const platformElm = data.platform_elm || 0;
+                const platformMarket = data.platform_market || 0;
+
+                const totalDownloads = downloadShifa + downloadElm + downloadMarket;
+                const totalPlatformVisits = platformShifa + platformElm + platformMarket;
+
+                pageVisitsEl.textContent = pageVisits;
+                totalDownloadsEl.textContent = totalDownloads;
+                platformVisitsEl.textContent = totalPlatformVisits;
+
+            } else {
+                // إذا لم يكن المستند موجودًا بعد، اعرض 0
+                pageVisitsEl.textContent = '0';
+                totalDownloadsEl.textContent = '0';
+                platformVisitsEl.textContent = '0';
+                console.log("Stats document not found. It will be created on the first user action.");
+            }
+        });
+
+        // تتبع الأحداث عند تحميل الصفحة وعند النقر على الأزرار
         document.addEventListener('DOMContentLoaded', () => {
-            const modal = document.getElementById('info-modal');
-            const closeModalBtn = document.getElementById('close-modal-btn');
-            
-            // Show modal on page load
-            modal.classList.remove('hidden');
+            // 1. تسجيل زيارة للصفحة بمجرد تحميلها
+            incrementCounter('page_visits');
 
-            // Hide modal on button click
-            closeModalBtn.addEventListener('click', () => {
-                modal.classList.add('hidden');
-            });
+            // 2. ربط أحداث النقر بأزرار التحميل
+            document.getElementById('download-shifa').addEventListener('click', (e) => { e.preventDefault(); incrementCounter('download_shifa'); alert('بدء التحميل...'); });
+            document.getElementById('download-elm').addEventListener('click', (e) => { e.preventDefault(); incrementCounter('download_elm'); alert('بدء التحميل...'); });
+            document.getElementById('download-market').addEventListener('click', (e) => { e.preventDefault(); incrementCounter('download_market'); alert('بدء التحميل...'); });
 
-            // Hide modal on clicking outside of it
-            modal.addEventListener('click', (event) => {
-                if (event.target === modal) {
-                    modal.classList.add('hidden');
-                }
-            });
+            // 3. ربط أحداث النقر بأزرار فتح المنصة
+            document.getElementById('platform-shifa').addEventListener('click', () => incrementCounter('platform_shifa'));
+            document.getElementById('platform-elm').addEventListener('click', () => incrementCounter('platform_elm'));
+            document.getElementById('platform-market').addEventListener('click', () => incrementCounter('platform_market'));
         });
 
-
-        // --- DOM Elements ---
-        const landingPage = document.getElementById('landing-page');
-        const adminPanel = document.getElementById('admin-panel');
-        const adminAccessBtn = document.getElementById('admin-access-btn');
-        const backToLandingBtn = document.getElementById('back-to-landing-btn');
-        const filePassword = 'YACINEE474N'; 
-        const passwordOverlay = document.getElementById('password-prompt-overlay');
-        const passwordForm = document.getElementById('password-form');
-        const passwordInput = document.getElementById('file-password-input');
-        const passwordError = document.getElementById('password-error');
-        const pageContent = document.getElementById('page-content');
-        const loginView = document.getElementById('admin-login-view');
-        const dashboardView = document.getElementById('admin-dashboard-view');
-        const loginForm = document.getElementById('admin-login-form');
-        const signOutBtn = document.getElementById('sign-out-btn');
-        const loader = document.getElementById('loader');
-        const tableContainer = document.getElementById('table-container');
-        const leadsTableBody = document.getElementById('leads-table-body');
-        const noLeadsMessage = document.getElementById('no-leads-message');
-        const messageBoxAdmin = document.getElementById('message-box-admin');
-        const messageBoxPublic = document.getElementById('message-box-public');
-        
-        // --- Admin Panel Logic ---
-        const authorizedAdmins = ['s22market@gmail.com'];
-        
-        adminAccessBtn.addEventListener('click', () => {
-            landingPage.classList.add('hidden');
-            adminPanel.classList.remove('hidden');
-        });
-
-        backToLandingBtn.addEventListener('click', () => {
-            adminPanel.classList.add('hidden');
-            landingPage.classList.remove('hidden');
-        });
-
-        passwordForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            if (passwordInput.value === filePassword) {
-                passwordOverlay.style.display = 'none';
-                pageContent.classList.remove('hidden');
-            } else {
-                passwordError.classList.remove('hidden');
-                passwordInput.classList.add('border-red-500', 'focus:ring-red-500');
-                passwordInput.value = '';
-            }
-        });
-        
-        function showAdminMessage(message, type = 'error', duration = 4000) {
-            messageBoxAdmin.textContent = message;
-            messageBoxAdmin.className = 'fixed top-5 left-1/2 -translate-x-1/2 p-4 rounded-lg text-white shadow-lg text-center z-50 transition-opacity duration-300';
-            messageBoxAdmin.classList.remove('hidden');
-            messageBoxAdmin.classList.add(type === 'error' ? 'bg-red-500' : 'bg-green-500');
-            setTimeout(() => { messageBoxAdmin.classList.add('hidden'); }, duration);
-        }
-
-        // The following functions (onAuthStateChanged, signInWithEmailAndPassword, etc.)
-        // would require Firebase SDK imports to function.
-        // For this example, they are left as placeholders.
-        /*
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-        import { firebaseApp } from './firebase-config.js'; // Assuming you have a config file
-        const auth = getAuth(firebaseApp);
-        const db = getFirestore(firebaseApp);
-        */
-
-        // Placeholder functions to avoid errors without Firebase
-        const onAuthStateChanged = (auth, callback) => {};
-        const signInWithEmailAndPassword = async (auth, email, password) => {};
-        const signOut = async (auth) => {};
-        const getDocs = async (query) => ({ docs: [] });
-        const addDoc = async (collectionRef, data) => {};
-        const query = (collectionRef, ...constraints) => {};
-        const collection = (db, path) => {};
-        const orderBy = (field, direction) => {};
-        const serverTimestamp = () => new Date();
-        const auth = {};
-        const db = {};
-
-
-        onAuthStateChanged(auth, (user) => {
-            if (user && authorizedAdmins.includes(user.email)) {
-                loginView.classList.add('hidden');
-                dashboardView.classList.remove('hidden');
-                signOutBtn.classList.remove('hidden');
-                fetchLeads();
-            } else {
-                loginView.classList.remove('hidden');
-                dashboardView.classList.add('hidden');
-                signOutBtn.classList.add('hidden');
-                // if (user) signOut(auth); // Uncomment when using Firebase
-            }
-        });
-
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('admin-email').value.toLowerCase().trim();
-            const password = document.getElementById('admin-password').value;
-
-            if (!authorizedAdmins.includes(email)) {
-                showAdminMessage('هذا البريد الإلكتروني غير مصرح له بالدخول.');
-                return;
-            }
-            try {
-                // await signInWithEmailAndPassword(auth, email, password); // Uncomment when using Firebase
-            } catch (error) {
-                console.error("Admin Login Error:", error);
-                showAdminMessage('فشل تسجيل الدخول. تأكد من البريد وكلمة المرور.');
-            }
-        });
-
-        signOutBtn.addEventListener('click', () => {
-            // signOut(auth).then(() => { // Uncomment when using Firebase
-                showAdminMessage('تم تسجيل الخروج بنجاح.', 'success');
-                leadsTableBody.innerHTML = '';
-            // });
-        });
-
-        async function fetchLeads() {
-            loader.classList.remove('hidden');
-            tableContainer.classList.add('hidden');
-            noLeadsMessage.classList.add('hidden');
-            
-            try {
-                const q = query(collection(db, "landing_page_leads"), orderBy("timestamp", "desc"));
-                const querySnapshot = await getDocs(q);
-                const leads = querySnapshot.docs.map(doc => doc.data());
-                renderLeadsTable(leads);
-            } catch (error) {
-                console.error("Error fetching leads:", error);
-                showAdminMessage("حدث خطأ أثناء تحميل البيانات.");
-            } finally {
-                 loader.classList.add('hidden');
-            }
-        }
-        
-        function renderLeadsTable(leads) {
-            leadsTableBody.innerHTML = '';
-            if (leads.length === 0) {
-                tableContainer.classList.add('hidden');
-                noLeadsMessage.classList.remove('hidden');
-                return;
-            }
-            tableContainer.classList.remove('hidden');
-            noLeadsMessage.classList.add('hidden');
-            
-            const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-            leads.forEach(lead => {
-                const submissionDate = lead.timestamp?.toDate ? lead.timestamp.toDate().toLocaleDateString('ar-EG', options) : new Date().toLocaleDateString('ar-EG', options);
-                const leadRow = `
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-600">
-                        <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-300 break-all" data-label="البريد">${lead.email || ''}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300" data-label="تاريخ الإرسال">${submissionDate}</td>
-                    </tr>
-                `;
-                leadsTableBody.innerHTML += leadRow;
-            });
-        }
-        
-        // --- Landing Page Logic ---
-        function showPublicMessage(message, type = 'success', duration = 4000) {
-            messageBoxPublic.textContent = message;
-            messageBoxPublic.className = 'fixed top-5 left-1/2 -translate-x-1/2 p-4 rounded-lg text-white shadow-lg text-center z-50 transition-opacity duration-300';
-            messageBoxPublic.classList.remove('hidden');
-            messageBoxPublic.classList.add(type === 'error' ? 'bg-red-500' : 'bg-green-500');
-            setTimeout(() => { messageBoxPublic.classList.add('hidden'); }, duration);
-        }
-
-        function detectOS() {
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            if (/android/i.test(userAgent)) {
-                return "Android";
-            }
-            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-                return "iOS";
-            }
-            return "unknown";
-        }
-
-        function setupEmailForm() {
-            const os = detectOS();
-            const container = document.getElementById('email-form-container');
-            let formHTML = '';
-
-            if (os === 'Android') {
-                formHTML = `
-                    <h3 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white">لمستخدمي أندرويد</h3>
-                    <p class="mb-5 text-gray-600 dark:text-gray-400">لتحميل التطبيقات مباشرة من متجر Google Play، يتوجب عليك إرسال بريدك الإلكتروني (Gmail) الخاص بالمتجر. سيتم التواصل معك بعدها لتزويدك بروابط التحميل.</p>
-                    <form id="lead-form" class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
-                        <input type="email" id="lead-email" placeholder="أدخل بريد Gmail الخاص بالمتجر هنا" class="flex-grow w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white" required>
-                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">إرسال</button>
-                    </form>
-                `;
-            } else {
-                formHTML = `
-                    <h3 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white">لمستخدمي iOS والأنظمة الأخرى</h3>
-                    <p class="mb-5 text-gray-600 dark:text-gray-400">حاليًا تطبيقاتنا متوفرة بشكل أساسي لنظام أندرويد. للحصول على إرشادات أو للاستفسار عن نسخ لأنظمة أخرى، يرجى مراسلة البوت مباشرة وإخباره بأنك لا تملك جهاز أندرويد.</p>
-                    <a href="https://t.me/s22market_admin" target="_blank" class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform transform hover:scale-105">
-                        مراسلة البوت
-                    </a>
-                `;
-            }
-            container.innerHTML = formHTML;
-            
-            if (os === 'Android') {
-                const leadForm = document.getElementById('lead-form');
-                leadForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const emailInput = document.getElementById('lead-email');
-                    const email = emailInput.value.trim();
-                    const submitButton = leadForm.querySelector('button[type="submit"]');
-
-                    submitButton.disabled = true;
-                    submitButton.textContent = 'جار الإرسال...';
-                    
-                    try {
-                        // await addDoc(collection(db, "landing_page_leads"), { // Uncomment when using Firebase
-                        //     email: email,
-                        //     timestamp: serverTimestamp()
-                        // });
-                        showPublicMessage('تم إرسال بريدك بنجاح! سيتم التواصل معك قريبًا.', 'success');
-                        emailInput.value = '';
-                    } catch (error) {
-                        console.error("Error adding document: ", error);
-                        showPublicMessage('حدث خطأ. يرجى المحاولة مرة أخرى أو التواصل مع البوت.', 'error');
-                    } finally {
-                         submitButton.disabled = false;
-                         submitButton.textContent = 'إرسال';
-                    }
-                });
-            }
-        }
-
-        // Initialize the landing page form when DOM is loaded
-        document.addEventListener('DOMContentLoaded', setupEmailForm);
     </script>
-
 </body>
 </html>
