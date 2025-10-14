@@ -13,7 +13,6 @@
         .hero-bg { background-color: #1a202c; background-image: radial-gradient(circle at 1px 1px, #374151 1px, transparent 0); background-size: 20px 20px; }
         .card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
         .card:hover { transform: translateY(-10px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
-        /* Simple loader for stats */
         .loader {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #3498db;
@@ -27,12 +26,41 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        /* Styles for professional Toast notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .toast {
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            opacity: 0;
+            transform: translateX(-100%);
+            animation: slide-in 0.5s forwards;
+        }
+        @keyframes slide-in {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
 
+    <!-- Container for Toast notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
     <main id="landing-page">
-        <!-- قسم الترحيب -->
+        <!-- Hero Section -->
         <section class="hero-bg text-white shadow-lg">
             <div class="container mx-auto px-6 py-20 text-center">
                 <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">السلام عليكم ورحمـة الله وبركاته</h1>
@@ -43,13 +71,14 @@
             </div>
         </section>
 
-        <!-- قسم الإحصائيات الديناميكي -->
+        <!-- Dynamic Statistics Section -->
         <section id="stats" class="bg-gray-50 dark:bg-gray-800 py-16 sm:py-24">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
                     <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">مشاريعنا بالأرقام (مباشر)</h2>
                     <p class="mt-3 text-gray-600 dark:text-gray-400">إحصائيات لحظية يتم تحديثها تلقائياً بفضل Firebase.</p>
                 </div>
+                <!-- Overall Stats -->
                 <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
                     <div class="bg-white dark:bg-gray-700 p-8 rounded-2xl shadow-lg">
                         <p id="stats-page-visits" class="text-5xl font-extrabold text-indigo-500"><span class="loader"></span></p>
@@ -68,10 +97,31 @@
                         <p class="mt-2 text-xl font-bold text-gray-800 dark:text-white">مشاريع قادمة</p>
                     </div>
                 </div>
+
+                <!-- Individual Download Details Section -->
+                <div class="mt-16">
+                    <div class="text-center mb-8">
+                        <h3 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">تفاصيل تحميلات التطبيقات</h3>
+                    </div>
+                    <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                        <div class="bg-white dark:bg-gray-700 p-6 rounded-2xl shadow-lg">
+                            <p id="stats-downloads-shifa" class="text-4xl font-extrabold text-red-500"><span class="loader"></span></p>
+                            <p class="mt-2 text-lg font-bold text-gray-800 dark:text-white">تحميلات أداة شفاء</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 p-6 rounded-2xl shadow-lg">
+                            <p id="stats-downloads-elm" class="text-4xl font-extrabold text-indigo-500"><span class="loader"></span></p>
+                            <p class="mt-2 text-lg font-bold text-gray-800 dark:text-white">تحميلات أداة علم</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 p-6 rounded-2xl shadow-lg">
+                            <p id="stats-downloads-market" class="text-4xl font-extrabold text-green-500"><span class="loader"></span></p>
+                            <p class="mt-2 text-lg font-bold text-gray-800 dark:text-white">تحميلات متجر الطلبة</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- قسم التطبيقات مع أزرار التتبع -->
+        <!-- Applications Section -->
         <section id="applications" class="bg-white dark:bg-black py-16 sm:py-24">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
@@ -79,35 +129,35 @@
                     <p class="mt-3 text-gray-600 dark:text-gray-400">هذه هي بعض مشاريعنا الحالية المتوفرة، والمزيد قادم بإذن الله!</p>
                 </div>
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- بطاقة أداة شفاء -->
+                    <!-- Shifa Card -->
                     <div class="card bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-lg p-8 flex flex-col border-t-4 border-red-500">
                         <h3 class="text-2xl font-bold mb-3 text-red-500">أداة شفاء</h3>
                         <p class="font-semibold text-lg mb-2 text-gray-800 dark:text-white">تطبيق التبرع بالدم</p>
                         <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">يهدف هذا التطبيق الإنساني لتسهيل عملية التبرع بالدم، وإنشاء شبكة فعالة تربط المتبرعين بالمحتاجين بشكل عاجل ومنظم.</p>
                         <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col gap-3">
-                            <a href="#" id="download-shifa" class="w-full text-center bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">تحميل: التبرع بالدم.apk</a>
+                            <a href="التبرع بالدم أداة شفاء.apk" id="download-shifa" class="w-full text-center bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">تحميل: التبرع بالدم.apk</a>
                             <a href="https://adatshifa.github.io/altabarue_bialdam/home_altabarue_bialdam.html" id="platform-shifa" target="_blank" class="w-full text-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">فتح المنصة</a>
                         </div>
                     </div>
 
-                    <!-- بطاقة أداة علم -->
+                    <!-- Elm Card -->
                     <div class="card bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-lg p-8 flex flex-col border-t-4 border-indigo-500">
                         <h3 class="text-2xl font-bold mb-3 text-indigo-500">أداة علم</h3>
                         <p class="font-semibold text-lg mb-2 text-gray-800 dark:text-white">تطبيق الطب</p>
                         <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">منصة تعليمية متكاملة تهدف إلى دعم طلبة الكليات الطبية وتوفير المصادر والأدوات اللازمة لتسهيل مسيرتهم الدراسية.</p>
                         <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col gap-3">
-                            <a href="#" id="download-elm" class="w-full text-center bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">تحميل: الطب أداة علم.apk</a>
+                            <a href="الطب أداة علم .apk" id="download-elm" class="w-full text-center bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">تحميل: الطب أداة علم.apk</a>
                             <a href="https://s22mcs.github.io/S22MCS02-/adatealm_med.html" id="platform-elm" target="_blank" class="w-full text-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">فتح المنصة</a>
                         </div>
                     </div>
 
-                    <!-- بطاقة متجر الطلبة -->
+                    <!-- Market Card -->
                     <div class="card bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-lg p-8 flex flex-col border-t-4 border-green-500">
                         <h3 class="text-2xl font-bold mb-3 text-green-500">متجر الطلبة</h3>
                         <p class="font-semibold text-lg mb-2 text-gray-800 dark:text-white">سوق متكامل للطالب</p>
                         <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">منصة شاملة توفر كل ما يحتاجه الطالب، وتتيح لهم عرض سلعهم وخدماتهم للبيع، مما يخلق بيئة اقتصادية طلابية متكاملة.</p>
                         <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col gap-3">
-                            <a href="#" id="download-market" class="w-full text-center bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">تحميل: متجر الطلبة.apk</a>
+                            <a href="S22MARKET.apk" id="download-market" class="w-full text-center bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">تحميل: متجر الطلبة.apk</a>
                             <a href="https://s22market.github.io/S22MARKET/" id="platform-market" target="_blank" class="w-full text-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">فتح المنصة</a>
                         </div>
                     </div>
@@ -115,7 +165,7 @@
             </div>
         </section>
         
-        <!-- قسم تذييل الصفحة -->
+        <!-- Footer Section -->
         <footer class="bg-gray-800 dark:bg-black text-white py-10">
             <div class="container mx-auto px-6 text-center">
                 <p class="text-2xl font-bold mb-4">انضموا إلى مجتمعاتنا</p>
@@ -134,47 +184,63 @@
 
     <!-- Firebase SDK Integration -->
     <script type="module">
-        // استيراد الدوال اللازمة من Firebase SDK
+        // Import necessary functions from Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, setDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // إعدادات Firebase الخاصة بتطبيقك
-        //هام: حافظ على سرية هذه المفاتيح قدر الإمكان.
+        // --- UPDATED: Your new Firebase project configuration ---
         const firebaseConfig = {
-            apiKey: "AIzaSyDAEbxYuAHu5stGx5c02VbgsUKBhoidTeA",
-            authDomain: "informationpassmemberessystem.firebaseapp.com",
-            databaseURL: "https://informationpassmemberessystem-default-rtdb.firebaseio.com",
-            projectId: "informationpassmemberessystem",
-            storageBucket: "informationpassmemberessystem.firebasestorage.app",
-            messagingSenderId: "890696552799",
-            appId: "1:890696552799:web:be8337d59438c2747466ea",
-            measurementId: "G-J7W6G8LY6P"
+            apiKey: "AIzaSyC_M8gdp2jAA1mIGTzGbNlGHYxsbqk6ezs",
+            authDomain: "sharaka-ee447.firebaseapp.com",
+            projectId: "sharaka-ee447",
+            storageBucket: "sharaka-ee447.firebasestorage.app",
+            messagingSenderId: "1075205615477",
+            appId: "1:1075205615477:web:fe16d9bd8ae759addc2d3c",
+            measurementId: "G-H7J65XMZQ0"
         };
 
-        // تهيئة Firebase
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
-        // تحديد المسار للمستند الذي سيخزن الإحصائيات في Firestore
-        // سيتم إنشاء مستند واحد فقط لتسهيل الأمر
         const statsDocRef = doc(db, "pageStats", "counters");
 
-        // دالة لزيادة قيمة عداد معين
+        // --- Toast Notification Function ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+
+            if (type === 'success') toast.style.backgroundColor = '#28a745'; // Green
+            else if (type === 'error') toast.style.backgroundColor = '#dc3545'; // Red
+            else toast.style.backgroundColor = '#17a2b8'; // Blue (info)
+            
+            container.appendChild(toast);
+
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+        
+        // --- Firebase Counter Function ---
         async function incrementCounter(fieldName) {
             try {
-                // `setDoc` مع `merge: true` يقوم بإنشاء المستند إذا لم يكن موجودًا أو تحديثه
-                // `increment(1)` تضمن زيادة الرقم بأمان حتى لو قام عدة مستخدمين بالضغط في نفس اللحظة
                 await setDoc(statsDocRef, { [fieldName]: increment(1) }, { merge: true });
             } catch (error) {
                 console.error(`Failed to increment counter for ${fieldName}:`, error);
+                throw error; // Propagate error to be handled by caller
             }
         }
 
-        // الاستماع للتغيرات في مستند الإحصائيات وعرضها بشكل لحظي
+        // --- Real-time Stats Listener ---
         onSnapshot(statsDocRef, (docSnap) => {
             const pageVisitsEl = document.getElementById('stats-page-visits');
             const totalDownloadsEl = document.getElementById('stats-total-downloads');
             const platformVisitsEl = document.getElementById('stats-platform-visits');
+            const downloadsShifaEl = document.getElementById('stats-downloads-shifa');
+            const downloadsElmEl = document.getElementById('stats-downloads-elm');
+            const downloadsMarketEl = document.getElementById('stats-downloads-market');
             
             if (docSnap.exists()) {
                 const data = docSnap.data();
@@ -192,32 +258,53 @@
                 pageVisitsEl.textContent = pageVisits;
                 totalDownloadsEl.textContent = totalDownloads;
                 platformVisitsEl.textContent = totalPlatformVisits;
+                downloadsShifaEl.textContent = downloadShifa;
+                downloadsElmEl.textContent = downloadElm;
+                downloadsMarketEl.textContent = downloadMarket;
 
             } else {
-                // إذا لم يكن المستند موجودًا بعد، اعرض 0
-                pageVisitsEl.textContent = '0';
-                totalDownloadsEl.textContent = '0';
-                platformVisitsEl.textContent = '0';
+                const zero = '0';
+                [pageVisitsEl, totalDownloadsEl, platformVisitsEl, downloadsShifaEl, downloadsElmEl, downloadsMarketEl].forEach(el => el.textContent = zero);
                 console.log("Stats document not found. It will be created on the first user action.");
             }
         });
 
-        // تتبع الأحداث عند تحميل الصفحة وعند النقر على الأزرار
+        // --- Event Listeners on Page Load ---
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. تسجيل زيارة للصفحة بمجرد تحميلها
-            incrementCounter('page_visits');
+            // 1. Register page visit
+            incrementCounter('page_visits').catch(err => {
+                console.error("Could not register page visit. This might be due to ad-blockers or network issues.");
+            });
 
-            // 2. ربط أحداث النقر بأزرار التحميل
-            document.getElementById('download-shifa').addEventListener('click', (e) => { e.preventDefault(); incrementCounter('download_shifa'); alert('بدء التحميل...'); });
-            document.getElementById('download-elm').addEventListener('click', (e) => { e.preventDefault(); incrementCounter('download_elm'); alert('بدء التحميل...'); });
-            document.getElementById('download-market').addEventListener('click', (e) => { e.preventDefault(); incrementCounter('download_market'); alert('بدء التحميل...'); });
+            // 2. Setup download buttons with improved logic
+            const setupDownloadButton = (buttonId, counterName) => {
+                const button = document.getElementById(buttonId);
+                if (!button) return;
 
-            // 3. ربط أحداث النقر بأزرار فتح المنصة
+                button.addEventListener('click', async (e) => {
+                    e.preventDefault(); // Prevent immediate download
+                    const url = e.currentTarget.href;
+                    showToast('...جاري تسجيل التحميل وبدء التنزيل', 'info');
+
+                    try {
+                        await incrementCounter(counterName);
+                        window.location.href = url; // Start download on success
+                    } catch (error) {
+                        showToast('فشل تسجيل التحميل، لكن التنزيل سيبدأ', 'error');
+                        window.location.href = url; // Still allow download on failure
+                    }
+                });
+            };
+
+            setupDownloadButton('download-shifa', 'download_shifa');
+            setupDownloadButton('download-elm', 'download_elm');
+            setupDownloadButton('download-market', 'download_market');
+
+            // 3. Register platform visit clicks
             document.getElementById('platform-shifa').addEventListener('click', () => incrementCounter('platform_shifa'));
             document.getElementById('platform-elm').addEventListener('click', () => incrementCounter('platform_elm'));
             document.getElementById('platform-market').addEventListener('click', () => incrementCounter('platform_market'));
         });
-
     </script>
 </body>
 </html>
