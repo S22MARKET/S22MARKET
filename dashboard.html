@@ -1182,74 +1182,116 @@ function showProductModal(productType, product = null) {
             attachOfferActionListeners();
         }
 
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
         function showOfferModal(offer = null) {
-            const title = offer ? 'تعديل العرض' : 'إضافة عرض جديد';
-            const content = `<div class="space-y-4">
-                <div><label class="font-semibold">عنوان العرض</label><input type="text" id="offer-title" class="mt-1 w-full p-2 border rounded" value="${offer?.title || ''}" required></div>
-                <div><label class="font-semibold">وصف العرض</label><textarea id="offer-description" class="mt-1 w-full p-2 border rounded" rows="3">${offer?.description || ''}</textarea></div>
-                <div><label class="font-semibold">سعر العرض (د.ج)</label><input type="number" id="offer-price" class="mt-1 w-full p-2 border rounded" value="${offer?.price || ''}" required></div>
-                <div class="border-t pt-4">
-                    <label class="font-semibold">صورة العرض</label>
-                    <input type="file" id="offer-image" class="mt-1 w-full p-2 border rounded text-sm" accept="image/*">
-                    ${offer ? `<p class="text-sm text-gray-500 mt-1">الصورة الحالية. رفع صورة جديدة سيقوم باستبدالها.</p><div class="flex flex-wrap gap-2 mt-2"><img src="${offer.imageUrl}" class="w-24 h-24 rounded object-cover border"></div>` : ''}
-                    <div id="offer-image-preview" class="flex flex-wrap gap-2 mt-2"></div>
+            const isEditing = offer !== null;
+            const title = isEditing ? 'تعديل العرض' : 'إضافة عرض جديد';
+
+            const content = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="font-semibold">عنوان العرض</label>
+                        <input type="text" id="offer-title" class="mt-1 w-full p-2 border rounded" value="${offer?.title || ''}" required>
+                    </div>
+                    <div>
+                        <label class="font-semibold">وصف العرض</label>
+                        <textarea id="offer-description" class="mt-1 w-full p-2 border rounded" rows="3">${offer?.description || ''}</textarea>
+                    </div>
+                    <div>
+                        <label class="font-semibold">سعر العرض (د.ج)</label>
+                        <input type="number" id="offer-price" class="mt-1 w-full p-2 border rounded" value="${offer?.price || ''}" required>
+                    </div>
+                    <div class="border-t pt-4">
+                        <label class="font-semibold">صورة العرض</label>
+                        <input type="file" id="offer-image" class="mt-1 w-full p-2 border rounded text-sm" accept="image/*">
+                        ${isEditing && offer.imageUrl ? `<p class="text-sm text-gray-500 mt-1">الصورة الحالية. رفع صورة جديدة سيقوم باستبدالها.</p><div class="flex flex-wrap gap-2 mt-2"><img src="${offer.imageUrl}" class="w-24 h-24 rounded object-cover border"></div>` : ''}
+                        <div id="offer-image-preview" class="flex flex-wrap gap-2 mt-2"></div>
+                    </div>
                 </div>
-            </div>`;
+            `;
 
             showModal(title, content, async () => {
-                const offerTitle = getVal('offer-title').trim();
-                const offerPrice = getNum('offer-price');
+                // الخطوة 1: الحصول على القيم من الحقول
+                const newTitle = getVal('offer-title').trim();
+                const newDescription = getVal('offer-description').trim(); // القراءة الصريحة لوصف العرض
+                const newPrice = getNum('offer-price');
+                const imageFile = getEl('offer-image')?.files[0];
 
-                if (!offerTitle || isNaN(offerPrice)) {
+                // الخطوة 2: التحقق من صحة المدخلات
+                if (!newTitle || isNaN(newPrice)) {
                     return alert('يرجى ملء عنوان العرض وسعره.');
                 }
 
                 try {
-                    const imageFile = getEl('offer-image')?.files[0];
-                    let imageUrl = offer?.imageUrl || null;
+                    let imageUrl = isEditing ? offer.imageUrl : null;
 
-                // ... داخل showOfferModal
-if (imageFile) {
-    showLoadingModal('جاري ضغط ورفع الصورة...');
-    const compressedFile = await resizeAndCompressImage(imageFile);
-    const result = await uploadImageToImgBB(compressedFile); // استقبل النتيجة الكاملة
+                    // الخطوة 3: معالجة رفع الصورة إذا تم اختيار صورة جديدة
+                    if (imageFile) {
+                        showLoadingModal('جاري ضغط ورفع الصورة...');
+                        const compressedFile = await resizeAndCompressImage(imageFile);
+                        const result = await uploadImageToImgBB(compressedFile);
 
-    if (result.success) {
-        imageUrl = result.url; // احصل على الرابط فقط عند النجاح
-    } else {
-        // إذا فشل الرفع، أظهر الخطأ وأوقف العملية
-        closeModal();
-        alert(`فشل رفع الصورة: ${result.error}`);
-        return; 
-    }
-}
-                    
-                    if (!imageUrl && !offer) {
-                         return alert('يجب رفع صورة للعرض الجديد.');
+                        if (result.success) {
+                            imageUrl = result.url;
+                        } else {
+                            closeModal();
+                            alert(`فشل رفع الصورة: ${result.error}`);
+                            return; // إيقاف العملية عند فشل الرفع
+                        }
                     }
 
-                    showLoadingModal('جاري حفظ البيانات...');
+                    // الخطوة 4: التأكد من وجود صورة للعروض الجديدة
+                    if (!imageUrl && !isEditing) {
+                        closeModal(); // أغلق نافذة التحميل أولاً
+                        return alert('يجب رفع صورة للعرض الجديد.');
+                    }
                     
+                    showLoadingModal('جاري حفظ البيانات...');
+
+                    // الخطوة 5: تجهيز البيانات للحفظ في قاعدة البيانات
                     const offerData = {
-                        title: offerTitle,
-                        description: getVal('offer-description').trim(),
-                        price: offerPrice,
+                        title: newTitle,
+                        description: newDescription,
+                        price: newPrice,
                         imageUrl: imageUrl,
                         updatedAt: serverTimestamp()
                     };
-                    
-                    if (offer) {
+
+                    // الخطوة 6: حفظ البيانات (إما تحديث أو إضافة جديدة)
+                    if (isEditing) {
                         await updateDoc(doc(db, "offers", offer.id), offerData);
                     } else {
                         offerData.createdAt = serverTimestamp();
                         await addDoc(collection(db, "offers"), offerData);
                     }
-                    closeModal();
+
+                    closeModal(); // إغلاق النافذة عند النجاح
                 } catch (error) {
+                    // عرض رسالة خطأ في حال حدوث مشكلة
                     showModal('خطأ فادح', `فشل حفظ العرض: ${error.message}`, () => closeModal(), 'موافق', false);
                 }
             });
 
+            // إضافة مستمع الأحداث لمعاينة الصورة المختارة
             getEl('offer-image').addEventListener('change', (e) => {
                 const previewContainer = getEl('offer-image-preview');
                 previewContainer.innerHTML = '';
@@ -1265,6 +1307,25 @@ if (imageFile) {
                 }
             });
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         function attachOfferActionListeners() {
             document.querySelectorAll('.edit-offer-btn').forEach(btn => btn.onclick = () => {
