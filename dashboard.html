@@ -694,9 +694,8 @@
             }
         }
 
-  // استبدل الوظيفة القديمة بهذه الوظيفة الجديدة بالكامل
         async function uploadImageToImgBB(file) {
-            const apiKey = "ac296feb5a275923598bdbfd4f9aed8c"; // مفتاح API الخاص بك
+            const apiKey = "ac296feb5a275923598bdbfd4f9aed8c";
             const formData = new FormData();
             formData.append('image', file);
 
@@ -724,11 +723,6 @@
                 return { success: false, error: `خطأ في الشبكة. تأكد من اتصالك بالإنترنت.` };
             }
         }
-
-
-
-
-
 
         function resizeAndCompressImage(file, maxWidth = 800, quality = 0.85) {
             return new Promise((resolve, reject) => {
@@ -795,27 +789,7 @@
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function showProductModal(productType, product = null) {
+        function showProductModal(productType, product = null) {
             const isDirectOrder = productType === 'direct';
             let title = '';
             if (product) {
@@ -907,11 +881,7 @@ function showProductModal(productType, product = null) {
             let nameQuill, descriptionQuill;
             
             showModal(title, commonFields, async () => {
-                // ========= START: THE FIX =========
-                // تم نقل هذا السطر إلى هنا ليتم تنفيذه قبل ظهور نافذة التأكيد الثانية
                 const imageFiles = getEl('product-images')?.files || [];
-                // =========  END: THE FIX  =========
-                
                 let nameHTML = nameQuill.root.innerHTML.trim();
                 let descriptionHTML = descriptionQuill.root.innerHTML.trim();
                 if (nameHTML === '<p><br></p>') nameHTML = '';
@@ -926,6 +896,23 @@ function showProductModal(productType, product = null) {
                 if (!cleanName || isNaN(price) || !categoryId) {
                     return alert('يرجى ملء الحقول الإلزامية: اسم المنتج، السعر، والقسم الرئيسي.');
                 }
+                
+                // ========= START: THE FIX =========
+                // 1. نجمع بيانات روابط التواصل أولاً
+                const directContactLinks = {
+                    whatsapp: isDirectOrder ? getVal('contact-link-whatsapp').trim() : '',
+                    facebook: isDirectOrder ? getVal('contact-link-facebook').trim() : '',
+                    instagram: isDirectOrder ? getVal('contact-link-instagram').trim() : '',
+                    telegram: isDirectOrder ? getVal('contact-link-telegram').trim() : '',
+                    phone: isDirectOrder ? getVal('contact-link-phone').trim() : ''
+                };
+
+                // 2. نقوم بالتحقق منها مباشرةً
+                if (isDirectOrder && Object.values(directContactLinks).every(link => !link)) {
+                    // 3. إذا فشل التحقق، نعرض التنبيه ونوقف العملية. النافذة الرئيسية تبقى مفتوحة.
+                    return alert('لمنتجات الطلب المباشر، يجب إدخال وسيلة تواصل واحدة على الأقل.');
+                }
+                // =========  END: THE FIX  =========
                 
                 const subcatSelect = getEl('product-subcategory');
                 const selectedSubcatOption = subcatSelect && subcatSelect.selectedIndex > -1 ? subcatSelect.options[subcatSelect.selectedIndex] : null;
@@ -964,20 +951,8 @@ function showProductModal(productType, product = null) {
                                 }
                             });
                             
-                            const directContactLinks = {
-                                whatsapp: isDirectOrder ? getVal('contact-link-whatsapp').trim() : '',
-                                facebook: isDirectOrder ? getVal('contact-link-facebook').trim() : '',
-                                instagram: isDirectOrder ? getVal('contact-link-instagram').trim() : '',
-                                telegram: isDirectOrder ? getVal('contact-link-telegram').trim() : '',
-                                phone: isDirectOrder ? getVal('contact-link-phone').trim() : ''
-                            };
-
-                            if (isDirectOrder && Object.values(directContactLinks).every(link => !link)) {
-                                closeModal(); 
-                                return alert('لمنتجات الطلب المباشر، يجب إدخال وسيلة تواصل واحدة على الأقل.');
-                            }
-
-                            // لاحظ أننا لم نعد نقرأ الملفات من هنا، بل نستخدم متغير 'imageFiles' المحفوظ
+                            // لم نعد بحاجة للتحقق من الروابط هنا لأنه تم بالفعل
+                            
                             let newImageUrls = [];
                             if (imageFiles.length === 0 && product) {
                                 newImageUrls = product.imageUrls || (product.imageUrl ? [product.imageUrl] : []);
@@ -1022,7 +997,7 @@ function showProductModal(productType, product = null) {
                                 profitType: getVal('product-profit-type'),
                                 shippingOptions: shippingOptionsData,
                                 orderMethod: productType,
-                                directContactLinks,
+                                directContactLinks, // نستخدم المتغير الذي أنشأناه سابقاً
                                 updatedAt: serverTimestamp()
                             };
                             
@@ -1084,29 +1059,6 @@ function showProductModal(productType, product = null) {
                 populateSubcategories(product.categoryId, product.subCategoryID);
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         function attachProductActionListeners() {
             document.querySelectorAll('.edit-product-btn').forEach(btn => btn.onclick = () => {
@@ -1182,26 +1134,6 @@ function showProductModal(productType, product = null) {
             attachOfferActionListeners();
         }
 
-
-
-
-
-
-
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
         function showOfferModal(offer = null) {
             const isEditing = offer !== null;
             const title = isEditing ? 'تعديل العرض' : 'إضافة عرض جديد';
@@ -1230,13 +1162,11 @@ function showProductModal(productType, product = null) {
             `;
 
             showModal(title, content, async () => {
-                // الخطوة 1: الحصول على القيم من الحقول
                 const newTitle = getVal('offer-title').trim();
-                const newDescription = getVal('offer-description').trim(); // القراءة الصريحة لوصف العرض
+                const newDescription = getVal('offer-description').trim();
                 const newPrice = getNum('offer-price');
                 const imageFile = getEl('offer-image')?.files[0];
 
-                // الخطوة 2: التحقق من صحة المدخلات
                 if (!newTitle || isNaN(newPrice)) {
                     return alert('يرجى ملء عنوان العرض وسعره.');
                 }
@@ -1244,7 +1174,6 @@ function showProductModal(productType, product = null) {
                 try {
                     let imageUrl = isEditing ? offer.imageUrl : null;
 
-                    // الخطوة 3: معالجة رفع الصورة إذا تم اختيار صورة جديدة
                     if (imageFile) {
                         showLoadingModal('جاري ضغط ورفع الصورة...');
                         const compressedFile = await resizeAndCompressImage(imageFile);
@@ -1255,19 +1184,17 @@ function showProductModal(productType, product = null) {
                         } else {
                             closeModal();
                             alert(`فشل رفع الصورة: ${result.error}`);
-                            return; // إيقاف العملية عند فشل الرفع
+                            return;
                         }
                     }
 
-                    // الخطوة 4: التأكد من وجود صورة للعروض الجديدة
                     if (!imageUrl && !isEditing) {
-                        closeModal(); // أغلق نافذة التحميل أولاً
+                        closeModal();
                         return alert('يجب رفع صورة للعرض الجديد.');
                     }
                     
                     showLoadingModal('جاري حفظ البيانات...');
 
-                    // الخطوة 5: تجهيز البيانات للحفظ في قاعدة البيانات
                     const offerData = {
                         title: newTitle,
                         description: newDescription,
@@ -1276,7 +1203,6 @@ function showProductModal(productType, product = null) {
                         updatedAt: serverTimestamp()
                     };
 
-                    // الخطوة 6: حفظ البيانات (إما تحديث أو إضافة جديدة)
                     if (isEditing) {
                         await updateDoc(doc(db, "offers", offer.id), offerData);
                     } else {
@@ -1284,14 +1210,12 @@ function showProductModal(productType, product = null) {
                         await addDoc(collection(db, "offers"), offerData);
                     }
 
-                    closeModal(); // إغلاق النافذة عند النجاح
+                    closeModal();
                 } catch (error) {
-                    // عرض رسالة خطأ في حال حدوث مشكلة
                     showModal('خطأ فادح', `فشل حفظ العرض: ${error.message}`, () => closeModal(), 'موافق', false);
                 }
             });
 
-            // إضافة مستمع الأحداث لمعاينة الصورة المختارة
             getEl('offer-image').addEventListener('change', (e) => {
                 const previewContainer = getEl('offer-image-preview');
                 previewContainer.innerHTML = '';
@@ -1307,25 +1231,6 @@ function showProductModal(productType, product = null) {
                 }
             });
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         function attachOfferActionListeners() {
             document.querySelectorAll('.edit-offer-btn').forEach(btn => btn.onclick = () => {
@@ -1839,21 +1744,20 @@ function showProductModal(productType, product = null) {
             showLoadingModal("جاري حفظ الإعدادات...");
             try {
                 let logoUrl = currentSettings.logoUrl || null;
-           // ... داخل saveGeneralSettings
-if (selectedFileStore.logo) {
-    const compressedFile = await resizeAndCompressImage(selectedFileStore.logo, 400);
-    const result = await uploadImageToImgBB(compressedFile); // استقبل النتيجة الكاملة
 
-    if (result.success) {
-        logoUrl = result.url; // احصل على الرابط فقط عند النجاح
-        selectedFileStore.logo = null;
-    } else {
-        // إذا فشل الرفع، أظهر الخطأ وأوقف العملية
-        closeModal();
-        alert(`فشل رفع الشعار: ${result.error}`);
-        return;
-    }
-}
+                if (selectedFileStore.logo) {
+                    const compressedFile = await resizeAndCompressImage(selectedFileStore.logo, 400);
+                    const result = await uploadImageToImgBB(compressedFile);
+
+                    if (result.success) {
+                        logoUrl = result.url;
+                        selectedFileStore.logo = null;
+                    } else {
+                        closeModal();
+                        alert(`فشل رفع الشعار: ${result.error}`);
+                        return;
+                    }
+                }
 
                 const settingsData = {
                     logoUrl,

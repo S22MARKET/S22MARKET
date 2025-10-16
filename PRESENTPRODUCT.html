@@ -135,9 +135,9 @@
             <h1 onclick="location.href='index.html'" class="cursor-pointer text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
                 S22<span class="text-blue-600">MARKET</span>
             </h1>
-            <a href="index.html#cart" id="cart-btn" class="relative text-2xl text-gray-600 hover:text-blue-600">
+            <button id="cart-btn" class="relative text-2xl text-gray-600 hover:text-blue-600">
                 <i class="fas fa-shopping-cart"></i>
-            </a>
+            </button>
         </div>
     </header>
 
@@ -168,9 +168,9 @@
 
                     <div class="mt-8 space-y-4">
                         <button id="direct-order-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg text-xl flex items-center justify-center gap-3 transform hover:scale-105 transition-transform">
-                            <i class="fas fa-shipping-fast"></i><span>اطلب الآن</span>
+                            <i class="fas fa-paper-plane"></i><span>اطلب الآن</span>
                         </button>
-                        <button id="add-to-cart-btn" class="w-full bg-blue-50 border-2 border-blue-600 text-blue-600 hover:bg-blue-100 font-bold py-4 px-6 rounded-lg text-xl flex items-center justify-center gap-3 transition-colors">
+                        <button id="add-to-cart-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg text-xl flex items-center justify-center gap-3 transition-colors">
                             <i class="fas fa-cart-plus"></i><span>أضف للسلة</span>
                         </button>
                     </div>
@@ -193,7 +193,7 @@
             </div>
             <div id="mobile-buttons-container" class="flex-grow grid grid-cols-2 gap-2">
                  <button id="add-to-cart-btn-mobile" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg text-base flex items-center justify-center gap-2"><i class="fas fa-cart-plus"></i> أضف للسلة</button>
-                 <button id="direct-order-btn-mobile" class="w-full bg-green-600 text-white font-semibold py-3 rounded-lg text-base flex items-center justify-center gap-2"><i class="fas fa-shipping-fast"></i> اطلب الآن</button>
+                 <button id="direct-order-btn-mobile" class="w-full bg-green-600 text-white font-semibold py-3 rounded-lg text-base flex items-center justify-center gap-2"><i class="fas fa-paper-plane"></i> اطلب الآن</button>
             </div>
         </div>
     </div>
@@ -208,6 +208,7 @@
         <img id="lightbox-image" src="" alt="صورة المنتج مكبرة">
     </div>
 
+    <div id="modal-container"></div>
     <div id="toast-container"></div>
 
     <script type="module">
@@ -230,6 +231,7 @@
         let currentProduct = null;
 
         const elements = {
+            modalContainer: document.getElementById('modal-container'),
             pageLoader: document.getElementById('page-loader'),
             pageContent: document.getElementById('page-content'),
             productName: document.getElementById('product-name'),
@@ -258,9 +260,58 @@
             const toast = document.createElement('div');
             toast.className = `toast ${isSuccess ? 'bg-green-500' : 'bg-red-500'}`;
             toast.innerHTML = `<i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-exclamation-circle'} text-xl"></i><span>${message}</span>`;
-            
             elements.toastContainer.appendChild(toast);
             setTimeout(() => toast.remove(), 5000);
+        }
+
+        // [** التحسين **] : إضافة نافذة جديدة لعرض وسائل التواصل لمنتجات الطلب المباشر
+        function showDirectContactModal(product, links) {
+            const modalId = 'direct-contact-modal';
+            const productName = product.name.replace(/<[^>]*>?/gm, '');
+
+            const linkButtons = [
+                { key: 'whatsapp',   icon: 'fab fa-whatsapp',   text: 'واتساب',     color: 'bg-green-500',   url: links.whatsapp ? `https://wa.me/${links.whatsapp.replace(/\D/g, '')}` : '' },
+                { key: 'facebook',   icon: 'fab fa-facebook',   text: 'فيسبوك',     color: 'bg-blue-600',    url: links.facebook },
+                { key: 'instagram',  icon: 'fab fa-instagram',  text: 'انستغرام',   color: 'bg-pink-600',    url: links.instagram },
+                { key: 'telegram',   icon: 'fab fa-telegram',   text: 'تيليجرام',    color: 'bg-sky-500',     url: links.telegram },
+                { key: 'phone',      icon: 'fas fa-phone-alt',  text: 'اتصال هاتفي', color: 'bg-teal-500',    url: links.phone ? `tel:${links.phone.replace(/\s/g, '')}` : '' }
+            ].filter(item => item.url);
+
+            if (linkButtons.length === 0) {
+                showToast("لا توجد روابط تواصل متاحة لهذا المنتج.", false);
+                return;
+            }
+
+            const buttonsHTML = linkButtons.map(btn => `
+                <a href="${btn.url}" target="_blank" class="${btn.color} text-white font-bold py-3 px-5 rounded-lg text-lg hover:opacity-90 transition-all flex items-center justify-center gap-3 shadow-md">
+                    <i class="${btn.icon} text-2xl"></i>
+                    <span>${btn.text}</span>
+                </a>
+            `).join('');
+
+            const modalHTML = `
+            <div class="modal-backdrop" id="modal-backdrop-${modalId}">
+                <div class="modal-content !max-w-md">
+                    <div class="p-5 border-b flex justify-between items-center">
+                        <h2 class="text-xl font-bold">اطلب "${productName}"</h2>
+                        <button id="modal-close-btn-${modalId}" class="text-2xl hover:text-red-500">&times;</button>
+                    </div>
+                    <div class="p-5">
+                        <p class="text-center text-gray-700 mb-6">تواصل معنا مباشرة عبر إحدى الوسائل التالية لطلب هذا المنتج:</p>
+                        <div class="space-y-4">
+                            ${buttonsHTML}
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+            elements.modalContainer.innerHTML = modalHTML;
+
+            const close = () => { elements.modalContainer.innerHTML = ''; };
+            document.getElementById(`modal-close-btn-${modalId}`).onclick = close;
+            document.getElementById(`modal-backdrop-${modalId}`).onclick = (e) => {
+                if (e.target.id === `modal-backdrop-${modalId}`) close();
+            };
         }
 
         function updateMainImage(newImageUrl) {
@@ -305,24 +356,37 @@
                 elements.thumbnailsContainer.classList.add('hidden');
             }
 
-            // --- Button Logic ---
+            // [** التحسين **] : منطق محسن لإظهار الأزرار الصحيحة
             const isDirectOrder = product.orderMethod === 'direct';
+            const hasDirectLinks = Object.values(product.directContactLinks || {}).some(link => link);
             const isOffer = product.isOffer === true;
-
-            elements.directOrderBtn.classList.toggle('hidden', !isDirectOrder || isOffer);
-            elements.directOrderBtnMobile.classList.toggle('hidden', !isDirectOrder || isOffer);
             
-            elements.addToCartBtn.classList.toggle('hidden', isDirectOrder && !isOffer);
-            elements.addToCartBtnMobile.classList.toggle('hidden', isDirectOrder && !isOffer);
+            // إظهار زر الطلب المباشر فقط إذا كان المنتج من نوع "مباشر" ولديه روابط تواصل
+            const showDirectButton = isDirectOrder && hasDirectLinks;
+            
+            // إظهار زر الإضافة للسلة للمنتجات التقليدية أو العروض
+            const showCartButton = !isDirectOrder || isOffer;
 
-            if (isDirectOrder || isOffer) {
+            elements.directOrderBtn.classList.toggle('hidden', !showDirectButton);
+            elements.directOrderBtnMobile.classList.toggle('hidden', !showDirectButton);
+            
+            elements.addToCartBtn.classList.toggle('hidden', !showCartButton);
+            elements.addToCartBtnMobile.classList.toggle('hidden', !showCartButton);
+            
+            // تعديل تخطيط الأزرار في شريط الجوال
+            if (showDirectButton && !showCartButton) {
+                // طلب مباشر فقط
+                elements.mobileButtonsContainer.classList.remove('grid-cols-2');
+                elements.mobileButtonsContainer.classList.add('grid-cols-1');
+            } else if (!showDirectButton && showCartButton) {
+                // سلة فقط
                 elements.mobileButtonsContainer.classList.remove('grid-cols-2');
                 elements.mobileButtonsContainer.classList.add('grid-cols-1');
             } else {
+                // في الحالات النادرة التي قد يظهر فيها الزران (أو لا يظهر أي منهما)، نستخدم الشبكة الثنائية
                 elements.mobileButtonsContainer.classList.remove('grid-cols-1');
                 elements.mobileButtonsContainer.classList.add('grid-cols-2');
             }
-
 
             elements.pageLoader.classList.add('hidden');
             elements.pageContent.classList.remove('hidden');
@@ -347,7 +411,7 @@
         function addToCart() {
             if (!currentProduct) return;
             let cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
-            const productNamePlainText = currentProduct.name.replace(/<[^>]*>?/gm, '');
+            const productNamePlainText = (currentProduct.isOffer ? currentProduct.name : currentProduct.name.replace(/<[^>]*>?/gm, ''));
             const existingItem = cart.find(item => item.id === currentProduct.id);
 
             if (existingItem) {
@@ -355,10 +419,11 @@
             } else {
                 cart.push({
                      id: currentProduct.id,
-                     name: currentProduct.name,
+                     name: productNamePlainText, // استخدام الاسم الصافي
                      price: currentProduct.price,
                      imageUrls: currentProduct.imageUrls,
-                     quantity: 1 
+                     quantity: 1,
+                     isOffer: currentProduct.isOffer || false
                 });
             }
             localStorage.setItem('s22market_cart', JSON.stringify(cart));
@@ -409,15 +474,10 @@
                 } else if (offerId) {
                     const offerData = await fetchItem('offers', offerId);
                     if (offerData) {
-                        // Adapt offer data to product structure
                         data = {
-                            id: offerData.id,
-                            name: offerData.title,
-                            description: offerData.description,
-                            price: offerData.price,
-                            imageUrls: [offerData.imageUrl],
-                            location: 'عرض خاص',
-                            isOffer: true // Flag to identify it as an offer
+                            id: offerData.id, name: offerData.title, description: offerData.description,
+                            price: offerData.price, imageUrls: [offerData.imageUrl],
+                            location: 'عرض خاص', isOffer: true 
                         };
                     } else {
                         errorMsg = 'عفواً، هذا العرض غير موجود.';
@@ -436,7 +496,6 @@
                  elements.pageLoader.innerHTML = '<p class="text-red-500 text-xl">حدث خطأ أثناء تحميل البيانات.</p>';
             }
 
-
             elements.thumbnailsContainer.addEventListener('click', (e) => {
                 const thumb = e.target.closest('.thumbnail');
                 if (thumb) {
@@ -454,11 +513,24 @@
                 }
             });
             
+            const handleDirectOrder = () => {
+                if (currentProduct && currentProduct.directContactLinks) {
+                    showDirectContactModal(currentProduct, currentProduct.directContactLinks);
+                }
+            };
+
             elements.addToCartBtn.onclick = addToCart;
             elements.addToCartBtnMobile.onclick = addToCart;
+            elements.directOrderBtn.onclick = handleDirectOrder;
+            elements.directOrderBtnMobile.onclick = handleDirectOrder;
             elements.shareBtn.onclick = shareProduct;
             elements.copyLinkBtn.onclick = copyLink;
-            // The direct order button logic is handled inside renderProduct
+
+            elements.cartBtn.onclick = (e) => {
+                e.preventDefault();
+                sessionStorage.setItem('returnToProduct', window.location.href);
+                window.location.href = 'index.html#cart-action';
+            };
         });
     </script>
 </body>

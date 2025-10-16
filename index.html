@@ -440,7 +440,6 @@
             html.classList.add('with-banner');
         }
 
-        // Always try to fetch offers, the function itself will handle showing the section
         fetchAndRenderOffers();
         
         if (storeSettings.socialLinks) {
@@ -498,12 +497,10 @@
         }
     }
     
-    // [** التحسين **] : تم تعديل بطاقة العرض لتصبح رابطًا يوجه إلى صفحة تفاصيل العرض.
     function createOfferCard(offer) {
         const cardLink = document.createElement('a');
-        // الرابط يوجه إلى صفحة عرض المنتج مع تمرير معرّف العرض
         cardLink.href = `PRESENTPRODUCT.html?offer=${offer.id}`;
-        cardLink.className = 'offer-card block'; // `block` يجعل الرابط يغطي كامل البطاقة
+        cardLink.className = 'offer-card block';
         
         const image = offer.imageUrl || 'https://placehold.co/400x200';
         
@@ -764,6 +761,7 @@
         elements.modalContainer.innerHTML = modalHTML; const close = () => { elements.modalContainer.innerHTML = ''; }; document.getElementById(`modal-close-btn-${modalId}`).onclick = close; document.getElementById(`modal-backdrop-${modalId}`).onclick = (e) => { if (e.target.id === `modal-backdrop-${modalId}`) close(); }; if (cart.length > 0) document.getElementById('checkout-btn').onclick = () => { close(); showCheckoutModal(); };
     }
     
+    // [** التحسين **] : إضافة نافذة جديدة لعرض وسائل التواصل لمنتجات الطلب المباشر
     function showDirectContactModal(product, links) {
         const modalId = 'direct-contact-modal';
         const productName = product.name.replace(/<[^>]*>?/gm, '');
@@ -1050,7 +1048,8 @@
 
         } catch (error) { console.error("Error fetching categories:", error); }
     }
-
+    
+    // [** التحسين **] : تعديل بطاقة المنتج لعرض زر "اطلب الآن" للمنتجات المباشرة
     function createProductCard(product) {
         const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : (product.imageUrl || 'https://placehold.co/400x400');
         const card = document.createElement('div');
@@ -1064,6 +1063,7 @@
         }
         
         let actionButtonHTML = '';
+        // التحقق من نوع المنتج ووجود روابط تواصل
         if (product.orderMethod === 'direct' && Object.values(product.directContactLinks || {}).some(link => link)) {
             actionButtonHTML = `<button data-id="${product.id}" data-action="direct-order" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 text-sm transition-transform transform hover:scale-105"><i class="fas fa-paper-plane"></i> اطلب الآن</button>`;
         } else {
@@ -1086,6 +1086,7 @@
             </div>`;
         return card;
     }
+
     async function fetchProducts() {
         if (productsCache.length > 0) return;
         try {
@@ -1195,7 +1196,6 @@
             const btn = e.target.closest('.category-filter-btn');
             if (btn) {
                 e.preventDefault();
-                // This is a main category button, not a subcategory link
                 if (btn.dataset.id) {
                     elements.sidebarCategoriesContainer.querySelectorAll('.category-filter-btn').forEach(b => b.classList.remove('active', 'bg-blue-100', 'text-blue-700'));
                     btn.classList.add('active', 'bg-blue-100', 'text-blue-700');
@@ -1204,24 +1204,24 @@
                         submenu.classList.toggle('hidden');
                         btn.querySelector('.fa-chevron-down').classList.toggle('rotate-180');
                     }
-                    // Since it's a category link, just redirect
                     window.location.href = btn.href;
                 }
             }
         });
         
+        // [** التحسين **] : إضافة معالج للنقر على زر الطلب المباشر
         document.body.addEventListener('click', (e) => {
             const cartBtn = e.target.closest('.add-to-cart-btn');
+            const directOrderBtn = e.target.closest('[data-action="direct-order"]');
+
             if (cartBtn) {
-                // منع النقر المزدوج إذا كانت البطاقة بأكملها رابطًا
                 e.preventDefault();
                 const id = cartBtn.dataset.id;
                 const type = cartBtn.dataset.type || 'product';
                 addToCart(id, type);
-            } else if (e.target.closest('[data-action="direct-order"]')) {
-                 e.preventDefault();
-                const directBtn = e.target.closest('[data-action="direct-order"]');
-                const product = productsCache.find(p => p.id === directBtn.dataset.id);
+            } else if (directOrderBtn) {
+                e.preventDefault();
+                const product = productsCache.find(p => p.id === directOrderBtn.dataset.id);
                 if(product && product.directContactLinks) {
                     showDirectContactModal(product, product.directContactLinks);
                 }
@@ -1233,13 +1233,10 @@
         loadCartFromStorage();
         await Promise.all([fetchAndRenderCategories(), fetchProducts()]);
         
-        const directOrderProductId = sessionStorage.getItem('directOrderProductId');
-        if(directOrderProductId){
-            sessionStorage.removeItem('directOrderProductId');
-            showCheckoutModal(directOrderProductId);
-        } else {
-            applyFiltersAndRender();
-        }
+        // مسح هذه الجلسة لأنها لم تعد الطريقة المعتمدة للطلب المباشر
+        sessionStorage.removeItem('directOrderProductId');
+        
+        applyFiltersAndRender();
     }
 
     initializeStore();
