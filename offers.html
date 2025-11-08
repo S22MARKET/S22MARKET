@@ -44,6 +44,44 @@
             transform: translateY(-8px);
             box-shadow: 0 12px 28px rgba(0,0,0,0.12);
         }
+
+        /* === (بداية الإضافة: ستايل المؤقت) === */
+        .countdown-timer-container {
+            background-color: rgba(239, 68, 68, 0.1); /* bg-red-100/50 */
+            border-top: 1px solid rgba(239, 68, 68, 0.2);
+            border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .countdown-label {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #b91c1c; /* text-red-700 */
+        }
+        .countdown-timer {
+            direction: ltr;
+            font-family: monospace, 'Tajawal', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #dc2626; /* text-red-600 */
+            display: flex;
+            gap: 0.25rem;
+        }
+        .countdown-timer > div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 2.5rem;
+        }
+        .countdown-timer span {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #b91c1c; /* text-red-700 */
+        }
+        /* === (نهاية الإضافة) === */
+
     </style>
 </head>
 <body>
@@ -97,6 +135,43 @@
             loader: document.getElementById('page-loader'),
             noOffersMsg: document.getElementById('no-offers-msg'),
         };
+        
+        // === (بداية الإضافة: دوال المؤقت) ===
+        function calculateTimeRemaining(endTime) {
+            const total = Date.parse(endTime) - Date.parse(new Date());
+            const seconds = Math.floor((total / 1000) % 60);
+            const minutes = Math.floor((total / 1000 / 60) % 60);
+            const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
+            const days = Math.floor(total / (1000 * 60 * 60 * 24));
+            
+            return {
+                total, days, hours, minutes, seconds
+            };
+        }
+
+        function updateCountdowns() {
+            const countdownElements = document.querySelectorAll('.countdown-timer');
+            countdownElements.forEach(el => {
+                const endTime = el.dataset.endTime;
+                if (!endTime) return;
+
+                const t = calculateTimeRemaining(endTime);
+
+                if (t.total <= 0) {
+                    // إخفاء المؤقت إذا انتهى الوقت
+                    el.parentElement.classList.add('hidden');
+                } else {
+                    el.innerHTML = `
+                        <div>${t.days} <span>أيام</span></div> :
+                        <div>${t.hours} <span>ساعات</span></div> :
+                        <div>${t.minutes} <span>دقائق</span></div> :
+                        <div>${t.seconds} <span>ثواني</span></div>
+                    `;
+                }
+            });
+        }
+        // === (نهاية الإضافة) ===
+
 
         function createOfferCard(offer) {
             const cardLink = document.createElement('a');
@@ -107,8 +182,26 @@
             card.className = 'offer-card';
             const image = offer.imageUrl || 'https://placehold.co/400x200/a7b5c9/ffffff?text=Offer';
             
+            // === (بداية التعديل: إضافة حاوية المؤقت) ===
+            let countdownHTML = '';
+            if (offer.expiryDate && offer.expiryDate.toDate) {
+                const expiryTime = offer.expiryDate.toDate();
+                if (expiryTime > new Date()) { // التحقق إذا كان العرض لم ينتهِ بعد
+                    countdownHTML = `
+                    <div class="countdown-timer-container">
+                        <span class="countdown-label"><i class="fas fa-fire-alt ml-1"></i> عرض سينتهي قريباً!</span>
+                        <div class="countdown-timer" data-end-time="${expiryTime.toISOString()}">
+                            </div>
+                    </div>`;
+                }
+            }
+            // === (نهاية التعديل) ===
+
             card.innerHTML = `
                 <img src="${image}" alt="${offer.title}" class="w-full h-56 object-cover" loading="lazy">
+                
+                ${countdownHTML}
+
                 <div class="p-5 flex flex-col flex-grow">
                     <h3 class="text-xl font-bold text-gray-900">${offer.title}</h3>
                     <p class="text-gray-600 mt-2 text-sm flex-grow">${offer.description || ''}</p>
@@ -134,6 +227,15 @@
                     offers.forEach(offer => fragment.appendChild(createOfferCard(offer)));
                     elements.grid.appendChild(fragment);
                     elements.grid.classList.remove('hidden');
+
+                    // === (بداية الإضافة: تشغيل المؤقت) ===
+                    // تأكد من وجود مؤقتات على الصفحة قبل تشغيل الـ interval
+                    if (document.querySelector('.countdown-timer')) {
+                        updateCountdowns(); // التشغيل أول مرة
+                        setInterval(updateCountdowns, 1000); // تحديث كل ثانية
+                    }
+                    // === (نهاية الإضافة) ===
+
                 } else {
                     elements.noOffersMsg.classList.remove('hidden');
                 }

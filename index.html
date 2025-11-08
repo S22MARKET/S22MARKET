@@ -221,6 +221,15 @@
         /* Filters Modal */
         #filters-modal .modal-content { align-items: flex-end; padding: 0; border-radius: 1.5rem 1.5rem 0 0; max-height: 75vh; animation: slideInUp 0.4s; }
         #filters-modal .drag-handle { width: 50px; height: 5px; background-color: var(--border-color); border-radius: 99px; margin: 0.75rem auto; }
+
+        /* === (بداية الإضافة) === */
+        /* ستايل قائمة المستخدم المنسدلة */
+        #user-menu-dropdown.show {
+            display: block;
+            animation: slideInUp 0.2s ease-out;
+        }
+        /* === (نهاية الإضافة) === */
+
     </style>
 </head>
 <body>
@@ -283,18 +292,42 @@
                     </h1>
                 </div>
                 
-                <div id="header-actions" class="flex items-center gap-3">
+                <div id="header-actions" class="flex items-center gap-3 relative">
                     <button id="filters-btn" class="md:hidden text-2xl text-gray-600 hover:text-blue-600">
                         <i class="fas fa-search"></i>
                     </button>
-                    <button id="refresh-btn" class="text-2xl text-gray-600 hover:text-blue-600">
+                    <button id="refresh-btn" class="hidden sm:block text-2xl text-gray-600 hover:text-blue-600">
                         <i class="fas fa-sync-alt"></i>
                     </button>
                     <button id="cart-btn" class="relative text-2xl text-gray-600 hover:text-blue-600">
                         <i class="fas fa-shopping-cart"></i>
                         <span id="cart-badge" class="absolute -top-2 -right-3 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white hidden">0</span>
                     </button>
-                </div>
+
+                    <a href="login.html" id="login-btn" class="hidden relative text-md font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-full transition-colors items-center gap-2 sm:flex">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>دخول / تسجيل</span>
+                    </a>
+                    
+                    <div id="user-menu" class="hidden">
+                        <button id="user-menu-button" class="flex items-center gap-2 text-md font-semibold text-gray-700 bg-green-100 hover:bg-green-200 px-4 py-2 rounded-full transition-colors">
+                            <i class="fas fa-user-check text-green-700"></i>
+                            <span id="user-menu-name">...</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        <div id="user-menu-dropdown" class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
+                            <div class="p-3 border-b">
+                                <p class="text-sm text-gray-500">مرحباً بك،</p>
+                                <p class="font-bold text-gray-800" id="user-menu-displayname">...</p>
+                            </div>
+                            <a href="seller-dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
+                            <a href="profile.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي</a>
+                            <a href="order_history.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
+                            <a href="loyalty_card.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء</a>
+                            <button id="logout-btn" class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
+                        </div>
+                    </div>
+                    </div>
             </div>
         </header>
 
@@ -364,7 +397,11 @@
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, getDoc, addDoc, query, orderBy, serverTimestamp, where, limit, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    
+    // === (بداية الإضافة) ===
+    // استيراد الدوال الخاصة بالمصادقة
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    // === (نهاية الإضافة) ===
+
     const firebaseConfig = {
         apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
         authDomain: "s22market-4e3e6.firebaseapp.com",
@@ -377,6 +414,10 @@
     
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    // === (بداية الإضافة) ===
+    // تهيئة خدمة المصادقة
+    const auth = getAuth(app);
+    // === (نهاية الإضافة) ===
 
     let productsCache = [];
     let offersCache = [];
@@ -404,7 +445,17 @@
         subcategoriesFilterContainer: document.getElementById('subcategories-filter-container'),
         headerActions: document.getElementById('header-actions'),
         filtersBtn: document.getElementById('filters-btn'),
-        refreshBtn: document.getElementById('refresh-btn')
+        refreshBtn: document.getElementById('refresh-btn'),
+        // === (بداية الإضافة) ===
+        // جلب عناصر واجهة المستخدم الخاصة بتسجيل الدخول
+        loginBtn: document.getElementById('login-btn'),
+        userMenu: document.getElementById('user-menu'),
+        userMenuButton: document.getElementById('user-menu-button'),
+        userMenuDropdown: document.getElementById('user-menu-dropdown'),
+        userMenuName: document.getElementById('user-menu-name'),
+        userMenuDisplayName: document.getElementById('user-menu-displayname'),
+        logoutBtn: document.getElementById('logout-btn')
+        // === (نهاية الإضافة) ===
     };
     
     function applyStoreSettings() {
@@ -761,7 +812,6 @@
         elements.modalContainer.innerHTML = modalHTML; const close = () => { elements.modalContainer.innerHTML = ''; }; document.getElementById(`modal-close-btn-${modalId}`).onclick = close; document.getElementById(`modal-backdrop-${modalId}`).onclick = (e) => { if (e.target.id === `modal-backdrop-${modalId}`) close(); }; if (cart.length > 0) document.getElementById('checkout-btn').onclick = () => { close(); showCheckoutModal(); };
     }
     
-    // [** التحسين **] : إضافة نافذة جديدة لعرض وسائل التواصل لمنتجات الطلب المباشر
     function showDirectContactModal(product, links) {
         const modalId = 'direct-contact-modal';
         const productName = product.name.replace(/<[^>]*>?/gm, '');
@@ -1049,7 +1099,6 @@
         } catch (error) { console.error("Error fetching categories:", error); }
     }
     
-    // [** التحسين **] : تعديل بطاقة المنتج لعرض زر "اطلب الآن" للمنتجات المباشرة
     function createProductCard(product) {
         const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : (product.imageUrl || 'https://placehold.co/400x400');
         const card = document.createElement('div');
@@ -1063,7 +1112,6 @@
         }
         
         let actionButtonHTML = '';
-        // التحقق من نوع المنتج ووجود روابط تواصل
         if (product.orderMethod === 'direct' && Object.values(product.directContactLinks || {}).some(link => link)) {
             actionButtonHTML = `<button data-id="${product.id}" data-action="direct-order" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 text-sm transition-transform transform hover:scale-105"><i class="fas fa-paper-plane"></i> اطلب الآن</button>`;
         } else {
@@ -1209,7 +1257,6 @@
             }
         });
         
-        // [** التحسين **] : إضافة معالج للنقر على زر الطلب المباشر
         document.body.addEventListener('click', (e) => {
             const cartBtn = e.target.closest('.add-to-cart-btn');
             const directOrderBtn = e.target.closest('[data-action="direct-order"]');
@@ -1230,10 +1277,47 @@
 
         elements.refreshBtn.onclick = () => { window.location.reload(); };
         
+        // === (بداية الإضافة) ===
+        // --- منطق المصادقة والتحكم بالصفحة ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // المستخدم قام بتسجيل الدخول
+                elements.loginBtn.classList.add('hidden');
+                elements.userMenu.classList.remove('hidden');
+                
+                const displayName = user.displayName || "زبوننا";
+                elements.userMenuName.textContent = displayName.split(' ')[0];
+                elements.userMenuDisplayName.textContent = displayName;
+
+            } else {
+                // المستخدم زائر
+                elements.loginBtn.classList.remove('hidden');
+                elements.userMenu.classList.add('hidden');
+            }
+        });
+
+        // --- معالجات القائمة وتسجيل الخروج ---
+        elements.userMenuButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            elements.userMenuDropdown.classList.toggle('show');
+        });
+
+        document.addEventListener('click', () => {
+            if (elements.userMenuDropdown.classList.contains('show')) {
+                elements.userMenuDropdown.classList.remove('show');
+            }
+        });
+
+        elements.logoutBtn.addEventListener('click', () => {
+            signOut(auth).catch((error) => console.error('Logout Error', error));
+            // onAuthStateChanged سيتكفل بإخفاء القائمة تلقائياً
+        });
+        // === (نهاية الإضافة) ===
+
+
         loadCartFromStorage();
         await Promise.all([fetchAndRenderCategories(), fetchProducts()]);
         
-        // مسح هذه الجلسة لأنها لم تعد الطريقة المعتمدة للطلب المباشر
         sessionStorage.removeItem('directOrderProductId');
         
         applyFiltersAndRender();

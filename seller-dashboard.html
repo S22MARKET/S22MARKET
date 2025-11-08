@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Market - لوحة تحكم البائع</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.6/purify.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --bg-body: #f1f5f9;
+        }
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-body); }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .small-loader { border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        #user-menu-dropdown.show { display: block; animation: slideInUp 0.2s ease-out; }
+        
+        .modal-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); z-index: 40;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background-color: white; padding: 1.5rem; border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%;
+            max-width: 700px; z-index: 50; max-height: 90vh; overflow-y: auto;
+        }
+        .ql-toolbar { border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem; }
+        .ql-container { border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem; min-height: 120px; }
+        .ql-editor { font-family: 'Tajawal', sans-serif; }
+
+        .dashboard-tab {
+            padding: 0.75rem 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #475569; /* text-gray-600 */
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .dashboard-tab:hover {
+            color: #1e293b; /* text-gray-800 */
+            background-color: #f8fafc; /* bg-gray-50 */
+        }
+        .dashboard-tab.active {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .dashboard-panel {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .responsive-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .responsive-table th, .responsive-table td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid #e2e8f0; /* border-gray-200 */
+        }
+        .responsive-table th {
+            background-color: #f8fafc; /* bg-gray-50 */
+            font-weight: 700;
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        .status-new { background-color: #dbeafe; color: #1d4ed8; }
+        .status-completed { background-color: #d1fae5; color: #065f46; }
+        .status-canceled { background-color: #fee2e2; color: #991b1b; }
+        
+        @media (max-width: 768px) {
+            .responsive-table thead { display: none; }
+            .responsive-table tr {
+                display: block;
+                border: 1px solid #e5e7eb;
+                border-radius: 0.5rem;
+                padding: 1rem;
+                margin-bottom: 1rem;
+                background-color: white;
+                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            }
+             .responsive-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 0;
+                border-bottom: 1px solid #f3f4f6;
+            }
+            .responsive-table td:last-child { border-bottom: none; }
+            .responsive-table td::before {
+                content: attr(data-label);
+                font-weight: 700;
+                margin-left: 0.5rem;
+                color: #4b5563; /* text-gray-600 */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+             <a href="index.html" class="flex items-center gap-3">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+                    S22<span class="text-blue-600">MARKET</span>
+                </h1>
+            </a>
+            
+            <div id="header-actions" class="flex items-center gap-4 relative">
+                <a href="index.html" id="store-btn" class="relative text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 shadow-lg">
+                    <i class="fas fa-store"></i>
+                    <span>المتجر</span>
+                </a>
+                <a href="login.html" id="login-btn" class="hidden relative text-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-full transition-colors items-center gap-2 sm:flex">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>دخول / تسجيل</span>
+                </a>
+                <div id="user-menu" class="hidden">
+                    <button id="user-menu-button" class="flex items-center gap-2 text-lg font-semibold text-gray-700 bg-green-100 hover:bg-green-200 px-5 py-2.5 rounded-full transition-colors">
+                        <i class="fas fa-user-check text-green-700"></i>
+                        <span id="user-menu-name">...</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="user-menu-dropdown" class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
+                        <div class="p-3 border-b">
+                            <p class="text-sm text-gray-500">مرحباً بك،</p>
+                            <p class="font-bold text-gray-800" id="user-menu-displayname">...</p>
+                        </div>
+                        <a href="seller-dashboard.html" class="block px-4 py-3 text-gray-700 bg-gray-100 font-bold transition-colors"><i class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
+                        <a href="profile.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي</a>
+                        <a href="order_history.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
+                        <a href="loyalty_card.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء</a>
+                        <button id="logout-btn" class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        
+        <div id="auth-loader" class="text-center py-20">
+            <div class="loader mx-auto"></div>
+            <p class="mt-4 text-gray-600 text-lg">جاري التحقق من هويتك...</p>
+        </div>
+
+        <div id="seller-content" class="hidden" style="animation: slideInUp 0.5s ease-out;">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-6">
+                <i class="fas fa-store text-blue-500"></i> لوحة تحكم البائع
+            </h1>
+
+            <div class="border-b border-gray-200 bg-white rounded-t-lg shadow-sm">
+                <nav class="flex -mb-px" aria-label="Tabs">
+                    <button class="dashboard-tab active" data-target="products-panel">
+                        <i class="fas fa-boxes ml-2"></i> منتجاتي
+                    </button>
+                    <button class="dashboard-tab" data-target="orders-panel">
+                        <i class="fas fa-clipboard-list ml-2"></i> الطلبات الواردة
+                    </button>
+                    <button class="dashboard-tab" data-target="messages-panel">
+                        <i class="fas fa-envelope-open-text ml-2"></i> الرسائل
+                    </button>
+                </nav>
+            </div>
+
+
+            <div id="products-panel" class="dashboard-panel bg-white p-6 rounded-b-lg shadow-sm">
+                <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        إدارة منتجاتك
+                    </h2>
+                    <button id="add-product-btn" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>إضافة منتج جديد</span>
+                    </button>
+                </div>
+
+                <div id="products-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+
+                <div id="no-products-msg" class="hidden text-center py-20">
+                    <i class="fas fa-box-open text-5xl text-gray-400"></i>
+                    <p class="mt-4 text-xl font-semibold text-gray-500">لم تقم بإضافة أي منتجات بعد.</p>
+                    <p class="mt-2 text-gray-500">اضغط على "إضافة منتج جديد" للبدء.</p>
+                </div>
+            </div>
+
+            <div id="orders-panel" class="dashboard-panel bg-white p-6 rounded-b-lg shadow-sm hidden">
+                <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        الطلبات الواردة على منتجاتك
+                    </h2>
+                </div>
+                
+                <div id="orders-list-container" class="overflow-x-auto">
+                    <div class="text-center py-20" id="orders-loader">
+                        <div class="loader mx-auto"></div>
+                        <p class="mt-4 text-gray-500">جاري جلب الطلبات...</p>
+                    </div>
+                    <table class="w-full text-right responsive-table hidden" id="orders-table">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="p-4">المنتجات</th>
+                                <th class="p-4">العميل</th>
+                                <th class="p-4">الهاتف</th>
+                                <th class="p-4">الموقع</th>
+                                <th class="p-4">الإجمالي</th>
+                                <th class="p-4">الحالة</th>
+                                <th class="p-4">التاريخ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body"></tbody>
+                    </table>
+                     <div id="no-orders-msg" class="hidden text-center py-20">
+                        <i class="fas fa-clipboard-list text-5xl text-gray-400"></i>
+                        <p class="mt-4 text-xl font-semibold text-gray-500">لا توجد طلبات واردة بعد.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="messages-panel" class="dashboard-panel bg-white p-6 rounded-b-lg shadow-sm hidden">
+                <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        الرسائل والاستفسارات
+                    </h2>
+                </div>
+                
+                 <div id="messages-list-container" class="overflow-x-auto">
+                    <div class="text-center py-20" id="messages-loader">
+                        <div class="loader mx-auto"></div>
+                        <p class="mt-4 text-gray-500">جاري جلب الرسائل...</p>
+                    </div>
+                    <table class="w-full text-right responsive-table hidden" id="messages-table">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="p-4">المرسل</th>
+                                <th class="p-4">الهاتف</th>
+                                <th class="p-4">الرسالة</th>
+                                <th class="p-4">بخصوص منتج</th>
+                                <th class="p-4">التاريخ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="messages-table-body"></tbody>
+                    </table>
+                     <div id="no-messages-msg" class="hidden text-center py-20">
+                        <i class="fas fa-envelope-open-text text-5xl text-gray-400"></i>
+                        <p class="mt-4 text-xl font-semibold text-gray-500">لا توجد رسائل واردة بعد.</p>
+                    </div>
+                 </div>
+            </div>
+            </div>
+    </main>
+    
+    <div id="modal-container"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, getDocs, query, where, serverTimestamp, Timestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let currentUser = null;
+        let sellerProductsCache = [];
+        let quillEditor = null;
+
+        // عناصر واجهة المستخدم
+        const loginBtn = document.getElementById('login-btn');
+        const userMenu = document.getElementById('user-menu');
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenuDropdown = document.getElementById('user-menu-dropdown');
+        const userMenuName = document.getElementById('user-menu-name');
+        const userMenuDisplayName = document.getElementById('user-menu-displayname');
+        const logoutBtn = document.getElementById('logout-btn');
+        const authLoader = document.getElementById('auth-loader');
+        const sellerContent = document.getElementById('seller-content');
+        const modalContainer = document.getElementById('modal-container');
+        
+        // عناصر لوحة "منتجاتي"
+        const addProductBtn = document.getElementById('add-product-btn');
+        const productsList = document.getElementById('products-list');
+        const noProductsMsg = document.getElementById('no-products-msg');
+
+        // عناصر لوحة "الطلبات"
+        const ordersLoader = document.getElementById('orders-loader');
+        const ordersTable = document.getElementById('orders-table');
+        const ordersTableBody = document.getElementById('orders-table-body');
+        const noOrdersMsg = document.getElementById('no-orders-msg');
+        
+        // === (بداية الإضافة: عناصر لوحة "الرسائل") ===
+        const messagesLoader = document.getElementById('messages-loader');
+        const messagesTable = document.getElementById('messages-table');
+        const messagesTableBody = document.getElementById('messages-table-body');
+        const noMessagesMsg = document.getElementById('no-messages-msg');
+        // === (نهاية الإضافة) ===
+
+
+        const tabs = document.querySelectorAll('.dashboard-tab');
+        const panels = document.querySelectorAll('.dashboard-panel');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const targetPanelId = tab.dataset.target;
+                panels.forEach(panel => {
+                    panel.classList.toggle('hidden', panel.id !== targetPanelId);
+                });
+
+                if (targetPanelId === 'orders-panel' && !tab.dataset.loaded) {
+                    loadSellerOrders();
+                    tab.dataset.loaded = 'true';
+                }
+                // === (بداية الإضافة: تحميل الرسائل عند الضغط) ===
+                if (targetPanelId === 'messages-panel' && !tab.dataset.loaded) {
+                    loadSellerMessages();
+                    tab.dataset.loaded = 'true';
+                }
+                // === (نهاية الإضافة) ===
+            });
+        });
+
+
+        // ... (دوال "منتجاتي" تبقى كما هي) ...
+        async function uploadImageToImgBB(file) { /* ... كود رفع الصور ... */ }
+        function showModal(title, content, onConfirm) { /* ... كود النافذة ... */ }
+        function closeModal() { /* ... كود إغلاق النافذة ... */ }
+        function showLoadingModal(text = 'جاري الحفظ...') { /* ... كود نافذة التحميل ... */ }
+        function showDeleteConfirmationModal(onConfirm) { /* ... كود نافذة الحذف ... */ }
+        function showProductModal(product = null) { /* ... كود نافذة المنتج ... */ }
+        async function loadSellerProducts(user) {
+             try {
+                const q = query(
+                    collection(db, "products"), 
+                    where("sellerId", "==", user.uid),
+                    orderBy("createdAt", "desc")
+                );
+                const querySnapshot = await getDocs(q);
+                sellerProductsCache = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (sellerProductsCache.length === 0) {
+                    noProductsMsg.classList.remove('hidden');
+                    productsList.classList.add('hidden');
+                } else {
+                    noProductsMsg.classList.add('hidden');
+                    productsList.classList.remove('hidden');
+                    productsList.innerHTML = '';
+                    sellerProductsCache.forEach(product => {
+                        productsList.appendChild(createProductCard(product));
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching seller products: ", error);
+                productsList.innerHTML = `<p class="text-red-500 text-center col-span-full"><b>خطأ:</b> لم يتم جلب المنتجات. <br>السبب المحتمل هو أن الفهرس (Index) الخاص بـ 'products' لم يتم إنشاؤه بعد. يرجى مراجعة لوحة تحكم Firebase.</p>`;
+            }
+        }
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = 'bg-white p-4 rounded-xl shadow-md flex flex-col relative border';
+            const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : 'https://placehold.co/300x160/e2e8f0/94a3b8?text=No+Image';
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = product.name;
+            const productName = tempDiv.textContent || tempDiv.innerText || "";
+            card.innerHTML = `
+                <img src="${image}" class="w-full h-40 object-cover rounded-lg mb-4 bg-gray-100">
+                <h3 class="font-bold text-xl mb-2 flex-grow">${productName}</h3>
+                <p class="text-lg font-bold text-blue-600 mb-4">${(product.price || 0).toLocaleString()} د.ج</p>
+                <div class="border-t mt-4 pt-3 flex justify-end gap-2">
+                    <button class="edit-product-btn text-gray-400 hover:text-blue-600" data-id="${product.id}" title="تعديل"><i class="fas fa-edit fa-lg"></i></button>
+                    <button class="delete-product-btn text-gray-400 hover:text-red-600" data-id="${product.id}" title="حذف"><i class="fas fa-trash fa-lg"></i></button>
+                </div>`;
+            card.querySelector('.edit-product-btn').onclick = () => { /* ... كود التعديل ... */ };
+            card.querySelector('.delete-product-btn').onclick = () => { /* ... كود الحذف ... */ };
+            return card;
+        }
+
+
+        // ... (دوال "الطلبات الواردة" تبقى كما هي) ...
+        async function loadSellerOrders() {
+            try {
+                const ordersSnapshot = await getDocs(query(collection(db, "orders"), orderBy("createdAt", "desc")));
+                const allOrders = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                const mySellerId = currentUser.uid;
+                const myOrders = allOrders.filter(order => {
+                    return order.items.some(item => {
+                        return sellerProductsCache.some(sellerProd => sellerProd.id === item.id);
+                    });
+                });
+
+                ordersLoader.classList.add('hidden');
+
+                if (myOrders.length === 0) {
+                    noOrdersMsg.classList.remove('hidden');
+                    ordersTable.classList.add('hidden');
+                } else {
+                    ordersTableBody.innerHTML = '';
+                    myOrders.forEach(order => {
+                        ordersTableBody.appendChild(createOrderRow(order));
+                    });
+                    noOrdersMsg.classList.add('hidden');
+                    ordersTable.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Error loading seller orders: ", error);
+                ordersLoader.innerHTML = `<p class="text-red-500">حدث خطأ أثناء جلب الطلبات.</p>`;
+            }
+        }
+        function createOrderRow(order) {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            const date = order.createdAt?.toDate().toLocaleDateString('ar-EG', { day: '2-digit', month: 'long', year: 'numeric' }) || '---';
+            const myItemsInOrder = order.items.filter(item => 
+                sellerProductsCache.some(sellerProd => sellerProd.id === item.id)
+            );
+            const itemsHtml = myItemsInOrder.map(item => `
+                <div class="font-semibold">${item.quantity} x ${item.name}</div>
+            `).join('');
+            const subtotal = myItemsInOrder.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            let statusText = 'جديد';
+            let statusClass = 'status-new';
+            if (order.status === 'completed') { statusText = 'مكتمل'; statusClass = 'status-completed'; }
+            else if (order.status === 'canceled') { statusText = 'ملغي'; statusClass = 'status-canceled'; }
+
+            row.innerHTML = `
+                <td data-label="المنتجات" class="p-4 text-sm">${itemsHtml}</td>
+                <td data-label="العميل" class="p-4 font-semibold">${order.customerName}</td>
+                <td data-label="الهاتف" class="p-4 font-mono" dir="ltr">${order.customerContact}</td>
+                <td data-label="الموقع" class="p-4 text-sm">${order.customerLocation}</td>
+                <td data-label="الإجمالي" class="p-4 font-bold text-blue-600">${subtotal.toLocaleString()} د.ج</td>
+                <td data-label="الحالة" class="p-4"><span class="status-badge ${statusClass}">${statusText}</span></td>
+                <td data-label="التاريخ" class="p-4 text-sm font-mono">${date}</td>
+            `;
+            return row;
+        }
+
+
+        // === (بداية التعديل: برمجة لوحة "الرسائل") ===
+        async function loadSellerMessages() {
+            try {
+                // هذا هو الاستعلام الجديد الذي يتطلب فهرس
+                const q = query(
+                    collection(db, "inquiries"),
+                    where("sellerId", "==", currentUser.uid),
+                    orderBy("createdAt", "desc")
+                );
+
+                const querySnapshot = await getDocs(q);
+                const myMessages = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                messagesLoader.classList.add('hidden');
+
+                if (myMessages.length === 0) {
+                    noMessagesMsg.classList.remove('hidden');
+                    messagesTable.classList.add('hidden');
+                } else {
+                    messagesTableBody.innerHTML = ''; // مسح الجدول
+                    myMessages.forEach(msg => {
+                        messagesTableBody.appendChild(createMessageRow(msg));
+                    });
+                    noMessagesMsg.classList.add('hidden');
+                    messagesTable.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Error loading seller messages: ", error);
+                messagesLoader.innerHTML = `<p class="text-red-500 text-center"><b>خطأ:</b> لم يتم جلب الرسائل. <br>السبب المحتمل هو أن الفهرس (Index) الخاص بـ 'inquiries' لم يتم إنشاؤه بعد. يرجى مراجعة لوحة تحكم Firebase.</p>`;
+            }
+        }
+
+        function createMessageRow(msg) {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+
+            const date = msg.createdAt?.toDate().toLocaleDateString('ar-EG', { day: '2-digit', month: 'long', year: 'numeric' }) || '---';
+
+            row.innerHTML = `
+                <td data-label="المرسل" class="p-4 font-semibold">${msg.fullName}</td>
+                <td data-label="الهاتف" class="p-4 font-mono" dir="ltr">${msg.phone || '---'}</td>
+                <td data-label="الرسالة" class="p-4 text-sm" style="white-space: pre-wrap; max-width: 300px;">${msg.message}</td>
+                <td data-label="بخصوص منتج" class="p-4 text-sm font-semibold">${msg.productName || 'رسالة عامة'}</td>
+                <td data-label="التاريخ" class="p-4 text-sm font-mono">${date}</td>
+            `;
+            return row;
+        }
+        // === (نهاية التعديل) ===
+
+
+        // --- منطق المصادقة والتحكم بالصفحة ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loginBtn.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+                const displayName = user.displayName || "بائع جديد";
+                userMenuName.textContent = displayName.split(' ')[0];
+                userMenuDisplayName.textContent = displayName;
+
+                loadSellerProducts(user).then(() => {
+                    authLoader.classList.add('hidden');
+                    sellerContent.classList.remove('hidden');
+                });
+
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // --- معالجات القائمة وتسجيل الخروج ---
+        userMenuButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userMenuDropdown.classList.toggle('show');
+        });
+        document.addEventListener('click', () => {
+            if (userMenuDropdown.classList.contains('show')) {
+                userMenuDropdown.classList.remove('show');
+            }
+        });
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).catch((error) => console.error('Logout Error', error));
+        });
+
+        addProductBtn.addEventListener('click', () => {
+            showProductModal(null);
+        });
+
+    </script>
+</body>
+</html>

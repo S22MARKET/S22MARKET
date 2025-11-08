@@ -3,457 +3,349 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ملفي الشخصي - S22MARKET</title>
+    <title>S22 Market - ملفي الشخصي</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
-        .hidden { display: none; }
-        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 40; }
-        .modal-content { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 50; max-height: 90vh; overflow-y: auto; }
-        .product-sold-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(255, 255, 255, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
+        /* تم تغيير الألوان لتطابق S22 Market */
+        :root {
+            --primary-color: #3b82f6;
+            --bg-body: #f1f5f9;
         }
-        .product-sold-badge {
-            background-color: #ef4444;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 9999px;
-            font-weight: bold;
-            font-size: 0.875rem;
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-body); }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .small-loader { border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; translateY(0); } }
+        
+        #user-menu-dropdown.show {
+            display: block;
+            animation: slideInUp 0.2s ease-out;
         }
+        
+        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 100; }
+        .toast { background-color: #2d3748; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards; }
+        .toast.success { background-color: #2f855a; }
+        .toast.error { background-color: #c53030; }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
     </style>
 </head>
-<body class="bg-gray-50">
+<body>
 
-    <!-- Header -->
     <header class="bg-white shadow-sm sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center">
-                <a href="market.html" class="text-2xl font-bold text-gray-800">S22<span class="text-indigo-600">MARKET</span></a>
-                <div class="flex items-center space-x-2 sm:space-x-4">
-                    <a href="market.html" class="text-gray-600 hover:text-indigo-600 text-sm sm:text-base">السوق</a>
-                    <a href="admin.html" id="admin-panel-link" class="text-gray-600 hover:text-indigo-600 text-sm sm:text-base hidden">الإدارة</a>
-                    <button id="logout-button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-3 sm:px-4 rounded-lg text-sm">
-                        <i class="fas fa-sign-out-alt sm:hidden"></i>
-                        <span class="hidden sm:inline">تسجيل الخروج</span>
+        <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+             <a href="index.html" class="flex items-center gap-3">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+                    S22<span class="text-blue-600">MARKET</span>
+                </h1>
+            </a>
+            
+            <div id="header-actions" class="flex items-center gap-4 relative">
+                <a href="index.html" id="store-btn" class="relative text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 shadow-lg">
+                    <i class="fas fa-store"></i>
+                    <span>المتجر</span>
+                </a>
+                <a href="login.html" id="login-btn" class="hidden relative text-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-full transition-colors items-center gap-2 sm:flex">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>دخول / تسجيل</span>
+                </a>
+                <div id="user-menu" class="hidden">
+                    <button id="user-menu-button" class="flex items-center gap-2 text-lg font-semibold text-gray-700 bg-green-100 hover:bg-green-200 px-5 py-2.5 rounded-full transition-colors">
+                        <i class="fas fa-user-check text-green-700"></i>
+                        <span id="user-menu-name">...</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
                     </button>
+                    <div id="user-menu-dropdown" class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
+                        <div class="p-3 border-b">
+                            <p class="text-sm text-gray-500">مرحباً بك،</p>
+                            <p class="font-bold text-gray-800" id="user-menu-displayname">...</p>
+                        </div>
+                        <a href="seller-dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
+                        <a href="profile.html" class="block px-4 py-3 text-gray-700 bg-gray-100 font-bold transition-colors"><i class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي</a>
+                        <a href="order_history.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
+                        <a href="loyalty_card.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء</a>
+                        <button id="logout-btn" class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
+                    </div>
                 </div>
             </div>
+
         </div>
     </header>
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto py-6 sm:py-10 px-4 sm:px-6 lg:px-8">
-        <div id="loading-spinner" class="text-center py-20">
-             <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
-             <p class="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+    <main class="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        
+        <div id="auth-loader" class="text-center py-20">
+            <div class="loader mx-auto"></div>
+            <p class="mt-4 text-gray-600 text-lg">جاري جلب بياناتك...</p>
         </div>
 
-        <div id="profile-content" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-            
-            <!-- Profile Column -->
-            <div class="lg:col-span-1 space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-md space-y-6">
-                    <div class="text-center">
-                        <img id="profile-pic" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-indigo-200 object-cover" src="https://placehold.co/128x128/E2E8F0/4A5568?text=U" alt="صورة الملف الشخصي">
-                        <div class="flex items-center justify-center gap-2">
-                            <h2 id="profile-name" class="text-2xl font-bold text-gray-800"></h2>
-                            <i id="verified-badge" class="fas fa-check-circle text-blue-500 hidden" title="تاجر موثق"></i>
-                        </div>
-                        <p id="profile-email" class="text-gray-500 text-sm"></p>
-                        <p id="profile-role" class="mt-2 text-sm font-semibold text-indigo-600 bg-indigo-100 px-3 py-1 rounded-full inline-block"></p>
-                        <div id="rating-display" class="mt-3 flex items-center justify-center text-yellow-500 text-lg hidden"></div>
-                    </div>
-                    
-                    <hr>
+        <div id="profile-content" class="hidden" style="animation: slideInUp 0.5s ease-out;">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 text-center mb-8">
+                <i class="fas fa-user-edit text-blue-500"></i> ملفي الشخصي
+            </h1>
+
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <form id="profile-form" class="space-y-6 p-8">
                     
                     <div>
-                        <h3 class="font-bold text-gray-800 mb-2">نبذة تعريفية</h3>
-                        <p id="profile-bio" class="text-gray-600 text-sm mb-4 leading-relaxed break-words">لم تتم إضافة نبذة تعريفية.</p>
-                        
-                        <h3 class="font-bold text-gray-800 mb-3">معلومات التواصل</h3>
-                        <div class="space-y-3">
-                           <div id="website-display" class="hidden"></div>
-                           <div id="social-links-display" class="flex justify-center space-x-4 space-x-reverse text-2xl text-gray-600"></div>
-                        </div>
-                        <p id="no-contact-message" class="text-center text-gray-400 text-sm hidden">لم تتم إضافة معلومات تواصل.</p>
+                        <label for="profile-name" class="block text-sm font-semibold text-gray-700 mb-1">الاسم الكامل (يظهر للعملاء) <span class="text-red-500">*</span></label>
+                        <input type="text" id="profile-name" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
 
-                    <button id="edit-profile-button" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg hover:bg-indigo-700 transition duration-300 font-semibold flex items-center justify-center">
-                       <i class="fas fa-edit mr-2"></i> تعديل الملف الشخصي
-                    </button>
-                </div>
-                <!-- Account Deletion Card -->
-                <div class="bg-white p-6 rounded-2xl shadow-md">
-                    <h3 class="font-bold text-lg text-red-800 mb-2">منطقة الخطر</h3>
-                    <p class="text-sm text-gray-600 mb-4">طلب حذف الحساب سيقوم بإرسال طلب للإدارة لمراجعته. هذا الإجراء لا يمكن التراجع عنه بعد موافقة الإدارة.</p>
-                    <button id="delete-account-request-button" class="w-full bg-red-600 text-white py-2.5 rounded-lg hover:bg-red-700 transition duration-300 font-semibold">
-                        <i class="fas fa-trash-alt mr-2"></i> طلب حذف الحساب
-                    </button>
-                </div>
-            </div>
-
-            <!-- Products Column -->
-            <div class="lg:col-span-2">
-                <div class="bg-white p-6 rounded-2xl shadow-md">
-                    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-                        <h2 class="text-2xl font-bold text-gray-800">منتجاتي</h2>
-                        <a href="add-product.html" class="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center">
-                            <i class="fas fa-plus mr-2"></i> إضافة منتج جديد
-                        </a>
+                    <div>
+                        <label for="profile-email" class="block text-sm font-semibold text-gray-700 mb-1">البريد الإلكتروني</label>
+                        <input type="email" id="profile-email" class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed" disabled>
+                        <p class="text-xs text-gray-400 mt-1">لا يمكن تغيير البريد الإلكتروني بعد التسجيل.</p>
                     </div>
-                    <div id="products-list" class="space-y-4">
-                        <div id="no-products-message" class="text-center py-10 text-gray-500 hidden">
-                            <i class="fas fa-box-open fa-3x text-gray-400"></i>
-                            <p class="mt-4">لم تقم بإضافة أي منتجات بعد.</p>
+
+                    <div>
+                        <label for="profile-phone" class="block text-sm font-semibold text-gray-700 mb-1">رقم الهاتف (يظهر للعملاء عند الطلب) <span class="text-red-500">*</span></label>
+                        <input type="tel" id="profile-phone" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" dir="ltr" required>
+                    </div>
+                    
+                    <div class="border-t pt-6 space-y-6">
+                        <h2 class="text-xl font-bold text-gray-800">
+                            <i class="fas fa-store text-blue-500 ml-2"></i> معلومات المتجر (للبائعين)
+                        </h2>
+                        <div>
+                            <label for="profile-store-name" class="block text-sm font-semibold text-gray-700 mb-1">اسم المتجر (يظهر في ملفك) <span class="text-red-500">*</span></label>
+                            <input type="text" id="profile-store-name" placeholder="مثال: متجر الأناقة العصرية" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+
+                        <h3 class="text-md font-semibold text-gray-700 -mb-2">روابط التواصل الاجتماعي (اختياري)</h3>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fab fa-facebook text-gray-400"></i>
+                            </span>
+                            <input type="url" id="profile-social-facebook" placeholder="https://facebook.com/username" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" dir="ltr">
+                        </div>
+                        <div class="relative">
+                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fab fa-instagram text-gray-400"></i>
+                            </span>
+                            <input type="url" id="profile-social-instagram" placeholder="https://instagram.com/username" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" dir="ltr">
+                        </div>
+                        <div class="relative">
+                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fab fa-telegram text-gray-400"></i>
+                            </span>
+                            <input type="url" id="profile-social-telegram" placeholder="https://t.me/username" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" dir="ltr">
+                        </div>
+                        <div class="relative">
+                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fab fa-snapchat text-gray-400"></i>
+                            </span>
+                            <input type="url" id="profile-social-snapchat" placeholder="https://snapchat.com/add/username" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" dir="ltr">
                         </div>
                     </div>
-                </div>
+                    <div class="border-t pt-6">
+                        <button type="submit" id="save-profile-btn" class="w-full flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors">
+                            <span id="save-btn-text">حفظ التعديلات</span>
+                            <div id="save-btn-loader" class="small-loader hidden"></div>
+                        </button>
+                    </div>
+
+                </form>
             </div>
         </div>
     </main>
-
-    <!-- Edit Profile Modal -->
-    <div id="edit-profile-modal" class="hidden">
-        <div id="modal-backdrop" class="modal-backdrop"></div>
-        <div class="modal-content bg-white w-full max-w-lg p-6 rounded-2xl shadow-xl m-4">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold">تعديل الملف الشخصي</h3>
-                <button id="close-modal-button" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
-            </div>
-            <form id="edit-profile-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">الصورة الشخصية</label>
-                    <div class="flex items-center gap-4">
-                        <img id="edit-pic-preview" class="w-20 h-20 rounded-full object-cover border-2 border-gray-300" src="https://placehold.co/80x80/E2E8F0/4A5568?text=U" alt="Profile preview">
-                        <input type="file" id="edit-pic-input" accept="image/*" class="hidden">
-                        <button type="button" id="change-pic-button" class="bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 text-sm">تغيير الصورة</button>
-                    </div>
-                </div>
-                <div>
-                    <label for="edit-name" class="block text-sm font-medium text-gray-700">الاسم الكامل</label>
-                    <input type="text" id="edit-name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-                <div>
-                    <label for="edit-bio" class="block text-sm font-medium text-gray-700">نبذة تعريفية</label>
-                    <textarea id="edit-bio" rows="5" maxlength="400" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-                    <p id="bio-char-count" class="text-xs text-gray-500 mt-1 text-left">400/400</p>
-                </div>
-                <h4 class="font-semibold pt-2 border-t mt-4">روابط التواصل</h4>
-                <div>
-                    <label for="edit-website" class="block text-sm font-medium text-gray-700">الموقع الإلكتروني</label>
-                    <input type="url" id="edit-website" placeholder="https://example.com" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-                <div>
-                    <label for="edit-facebook" class="block text-sm font-medium text-gray-700">فيسبوك</label>
-                    <input type="url" id="edit-facebook" placeholder="https://facebook.com/username" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-                <div>
-                    <label for="edit-instagram" class="block text-sm font-medium text-gray-700">انستغرام</label>
-                    <input type="url" id="edit-instagram" placeholder="https://instagram.com/username" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-                <div class="flex justify-end space-x-3 space-x-reverse pt-6">
-                    <button type="button" id="cancel-edit-button" class="bg-gray-200 text-gray-800 py-2 px-6 rounded-lg hover:bg-gray-300">إلغاء</button>
-                    <button type="submit" id="save-changes-button" class="bg-indigo-600 text-white py-2 px-6 rounded-lg hover:bg-indigo-700 flex items-center justify-center min-w-[80px]">
-                        <span id="save-text">حفظ</span>
-                        <div id="save-spinner" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white hidden"></div>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
     
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+    <div id="toast-container"></div>
 
+    <script type="module">
+        // --- إعدادات Firebase ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // === (بداية التعديل: إعدادات Firebase) ===
+        // تم استخدام الإعدادات الخاصة بـ S22 Market
         const firebaseConfig = {
-           apiKey: "AIzaSyAxEq-nkLDc3_HM38xb3mhb8ekSXmuFQ7I",
-           authDomain: "s22market-4bdb9.firebaseapp.com",
-           projectId: "s22market-4bdb9",
-           storageBucket: "s22market-4bdb9.firebasestorage.app",
-           messagingSenderId: "1029564929614",
-           appId: "1:1029564929614:web:2866722c34cf1fb2b8951f",
-           measurementId: "G-VH16M3Q33V"
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
         };
+        // === (نهاية التعديل: إعدادات Firebase) ===
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
 
-        let currentUser = null;
-        let originalPhotoPath = null;
-        let newProfilePicFile = null;
+        // --- عناصر واجهة المستخدم ---
+        const loginBtn = document.getElementById('login-btn');
+        const userMenu = document.getElementById('user-menu');
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenuDropdown = document.getElementById('user-menu-dropdown');
+        const userMenuName = document.getElementById('user-menu-name');
+        const userMenuDisplayName = document.getElementById('user-menu-displayname');
+        const logoutBtn = document.getElementById('logout-btn');
 
-        const loadingSpinner = document.getElementById('loading-spinner');
+        const authLoader = document.getElementById('auth-loader');
         const profileContent = document.getElementById('profile-content');
-        const editProfileModal = document.getElementById('edit-profile-modal');
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists() && userDoc.data().isAdmin === true) {
-                    document.getElementById('admin-panel-link').classList.remove('hidden');
-                }
-                await loadUserProfile(user.uid);
-                await loadUserProducts(user.uid);
-                loadingSpinner.classList.add('hidden');
-                profileContent.classList.remove('hidden');
-            } else {
-                window.location.href = 'index.html';
-            }
-        });
-
-        async function loadUserProfile(uid) {
-            const userDocRef = doc(db, "users", uid);
-            const userDoc = await getDoc(userDocRef);
-
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                originalPhotoPath = userData.photoPath; 
-
-                document.getElementById('profile-name').textContent = userData.fullName || 'مستخدم جديد';
-                document.getElementById('profile-email').textContent = userData.email;
-                const profilePicUrl = userData.photoURL || `https://placehold.co/128x128/E2E8F0/4A5568?text=${(userData.fullName || 'U').charAt(0)}`;
-                document.getElementById('profile-pic').src = profilePicUrl;
-                document.getElementById('edit-pic-preview').src = profilePicUrl;
-                
-                const roleTranslations = { 'buyer': 'مشتري', 'seller': 'تاجر', 'both': 'تاجر ومشتري' };
-                document.getElementById('profile-role').textContent = roleTranslations[userData.role] || userData.role;
-
-                document.getElementById('profile-bio').textContent = userData.bio || 'لم تتم إضافة نبذة تعريفية.';
-                
-                const websiteDisplay = document.getElementById('website-display');
-                const socialLinksContainer = document.getElementById('social-links-display');
-                const noContactMessage = document.getElementById('no-contact-message');
-                let hasContactInfo = false;
-
-                if(userData.website) {
-                    websiteDisplay.innerHTML = `<a href="${userData.website}" target="_blank" class="text-indigo-600 hover:underline flex items-center gap-2"><i class="fas fa-globe"></i><span>الموقع الإلكتروني</span></a>`;
-                    websiteDisplay.classList.remove('hidden');
-                    hasContactInfo = true;
-                } else {
-                    websiteDisplay.classList.add('hidden');
-                }
-
-                socialLinksContainer.innerHTML = '';
-                if (userData.facebook) { socialLinksContainer.innerHTML += `<a href="${userData.facebook}" target="_blank" class="hover:text-indigo-600"><i class="fab fa-facebook"></i></a>`; hasContactInfo = true; }
-                if (userData.instagram) { socialLinksContainer.innerHTML += `<a href="${userData.instagram}" target="_blank" class="hover:text-indigo-600"><i class="fab fa-instagram"></i></a>`; hasContactInfo = true; }
-                
-                noContactMessage.classList.toggle('hidden', hasContactInfo);
-
-                document.getElementById('verified-badge').classList.toggle('hidden', !userData.isVerified);
-                const ratingDisplay = document.getElementById('rating-display');
-                if(userData.adminRating > 0) {
-                    ratingDisplay.classList.remove('hidden');
-                    let stars = '';
-                    for(let i=0; i<5; i++) {
-                        stars += `<i class="fa-star ${i < userData.adminRating ? 'fas' : 'far'}"></i>`;
-                    }
-                    ratingDisplay.innerHTML = stars;
-                } else {
-                    ratingDisplay.classList.add('hidden');
-                }
-
-                document.getElementById('edit-name').value = userData.fullName || '';
-                document.getElementById('edit-bio').value = userData.bio || '';
-                document.getElementById('edit-website').value = userData.website || '';
-                document.getElementById('edit-facebook').value = userData.facebook || '';
-                document.getElementById('edit-instagram').value = userData.instagram || '';
-                updateCharCount();
-            }
-        }
-
-        async function loadUserProducts(uid) {
-            const productsList = document.getElementById('products-list');
-            productsList.innerHTML = '';
-            const q = query(collection(db, "products"), where("sellerId", "==", uid));
-            const querySnapshot = await getDocs(q);
-            
-            document.getElementById('no-products-message').classList.toggle('hidden', !querySnapshot.empty);
-
-            querySnapshot.forEach((doc) => {
-                const product = doc.data();
-                const productCard = `
-                    <div class="relative flex flex-col sm:flex-row items-center justify-between bg-gray-50 p-4 rounded-lg border gap-4">
-                        <div class="flex items-center gap-4 w-full">
-                            <img src="${product.imageUrl || 'https://placehold.co/80x80'}" alt="${product.name}" class="w-20 h-20 rounded-md object-cover">
-                            <div class="flex-grow">
-                                <h4 class="font-bold text-lg">${product.name}</h4>
-                                <p class="text-indigo-600 font-semibold">${product.price} د.ج</p>
-                                <p class="text-xs text-gray-500">الحالة: ${product.status === 'approved' ? 'معروض' : (product.status === 'pending' ? 'قيد المراجعة' : 'مرفوض')}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-2 space-x-reverse w-full sm:w-auto justify-center">
-                           <label class="inline-flex items-center cursor-pointer">
-                              <span class="mr-2 text-sm font-medium text-gray-900">متوفر</span>
-                              <input type="checkbox" data-id="${doc.id}" class="sold-toggle sr-only peer" ${product.isSold ? 'checked' : ''}>
-                              <div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
-                              <span class="ml-2 text-sm font-medium text-gray-900">مباع</span>
-                           </label>
-                           <a href="edit-product.html?id=${doc.id}" class="text-sm bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 w-8 h-8 flex items-center justify-center"><i class="fas fa-edit"></i></a>
-                           <button data-id="${doc.id}" data-image-path="${product.imagePath}" class="delete-product-button text-sm bg-red-500 text-white p-2 rounded-full hover:bg-red-600 w-8 h-8 flex items-center justify-center"><i class="fas fa-trash"></i></button>
-                        </div>
-                        ${product.isSold ? `
-                        <div class="product-sold-overlay">
-                            <span class="product-sold-badge">مبــاع</span>
-                        </div>` : ''}
-                    </div>
-                `;
-                productsList.innerHTML += productCard;
-            });
-
-            document.querySelectorAll('.delete-product-button').forEach(btn => btn.onclick = handleDeleteProduct);
-            document.querySelectorAll('.sold-toggle').forEach(toggle => toggle.onchange = handleSoldStatus);
-        }
-
-        // MODAL HANDLING
-        function openModal() { editProfileModal.classList.remove('hidden'); }
-        function closeModal() { editProfileModal.classList.add('hidden'); newProfilePicFile = null; }
-        document.getElementById('edit-profile-button').addEventListener('click', openModal);
-        document.getElementById('cancel-edit-button').addEventListener('click', closeModal);
-        document.getElementById('close-modal-button').addEventListener('click', closeModal);
-        document.getElementById('modal-backdrop').addEventListener('click', closeModal);
-
-        // EDIT PROFILE FORM
-        document.getElementById('change-pic-button').addEventListener('click', () => document.getElementById('edit-pic-input').click());
-        document.getElementById('edit-pic-input').addEventListener('change', (e) => {
-            newProfilePicFile = e.target.files[0];
-            if (newProfilePicFile) {
-                const reader = new FileReader();
-                reader.onload = (event) => { document.getElementById('edit-pic-preview').src = event.target.result; };
-                reader.readAsDataURL(newProfilePicFile);
-            }
-        });
-
-        const bioTextarea = document.getElementById('edit-bio');
-        const charCount = document.getElementById('bio-char-count');
-        function updateCharCount() {
-            const remaining = 400 - bioTextarea.value.length;
-            charCount.textContent = `${remaining}/400`;
-        }
-        bioTextarea.addEventListener('input', updateCharCount);
-
-        document.getElementById('edit-profile-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const saveButton = document.getElementById('save-changes-button');
-            const saveText = document.getElementById('save-text');
-            const saveSpinner = document.getElementById('save-spinner');
-
-            saveText.classList.add('hidden');
-            saveSpinner.classList.remove('hidden');
-            saveButton.disabled = true;
-
-            const userDocRef = doc(db, "users", currentUser.uid);
-            const updates = {
-                fullName: document.getElementById('edit-name').value,
-                bio: document.getElementById('edit-bio').value,
-                website: document.getElementById('edit-website').value,
-                facebook: document.getElementById('edit-facebook').value,
-                instagram: document.getElementById('edit-instagram').value,
-            };
-
-            try {
-                if (newProfilePicFile) {
-                    const photoPath = `profile_pictures/${currentUser.uid}/${Date.now()}_${newProfilePicFile.name}`;
-                    const storageRef = ref(storage, photoPath);
-                    await uploadBytes(storageRef, newProfilePicFile);
-                    updates.photoURL = await getDownloadURL(storageRef);
-                    updates.photoPath = photoPath;
-
-                    if (originalPhotoPath) {
-                        await deleteObject(ref(storage, originalPhotoPath)).catch(err => console.error("Old photo deletion failed:", err));
-                    }
-                }
-                
-                await updateDoc(userDocRef, updates);
-                await loadUserProfile(currentUser.uid);
-                closeModal();
-            } catch (error) {
-                console.error("Profile update failed:", error);
-                alert('حدث خطأ أثناء تحديث الملف الشخصي.');
-            } finally {
-                saveText.classList.remove('hidden');
-                saveSpinner.classList.add('hidden');
-                saveButton.disabled = false;
-            }
-        });
-
-        // PRODUCT ACTIONS
-        async function handleDeleteProduct(e) {
-            const button = e.currentTarget;
-            const productId = button.dataset.id;
-            const imagePath = button.dataset.imagePath;
-
-            if (confirm('هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.')) {
-                try {
-                    await deleteDoc(doc(db, "products", productId));
-                    if (imagePath) {
-                        await deleteObject(ref(storage, imagePath)).catch(err => console.error("Image deletion failed:", err));
-                    }
-                    button.closest('.relative').remove();
-                    if (document.getElementById('products-list').children.length === 1) { // 1 because of the no-products-message div
-                        document.getElementById('no-products-message').classList.remove('hidden');
-                    }
-                } catch (error) {
-                    console.error("Product deletion failed:", error);
-                    alert("فشل حذف المنتج.");
-                }
-            }
-        }
-
-        async function handleSoldStatus(e) {
-            const toggle = e.currentTarget;
-            const productId = toggle.dataset.id;
-            const isSold = toggle.checked;
-            try {
-                await updateDoc(doc(db, "products", productId), { isSold: isSold });
-                // Refresh only the products list to show changes
-                await loadUserProducts(currentUser.uid);
-            } catch (error) {
-                console.error("Failed to update sold status:", error);
-                alert("فشل تحديث حالة المنتج.");
-                // Revert toggle on error
-                toggle.checked = !isSold;
-            }
-        }
+        const profileForm = document.getElementById('profile-form');
+        const profileName = document.getElementById('profile-name');
+        const profileEmail = document.getElementById('profile-email');
+        const profilePhone = document.getElementById('profile-phone');
         
-        // ACCOUNT DELETION
-        document.getElementById('delete-account-request-button').addEventListener('click', async () => {
-            if (confirm('هل أنت متأكد من أنك تريد طلب حذف حسابك؟ سيتم إعلام الإدارة لاتخاذ الإجراء النهائي.')) {
-                try {
-                    await updateDoc(doc(db, "users", currentUser.uid), {
-                        deletionRequested: true
-                    });
-                    alert('تم إرسال طلب حذف الحساب بنجاح.');
-                    document.getElementById('delete-account-request-button').disabled = true;
-                    document.getElementById('delete-account-request-button').textContent = 'تم إرسال الطلب';
-                } catch (error) {
-                    console.error("Failed to request account deletion:", error);
-                    alert('فشل إرسال طلب حذف الحساب.');
+        // === (بداية الإضافة: عناصر البائع) ===
+        const profileStoreName = document.getElementById('profile-store-name');
+        const profileFacebook = document.getElementById('profile-social-facebook');
+        const profileInstagram = document.getElementById('profile-social-instagram');
+        const profileTelegram = document.getElementById('profile-social-telegram');
+        const profileSnapchat = document.getElementById('profile-social-snapchat');
+        // === (نهاية الإضافة: عناصر البائع) ===
+
+        const saveBtn = document.getElementById('save-profile-btn');
+        const saveBtnText = document.getElementById('save-btn-text');
+        const saveBtnLoader = document.getElementById('save-btn-loader');
+
+        // --- دالة التنبيهات (Toast) ---
+        const showToast = (message, type = 'success') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+            toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        };
+
+        // --- جلب بيانات الملف الشخصي ---
+        async function loadProfileData(user) {
+            try {
+                const userDocRef = doc(db, 'users', user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const data = userDocSnap.data();
+                    profileName.value = data.displayName || user.displayName || '';
+                    profileEmail.value = data.email || user.email || '';
+                    profilePhone.value = data.phone || '';
+                    
+                    // === (بداية الإضافة: جلب بيانات البائع) ===
+                    profileStoreName.value = data.storeName || '';
+                    if (data.socialLinks) {
+                        profileFacebook.value = data.socialLinks.facebook || '';
+                        profileInstagram.value = data.socialLinks.instagram || '';
+                        profileTelegram.value = data.socialLinks.telegram || '';
+                        profileSnapchat.value = data.socialLinks.snapchat || '';
+                    }
+                    // === (نهاية الإضافة: جلب بيانات البائع) ===
+
+                } else {
+                    // في حال كان المستخدم موجوداً في Auth ولكن ليس في Firestore (نادر)
+                    profileName.value = user.displayName || '';
+                    profileEmail.value = user.email || '';
+                    profilePhone.value = user.phoneNumber || '';
+                    // نترك حقول البائع فارغة
                 }
+
+                authLoader.classList.add('hidden');
+                profileContent.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Error fetching profile data: ", error);
+                authLoader.innerHTML = '<p class="text-red-500 text-center">حدث خطأ أثناء جلب بياناتك.</p>';
+            }
+        }
+
+        // --- معالج حفظ التعديلات ---
+        profileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newName = profileName.value.trim();
+            const newPhone = profilePhone.value.trim();
+            
+            // === (بداية الإضافة: قراءة بيانات البائع) ===
+            const newStoreName = profileStoreName.value.trim();
+            // === (نهاية الإضافة: قراءة بيانات البائع) ===
+
+            // تم إضافة newStoreName للتحقق الإلزامي
+            if (!newName || !newPhone || !newStoreName) {
+                showToast('الرجاء ملء الحقول الإلزامية (الاسم، الهاتف، واسم المتجر)', 'error');
+                return;
+            }
+
+            saveBtn.disabled = true;
+            saveBtnText.classList.add('hidden');
+            saveBtnLoader.classList.remove('hidden');
+
+            try {
+                const user = auth.currentUser;
+                // 1. تحديث بيانات Auth (للاسم المعروض)
+                await updateProfile(user, { displayName: newName });
+
+                // === (بداية الإضافة: تجميع بيانات البائع) ===
+                const socialLinks = {
+                    facebook: profileFacebook.value.trim(),
+                    instagram: profileInstagram.value.trim(),
+                    telegram: profileTelegram.value.trim(),
+                    snapchat: profileSnapchat.value.trim()
+                };
+                // === (نهاية الإضافة: تجميع بيانات البائع) ===
+
+                // 2. تحديث بيانات Firestore (للاسم والهاتف وبيانات المتجر)
+                const userDocRef = doc(db, 'users', user.uid);
+                // تم إضافة الحقول الجديدة
+                await setDoc(userDocRef, {
+                    displayName: newName,
+                    phone: newPhone,
+                    storeName: newStoreName,
+                    socialLinks: socialLinks
+                }, { merge: true }); // merge: true تضمن عدم مسح البيانات الأخرى مثل النقاط
+
+                showToast('تم حفظ التعديلات بنجاح!', 'success');
+                // تحديث اسم القائمة في الهيدر
+                userMenuName.textContent = newName.split(' ')[0];
+                userMenuDisplayName.textContent = newName;
+
+            } catch (error) {
+                console.error("Error updating profile: ", error);
+                showToast('حدث خطأ أثناء حفظ التعديلات.', 'error');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtnText.classList.remove('hidden');
+                saveBtnLoader.classList.add('hidden');
             }
         });
 
-        document.getElementById('logout-button').addEventListener('click', () => {
-            signOut(auth).then(() => { window.location.href = 'index.html'; });
+        // --- منطق المصادقة والتحكم بالصفحة ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // المستخدم قام بتسجيل الدخول
+                loginBtn.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+                
+                const displayName = user.displayName || "زبوننا";
+                userMenuName.textContent = displayName.split(' ')[0];
+                userMenuDisplayName.textContent = displayName;
+
+                // جلب بيانات الملف الشخصي
+                loadProfileData(user);
+
+            } else {
+                // المستخدم زائر، قم بإعادته لصفحة التسجيل
+                window.location.href = 'login.html';
+            }
+        });
+
+        // --- معالجات القائمة وتسجيل الخروج ---
+        userMenuButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userMenuDropdown.classList.toggle('show');
+        });
+
+        document.addEventListener('click', () => {
+            if (userMenuDropdown.classList.contains('show')) {
+                userMenuDropdown.classList.remove('show');
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).catch((error) => console.error('Logout Error', error));
         });
     </script>
 </body>

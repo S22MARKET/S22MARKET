@@ -73,6 +73,25 @@
          .filter-button:not(.active):hover {
             background-color: #d1d5db;
         }
+
+        /* === (بداية الإضافة: ستايل مسار التنقل) === */
+        #breadcrumbs-container {
+            font-size: 0.875rem; /* text-sm */
+            color: #64748b; /* text-gray-500 */
+            margin-bottom: 0.5rem; /* mb-2 */
+        }
+        #breadcrumbs-container a {
+            color: #3b82f6; /* text-blue-600 */
+            text-decoration: none;
+        }
+        #breadcrumbs-container a:hover {
+            text-decoration: underline;
+        }
+        #breadcrumbs-container span {
+            margin: 0 0.25rem; /* mx-1 */
+        }
+        /* === (نهاية الإضافة) === */
+
     </style>
 </head>
 <body>
@@ -91,6 +110,9 @@
     </header>
 
     <main class="max-w-7xl mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
+        
+        <nav id="breadcrumbs-container" aria-label="Breadcrumb">
+            </nav>
         <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md mb-8">
             <h1 id="page-title" class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-4">جاري تحميل القسم...</h1>
             
@@ -152,6 +174,9 @@
             priceFilter: document.getElementById('price-filter'),
             pageTitle: document.getElementById('page-title'),
             filterButtons: document.getElementById('filter-buttons-container'),
+            // === (بداية الإضافة) ===
+            breadcrumbs: document.getElementById('breadcrumbs-container'),
+            // === (نهاية الإضافة) ===
         };
 
         function getFilterFromURL() {
@@ -166,10 +191,11 @@
             }
         }
 
-        // [*] FIXED: Function now generates <button> elements for dynamic filtering
+        // === (بداية التعديل: تحديث دالة العنوان) ===
         function updatePageTitleAndFilters() {
             let parentCategory = null;
             let currentSubcategory = null;
+            let breadcrumbsHTML = `<a href="index.html">الرئيسية</a>`; // رابط الصفحة الرئيسية
 
             if (currentFilter.type === 'category') {
                 parentCategory = allCategories.find(c => c.id === currentFilter.id);
@@ -189,10 +215,17 @@
                 elements.pageTitle.textContent = pageTitleText;
                 document.title = pageTitleText;
 
+                // بناء مسار التنقل
+                breadcrumbsHTML += `<span>/</span> <a href="classproductindex.html?category=${parentCategory.id}">${parentCategory.name}</a>`;
+                if (currentSubcategory) {
+                    breadcrumbsHTML += `<span>/</span> ${currentSubcategory.name}`;
+                }
+                elements.breadcrumbs.innerHTML = breadcrumbsHTML;
+
+
                 const activeSubcategories = parentCategory.subcategories?.filter(s => s.active && s.id) || [];
                 
                 if (activeSubcategories.length > 0) {
-                    // Using <button> instead of <a> for instant client-side filtering
                     let buttonsHTML = `<button class="filter-button ${!currentSubcategory ? 'active' : ''}" data-filter-type="category" data-filter-id="${parentCategory.id}">كل منتجات القسم</button>`;
                     
                     activeSubcategories.forEach(sub => {
@@ -205,9 +238,11 @@
 
             } else {
                 elements.pageTitle.textContent = 'قسم غير معروف';
+                elements.breadcrumbs.innerHTML = `<a href="index.html">الرئيسية</a> <span>/</span> خطأ`;
                 elements.filterButtons.innerHTML = '';
             }
         }
+        // === (نهاية التعديل) ===
         
         function renderProducts() {
             let productsToRender = [...allProducts];
@@ -304,7 +339,6 @@
             });
             elements.priceFilter.addEventListener('change', renderProducts);
             
-            // [+] NEW: Event listener for dynamic filtering on button click
             elements.filterButtons.addEventListener('click', (e) => {
                 const button = e.target.closest('.filter-button');
                 if (!button || button.classList.contains('active')) return;

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Market - أرشيف طلباتي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* تم تغيير الألوان */
+        :root {
+            --primary-color: #3b82f6;
+            --bg-body: #f1f5f9;
+        }
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-body); }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; translateY(0); } }
+        
+        #user-menu-dropdown.show {
+            display: block;
+            animation: slideInUp 0.2s ease-out;
+        }
+        
+        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 100; }
+        .toast { background-color: #2d3748; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards; }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+        /* تنسيق لحالة الطلب */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        .status-new { background-color: #dbeafe; color: #1d4ed8; }
+        .status-completed { background-color: #d1fae5; color: #065f46; }
+        .status-canceled { background-color: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body>
+
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+             <a href="index.html" class="flex items-center gap-3">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+                    S22<span class="text-blue-600">MARKET</span>
+                </h1>
+            </a>
+            
+            <div id="header-actions" class="flex items-center gap-4 relative">
+                <a href="index.html" id="store-btn" class="relative text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 shadow-lg">
+                    <i class="fas fa-store"></i>
+                    <span>المتجر</span>
+                </a>
+                <a href="login.html" id="login-btn" class="hidden relative text-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-full transition-colors items-center gap-2 sm:flex">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>دخول / تسجيل</span>
+                </a>
+                <div id="user-menu" class="hidden">
+                    <button id="user-menu-button" class="flex items-center gap-2 text-lg font-semibold text-gray-700 bg-green-100 hover:bg-green-200 px-5 py-2.5 rounded-full transition-colors">
+                        <i class="fas fa-user-check text-green-700"></i>
+                        <span id="user-menu-name">...</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="user-menu-dropdown" class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
+                        <div class="p-3 border-b">
+                            <p class="text-sm text-gray-500">مرحباً بك،</p>
+                            <p class="font-bold text-gray-800" id="user-menu-displayname">...</p>
+                        </div>
+                        <a href="seller-dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
+                        <a href="profile.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي</a>
+                        <a href="order_history.html" class="block px-4 py-3 text-gray-700 bg-gray-100 font-bold transition-colors"><i class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
+                        <a href="loyalty_card.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء</a>
+                        <button id="logout-btn" class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        
+        <div id="auth-loader" class="text-center py-20">
+            <div class="loader mx-auto"></div>
+            <p class="mt-4 text-gray-600 text-lg">جاري جلب أرشيف طلباتك...</p>
+        </div>
+
+        <div id="history-content" class="hidden" style="animation: slideInUp 0.5s ease-out;">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 text-center mb-8">
+                <i class="fas fa-archive text-blue-500"></i> أرشيف طلباتي
+            </h1>
+
+            <div id="orders-list" class="space-y-6">
+                </div>
+
+            <div id="no-orders-msg" class="hidden text-center py-20 bg-white rounded-xl shadow-md">
+                <i class="fas fa-box-open text-5xl text-gray-400"></i>
+                <p class="mt-4 text-xl font-semibold text-gray-500">لم تقم بأي طلبات بعد.</p>
+                <a href="index.html" class="mt-4 inline-block bg-blue-600 text-white font-bold py-2 px-6 rounded-full hover:bg-blue-700">
+                    ابدأ الطلب الآن!
+                </a>
+            </div>
+
+        </div>
+    </main>
+    
+    <div id="toast-container"></div>
+
+    <script type="module">
+        // --- إعدادات Firebase ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // === (بداية التعديل: إعدادات Firebase) ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
+        // === (نهاية التعديل: إعدادات Firebase) ===
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- عناصر واجهة المستخدم ---
+        const loginBtn = document.getElementById('login-btn');
+        const userMenu = document.getElementById('user-menu');
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenuDropdown = document.getElementById('user-menu-dropdown');
+        const userMenuName = document.getElementById('user-menu-name');
+        const userMenuDisplayName = document.getElementById('user-menu-displayname');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        const authLoader = document.getElementById('auth-loader');
+        const historyContent = document.getElementById('history-content');
+        const ordersList = document.getElementById('orders-list');
+        const noOrdersMsg = document.getElementById('no-orders-msg');
+        
+        // --- دالة تنسيق العملة ---
+        const formatCurrency = (number) => {
+            const num = number || 0;
+            return num.toLocaleString('fr-DZ') + ' د.ج';
+        };
+
+        // --- جلب بيانات الأرشيف ---
+        async function loadOrderHistory(user) {
+            try {
+                // 1. إنشاء الاستعلام
+                const ordersRef = collection(db, 'orders');
+                const q = query(ordersRef, 
+                                where("userId", "==", user.uid), 
+                                orderBy("createdAt", "desc"));
+
+                // 2. تنفيذ الاستعلام
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    noOrdersMsg.classList.remove('hidden');
+                } else {
+                    querySnapshot.forEach(doc => {
+                        const order = doc.data();
+                        const orderId = doc.id;
+                        ordersList.appendChild(createOrderCard(order, orderId));
+                    });
+                }
+
+                authLoader.classList.add('hidden');
+                historyContent.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Error fetching order history: ", error);
+                // ملاحظة: بما أن هذه الصفحة مخصصة للبائعين/العملاء وليس للأدمن، قد لا يكون لديهم "طلبات" بعد
+                // سنفترض أن الطلبات ستأتي من نظام S22 Market لاحقاً
+                // سنقوم بتحديث هذا الكود لاحقاً ليجلب الطلبات بناءً على رقم هاتف العميل
+                noOrdersMsg.classList.remove('hidden');
+                authLoader.classList.add('hidden');
+                historyContent.classList.remove('hidden');
+                // authLoader.innerHTML = '<p class="text-red-500 text-center">حدث خطأ أثناء جلب أرشيف طلباتك.</p>';
+            }
+        }
+
+        // --- دالة لإنشاء كرت الطلب ---
+        function createOrderCard(order, orderId) {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-xl shadow-lg overflow-hidden';
+
+            const orderDate = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString('ar-EG', { day: '2-digit', month: 'long', year: 'numeric' }) : 'تاريخ غير محدد';
+            
+            let statusText = 'جديد';
+            let statusClass = 'status-new';
+            if (order.status === 'completed') {
+                statusText = 'مكتمل';
+                statusClass = 'status-completed';
+            } else if (order.status === 'canceled') {
+                statusText = 'ملغي';
+                statusClass = 'status-canceled';
+            }
+
+            // تجميع تفاصيل الوجبات
+            const itemsHtml = order.items.map(item => `
+                <li class="flex justify-between items-center text-sm">
+                    <span>${item.quantity} x ${item.name}</span>
+                    <span class="font-mono">${formatCurrency(item.price * item.quantity)}</span>
+                </li>
+            `).join('');
+
+            card.innerHTML = `
+                <div class="p-5 border-b flex flex-col md:flex-row justify-between md:items-center gap-2">
+                    <div>
+                        <p class="text-sm text-gray-500">رقم الطلب: <span class="font-mono font-bold text-gray-700">${orderId.substring(0, 8)}</span></p>
+                        <p class="text-lg font-bold">${orderDate}</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </div>
+                </div>
+                <div class="p-5 bg-gray-50">
+                    <h4 class="font-bold mb-2">ملخص الطلب:</h4>
+                    <ul class="space-y-2 mb-4">
+                        ${itemsHtml}
+                    </ul>
+                    <div class="border-t pt-4 space-y-2 font-semibold">
+                        <div class="flex justify-between"><span>سعر التوصيل:</span> <span class="font-mono">${formatCurrency(order.deliveryFee)}</span></div>
+                        ${order.discountAmount > 0 ? `<div class="flex justify-between text-green-600"><span>الخصم (كوبون):</span> <span class="font-mono">-${formatCurrency(order.discountAmount)}</span></div>` : ''}
+                        <div class="flex justify-between text-xl font-bold text-blue-600"><span>الإجمالي:</span> <span class="font-mono">${formatCurrency(order.totalPrice)}</span></div>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+
+        // --- منطق المصادقة والتحكم بالصفحة ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // المستخدم قام بتسجيل الدخول
+                loginBtn.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+                
+                const displayName = user.displayName || "زبوننا";
+                userMenuName.textContent = displayName.split(' ')[0];
+                userMenuDisplayName.textContent = displayName;
+
+                // جلب بيانات الأرشيف
+                // ملاحظة: هذا سيبحث عن الطلبات المرتبطة بـ user.uid
+                // طلبات S22 Market الحالية غير مرتبطة بـ uid، لذلك ستظهر القائمة فارغة
+                // هذا هو السلوك الصحيح للمستقبل
+                loadOrderHistory(user);
+
+            } else {
+                // المستخدم زائر، قم بإعادته لصفحة التسجيل
+                window.location.href = 'login.html';
+            }
+        });
+
+        // --- معالجات القائمة وتسجيل الخروج ---
+        userMenuButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userMenuDropdown.classList.toggle('show');
+        });
+
+        document.addEventListener('click', () => {
+            if (userMenuDropdown.classList.contains('show')) {
+                userMenuDropdown.classList.remove('show');
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).catch((error) => console.error('Logout Error', error));
+        });
+    </script>
+</body>
+</html>
