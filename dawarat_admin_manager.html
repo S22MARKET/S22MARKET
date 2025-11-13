@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Dawarat - إدارة البذلورات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.6/purify.min.js"></script>
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
+        .hidden { display: none; }
+        .dashboard-tab:hover { background-color: #4338ca; }
+        .dashboard-tab.active-tab { background-color: #4f46e5; color: white; font-weight: bold; }
+        .dashboard-panel { animation: fadeIn 0.5s; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 40; display: flex; align-items: center; justify-content: center; }
+        /* (جديد) زيادة عرض النافذة ليناسب باني المنهج */
+        .modal-content { background-color: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 900px; z-index: 50; max-height: 90vh; overflow-y: auto; }
+        .ql-toolbar { border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem; }
+        .ql-container { border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem; min-height: 80px; }
+        .ql-editor { font-family: 'Tajawal', sans-serif; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* === (جديد) ستايل باني المنهج === */
+        .module-container {
+            background-color: #f8fafc; /* bg-slate-50 */
+            border: 1px solid #e2e8f0; /* border-slate-200 */
+            border-radius: 0.75rem; /* rounded-xl */
+            margin-bottom: 1rem;
+        }
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .module-header input {
+            font-weight: 700;
+            font-size: 1.125rem; /* text-lg */
+            border: none;
+            background: transparent;
+            padding: 0.25rem;
+            width: 100%;
+        }
+        .module-header input:focus {
+            outline: none;
+            background-color: white;
+            box-shadow: 0 0 0 1px #cbd5e1;
+        }
+        .lessons-list {
+            padding: 1rem;
+            space-y: 0.75rem;
+        }
+        .lesson-item {
+            background-color: white;
+            border-radius: 0.5rem; /* rounded-lg */
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+        }
+        .lesson-item-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .lesson-item-header select, .lesson-item-header input {
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            border: 1px solid #cbd5e1;
+        }
+        .lesson-item-content {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .lesson-item-content input, .lesson-item-content textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            border: 1px solid #cbd5e1;
+            background-color: #f8fafc;
+            font-size: 0.875rem;
+        }
+        .lesson-item-content textarea {
+             min-height: 60px;
+        }
+        .lesson-type-icon {
+            font-size: 1rem;
+            width: 30px;
+            text-align: center;
+            color: #64748b; /* text-slate-500 */
+        }
+        /* === (نهاية ستايل باني المنهج) === */
+
+    </style>
+</head>
+<body>
+
+<div id="login-page" class="hidden min-h-screen flex items-center justify-center bg-gray-100 p-4">
+    </div>
+
+<div id="dashboard-page" class="hidden">
+    <div class="relative min-h-screen md:flex">
+        <aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
+            <div class="p-3 text-center border-b border-gray-700">
+                <h2 class="text-2xl font-bold">S22 Dawarat</h2>
+                <p id="admin-welcome-name" class="text-sm text-indigo-300"></p>
+            </div>
+            <nav class="flex-1 p-2 space-y-2">
+                <a href="dawarat_admin_manager.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-graduation-cap fa-fw mr-3"></i> إدارة البذلورات</a>
+                <a href="dawarat_admin_professors.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chalkboard-teacher fa-fw mr-3 text-yellow-400"></i> إدارة الأساتذة</a>
+                <a href="dawarat_admin_approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات التسجيل</a>
+                <a href="dawarat_admin_referrals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
+                <a href="dawarat_admin_settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات النظام</a>
+            </nav>
+            <div class="p-4 border-t border-gray-700">
+                <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+            <div id="products-panel" class="dashboard-panel">
+                <div class="text-center py-20">
+                    <div class="loader mx-auto"></div>
+                    <p class="mt-4 text-gray-600">جاري تحميل البذلورات...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div id="modal-container"></div>
+<div id="toast-container"></div> <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, serverTimestamp, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+        authDomain: "s22market-4e3e6.firebaseapp.com",
+        projectId: "s22market-4e3e6",
+        storageBucket: "s22market-4e3e6.appspot.com",
+        messagingSenderId: "119186699901",
+        appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+        measurementId: "G-MWYNCVP4WQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const ADMIN_EMAILS = [
+        's22market@gmail.com',
+        'yacinee474474@gmail.com',
+        'nourmt01@gmail.com'
+    ];
+
+    let categoriesCache = [];
+    let productsCache = [];
+    let professorsCache = [];
+    // (جديد) لتوليد ID فريد للمناهج
+    const generateUID = () => `id_${Math.random().toString(36).substring(2, 11)}`;
+    
+    const loginPage = document.getElementById('login-page');
+    const dashboardPage = document.getElementById('dashboard-page');
+    const logoutBtn = document.getElementById('logout-btn');
+    const getEl = (id) => document.getElementById(id);
+    const getVal = (id) => getEl(id)?.value || '';
+    const getNum = (id) => parseFloat(getVal(id));
+    const getChecked = (id) => getEl(id)?.checked || false;
+
+    // --- (دوال المصادقة والقائمة الجانبية) ---
+    function checkAdminPermissions(user) {
+        if (user && ADMIN_EMAILS.includes(user.email)) {
+            loginPage.classList.add('hidden');
+            dashboardPage.classList.remove('hidden');
+            getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
+            initializeDashboard();
+        } else {
+            dashboardPage.classList.add('hidden');
+            loginPage.classList.remove('hidden');
+            if (user) signOut(auth);
+        }
+    }
+    onAuthStateChanged(auth, user => { checkAdminPermissions(user); });
+    logoutBtn.addEventListener('click', async () => { await signOut(auth); });
+
+    function setActiveTab() {
+        // (جديد) تحديد اسم الملف الحالي
+        const currentPage = 'dawarat_admin_manager.html';
+        const tabs = document.querySelectorAll('.dashboard-tab');
+        tabs.forEach(tab => {
+            const tabHref = tab.getAttribute('href').split('/').pop();
+            if (tabHref === currentPage) {
+                tab.classList.add('active-tab');
+            } else {
+                tab.classList.remove('active-tab');
+            }
+        });
+    }
+
+    // --- (الدالة الرئيسية - معدلة) ---
+    async function initializeDashboard() {
+        setActiveTab();
+        // جلب الأقسام والأساتذة أولاً
+        await Promise.all([
+            onSnapshot(query(collection(db, "categories"), orderBy("orderIndex")), (snapshot) => {
+                categoriesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            }),
+            onSnapshot(query(collection(db, "professors"), orderBy("name")), (snapshot) => {
+                professorsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            })
+        ]);
+        loadProducts(); // ثم تحميل البذلورات
+    }
+
+    // --- (دالة تحميل البذلورات - معدلة) ---
+    function loadProducts() {
+        const panel = getEl('products-panel');
+        panel.innerHTML = `<div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">إدارة البذلورات</h1>
+            <button id="add-product-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700">
+                <i class="fas fa-plus mr-2"></i> إضافة بذلورة
+            </button>
+        </div>
+        <div id="products-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>`;
+
+        getEl('add-product-btn').addEventListener('click', () => showProductModal());
+        
+        // (جديد) فلترة لجلب "البذلورات" فقط
+        const q = query(collection(db, "products"), where("productType", "==", "course"), orderBy("createdAt", "desc"));
+        
+        onSnapshot(q, (snapshot) => {
+            productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderProductsGrid();
+        }, (error) => {
+            console.error("Error fetching products: ", error);
+            panel.innerHTML = `<p class="text-red-500 text-center"><b>خطأ:</b> لم يتم جلب البذلورات. <br>السبب المحتمل هو أن الفهرس (Index) الخاص بـ 'products' لم يتم إنشاؤه بعد. يرجى مراجعة لوحة تحكم Firebase.</p>`;
+        });
+    }
+
+    // --- (دالة عرض كروت البذلورات - معدلة) ---
+    function renderProductsGrid() {
+        const list = getEl('products-list');
+        list.innerHTML = productsCache.length === 0 ? '<p class="text-center text-gray-500 col-span-full mt-8">لا توجد بذلورات. أضف بذلورة جديدة للبدء.</p>' : '';
+        
+        productsCache.forEach(product => {
+            const card = document.createElement('div');
+            card.className = `bg-white p-4 rounded-xl shadow-md flex flex-col relative`;
+            
+            // ... (شارة التوفر) ...
+            let availabilityBadge = '';
+            switch(product.availability) {
+                case 'soon': availabilityBadge = '<span class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">قريبًا إن شاء الله</span>'; break;
+                case 'sold_out': availabilityBadge = '<span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">مغلق</span>'; break;
+                default: availabilityBadge = '<span class="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">متاح</span>';
+            }
+
+            // (جديد) شارة الأستاذ
+            const professor = professorsCache.find(p => p.id === product.professorId);
+            const profBadge = professor ? `<span class="absolute top-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full"><i class="fas fa-chalkboard-teacher mr-1"></i>${professor.name}</span>` : '';
+
+            const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : 'https://placehold.co/300x160/e2e8f0/94a3b8?text=No+Image';
+
+            card.innerHTML = `
+                ${availabilityBadge}
+                ${profBadge}
+                <img src="${image}" class="w-full h-40 object-cover rounded-lg mb-4 bg-gray-100">
+                <div class="description-content font-bold text-xl mb-2">${product.name || ''}</div>
+                
+                <div class="flex-grow text-gray-500 text-sm mb-3 flex gap-4">
+                    <span><i class="fas fa-clock fa-fw mr-1"></i> ${product.stats?.hours || 0} ساعات</span>
+                    <span><i class="fas fa-layer-group fa-fw mr-1"></i> ${product.stats?.level || '...'}</span>
+                    <span><i class="fas fa-list-ol fa-fw mr-1"></i> ${product.curriculum?.reduce((acc, mod) => acc + (mod.lessons?.length || 0), 0) || 0} درس</span>
+                </div>
+                
+                <div class="border-t mt-4 pt-3 flex justify-end gap-2">
+                    <button class="copy-product-link-btn text-gray-400 hover:text-green-600" data-id="${product.id}" title="نسخ رابط البذلورة"><i class="fas fa-link"></i></button>
+                    <button class="edit-product-btn text-gray-400 hover:text-indigo-600" data-id="${product.id}" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button class="delete-product-btn text-gray-400 hover:text-red-600" data-id="${product.id}" title="حذف"><i class="fas fa-trash"></i></button>
+                </div>`;
+            
+            card.querySelector('.description-content').innerHTML = product.name || '';
+            list.appendChild(card);
+        });
+        attachProductActionListeners();
+    }
+
+    // --- (دوال مساعدة - رفع الصور، الأقسام الفرعية، إلخ) ---
+    function populateSubcategories(categoryId, selectedSubCategoryId = null) {
+        // ... (نفس الكود من admin-products)
+    }
+    async function uploadImageToImgBB(file) {
+        // ... (نفس الكود من admin-products)
+    }
+    function resizeAndCompressImage(file, maxWidth = 800, quality = 0.85) {
+        // ... (نفس الكود من admin-products)
+    }
+    
+    // --- (جديد) دوال المساعدة الخاصة بباني المنهج ---
+    function createModuleElement(moduleData = null) {
+        const moduleId = moduleData?.id || generateUID();
+        const moduleTitle = moduleData?.title || 'فصل جديد';
+        
+        const moduleEl = document.createElement('div');
+        moduleEl.className = 'module-container';
+        moduleEl.dataset.moduleId = moduleId;
+        
+        moduleEl.innerHTML = `
+            <div class="module-header">
+                <i class="fas fa-grip-vertical text-gray-400 cursor-move mr-2"></i>
+                <input type="text" class="module-title-input" value="${moduleTitle}">
+                <button type="button" class="add-lesson-btn text-blue-500 font-semibold text-sm hover:text-blue-700 mr-4"><i class="fas fa-plus"></i> أضف درس</button>
+                <button type="button" class="delete-module-btn text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+            </div>
+            <div class="lessons-list">
+                </div>
+        `;
+        
+        // إضافة الدروس الموجودة مسبقاً (في حالة التعديل)
+        const lessonsListEl = moduleEl.querySelector('.lessons-list');
+        if (moduleData?.lessons) {
+            moduleData.lessons.forEach(lessonData => {
+                lessonsListEl.appendChild(createLessonElement(lessonData));
+            });
+        }
+        
+        // ربط الأحداث
+        moduleEl.querySelector('.add-lesson-btn').onclick = () => {
+            lessonsListEl.appendChild(createLessonElement());
+        };
+        moduleEl.querySelector('.delete-module-btn').onclick = () => {
+            if (confirm('هل أنت متأكد من حذف هذا الفصل بكل دروسه؟')) {
+                moduleEl.remove();
+            }
+        };
+        
+        return moduleEl;
+    }
+
+    function createLessonElement(lessonData = null) {
+        const lessonId = lessonData?.id || generateUID();
+        const lessonType = lessonData?.type || 'video';
+        const lessonTitle = lessonData?.title || '';
+        const lessonUrl = lessonData?.url || '';
+        const lessonDetails = lessonData?.details || ''; // (جديد) لتفاصيل البث المباشر
+
+        const lessonEl = document.createElement('div');
+        lessonEl.className = 'lesson-item';
+        lessonEl.dataset.lessonId = lessonId;
+
+        lessonEl.innerHTML = `
+            <div class="lesson-item-header">
+                <i class="fas fa-grip-vertical text-gray-400 cursor-move"></i>
+                <select class="lesson-type-select">
+                    <option value="video" ${lessonType === 'video' ? 'selected' : ''}>فيديو</option>
+                    <option value="quiz" ${lessonType === 'quiz' ? 'selected' : ''}>اختبار</option>
+                    <option value="file" ${lessonType === 'file' ? 'selected' : ''}>ملف</option>
+                    <option value="live" ${lessonType === 'live' ? 'selected' : ''}>بث مباشر</option>
+                </select>
+                <input type="text" class="lesson-title-input flex-grow" value="${lessonTitle}" placeholder="عنوان الدرس">
+                <button type="button" class="delete-lesson-btn text-red-500 hover:text-red-700"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="lesson-item-content">
+                <i class="lesson-type-icon fas fa-video"></i>
+                <input type="url" class="lesson-url-input" value="${lessonUrl}" placeholder="رابط الدرس (يوتيوب, ملف, جوجل فورم...)">
+                <textarea class="lesson-details-input hidden" placeholder="تفاصيل البث المباشر (التوقيت, إلخ)">${lessonDetails}</textarea>
+            </div>
+        `;
+
+        const typeSelect = lessonEl.querySelector('.lesson-type-select');
+        const icon = lessonEl.querySelector('.lesson-type-icon');
+        const urlInput = lessonEl.querySelector('.lesson-url-input');
+        const detailsInput = lessonEl.querySelector('.lesson-details-input');
+
+        const updateLessonType = (type) => {
+            let iconClass = 'fa-video';
+            let urlPlaceholder = 'رابط الدرس (يوتيوب, فيميو...)';
+            detailsInput.classList.add('hidden');
+            
+            if (type === 'quiz') {
+                iconClass = 'fa-file-alt';
+                urlPlaceholder = 'رابط الاختبار (Google Form, Typeform...)';
+            } else if (type === 'file') {
+                iconClass = 'fa-download';
+                urlPlaceholder = 'رابط الملف (PDF, ZIP...)';
+            } else if (type === 'live') {
+                iconClass = 'fa-broadcast-tower';
+                urlPlaceholder = 'رابط البث المباشر (Facebook Live, Zoom...)';
+                detailsInput.classList.remove('hidden');
+            }
+            
+            icon.className = `lesson-type-icon fas ${iconClass}`;
+            urlInput.placeholder = urlPlaceholder;
+        };
+        
+        typeSelect.onchange = (e) => updateLessonType(e.target.value);
+        lessonEl.querySelector('.delete-lesson-btn').onclick = () => lessonEl.remove();
+        
+        updateLessonType(lessonType); // التحديث عند التحميل
+        return lessonEl;
+    }
+
+    // --- (النافذة الموحدة - معدلة بالكامل) ---
+    function showProductModal(product = null) {
+        
+        let title = product ? 'تعديل بذلورة' : 'إضافة بذلورة جديدة';
+        
+        const categoryOptions = categoriesCache.map(cat => `<option value="${cat.id}" ${product && product.categoryId === cat.id ? 'selected' : ''}>${cat.name}</option>`).join('');
+        const professorOptions = professorsCache.map(prof => 
+            `<option value="${prof.id}" ${product && product.professorId === prof.id ? 'selected' : ''}>${prof.name}</option>`
+        ).join('');
+        
+        let existingImages = product ? (product.imageUrls || (product.imageUrl ? [product.imageUrl] : [])) : [];
+        const existingImagesHTML = existingImages.map(url => `<div class="relative group"><img src="${url}" class="w-24 h-24 rounded object-cover border"><div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-white text-xs text-center">سيتم حذفها عند رفع صور جديدة</span></div></div>`).join('');
+        
+        // (جديد) بناء حقول "ماذا ستتعلم"
+        const objectives = product?.objectives || ['', '', '']; // 3 حقول افتراضية
+        const objectivesHTML = objectives.map(obj => `
+            <input type="text" class="objective-input mt-2 w-full p-2 border rounded" value="${obj}" placeholder="هدف تعليمي...">
+        `).join('');
+
+        const commonFields = `<div class="space-y-4">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1 space-y-4">
+                    <h3 class="text-xl font-bold mb-2">1. التفاصيل الأساسية</h3>
+                    <div>
+                        <label class="font-semibold">عنوان البذلورة <span class="text-red-500">*</span></label>
+                        <div id="product-name-editor" class="mt-1 bg-white"></div>
+                    </div>
+                    <div>
+                        <label class="font-semibold">الأستاذ (المحاضر) <span class="text-red-500">*</span></label>
+                        <select id="product-professor-id" class="mt-1 w-full p-2 border rounded bg-white">
+                            <option value="">-- اختر أستاذ --</option>
+                            ${professorOptions}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="font-semibold">القسم الرئيسي (التصنيف) <span class="text-red-500">*</span></label>
+                        <select id="product-category-select" class="mt-1 w-full p-2 border rounded bg-white" required>
+                            <option value="">اختر قسم...</option>${categoryOptions}
+                        </select>
+                    </div>
+                    <div id="product-subcategory-container" class="hidden">
+                        <label class="font-semibold">الفرع</label>
+                        <select id="product-subcategory" class="mt-1 w-full p-2 border rounded bg-white"></select>
+                    </div>
+                    <div>
+                        <label class="font-semibold">حالة الإتاحة</label>
+                        <select id="product-availability" class="w-full p-2 border rounded mt-1 bg-white">
+                            <option value="available" ${!product || product.availability === 'available' ? 'selected' : ''}>متاح للتسجيل</option>
+                            <option value="soon" ${product?.availability === 'soon' ? 'selected' : ''}>قريبًا</option>
+                            <option value="sold_out" ${product?.availability === 'sold_out' ? 'selected' : ''}>التسجيل مغلق</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1 space-y-4">
+                    <h3 class="text-xl font-bold mb-2">2. الميديا والإحصائيات</h3>
+                    <div>
+                        <label class="font-semibold">صورة البذلورة (الغلاف)</label>
+                        <input type="file" id="product-images" class="mt-1 w-full p-2 border rounded text-sm" accept="image/*">
+                        ${product ? `<p class="text-sm text-gray-500 mt-1">الصورة الحالية. رفع صورة جديدة سيقوم باستبدالها.</p><div class="flex flex-wrap gap-2 mt-2">${existingImagesHTML}</div>` : ''}
+                        <div id="image-preview-container" class="flex flex-wrap gap-2 mt-2"></div>
+                    </div>
+                    <div>
+                        <label class="font-semibold">رابط الفيديو الترويجي (Trailer)</label>
+                        <input type="url" id="product-trailer-url" class="mt-1 w-full p-2 border rounded" value="${product?.trailerUrl || ''}" placeholder="رابط فيديو يوتيوب أو فيميو...">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="font-semibold">عدد الساعات</label>
+                            <input type="number" id="product-stats-hours" class="mt-1 w-full p-2 border rounded" value="${product?.stats?.hours || ''}" placeholder="مثال: 8">
+                        </div>
+                        <div>
+                            <label class="font-semibold">المستوى</label>
+                            <select id="product-stats-level" class="mt-1 w-full p-2 border rounded bg-white">
+                                <option value="مبتدئ" ${product?.stats?.level === 'مبتدئ' ? 'selected' : ''}>مبتدئ</option>
+                                <option value="متوسط" ${product?.stats?.level === 'متوسط' ? 'selected' : ''}>متوسط</option>
+                                <option value="متقدم" ${product?.stats?.level === 'متقدم' ? 'selected' : ''}>متقدم</option>
+                                <option value="كل المستويات" ${product?.stats?.level === 'كل المستويات' ? 'selected' : ''}>كل المستويات</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1 space-y-4">
+                    <h3 class="text-xl font-bold mb-2">3. الأهداف والمجتمع</h3>
+                    <div>
+                        <label class="font-semibold">ماذا ستتعلم؟ (الأهداف)</label>
+                        <div id="objectives-container">${objectivesHTML}</div>
+                        <button type="button" id="add-objective-btn" class="text-sm mt-2 text-indigo-600 font-semibold hover:underline"><i class="fas fa-plus-circle mr-1"></i>إضافة هدف آخر</button>
+                    </div>
+                    <div class="border-t pt-4">
+                        <label class="font-semibold">روابط مجتمع البذلورة (للطلاب فقط)</label>
+                        <input type="url" id="community-link-telegram" class="mt-2 w-full p-2 border rounded" value="${product?.communityLinks?.telegram || ''}" placeholder="رابط مجموعة التليجرام...">
+                        <input type="url" id="community-link-facebook" class="mt-2 w-full p-2 border rounded" value="${product?.communityLinks?.facebook || ''}" placeholder="رابط مجموعة الفيسبوك/ماسنجر...">
+                        <input type="url" id="community-link-whatsapp" class="mt-2 w-full p-2 border rounded" value="${product?.communityLinks?.whatsapp || ''}" placeholder="رابط مجموعة الواتساب...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t pt-4 mt-4">
+                <h3 class="text-xl font-bold mb-2">4. الوصف التسويقي للبذلورة</h3>
+                <div><label class="font-semibold">الوصف</label><div id="product-description-editor" class="mt-1 bg-white" style="min-height: 150px;"></div></div>
+            </div>
+
+            <div class="border-t pt-4 mt-4">
+                <h3 class="text-xl font-bold mb-2">5. باني المنهج (الفصول والدروس)</h3>
+                <div id="curriculum-builder-container" class="space-y-4">
+                    </div>
+                <button type="button" id="add-module-btn" class="mt-4 bg-blue-100 text-blue-700 font-bold py-2 px-4 rounded-lg hover:bg-blue-200">
+                    <i class="fas fa-plus mr-2"></i> إضافة فصل جديد (Module)
+                </button>
+            </div>
+        </div>`;
+
+            let nameQuill, descriptionQuill;
+            
+            showModal(title, commonFields, async () => {
+                const imageFile = getEl('product-images')?.files[0]; // (جديد) صورة واحدة فقط
+                let nameHTML = nameQuill.root.innerHTML.trim();
+                let descriptionHTML = descriptionQuill.root.innerHTML.trim();
+                if (nameHTML === '<p><br></p>') nameHTML = '';
+                if (descriptionHTML === '<p><br></p>') descriptionHTML = '';
+                
+                const cleanName = DOMPurify.sanitize(nameHTML);
+                const cleanDescription = DOMPurify.sanitize(descriptionHTML);
+                const categoryId = getVal('product-category-select');
+                const professorId = getVal('product-professor-id').trim() || null;
+
+                // --- (جديد) جلب بيانات المنهج ---
+                const curriculumData = [];
+                document.querySelectorAll('.module-container').forEach((moduleEl, moduleIndex) => {
+                    const moduleTitle = moduleEl.querySelector('.module-title-input').value.trim();
+                    if (!moduleTitle) return; // تجاهل الفصول الفارغة
+                    
+                    const lessonsData = [];
+                    moduleEl.querySelectorAll('.lesson-item').forEach((lessonEl, lessonIndex) => {
+                        const lessonTitle = lessonEl.querySelector('.lesson-title-input').value.trim();
+                        if (!lessonTitle) return; // تجاهل الدروس الفارغة
+                        
+                        lessonsData.push({
+                            id: lessonEl.dataset.lessonId,
+                            title: lessonTitle,
+                            type: lessonEl.querySelector('.lesson-type-select').value,
+                            url: lessonEl.querySelector('.lesson-url-input').value.trim(),
+                            details: lessonEl.querySelector('.lesson-details-input').value.trim(),
+                            order: lessonIndex
+                        });
+                    });
+
+                    curriculumData.push({
+                        id: moduleEl.dataset.moduleId,
+                        title: moduleTitle,
+                        order: moduleIndex,
+                        lessons: lessonsData
+                    });
+                });
+
+                // --- (جديد) جلب باقي البيانات ---
+                const objectivesData = Array.from(document.querySelectorAll('.objective-input'))
+                                             .map(input => input.value.trim())
+                                             .filter(val => val); // فلترة الأهداف الفارغة
+
+                const statsData = {
+                    hours: getNum('product-stats-hours') || 0,
+                    level: getVal('product-stats-level')
+                };
+
+                const communityLinksData = {
+                    telegram: getVal('community-link-telegram').trim(),
+                    facebook: getVal('community-link-facebook').trim(),
+                    whatsapp: getVal('community-link-whatsapp').trim(),
+                };
+
+                // --- التحقق ---
+                if (!cleanName || !categoryId || !professorId) {
+                    return alert('يرجى ملء الحقول الإلزامية: العنوان، الأستاذ، والقسم.');
+                }
+                if (curriculumData.length === 0 || curriculumData.every(m => m.lessons.length === 0)) {
+                    return alert('يجب إضافة فصل واحد ودرس واحد على الأقل في المنهج.');
+                }
+                
+                const subcatSelect = getEl('product-subcategory');
+                const selectedSubcatOption = subcatSelect && subcatSelect.selectedIndex > -1 ? subcatSelect.options[subcatSelect.selectedIndex] : null;
+                const subcatIdToSave = selectedSubcatOption ? selectedSubcatOption.dataset.id : null;
+                
+                try {
+                    let newImageUrl = (product?.imageUrls && product.imageUrls[0]) || null; // الاحتفاظ بالصورة القديمة
+                    if (imageFile) {
+                        showLoadingModal(`جاري ضغط ورفع صورة الغلاف...`);
+                        const compressedFile = await resizeAndCompressImage(imageFile);
+                        const result = await uploadImageToImgBB(compressedFile);
+                        if (result.success) {
+                            newImageUrl = result.url;
+                        } else {
+                            closeModal(); alert(`فشل رفع الصورة: ${result.error}`); return; 
+                        }
+                    }
+                    if (!newImageUrl && !product) { closeModal(); return alert('يجب رفع صورة غلاف للبذلورة.'); }
+
+                    showLoadingModal('جاري حفظ بيانات البذلورة...');
+                    
+                    const productData = {
+                        // (جديد) تعيين النوع كثابت
+                        productType: "course", 
+
+                        name: cleanName, 
+                        description: cleanDescription, 
+                        categoryId, 
+                        imageUrls: [newImageUrl], // (جديد) نحفظها كمصفوفة دائماً
+                        availability: getVal('product-availability'),
+                        
+                        subCategoryName: selectedSubcatOption ? selectedSubcatOption.value : null,
+                        subCategoryID: subcatIdToSave,
+                        
+                        // --- (جديد) حقول الأكاديمية ---
+                        professorId: professorId,
+                        trailerUrl: getVal('product-trailer-url').trim(),
+                        stats: statsData,
+                        objectives: objectivesData,
+                        communityLinks: communityLinksData,
+                        curriculum: curriculumData,
+                        // --- نهاية الحقول الجديدة ---
+                        
+                        updatedAt: serverTimestamp(),
+                    };
+                    
+                    if (product) {
+                        await updateDoc(doc(db, "products", product.id), productData);
+                    } else {
+                        productData.createdAt = serverTimestamp();
+                        await addDoc(collection(db, "products"), productData);
+                    }
+                    
+                    closeModal();
+                    showToast('تم حفظ البذلورة بنجاح!', 'success');
+                } catch (error) {
+                    showModal('خطأ فادح', `فشل حفظ البذلورة: ${error.message}`, () => closeModal(), 'موافق', false);
+                }
+            });
+            
+            // --- (إضافة محرر النصوص) ---
+            const fullToolbarOptions = [['bold', 'italic', 'underline', 'strike'],[{ 'list': 'ordered'}, { 'list': 'bullet' }],[{ 'align': [] }],[{ 'color': [] }, { 'background': [] }],['link'],['clean']];
+            nameQuill = new Quill('#product-name-editor', { theme: 'snow', modules: { toolbar: [ ['bold', 'italic', 'underline'], [{ 'color': [] }] ] } });
+            descriptionQuill = new Quill('#product-description-editor', { theme: 'snow', modules: { toolbar: fullToolbarOptions } });
+            if (product) { if(product.name) nameQuill.root.innerHTML = product.name; if(product.description) descriptionQuill.root.innerHTML = product.description; }
+
+            // --- (إضافة مستمعات الأحداث الداخلية للنافذة) ---
+            getEl('product-category-select').addEventListener('change', (e) => populateSubcategories(e.target.value));
+            getEl('product-images').addEventListener('change', (e) => { // (جديد) ليعمل مع صورة واحدة
+                const previewContainer = getEl('image-preview-container');
+                previewContainer.innerHTML = '';
+                if(e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const img = document.createElement('img');
+                        img.src = ev.target.result;
+                        img.className = 'w-24 h-24 rounded object-cover border';
+                        previewContainer.appendChild(img);
+                    }
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+            if (product?.categoryId) {
+                populateSubcategories(product.categoryId, product.subCategoryID);
+            }
+
+            // (جديد) تفعيل "باني المنهج"
+            const curriculumContainer = getEl('curriculum-builder-container');
+            getEl('add-module-btn').onclick = () => {
+                curriculumContainer.appendChild(createModuleElement());
+            };
+            // (جديد) إضافة الفصول الموجودة مسبقاً (في حالة التعديل)
+            if (product?.curriculum) {
+                product.curriculum.forEach(moduleData => {
+                    curriculumContainer.appendChild(createModuleElement(moduleData));
+                });
+            }
+
+            // (جديد) تفعيل زر "إضافة هدف"
+            getEl('add-objective-btn').onclick = () => {
+                const objectivesContainer = getEl('objectives-container');
+                const newInput = document.createElement('input');
+                newInput.type = 'text';
+                newInput.className = 'objective-input mt-2 w-full p-2 border rounded';
+                newInput.placeholder = 'هدف تعليمي...';
+                objectivesContainer.appendChild(newInput);
+            };
+        }
+
+    // --- (دالة ربط الأحداث - معدلة) ---
+    function attachProductActionListeners() {
+        document.querySelectorAll('.edit-product-btn').forEach(btn => btn.onclick = () => {
+            const productToEdit = productsCache.find(p => p.id === btn.dataset.id);
+            if (productToEdit) { showProductModal(productToEdit); }
+        });
+        document.querySelectorAll('.delete-product-btn').forEach(btn => {
+            btn.onclick = async () => {
+                 showDeleteConfirmationModal(async () => {
+                    try {
+                        await deleteDoc(doc(db, "products", btn.dataset.id));
+                        closeModal();
+                        showToast('تم حذف البذلورة بنجاح.', 'success');
+                    } catch(error) {
+                        showModal('خطأ',`فشل حذف البذلورة: ${error.message}`, closeModal, 'موافق', false);
+                    }
+                });
+            }
+        });
+        document.querySelectorAll('.copy-product-link-btn').forEach(btn => btn.onclick = (e) => {
+            const button = e.currentTarget;
+            // (جديد) تغيير الرابط ليشير إلى صفحة عرض البذلورة
+            const productUrl = `dawarat_content.html?id=${button.dataset.id}`;
+            navigator.clipboard.writeText(productUrl).then(() => {
+                const originalIcon = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check text-green-500"></i>'; 
+                setTimeout(() => { button.innerHTML = originalIcon; }, 2000);
+            });
+        });
+    }
+    
+    // --- (دوال المساعدة العامة - Modal, Toast) ---
+    function showModal(title, content, onConfirm, confirmText = 'حفظ', showCancel = true) {
+        const modalContainer = getEl('modal-container');
+        const confirmBtnHTML = `<button id="modal-confirm" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700">${confirmText}</button>`;
+        const cancelBtnHTML = showCancel ? `<button id="modal-cancel" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button>` : '';
+        modalContainer.innerHTML = `
+            <div class="modal-backdrop" id="modal-backdrop">
+                <div class="modal-content">
+                    <div class="flex justify-between items-center mb-4 border-b pb-3">
+                        <h3 class="text-xl font-bold">${title}</h3>
+                        <button id="modal-close-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button>
+                    </div>
+                    <div id="modal-body">${content}</div>
+                    <div class="flex justify-end gap-4 mt-6 border-t pt-4">
+                        ${cancelBtnHTML}
+                        ${onConfirm ? confirmBtnHTML : ''}
+                    </div>
+                </div>
+            </div>`;
+        if (showCancel) getEl('modal-cancel').onclick = closeModal;
+        getEl('modal-close-btn').onclick = closeModal;
+        getEl('modal-backdrop').onclick = (e) => { if (e.target.id === 'modal-backdrop') closeModal(); };
+        if (onConfirm) getEl('modal-confirm').onclick = onConfirm;
+    }
+    function showLoadingModal(text = 'جاري التحميل...') {
+        getEl('modal-container').innerHTML = `
+            <div class="modal-backdrop" id="modal-backdrop-loader">
+                <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-sm w-full">
+                    <div class="loader mx-auto"></div>
+                    <p class="mt-4 text-lg font-semibold text-gray-700">${text}</p>
+                </div>
+            </div>`;
+    }
+    function showDeleteConfirmationModal(onConfirm) {
+        showModal('تأكيد الحذف', 
+                  '<p class="text-lg">هل أنت متأكد من رغبتك في الحذف؟ لا يمكن التراجع عن هذا الإجراء.</p>', 
+                  onConfirm, 
+                  'نعم، قم بالحذف');
+        getEl('modal-confirm').classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+        getEl('modal-confirm').classList.add('bg-red-600', 'hover:bg-red-700');
+    }
+    function closeModal() {
+        getEl('modal-container').innerHTML = '';
+    }
+    // (جديد) دالة التنبيهات
+    const showToast = (message, type = 'success') => {
+        const container = getEl('toast-container');
+        if (!container) return; // قد لا تكون موجودة في كل صفحة
+        const toast = document.createElement('div');
+        toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+        toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    };
+    // (جديد) إضافة ستايل التنبيهات
+    const style = document.createElement('style');
+    style.innerHTML = `
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 10001; }
+        .toast { background-color: #2f855a; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards; }
+        .toast.error { background-color: #c53030; }
+        @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    `;
+    document.head.appendChild(style);
+</script>
+</body>
+</html>

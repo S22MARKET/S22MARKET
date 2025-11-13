@@ -1,258 +1,488 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحميل التطبيق</title>
+    <title>S22MARKET - تحميل ومشاركة التطبيق</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
     <style>
-        body {
+        /* --- General Styles & Variables --- */
+        :root {
+            --primary-bg: #0b1120; /* Darker Blue */
+            --secondary-bg: #1e293b; /* Lighter Blue */
+            --border-color: #334155;
+            --text-light: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-gold: #f59e0b;
+            --button-gold-light: #ffc107;
+            --button-gold-dark: #cc9900;
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            box-sizing: border-box;
+        }
+
+        /* --- Animated Gradient Background --- */
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(-45deg, #0b1120, #1e293b, #0f172a, #334155);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-light);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            overflow-x: hidden;
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             min-height: 100vh;
-            text-align: center;
+            padding: 2rem 1.5rem;
         }
 
-        .container {
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ================================================
+        الأنماط الخاصة بالنوافذ المنبثقة (Modals)
+        ================================================
+        */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 99;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            gap: 20px;
+            justify-content: center;
+            padding: 1rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-container {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-top: 5px solid var(--accent-gold);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             width: 100%;
             max-width: 500px;
-            padding: 20px;
-            flex-grow: 1;
-        }
-
-        img.qr-code {
-            width: 80%;
-            max-width: 200px;
-            height: auto;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .button-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .button {
-            padding: 15px 10px;
-            font-size: 16px;
-            font-weight: bold;
+            padding: 2.5rem;
             text-align: center;
-            color: #fff;
-            background-color: #4CAF50;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
+            animation: scaleIn 0.3s ease-out;
+        }
+        
+        /* تصميم نافذة التحذير (المتصفح الخارجي) */
+        .modal-container.modal-warning {
+             border-top: 5px solid var(--accent-red);
+        }
+        .modal-container .modal-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+        .modal-container .icon-info { color: var(--accent-gold); }
+        .modal-container .icon-warning { color: var(--accent-red); }
+
+        .modal-container h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+        
+        .modal-container p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+        .modal-container p strong {
+            color: var(--text-light);
+        }
+
+        /* أزرار النوافذ المنبثقة */
+        .modal-btn {
             width: 100%;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--primary-bg);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-decoration: none; /* لإزالة الخط تحت الروابط */
+            gap: 10px;
         }
 
-        .button:hover {
-            background-color: #45a049;
-            transform: scale(1.05);
+        .modal-btn.btn-gold {
+            background-color: var(--button-gold-light);
+            box-shadow: 0 5px 0 var(--button-gold-dark);
+        }
+        .modal-btn.btn-gold:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--button-gold-dark);
+        }
+        
+        .modal-btn.btn-green {
+            background-color: var(--accent-green);
+            box-shadow: 0 5px 0 #0a8e63;
+        }
+        .modal-btn.btn-green:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #0a8e63;
+        }
+        
+        .hidden {
+            display: none;
         }
 
-        .button:active {
-            transform: scale(0.95);
-        }
 
-        .button.iphone-soon {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-
-
-        .copy-message {
-            font-size: 14px;
-            color: #4CAF50;
-            margin-top: 10px;
-            visibility: hidden;
-        }
-
-        footer {
-            background: linear-gradient(135deg, #007bff, #66ccff);
-            color: #fff;
-            text-align: center;
-            padding: 1rem 0;
-            box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);
-            width: 100%;
-        }
-
-        footer .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        footer .social-links a {
+        /* ================================================
+        أنماط الصفحة الرئيسية (S22MARKET Design)
+        ================================================
+        */
+        .app-page-container {
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: 2.5rem;
+            width: 100%;
+            max-width: 700px;
+            background-color: var(--secondary-bg);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            border: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+            opacity: 0; 
+            animation: fadeIn 1s 0.2s ease-out forwards;
+            position: relative;
+        }
+
+        /* --- Logo & Title --- */
+        .logo-section {
+            text-align: center;
+            width: 100%;
+            animation: slideDown 0.8s ease-out forwards;
+        }
+
+        .app-logo {
+            width: clamp(150px, 40vw, 250px);
+            height: auto;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.5));
+            animation: pulseGlow 3s infinite ease-in-out 1s;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.5)); }
+            50% { transform: scale(1.02); filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.8)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.5)); }
+        }
+
+        .app-page-title {
+            font-family: 'Cairo', sans-serif;
+            font-size: clamp(2rem, 5vw + 0.5rem, 3rem);
+            font-weight: 800;
+            color: var(--accent-gold);
+            text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .app-description {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            color: var(--text-muted);
+            margin-top: 1rem;
+            line-height: 1.6;
+            animation: slideUp 0.8s 0.2s ease-out forwards;
+            opacity: 0;
+        }
+
+        /* --- Action Buttons --- */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 2.5rem;
+            animation: slideUp 0.8s 0.4s ease-out forwards;
+            opacity: 0;
+        }
+
+        .app-action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px 25px;
+            border-radius: 12px;
+            font-family: 'Cairo', sans-serif;
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+            font-weight: 700;
             text-decoration: none;
-            color: #fff;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            color: var(--primary-bg);
+            background-color: var(--button-gold-light);
+            border: none;
+            box-shadow: 0 8px 0 var(--button-gold-dark), 0 15px 30px rgba(0,0,0,0.4);
+            transition: all 0.2s ease-out;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
         }
 
-        footer .social-links a:hover {
-            transform: scale(1.1);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        .app-action-btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 100%);
+            border-radius: 12px;
+            opacity: 0.5;
+            z-index: -1;
         }
 
-        footer .social-links a img {
-            width: 35px;
-            height: 35px;
-            margin-bottom: 5px;
-            background-color: transparent;
-            border-radius: 50%;
-            padding: 8px;
+        @media (hover: hover) {
+            .app-action-btn:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 12px 0 var(--button-gold-dark), 0 25px 45px rgba(0,0,0,0.5);
+                filter: brightness(1.1);
+            }
+        }
+        
+        .app-action-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 var(--button-gold-dark), 0 8px 20px rgba(0,0,0,0.3);
         }
 
-        footer p {
-            margin: 0;
-            font-size: 1rem;
-            color: #b2dfdb;
+        .app-action-btn .icon {
+            margin-left: 15px;
+            font-size: 1.4em;
+        }
+        
+        .btn-share {
+            background-color: var(--accent-green);
+            box-shadow: 0 8px 0 #0a8e63, 0 15px 30px rgba(0,0,0,0.4);
+        }
+        
+        @media (hover: hover) {
+            .btn-share:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 12px 0 #0a8e63, 0 25px 45px rgba(0,0,0,0.5);
+                filter: brightness(1.1);
+            }
+        }
+        
+        .btn-share:active {
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 #0a8e63, 0 8px 20px rgba(0,0,0,0.3);
         }
 
-        footer p span {
-            color: #ffd700;
-            font-weight: bold;
+        /* --- Footer Link (Back to Home) --- */
+        .back-home-link {
+            margin-top: 3rem;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            animation: slideUp 0.8s 0.6s ease-out forwards;
+            opacity: 0;
         }
 
-        /* Responsive Design */
+        @media (hover: hover) {
+            .back-home-link:hover {
+                color: var(--accent-gold);
+            }
+        }
+
+        /* --- Animation Keyframes --- */
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* --- Responsive Adjustments --- */
         @media (max-width: 480px) {
-            .container {
-                padding: 10px;
+            .app-page-container { 
+                padding: 2rem 1rem; 
+                gap: 2rem;
             }
-
-            img.qr-code {
-                max-width: 150px;
+            .modal-container {
+                padding: 2rem 1.5rem;
             }
+            .modal-container h2 { font-size: 1.5rem; }
+            .modal-container p { font-size: 1rem; }
 
-            .button-grid {
-                grid-template-columns: 1fr; /* عمود واحد في الشاشات الصغيرة جدا */
+            .app-action-btn {
+                font-size: 1.05rem;
+                padding: 15px 20px;
             }
-
-            .button {
-                font-size: 14px;
-                padding: 12px;
+            .app-action-btn .icon {
+                margin-left: 10px;
+                font-size: 1.2em;
             }
-
-            footer .social-links a img {
-                width: 30px;
-                height: 30px;
-            }
-
-            footer p {
-                font-size: 0.9rem;
+            .app-page-title {
+                font-size: 2.2rem;
             }
         }
+
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <img src="S22MARKET-APP.jpg" alt="QR Code" class="qr-code">
-        <div class="button-grid" id="download-buttons">
-            </div>
-        <div class="button-grid">
-             <button class="button" id="share-link">مشاركة الرابط</button>
-             <button class="button" id="copy-link">نسخ رابط الصفحة</button>
+    <div id="external-browser-modal" class="modal-backdrop hidden">
+        <div class="modal-container modal-warning">
+            <i class="fas fa-exclamation-triangle modal-icon icon-warning"></i>
+            <h2 class="text-3xl font-extrabold text-gray-800 mb-4">تنبيه هام!</h2>
+            <p class="text-lg text-gray-700 mb-8">
+                لتحميل التطبيق بنجاح، يرجى فتح هذا الرابط في متصفحك الأساسي (مثل <strong>Google Chrome</strong>) بدلاً من المتصفح الداخلي للتطبيق الحالي.
+            </p>
+            <button id="copy-link-btn" class="modal-btn btn-green">
+                <i class="fas fa-copy mr-2"></i> نسخ رابط التحميل
+            </button>
         </div>
-        <span class="copy-message" id="copy-message">تم نسخ الرابط!</span>
+    </div>
+    
+    <div id="update-notification-modal" class="modal-backdrop hidden">
+         <div class="modal-container">
+            <i class="fas fa-info-circle modal-icon icon-info"></i>
+            <h2 class="text-xl font-bold mb-4">مرحباً بك في S22MARKET</h2>
+            <p id="message-text" class="text-base text-gray-700 mb-6">
+                يتم تحديث التطبيق بشكل دوري لضمان أفضل أداء. نطمئنكم أن المنصة تعمل بشكل ممتاز والحمد لله.
+            </p>
+            <button id="close-update-modal-btn" class="modal-btn btn-gold">حسنًا</button>
+        </div>
     </div>
 
-    <footer>
-        <div class="social-links">
-            <a href="http://t.me/THE_S22MARKET_BOT" target="_blank" class="telegram">
-                <img src="https://img.icons8.com/ios-filled/50/ffffff/telegram-app.png" alt="Telegram">
-                <span>تيليجراف</span>
+
+    <div id="main-content">
+        <div class="app-page-container">
+
+            <div class="logo-section">
+                <img src="LOGO.jpg" alt="S22MARKET Logo" class="app-logo">
+                <h1 class="app-page-title">تطبيق S22MARKET</h1>
+                <p class="app-description">
+                    اكتشف عالمًا من المنتجات الرائعة والعروض الحصرية. حمل التطبيق الآن وكن جزءًا من مجتمعنا!
+                </p>
+            </div>
+
+            <div class="action-buttons">
+                <a href="s22market_app.apk" download class="app-action-btn" id="downloadAppBtn">
+                    <i class="fas fa-download icon"></i> تحميل التطبيق (Android APK)
+                </a>
+                
+                <button class="app-action-btn btn-share" id="shareAppBtn">
+                    <i class="fas fa-share-alt icon"></i> مشاركة التطبيق
+                </button>
+            </div>
+
+            <a href="s22market_intro.html" class="back-home-link">
+                <i class="fas fa-arrow-right"></i> العودة إلى الصفحة الرئيسية
             </a>
-            <a href="https://instagram.com/s22mcs" target="_blank" class="instagram">
-                <img src="https://img.icons8.com/ios-filled/50/ffffff/instagram-new.png" alt="Instagram">
-                <span>إنستغرام</span>
-            </a>
-            <a href="https://t.me/S22MARKET" target="_blank" class="telegram">
-                <img src="https://img.icons8.com/ios-filled/50/ffffff/telegram-app.png" alt="Telegram">
-                <span>تيليجرام</span>
-            </a>
-            <a href="https://www.facebook.com/profile.php?id=61563869504735&mibextid=ZbWKwL" target="_blank" class="facebook">
-                <img src="https://img.icons8.com/ios-filled/50/ffffff/facebook-new.png" alt="Facebook">
-                <span>فيسبوك</span>
-            </a>
-            <a href="https://www.tiktok.com/@s22market?_t=8qvNZ3sOxN8&_r=1" target="_blank" class="tiktok">
-                <img src="https://img.icons8.com/ios-filled/50/ffffff/tiktok.png" alt="TikTok">
-                <span>تيك توك</span>
-            </a>
+
         </div>
-        <p><span> S22MARKET</span> - جميع الحقوق محفوظة &copy; 2025</p>
-    </footer>
+    </div>
+
 
     <script>
-        // تحديد نوع الجهاز وعرض الأزرار المناسبة
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 1. منطق إظهار رسالة التحديث ---
+            const updateModal = document.getElementById('update-notification-modal');
+            const closeUpdateModalBtn = document.getElementById('close-update-modal-btn');
+            
+            // إظهار الرسالة بعد ثانية واحدة
+            setTimeout(() => {
+                updateModal.classList.remove('hidden');
+            }, 1000);
+
+            // إغلاق الرسالة
+            closeUpdateModalBtn.onclick = () => {
+                updateModal.classList.add('hidden');
+            };
+
+            // --- 2. منطق اكتشاف المتصفح الداخلي ---
+            const externalBrowserModal = document.getElementById('external-browser-modal');
+            const mainContent = document.getElementById('main-content');
+            const copyLinkBtn = document.getElementById('copy-link-btn');
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            const downloadButtonsContainer = document.getElementById('download-buttons');
 
-            // التحقق إذا كان الجهاز آيفون أو آيباد
-            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-                downloadButtonsContainer.innerHTML = `
-                    <button class="button iphone-soon">للآيفون (قريباً)</button>
-                `;
-            } else {
-                // عرض أزرار التحميل للأجهزة الأخرى (أندرويد)
-                downloadButtonsContainer.innerHTML = `
-                    <a href="S22MARKET.apk" download class="button">تحميل مباشر</a>
-                    <a href="https://t.me/S22MARKET/335" target="_blank" class="button">تحميل عبر تليجرام</a>
-                `;
+            // قائمة بالكلمات الدالة على المتصفحات الداخلية
+            // (فيسبوك، انستغرام، ويب فيو العام)
+            const inAppBrowsers = /FBAN|FBAV|Instagram|WebView|wv\)|; wv/;
+
+            if (inAppBrowsers.test(userAgent)) {
+                // إذا كان متصفح داخلي
+                externalBrowserModal.classList.remove('hidden'); // إظهار رسالة الخطأ
+                mainContent.classList.add('hidden'); // إخفاء محتوى الصفحة الرئيسي
+                
+                // إخفاء رسالة التحديث إذا ظهرت رسالة المتصفح (لأنها أهم)
+                updateModal.classList.add('hidden');
             }
-        });
 
+            // وظيفة نسخ الرابط
+            copyLinkBtn.onclick = () => {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(window.location.href).then(() => {
+                        copyLinkBtn.innerHTML = '<i class="fas fa-check mr-2"></i> تم نسخ الرابط!';
+                        setTimeout(() => {
+                            copyLinkBtn.innerHTML = '<i class="fas fa-copy mr-2"></i> نسخ رابط التحميل';
+                        }, 2500);
+                    }).catch(err => {
+                        alert('فشل نسخ الرابط. يرجى نسخه يدوياً.');
+                    });
+                } else {
+                    // طريقة قديمة
+                    alert('فشل النسخ التلقائي. يرجى الضغط مطولاً على الرابط في المتصفح ونسخه.');
+                }
+            };
 
-        // وظيفة نسخ الرابط
-        document.getElementById('copy-link').addEventListener('click', function () {
-            const link = window.location.href;
-            navigator.clipboard.writeText(link).then(() => {
-                const message = document.getElementById('copy-message');
-                message.style.visibility = 'visible';
-                setTimeout(() => {
-                    message.style.visibility = 'hidden';
-                }, 2000);
-            });
-        });
-
-        // وظيفة مشاركة الرابط
-        document.getElementById('share-link').addEventListener('click', function () {
-            const link = window.location.href;
-            if (navigator.share) {
-                navigator.share({
-                    title: 'تحميل تطبيق S22MARKET',
-                    url: link
-                }).catch((error) => console.log('Error sharing:', error));
-            } else {
-                 // في حال عدم دعم المتصفح للمشاركة، يمكن نسخ الرابط
-                navigator.clipboard.writeText(link).then(() => {
-                    alert('تم نسخ الرابط! يمكنك الآن مشاركته.');
+            // --- 3. منطق زر المشاركة ---
+            const shareAppBtn = document.getElementById('shareAppBtn');
+            if (shareAppBtn) {
+                shareAppBtn.addEventListener('click', async () => {
+                    if (navigator.share) {
+                        try {
+                            await navigator.share({
+                                title: 'تطبيق S22MARKET',
+                                text: 'احصل على أفضل المنتجات والعروض مع تطبيق S22MARKET! حمل التطبيق الآن.',
+                                url: window.location.href
+                            });
+                        } catch (error) {
+                            console.error('Error sharing:', error);
+                        }
+                    } else {
+                        // Fallback
+                        prompt("انسخ رابط التطبيق وشاركه:", window.location.href);
+                    }
                 });
             }
+
         });
     </script>
 

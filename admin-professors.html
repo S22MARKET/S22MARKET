@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Market - إدارة الأساتذة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
+        .hidden { display: none; }
+        .dashboard-tab:hover { background-color: #4338ca; }
+        .dashboard-tab.active-tab { background-color: #4f46e5; color: white; font-weight: bold; }
+        .dashboard-panel { animation: fadeIn 0.5s; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 40; display: flex; align-items: center; justify-content: center; }
+        .modal-content { background-color: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 700px; z-index: 50; max-height: 90vh; overflow-y: auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div id="login-page" class="hidden min-h-screen flex items-center justify-center bg-gray-100 p-4">
+    <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl space-y-6">
+        <h2 class="text-3xl font-extrabold text-center text-gray-900">يرجى تسجيل الدخول</h2>
+        <p class="text-center text-red-500">تم تسجيل خروجك. يرجى العودة إلى <a href="dashboard.html" class="font-bold underline">صفحة الدخول الرئيسية</a>.</p>
+    </div>
+</div>
+
+<div id="dashboard-page" class="hidden">
+    <div class="relative min-h-screen md:flex">
+        <aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
+            <div class="p-3 text-center border-b border-gray-700">
+                <h2 class="text-2xl font-bold">S22 Market</h2>
+                <p id="admin-welcome-name" class="text-sm text-indigo-300"></p>
+            </div>
+            <nav class="flex-1 p-2 space-y-2">
+                <a href="dashboard.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chart-line fa-fw mr-3"></i> لوحة التحكم</a>
+                <a href="admin-sellers.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-users-cog fa-fw mr-3"></i> إدارة البائعين</a>
+                <a href="admin-reports.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-flag fa-fw mr-3 text-red-400"></i> الإبلاغات</a>
+                <a href="admin-products.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
+                <a href="admin-offers.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-star fa-fw mr-3"></i> العروض</a>
+                <a href="admin-product-requests.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-user-plus fa-fw mr-3"></i> طلبات الزوار</a>
+                <a href="admin-categories.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
+                
+                <a href="admin-professors.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chalkboard-teacher fa-fw mr-3 text-yellow-400"></i> إدارة الأساتذة</a>
+
+                <a href="admin-orders.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
+                <a href="admin-coupons.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-tags fa-fw mr-3"></i> الكوبونات</a>
+                <a href="admin-inquiries.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-envelope-open-text fa-fw mr-3"></i> الرسائل الواردة</a>
+                <a href="admin-applications.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
+                <a href="admin-notepad.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
+                
+                <a href="admin-loyalty-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-gift fa-fw mr-3 text-yellow-400"></i> نظام المكافآt</a>
+                <a href="admin-loyalty-approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات الدفع/المهام</a>
+                <a href="admin-referrals-pending.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
+
+                <a href="admin-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
+            </nav>
+            <div class="p-4 border-t border-gray-700">
+                <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+            <div id="professors-panel" class="dashboard-panel">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold text-gray-800">إدارة الأساتذة</h1>
+                    <button id="add-professor-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700">
+                        <i class="fas fa-plus mr-2"></i> إضافة أستاذ
+                    </button>
+                </div>
+                <div id="professors-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="col-span-full text-center p-8 bg-white rounded-lg shadow-sm">
+                        <div class="loader mx-auto"></div>
+                        <p class="mt-4 text-gray-600">جاري تحميل قائمة الأساتذة...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div id="modal-container"></div>
+<div id="toast-container"></div>
+
+<script type="module">
+    // (تم التعديل) استخدام إعدادات S22 Market
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+        authDomain: "s22market-4e3e6.firebaseapp.com",
+        projectId: "s22market-4e3e6",
+        storageBucket: "s22market-4e3e6.appspot.com",
+        messagingSenderId: "119186699901",
+        appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+        measurementId: "G-MWYNCVP4WQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const ADMIN_EMAILS = [
+        's22market@gmail.com',
+        'yacinee474474@gmail.com',
+        'nourmt01@gmail.com'
+    ];
+    
+    let professorsCache = [];
+    let selectedFileStore = {}; // لتخزين الملف المختار مؤقتاً
+
+    const loginPage = document.getElementById('login-page');
+    const dashboardPage = document.getElementById('dashboard-page');
+    const logoutBtn = document.getElementById('logout-btn');
+    const getEl = (id) => document.getElementById(id);
+    const getVal = (id) => getEl(id)?.value || '';
+
+    // --- (الدوال المساعدة: showModal, closeModal, showToast, ... ) ---
+    const showModal = (title, content, onConfirm, confirmText = 'حفظ', showCancel = true) => {
+        const modalContainer = getEl('modal-container');
+        const confirmBtnHTML = `<button id="modal-confirm" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700">${confirmText}</button>`;
+        const cancelBtnHTML = showCancel ? `<button id="modal-cancel" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button>` : '';
+        modalContainer.innerHTML = `
+            <div class="modal-backdrop" id="modal-backdrop">
+                <div class="modal-content">
+                    <div class="flex justify-between items-center mb-4 border-b pb-3">
+                        <h3 class="text-xl font-bold">${title}</h3>
+                        <button id="modal-close-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button>
+                    </div>
+                    <div id="modal-body">${content}</div>
+                    <div class="flex justify-end gap-4 mt-6 border-t pt-4">
+                        ${cancelBtnHTML}
+                        ${onConfirm ? confirmBtnHTML : ''}
+                    </div>
+                </div>
+            </div>`;
+        if (showCancel) getEl('modal-cancel').onclick = closeModal;
+        getEl('modal-close-btn').onclick = closeModal;
+        getEl('modal-backdrop').onclick = (e) => { if (e.target.id === 'modal-backdrop') closeModal(); };
+        if (onConfirm) getEl('modal-confirm').onclick = onConfirm;
+    }
+    const closeModal = () => { getEl('modal-container').innerHTML = ''; }
+    const showLoadingModal = (text = 'جاري التحميل...') => {
+        getEl('modal-container').innerHTML = `
+            <div class="modal-backdrop" id="modal-backdrop-loader">
+                <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-sm w-full">
+                    <div class="loader mx-auto"></div>
+                    <p class="mt-4 text-lg font-semibold text-gray-700">${text}</p>
+                </div>
+            </div>`;
+    }
+    const showDeleteConfirmationModal = (onConfirm) => {
+        showModal('تأكيد الحذف', 
+                  '<p class="text-lg">هل أنت متأكد من رغبتك في الحذف؟ لا يمكن التراجع عن هذا الإجراء.</p>', 
+                  onConfirm, 
+                  'نعم، قم بالحذف');
+        getEl('modal-confirm').classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+        getEl('modal-confirm').classList.add('bg-red-600', 'hover:bg-red-700');
+    }
+    const showToast = (message, type = 'success') => {
+        const container = getEl('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+        toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    };
+    // --- (نهاية الدوال المساعدة) ---
+
+    // --- (دوال المصادقة والتنقل) ---
+    function checkAdminPermissions(user) {
+        if (user && ADMIN_EMAILS.includes(user.email)) {
+            loginPage.classList.add('hidden');
+            dashboardPage.classList.remove('hidden');
+            getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
+            initializeDashboard();
+        } else {
+            dashboardPage.classList.add('hidden');
+            loginPage.classList.remove('hidden');
+            if (user) signOut(auth);
+        }
+    }
+    onAuthStateChanged(auth, user => { checkAdminPermissions(user); });
+    logoutBtn.addEventListener('click', async () => { await signOut(auth); });
+
+    function setActiveTab() {
+        const currentPage = window.location.pathname.split('/').pop();
+        const tabs = document.querySelectorAll('.dashboard-tab');
+        tabs.forEach(tab => {
+            const tabHref = tab.getAttribute('href').split('/').pop();
+            if (tabHref === currentPage) {
+                tab.classList.add('active-tab');
+            } else {
+                tab.classList.remove('active-tab');
+            }
+        });
+    }
+
+    // --- (الدالة الرئيسية) ---
+    function initializeDashboard() {
+        setActiveTab();
+        loadProfessors();
+    }
+
+    // --- (جديد) دوال رفع وضغط الصور (منسوخة من admin-products) ---
+    async function uploadImageToImgBB(file) {
+        const apiKey = "ac296feb5a275923598bdbfd4f9aed8c";
+        const formData = new FormData();
+        formData.append('image', file);
+        try {
+            const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, { method: 'POST', body: formData });
+            if (!response.ok) {
+                const errorText = await response.text();
+                return { success: false, error: `فشل الاتصال بالخادم: (${response.status})` };
+            }
+            const result = await response.json();
+            if (result.success) { return { success: true, url: result.data.url }; } 
+            else { return { success: false, error: `خطأ من خدمة رفع الصور: ${result.error.message}` }; }
+        } catch (error) {
+            return { success: false, error: `خطأ في الشبكة. تأكد من اتصالك بالإنترنت.` };
+        }
+    }
+    function resizeAndCompressImage(file, maxWidth = 400, quality = 0.8) { // (تم تعديل الحجم ليناسب صورة البروفايل)
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = event => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let { width, height } = img;
+                    if (width > maxWidth) { const scale = maxWidth / width; width = maxWidth; height = height * scale; }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob(blob => { 
+                        if (!blob) { reject(new Error("Canvas to Blob conversion failed")); return; }
+                        resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() })); 
+                    }, 'image/jpeg', quality);
+                }; img.onerror = reject;
+            }; reader.onerror = error => reject(error);
+        });
+    }
+    // --- (نهاية دوال الرفع) ---
+
+    // --- (جديد) دوال إدارة الأساتذة ---
+    function loadProfessors() {
+        getEl('add-professor-btn').addEventListener('click', () => showProfessorModal());
+        
+        // (جديد) الاستماع لمجموعة 'professors'
+        onSnapshot(query(collection(db, "professors"), orderBy("name")), (snapshot) => {
+            professorsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderProfessorsGrid();
+        });
+    }
+
+    function renderProfessorsGrid() {
+        const list = getEl('professors-list');
+        list.innerHTML = professorsCache.length === 0 ? '<p class="text-center text-gray-500 col-span-full mt-8">لا يوجد أساتذة. أضف أستاذاً جديداً للبدء.</p>' : '';
+        
+        professorsCache.forEach(prof => {
+            const card = document.createElement('div');
+            card.className = `bg-white p-4 rounded-xl shadow-md flex flex-col items-center text-center`;
+            
+            const image = prof.imageUrl || 'https://placehold.co/150x150/e2e8f0/94a3b8?text=Photo';
+            
+            const links = prof.socialLinks || {};
+            const socialHTML = `
+                <div class="flex justify-center gap-4 mt-3 text-xl text-gray-500">
+                    ${links.facebook ? `<a href="${links.facebook}" target="_blank" class="hover:text-blue-600"><i class="fab fa-facebook"></i></a>` : ''}
+                    ${links.instagram ? `<a href="https://instagram.com/${links.instagram.replace('@','')}" target="_blank" class="hover:text-pink-600"><i class="fab fa-instagram"></i></a>` : ''}
+                    ${links.telegram ? `<a href="https://t.me/${links.telegram.replace('@','')}" target="_blank" class="hover:text-sky-500"><i class="fab fa-telegram"></i></a>` : ''}
+                </div>`;
+
+            card.innerHTML = `
+                <img src="${image}" class="w-32 h-32 object-cover rounded-full mb-4 bg-gray-100 border-4 border-white shadow-md">
+                <h3 class="font-bold text-xl mb-1">${prof.name}</h3>
+                <p class="flex-grow text-gray-600 text-sm mb-3">${prof.bio || 'لا توجد نبذة'}</p>
+                ${socialHTML}
+                <div class="border-t mt-4 pt-3 flex justify-center gap-2 w-full">
+                    <button class="edit-professor-btn text-gray-400 hover:text-indigo-600" data-id="${prof.id}" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button class="delete-professor-btn text-gray-400 hover:text-red-600" data-id="${prof.id}" title="حذف"><i class="fas fa-trash"></i></button>
+                </div>`;
+            list.appendChild(card);
+        });
+        attachProfessorActionListeners();
+    }
+
+    function showProfessorModal(prof = null) {
+        selectedFileStore.professor = null; // إعادة تعيين الملف المختار
+        const isEditing = prof !== null;
+        const title = isEditing ? 'تعديل ملف الأستاذ' : 'إضافة أستاذ جديد';
+
+        const content = `
+            <div class="space-y-4">
+                <div>
+                    <label class="font-semibold">اسم الأستاذ</label>
+                    <input type="text" id="prof-name" class="mt-1 w-full p-2 border rounded" value="${prof?.name || ''}" required>
+                </div>
+                <div>
+                    <label class="font-semibold">نبذة عنه (Bio)</label>
+                    <textarea id="prof-bio" class="mt-1 w-full p-2 border rounded" rows="3">${prof?.bio || ''}</textarea>
+                </div>
+                <div class="border-t pt-4">
+                    <label class="font-semibold">صورة الأستاذ</label>
+                    <input type="file" id="prof-image" class="mt-1 w-full p-2 border rounded text-sm" accept="image/*">
+                    <div id="prof-image-preview" class="flex flex-wrap gap-2 mt-2">
+                        ${isEditing && prof.imageUrl ? `<img src="${prof.imageUrl}" class="w-24 h-24 rounded-full object-cover border">` : ''}
+                    </div>
+                </div>
+                <div class="border-t pt-4 space-y-3">
+                    <h3 class="font-bold text-lg text-gray-700">روابط التواصل (اختياري)</h3>
+                    <div><label class="font-semibold text-sm">رابط فيسبوك</label><input type="url" id="prof-social-facebook" class="mt-1 w-full p-2 border rounded" placeholder="https://facebook.com/..." value="${prof?.socialLinks?.facebook || ''}"></div>
+                    <div><label class="font-semibold text-sm">معرف انستغرام</label><input type="text" id="prof-social-instagram" class="mt-1 w-full p-2 border rounded" placeholder="@username" value="${prof?.socialLinks?.instagram || ''}"></div>
+                    <div><label class="font-semibold text-sm">معرف تيليجرام</label><input type="text" id="prof-social-telegram" class="mt-1 w-full p-2 border rounded" placeholder="@username" value="${prof?.socialLinks?.telegram || ''}"></div>
+                </div>
+            </div>
+        `;
+
+        showModal(title, content, async () => {
+            const newName = getVal('prof-name').trim();
+            const newBio = getVal('prof-bio').trim();
+            const imageFile = getEl('prof-image')?.files[0];
+            const newSocialLinks = {
+                facebook: getVal('prof-social-facebook').trim(),
+                instagram: getVal('prof-social-instagram').trim(),
+                telegram: getVal('prof-social-telegram').trim(),
+            };
+
+            if (!newName) {
+                return alert('يرجى ملء اسم الأستاذ.');
+            }
+
+            try {
+                let imageUrl = isEditing ? prof.imageUrl : null;
+
+                if (imageFile) {
+                    showLoadingModal('جاري ضغط ورفع الصورة...');
+                    const compressedFile = await resizeAndCompressImage(imageFile);
+                    const result = await uploadImageToImgBB(compressedFile);
+
+                    if (result.success) {
+                        imageUrl = result.url;
+                    } else {
+                        closeModal();
+                        alert(`فشل رفع الصورة: ${result.error}`);
+                        return;
+                    }
+                }
+                
+                showLoadingModal('جاري حفظ البيانات...');
+
+                const profData = {
+                    name: newName,
+                    bio: newBio,
+                    imageUrl: imageUrl,
+                    socialLinks: newSocialLinks,
+                    updatedAt: serverTimestamp()
+                };
+
+                if (isEditing) {
+                    await updateDoc(doc(db, "professors", prof.id), profData);
+                } else {
+                    profData.createdAt = serverTimestamp();
+                    await addDoc(collection(db, "professors"), profData);
+                }
+
+                closeModal();
+            } catch (error) {
+                showModal('خطأ فادح', `فشل حفظ بيانات الأستاذ: ${error.message}`, () => closeModal(), 'موافق', false);
+            }
+        });
+
+        getEl('prof-image').addEventListener('change', (e) => {
+            const previewContainer = getEl('prof-image-preview');
+            previewContainer.innerHTML = ''; // مسح الصورة القديمة
+            if (e.target.files[0]) {
+                selectedFileStore.professor = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const img = document.createElement('img');
+                    img.src = ev.target.result;
+                    img.className = 'w-24 h-24 rounded-full object-cover border';
+                    previewContainer.appendChild(img);
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    }
+
+    function attachProfessorActionListeners() {
+        document.querySelectorAll('.edit-professor-btn').forEach(btn => btn.onclick = () => {
+            const profToEdit = professorsCache.find(o => o.id === btn.dataset.id);
+            if (profToEdit) showProfessorModal(profToEdit);
+        });
+
+        document.querySelectorAll('.delete-professor-btn').forEach(btn => {
+            btn.onclick = async () => {
+                showDeleteConfirmationModal(async () => {
+                    try {
+                        await deleteDoc(doc(db, "professors", btn.dataset.id));
+                        closeModal();
+                        showToast('تم حذف الأستاذ.', 'success');
+                    } catch(error) {
+                        showModal('خطأ',`فشل حذف الأستاذ: ${error.message}`, closeModal, 'موافق', false);
+                    }
+                });
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Dawarat - إعدادات العملات والمهام</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
+        .hidden { display: none; }
+        .dashboard-tab:hover { background-color: #4338ca; }
+        .dashboard-tab.active-tab { background-color: #4f46e5; color: white; font-weight: bold; }
+        .dashboard-panel { animation: fadeIn 0.5s; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        .spinner-dark { width: 24px; height: 24px; border: 4px solid rgba(0,0,0, 0.1); border-top-color: #333; border-radius: 50%; animation: spin 1s linear infinite; }
+        .small-spinner { width: 16px; height: 16px; border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
+        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 40; display: flex; align-items: center; justify-content: center; }
+        .modal-content { background-color: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 700px; z-index: 50; max-height: 90vh; overflow-y: auto; }
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 100; }
+        .toast { background-color: #2f855a; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards; }
+        .toast.error { background-color: #c53030; }
+        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #48bb78; }
+        input:checked + .slider:before { transform: translateX(24px); }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+<div id="login-page" class="hidden min-h-screen flex items-center justify-center bg-gray-100 p-4">
+    </div>
+
+<div id="dashboard-page" class="hidden">
+    <div class="relative min-h-screen md:flex">
+        <aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
+            <div class="p-3 text-center border-b border-gray-700">
+                <h2 class="text-2xl font-bold">S22 Dawarat</h2>
+                <p id="admin-welcome-name" class="text-sm text-indigo-300"></p>
+            </div>
+            
+            <nav class="flex-1 p-2 space-y-2">
+                <a href="dawarat_admin_manager.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-graduation-cap fa-fw mr-3"></i> إدارة البذلورات</a>
+                <a href="dawarat_admin_professors.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chalkboard-teacher fa-fw mr-3 text-yellow-400"></i> إدارة الأساتذة</a>
+                <a href="dawarat_admin_approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات التسجيل</a>
+                <a href="dawarat_admin_referrals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
+                <a href="dawarat_admin_loyalty_settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات العملات</a>
+                
+                <hr class="border-gray-700 my-4">
+                
+                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">أدوات المتجر</h6>
+                <a href="admin-products.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-store fa-fw mr-3 text-gray-400"></i> العودة لإدارة المتجر</a>
+            </nav>
+
+            <div class="p-4 border-t border-gray-700">
+                <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-6">إدارة نظام العملات 🪙 والمهام</h1>
+
+            <div id="loyalty-loader" class="text-center p-10 bg-white rounded-xl shadow-md">
+                <div class="loader mx-auto"></div>
+                <p class="mt-4 text-gray-600">جاري تحميل إعدادات الأكاديمية...</p>
+            </div>
+            
+            <form id="loyalty-form" class="hidden dashboard-panel grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <div class="space-y-8">
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold mb-4 border-b pb-2 text-green-700">
+                            <i class="fas fa-coins"></i> قواعد كسب العملات
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="dawarat_registration_bonus" class="block font-semibold mb-2">
+                                    مكافأة التسجيل في بذلورة (بالعملات)
+                                </label>
+                                <p class="text-sm text-gray-500 mb-3">العملات التي يحصل عليها الطالب عند موافقة الإدارة على تسجيله في بذلورة.</p>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" id="dawarat_registration_bonus" placeholder="مثال: 100" class="w-24 p-2 border rounded-lg text-center font-bold">
+                                    <span class="text-gray-600">عملة (لكل بذلورة يسجل بها)</span>
+                                </div>
+                            </div>
+
+                            <div class="pt-4 border-t">
+                                <label for="dawarat_referral_bonus" class="block font-semibold text-blue-800 mb-2">
+                                    <i class="fas fa-gift fa-fw ml-1"></i>مكافأة دعوة الأصدقاء (بالعملات)
+                                </label>
+                                <p class="text-sm text-gray-500 mb-3">العملات التي يحصل عليها "الداعي" عند اعتماد تسجيل صديقه.</p>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" id="dawarat_referral_bonus" placeholder="مثال: 50" class="w-24 p-2 border rounded-lg text-center font-bold">
+                                    <span class="text-gray-600">عملة (لكل دعوة ناجحة)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 text-right">
+                        <button id="save-loyalty-settings-btn" type="submit" class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700">
+                            حفظ إعدادات العملات
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="lg:col-span-1 space-y-8">
+                    
+                    <div id="loyalty-tasks-panel">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                            <i class="fas fa-tasks text-purple-500"></i>
+                            إدارة مهام كسب (العملات)
+                        </h2>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-md mb-8">
+                            <h3 id="task-form-title" class="text-xl font-bold mb-4 border-b pb-2">إضافة مهمة جديدة</h3>
+                            <form id="new-task-form" class="space-y-4">
+                                <input type="hidden" id="task-id">
+                                <div>
+                                    <label for="task_title" class="font-semibold">عنوان المهمة</label>
+                                    <input type="text" id="task_title" placeholder="مثال: تابعنا على إنستغرام" class="w-full p-2 border rounded mt-1" required>
+                                </div>
+                                <div>
+                                    <label for="task_link" class="font-semibold">الرابط (URL)</label>
+                                    <input type="url" id="task_link" placeholder="https://instagram.com/s22market" class="w-full p-2 border rounded mt-1" dir="ltr" required>
+                                </div>
+                                <div>
+                                    <label for="task_points" class="font-semibold">العملات الممنوحة</label>
+                                    <input type="number" id="task_points" class="w-full p-2 border rounded mt-1" value="50" required>
+                                </div>
+                                <div class="flex justify-end gap-2">
+                                    <button id="cancel-task-edit-btn" type="button" class="hidden bg-gray-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-600">
+                                        إلغاء التعديل
+                                    </button>
+                                    <button id="save-task-btn" type="submit" class="bg-purple-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-purple-700 flex items-center gap-2">
+                                        <i class="fas fa-plus"></i>
+                                        <span>إضافة المهمة</span>
+                                    </button>
+                                </div>
+                            </form>
+                            </div>
+    
+                        <div class="bg-white p-4 rounded-xl shadow-md">
+                            <h3 class="text-xl font-bold mb-4">المهام الحالية</h3>
+                            <div id="tasks-loader" class="text-center p-6">
+                                <div class="spinner-dark mx-auto"></div>
+                            </div>
+                            <div id="tasks-list" class="space-y-3 max-h-[400px] overflow-y-auto">
+                                </div>
+                            <div id="no-tasks-msg" class="hidden text-center p-6 text-gray-500">
+                                لا توجد مهام حالياً.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="loyalty-rewards-panel" class="mt-12">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                            <i class="fas fa-store text-blue-500"></i>
+                            متجر المكافآt (باستخدام العملات)
+                        </h2>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-md mb-8">
+                            <h3 class="text-xl font-bold mb-4 border-b pb-2">إضافة مكافأة جديدة</h3>
+                            <form id="new-reward-form" class="space-y-4">
+                                <div>
+                                    <label for="reward_title" class="font-semibold">عنوان المكافأة (مثال: خصم 500 د.ج)</label>
+                                    <input type="text" id="reward_title" placeholder="خصم 500 د.ج على البذلورات" class="w-full p-2 border rounded mt-1" required>
+                                </div>
+                                <div>
+                                    <label for="reward_points" class="font-semibold">السعر (بالعملات)</label>
+                                    <input type="number" id="reward_points" class="w-full p-2 border rounded mt-1" value="1000" required>
+                                </div>
+                                <div class="text-right">
+                                    <button id="save-reward-btn" type="submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                                        <i class="fas fa-plus"></i>
+                                        <span>إضافة مكافأة</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-xl shadow-md">
+                            <h3 class="text-xl font-bold mb-4">المكافآt الحالية</h3>
+                            <div id="rewards-loader" class="text-center p-6">
+                                <div class="spinner-dark mx-auto"></div>
+                            </div>
+                            <div id="rewards-list" class="space-y-3 max-h-[400px] overflow-y-auto"></div>
+                            <div id="no-rewards-msg" class="hidden text-center p-6 text-gray-500">لا توجد مكافآt حالياً.</div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </main>
+    </div>
+</div>
+
+<div id="modal-container"></div>
+<div id="toast-container"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, serverTimestamp, orderBy, getDoc, setDoc, getDocs, where, Timestamp, increment, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+        authDomain: "s22market-4e3e6.firebaseapp.com",
+        projectId: "s22market-4e3e6",
+        storageBucket: "s22market-4e3e6.appspot.com",
+        messagingSenderId: "119186699901",
+        appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+        measurementId: "G-MWYNCVP4WQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const ADMIN_EMAILS = [
+        's22market@gmail.com',
+        'yacinee474474@gmail.com',
+        'nourmt01@gmail.com'
+    ];
+    
+    let tasksCache = []; 
+
+    const loginPage = document.getElementById('login-page');
+    const dashboardPage = document.getElementById('dashboard-page');
+    const logoutBtn = document.getElementById('logout-btn');
+    const getEl = (id) => document.getElementById(id);
+    const getVal = (id) => getEl(id)?.value || '';
+
+    // --- (الدوال المساعدة: showModal, closeModal, showToast, setButtonLoading, ... ) ---
+    const showModal = (title, content, onConfirm, confirmText = 'حفظ', showCancel = true) => {
+        const modalContainer = getEl('modal-container');
+        const confirmBtnHTML = `<button id="modal-confirm" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 flex items-center gap-2">${confirmText}</button>`;
+        const cancelBtnHTML = showCancel ? `<button id="modal-cancel" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button>` : '';
+        modalContainer.innerHTML = `
+            <div class="modal-backdrop" id="modal-backdrop">
+                <div class="modal-content">
+                    <div class="flex justify-between items-center mb-4 border-b pb-3">
+                        <h3 class="text-xl font-bold">${title}</h3>
+                        <button id="modal-close-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button>
+                    </div>
+                    <div id="modal-body">${content}</div>
+                    <div class="flex justify-end gap-4 mt-6 border-t pt-4">
+                        ${cancelBtnHTML}
+                        ${onConfirm ? confirmBtnHTML : ''}
+                    </div>
+                </div>
+            </div>`;
+        if (showCancel) getEl('modal-cancel').onclick = closeModal;
+        getEl('modal-close-btn').onclick = closeModal;
+        getEl('modal-backdrop').onclick = (e) => { if (e.target.id === 'modal-backdrop') closeModal(); };
+        if (onConfirm) getEl('modal-confirm').onclick = onConfirm;
+    }
+    const closeModal = () => { getEl('modal-container').innerHTML = ''; }
+    const showDeletionConfirmModal = (onConfirm) => {
+        showModal('تأكيد الحذف', 
+                  '<p class="text-lg">هل أنت متأكد من رغبتك في الحذف؟ لا يمكن التراجع عن هذا الإجراء.</p>', 
+                  onConfirm, 
+                  'نعم، قم بالحذف');
+        getEl('modal-confirm').classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+        getEl('modal-confirm').classList.add('bg-red-600', 'hover:bg-red-700');
+    }
+    const showToast = (message, type = 'success') => {
+        const container = getEl('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+        toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    };
+    const setButtonLoading = (btn, isLoading, text) => {
+        if (isLoading) {
+            btn.disabled = true;
+            btn.innerHTML = `<div class="small-spinner"></div>`;
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = text;
+        }
+    };
+    // --- (نهاية الدوال المساعدة) ---
+
+
+    // --- (دوال المصادقة والتنقل) ---
+    function checkAdminPermissions(user) {
+        if (user && ADMIN_EMAILS.includes(user.email)) {
+            loginPage.classList.add('hidden');
+            dashboardPage.classList.remove('hidden');
+            getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
+            initializeDashboard();
+        } else {
+            dashboardPage.classList.add('hidden');
+            loginPage.classList.remove('hidden');
+            if (user) signOut(auth);
+        }
+    }
+    onAuthStateChanged(auth, user => { checkAdminPermissions(user); });
+    logoutBtn.addEventListener('click', async () => { await signOut(auth); });
+
+    function setActiveTab() {
+        // (جديد) تحديد اسم الملف الحالي
+        const currentPage = 'dawarat_admin_loyalty_settings.html';
+        const tabs = document.querySelectorAll('.dashboard-tab');
+        tabs.forEach(tab => {
+            const tabHref = tab.getAttribute('href').split('/').pop();
+            if (tabHref === currentPage) {
+                tab.classList.add('active-tab');
+            } else {
+                tab.classList.remove('active-tab');
+            }
+        });
+    }
+
+    // --- (الدالة الرئيسية) ---
+    async function initializeDashboard() {
+        setActiveTab();
+        
+        loadLoyaltySettings();
+        loadTasks(); 
+        loadRewards();
+        
+        getEl('new-reward-form').addEventListener('submit', saveNewReward);
+        getEl('rewards-list').addEventListener('click', (e) => {
+            const deleteBtn = e.target.closest('.delete-reward-btn');
+            if (deleteBtn) deleteReward(deleteBtn.dataset.id);
+        });
+    }
+
+    // (جديد) الثابت لاسم مستند إعدادات الأكاديمية
+    const SETTINGS_DOC_ID = "dawarat_loyalty_config";
+    // (جديد) الثوابت لأسماء المجموعات الفرعية
+    const TASKS_COLLECTION_ID = "dawarat_tasks";
+    const REWARDS_COLLECTION_ID = "dawarat_rewards";
+
+    // --- (جديد) قسم إعدادات عملات البذلورات ---
+    async function loadLoyaltySettings() {
+        const loader = getEl('loyalty-loader');
+        const form = getEl('loyalty-form');
+        
+        try {
+            const docRef = doc(db, "settings", SETTINGS_DOC_ID);
+            const docSnap = await getDoc(docRef);
+            
+            if (docSnap.exists()) {
+                const settings = docSnap.data();
+                getEl('dawarat_registration_bonus').value = settings.registrationBonus || 100;
+                getEl('dawarat_referral_bonus').value = settings.referralBonus || 50;
+            } else {
+                getEl('dawarat_registration_bonus').value = 100;
+                getEl('dawarat_referral_bonus').value = 50;
+            }
+            
+            loader.classList.add('hidden');
+            form.classList.remove('hidden');
+            
+            form.addEventListener('submit', saveLoyaltySettings);
+
+        } catch (error) {
+            console.error("Error loading loyalty settings: ", error);
+            loader.innerHTML = `<p class="text-red-500">فشل تحميل الإعدادات: ${error.message}</p>`;
+        }
+    }
+
+    async function saveLoyaltySettings(e) {
+        e.preventDefault();
+        const saveBtn = getEl('save-loyalty-settings-btn');
+        const originalText = saveBtn.innerHTML;
+        setButtonLoading(saveBtn, true, '');
+        
+        try {
+            const settingsData = {
+                registrationBonus: parseInt(getEl('dawarat_registration_bonus').value, 10) || 0,
+                referralBonus: parseInt(getEl('dawarat_referral_bonus').value, 10) || 0
+            };
+            
+            if (settingsData.registrationBonus < 0 || settingsData.referralBonus < 0) {
+                 showToast('لا يمكن إدخال قيم سلبية.', 'error');
+                 setButtonLoading(saveBtn, false, originalText);
+                 return;
+            }
+            
+            const docRef = doc(db, "settings", SETTINGS_DOC_ID);
+            await setDoc(docRef, settingsData, { merge: true });
+            
+            showToast('تم حفظ إعدادات العملات بنجاح!', 'success');
+
+        } catch (error) {
+            console.error("Error saving loyalty settings: ", error);
+            showToast('فشل حفظ الإعدادات: ' + error.message, 'error');
+        } finally {
+            setButtonLoading(saveBtn, false, originalText);
+        }
+    }
+
+    // --- (جديد) قسم إدارة المهام (Tasks) ---
+    // (يستخدم مجموعة فرعية جديدة)
+    const tasksCollectionRef = collection(db, "settings", SETTINGS_DOC_ID, TASKS_COLLECTION_ID);
+    const taskForm = getEl('new-task-form');
+    const taskFormTitle = getEl('task-form-title');
+    const taskIdInput = getEl('task-id');
+    const taskTitleInput = getEl('task_title');
+    const taskLinkInput = getEl('task_link');
+    const taskPointsInput = getEl('task_points');
+    const saveTaskBtn = getEl('save-task-btn');
+    const saveTaskBtnText = getEl('save-task-btn').querySelector('span');
+    const cancelTaskEditBtn = getEl('cancel-task-edit-btn');
+
+    async function loadTasks() {
+        const listContainer = getEl('tasks-list');
+        const loader = getEl('tasks-loader');
+        const noTasksMsg = getEl('no-tasks-msg');
+        
+        onSnapshot(query(tasksCollectionRef, orderBy("title")), (snapshot) => {
+            tasksCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); 
+            
+            loader.classList.add('hidden');
+            listContainer.innerHTML = '';
+            
+            if (snapshot.empty) {
+                noTasksMsg.classList.remove('hidden');
+            } else {
+                noTasksMsg.classList.add('hidden');
+                tasksCache.forEach(task => {
+                    listContainer.appendChild(createTaskCard(task.id, task));
+                });
+            }
+        });
+        
+        taskForm.addEventListener('submit', saveNewTask);
+        cancelTaskEditBtn.addEventListener('click', resetTaskForm);
+        
+        listContainer.addEventListener('click', (e) => {
+            const deleteBtn = e.target.closest('.delete-task-btn');
+            if (deleteBtn) deleteTask(deleteBtn.dataset.id);
+
+            const editBtn = e.target.closest('.edit-task-btn');
+            if (editBtn) populateTaskFormForEdit(editBtn.dataset.id);
+        });
+    }
+    function createTaskCard(id, task) {
+        const card = document.createElement('div');
+        card.className = 'flex justify-between items-center bg-gray-50 p-2 rounded-md';
+        card.innerHTML = `
+            <span class="font-semibold">${task.title} (<span class="font-bold text-purple-600">${task.points} عملة</span>)</span>
+            <div>
+                <button class="edit-task-btn text-indigo-500 hover:text-indigo-700 mr-2" data-id="${id}">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="delete-task-btn text-red-500 hover:text-red-700" data-id="${id}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+        return card;
+    }
+    function populateTaskFormForEdit(taskId) {
+        const task = tasksCache.find(t => t.id === taskId);
+        if (!task) return;
+        
+        taskFormTitle.textContent = 'تعديل المهمة';
+        taskIdInput.value = taskId;
+        taskTitleInput.value = task.title;
+        taskLinkInput.value = task.link;
+        taskPointsInput.value = task.points;
+        
+        saveTaskBtnText.textContent = 'تحديث المهمة';
+        saveTaskBtn.querySelector('i').className = 'fas fa-save';
+        saveTaskBtn.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+        saveTaskBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        
+        cancelTaskEditBtn.classList.remove('hidden');
+        taskTitleInput.focus();
+    }
+    function resetTaskForm() {
+        taskFormTitle.textContent = 'إضافة مهمة جديدة';
+        taskForm.reset();
+        taskIdInput.value = ''; 
+        
+        saveTaskBtnText.textContent = 'إضافة المهمة';
+        saveTaskBtn.querySelector('i').className = 'fas fa-plus';
+        saveTaskBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+        saveTaskBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
+        
+        cancelTaskEditBtn.classList.add('hidden');
+    }
+    async function saveNewTask(e) {
+        e.preventDefault();
+        
+        const taskId = taskIdInput.value; 
+        const isEditing = !!taskId;
+
+        const title = taskTitleInput.value.trim();
+        const link = taskLinkInput.value.trim();
+        const points = parseInt(taskPointsInput.value, 10);
+        
+        if (!title || !link || isNaN(points) || points <= 0) {
+            showToast('يرجى ملء جميع حقول المهمة بشكل صحيح.', 'error');
+            return;
+        }
+        
+        const originalBtnText = saveTaskBtn.innerHTML;
+        setButtonLoading(saveTaskBtn, true, '');
+        
+        try {
+            const data = { title, link, points };
+            
+            if (isEditing) {
+                // (جديد) تحديث في المجموعة الفرعية الجديدة
+                await updateDoc(doc(db, "settings", SETTINGS_DOC_ID, TASKS_COLLECTION_ID, taskId), data);
+                showToast('تم تحديث المهمة بنجاح!', 'success');
+            } else {
+                await addDoc(tasksCollectionRef, data);
+                showToast('تمت إضافة المهمة بنجاح!', 'success');
+            }
+            
+            resetTaskForm();
+            
+        } catch (error) {
+            showToast(`فشل ${isEditing ? 'تحديث' : 'إضافة'} المهمة: ${error.message}`, 'error');
+        } finally {
+            setButtonLoading(saveTaskBtn, false, originalBtnText);
+        }
+    }
+    async function deleteTask(taskId) {
+        showDeletionConfirmModal(async () => {
+            try {
+                // (جديد) حذف من المجموعة الفرعية الجديدة
+                await deleteDoc(doc(db, "settings", SETTINGS_DOC_ID, TASKS_COLLECTION_ID, taskId));
+                showToast('تم حذف المهمة.', 'success');
+                resetTaskForm(); 
+            } catch (error) {
+                showToast('فشل حذف المهمة: ' + error.message, 'error');
+            }
+        });
+    }
+
+    // --- (جديد) قسم إدارة المكافآt (Rewards) ---
+    // (يستخدم مجموعة فرعية جديدة)
+    const rewardsCollectionRef = collection(db, "settings", SETTINGS_DOC_ID, REWARDS_COLLECTION_ID);
+    async function loadRewards() {
+        const listContainer = getEl('rewards-list');
+        const loader = getEl('rewards-loader');
+        const noRewardsMsg = getEl('no-rewards-msg');
+        
+        onSnapshot(query(rewardsCollectionRef, orderBy("points")), (snapshot) => {
+            loader.classList.add('hidden');
+            listContainer.innerHTML = '';
+            if (snapshot.empty) {
+                noRewardsMsg.classList.remove('hidden');
+            } else {
+                noRewardsMsg.classList.add('hidden');
+                snapshot.forEach(doc => {
+                    listContainer.appendChild(createRewardCard(doc.id, doc.data()));
+                });
+            }
+        });
+    }
+    function createRewardCard(id, reward) {
+        const card = document.createElement('div');
+        card.className = 'flex justify-between items-center bg-gray-50 p-2 rounded-md';
+        card.innerHTML = `
+            <span class="font-semibold">${reward.title} (<span class="font-bold text-green-600">${reward.points} عملة</span>)</span>
+            <button class="delete-reward-btn text-red-500 hover:text-red-700" data-id="${id}"><i class="fas fa-trash"></i></button>
+        `;
+        return card;
+    }
+    async function saveNewReward(e) {
+        e.preventDefault();
+        const btn = getEl('save-reward-btn');
+        const btnText = btn.querySelector('span');
+        const title = getEl('reward_title').value.trim();
+        const points = parseInt(getEl('reward_points').value, 10);
+        
+        if (!title || isNaN(points) || points <= 0) {
+            showToast('يرجى ملء حقول المكافأة بشكل صحيح.', 'error');
+            return;
+        }
+        
+        const originalBtnText = btn.innerHTML;
+        setButtonLoading(btn, true, '');
+        try {
+            await addDoc(rewardsCollectionRef, { title, points });
+            showToast('تمت إضافة المكافأة بنجاح!', 'success');
+            getEl('new-reward-form').reset();
+        } catch (error) {
+            showToast('فشل إضافة المكافأة: ' + error.message, 'error');
+        } finally {
+            setButtonLoading(btn, false, originalBtnText);
+        }
+    }
+    async function deleteReward(rewardId) {
+        showDeletionConfirmModal(async () => {
+            try {
+                // (جديد) حذف من المجموعة الفرعية الجديدة
+                await deleteDoc(doc(db, "settings", SETTINGS_DOC_ID, REWARDS_COLLECTION_ID, rewardId));
+                showToast('تم حذف المكافأة.', 'success');
+            } catch (error) {
+                showToast('فشل حذف المكافأة: ' + error.message, 'error');
+            }
+        });
+    }
+
+</script>
+
+</body>
+</html>

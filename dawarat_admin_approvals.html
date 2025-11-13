@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Dawarat - موافقات التسجيل والمهام</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
+        .hidden { display: none; }
+        .dashboard-tab:hover { background-color: #4338ca; }
+        .dashboard-tab.active-tab { background-color: #4f46e5; color: white; font-weight: bold; }
+        .dashboard-panel { animation: fadeIn 0.5s; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        .spinner-dark { width: 24px; height: 24px; border: 4px solid rgba(0,0,0, 0.1); border-top-color: #333; border-radius: 50%; animation: spin 1s linear infinite; }
+        .small-spinner { width: 16px; height: 16px; border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 100; }
+        .toast { background-color: #2f855a; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards; }
+        .toast.error { background-color: #c53030; }
+        .fa-spinner { animation: spin 1s linear infinite; } 
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+<div id="login-page" class="hidden min-h-screen flex items-center justify-center bg-gray-100 p-4">
+    </div>
+
+<div id="dashboard-page" class="hidden">
+    <div class="relative min-h-screen md:flex">
+        <aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
+            <div class="p-3 text-center border-b border-gray-700">
+                <h2 class="text-2xl font-bold">S22 Dawarat</h2>
+                <p id="admin-welcome-name" class="text-sm text-indigo-300"></p>
+            </div>
+            
+            <nav class="flex-1 p-2 space-y-2">
+                <a href="dawarat_admin_manager.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-graduation-cap fa-fw mr-3"></i> إدارة البذلورات</a>
+                <a href="dawarat_admin_professors.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chalkboard-teacher fa-fw mr-3 text-yellow-400"></i> إدارة الأساتذة</a>
+                <a href="dawarat_admin_approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات التسجيل</a>
+                <a href="dawarat_admin_referrals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
+                <a href="dawarat_admin_loyalty_settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات العملات</a>
+                
+                <hr class="border-gray-700 my-4">
+                
+                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">أدوات المتجر</h6>
+                <a href="admin-products.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-store fa-fw mr-3 text-gray-400"></i> العودة لإدارة المتجر</a>
+            </nav>
+
+            <div class="p-4 border-t border-gray-700">
+                <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+            
+            <div id="approvals-panel" class="dashboard-panel">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold text-gray-800">موافقات التسجيل في البذلورات والمهام</h1>
+                    <button id="refresh-approvals" class="text-gray-500 hover:text-blue-500 text-2xl"><i class="fas fa-sync-alt"></i></button>
+                </div>
+                <p class="text-sm text-gray-600 mb-4 bg-yellow-50 p-3 rounded-lg"><i class="fas fa-info-circle ml-2"></i>هنا تظهر الطلبات المرسلة من العملاء لإثبات إكمالهم للمهام أو لإثبات دفعهم لرسوم البذلورات. قم بمراجعة الصورة والموافقة لمنحهم "العملات" 🪙 و/أو تفعيل البذلورة.</p>
+                
+                <div id="approvals-loader" class="text-center py-10">
+                    <div class="loader mx-auto"></div>
+                    <p class="mt-4 text-gray-600">جاري تحميل طلبات الموافقة...</p>
+                </div>
+                
+                <div id="no-approvals-msg" class="hidden text-center py-20 bg-white rounded-xl shadow-md">
+                    <i class="fas fa-check-circle fa-4x text-green-400"></i>
+                    <p class="mt-4 text-xl font-semibold text-gray-500">لا توجد طلبات موافقة بانتظار المراجعة.</p>
+                </div>
+
+                <div id="approvals-list" class="space-y-4">
+                    </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, query, serverTimestamp, orderBy, getDocs, where, increment, writeBatch, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+        authDomain: "s22market-4e3e6.firebaseapp.com",
+        projectId: "s22market-4e3e6",
+        storageBucket: "s22market-4e3e6.appspot.com",
+        messagingSenderId: "119186699901",
+        appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+        measurementId: "G-MWYNCVP4WQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const ADMIN_EMAILS = [
+        's22market@gmail.com',
+        'yacinee474474@gmail.com',
+        'nourmt01@gmail.com'
+    ];
+
+    const loginPage = document.getElementById('login-page');
+    const dashboardPage = document.getElementById('dashboard-page');
+    const logoutBtn = document.getElementById('logout-btn');
+    const getEl = (id) => document.getElementById(id);
+    
+    // (جديد) اسم مستند إعدادات الأكاديمية
+    const DAW_SETTINGS_DOC_ID = "dawarat_loyalty_config";
+    // (جديد) متغير لحفظ الإعدادات
+    let dawaratSettings = {};
+
+    // --- (الدوال المساعدة: showToast, setButtonLoading) ---
+    const showToast = (message, type = 'success') => {
+        const container = getEl('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+        toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    };
+    const setButtonLoading = (btn, isLoading, text) => {
+        const btnText = btn.querySelector('span');
+        if (isLoading) {
+            btn.disabled = true;
+            btn.innerHTML = `<div class="small-spinner mx-auto"></div>`;
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = text; // إعادة النص الأصلي
+        }
+    };
+    // --- (نهاية الدوال المساعدة) ---
+
+    // --- (دوال المصادقة والتنقل) ---
+    function checkAdminPermissions(user) {
+        if (user && ADMIN_EMAILS.includes(user.email)) {
+            loginPage.classList.add('hidden');
+            dashboardPage.classList.remove('hidden');
+            getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
+            initializeDashboard();
+        } else {
+            dashboardPage.classList.add('hidden');
+            loginPage.classList.remove('hidden');
+            if (user) signOut(auth);
+        }
+    }
+    onAuthStateChanged(auth, user => { checkAdminPermissions(user); });
+    logoutBtn.addEventListener('click', async () => { await signOut(auth); });
+
+    function setActiveTab() {
+        // (جديد) تحديد اسم الملف الحالي
+        const currentPage = 'dawarat_admin_approvals.html';
+        const tabs = document.querySelectorAll('.dashboard-tab');
+        tabs.forEach(tab => {
+            const tabHref = tab.getAttribute('href').split('/').pop();
+            if (tabHref === currentPage) {
+                tab.classList.add('active-tab');
+            } else {
+                tab.classList.remove('active-tab');
+            }
+        });
+    }
+
+    // --- (الدالة الرئيسية) ---
+    async function initializeDashboard() {
+        setActiveTab();
+        
+        // (جديد) جلب الإعدادات أولاً
+        try {
+            const settingsDocRef = doc(db, "settings", DAW_SETTINGS_DOC_ID);
+            const settingsSnap = await getDoc(settingsDocRef);
+            if (settingsSnap.exists()) {
+                dawaratSettings = settingsSnap.data();
+                console.log("إعدادات العملات تم جلبها:", dawaratSettings);
+            } else {
+                showToast('خطأ فادح: لم يتم العثور على ملف إعدادات الأكاديمية!', 'error');
+                dawaratSettings = { registrationBonus: 0, referralBonus: 0 }; // قيم افتراضية
+            }
+        } catch (e) {
+            console.error("Failed to fetch settings: ", e);
+            showToast('فشل جلب إعدادات العملات!', 'error');
+        }
+
+        loadPendingApprovals(); // الآن جلب الموافقات
+        getEl('refresh-approvals').onclick = loadPendingApprovals;
+        
+        getEl('approvals-list').addEventListener('click', (e) => {
+            const approveBtn = e.target.closest('.approve-btn');
+            const rejectBtn = e.target.closest('.reject-btn');
+            if (approveBtn) handleApproval(approveBtn, true);
+            if (rejectBtn) handleApproval(rejectBtn, false);
+        });
+    }
+
+    // --- (*** الكود الأساسي لهذه الصفحة ***) ---
+
+    async function loadPendingApprovals() {
+        const loader = getEl('approvals-loader');
+        const listContainer = getEl('approvals-list');
+        const noMsg = getEl('no-approvals-msg');
+
+        loader.classList.remove('hidden');
+        listContainer.innerHTML = '';
+        noMsg.classList.add('hidden');
+
+        try {
+            // (ملاحظة) هذا الاستعلام يتطلب فهرس (index) في Firestore
+            const q = query(
+                collection(db, "loyalty_approvals"),
+                where("status", "==", "pending"),
+                orderBy("submittedAt", "desc")
+            );
+            const snapshot = await getDocs(q);
+
+            if (snapshot.empty) {
+                noMsg.classList.remove('hidden');
+            } else {
+                snapshot.forEach(doc => {
+                    const approval = { id: doc.id, ...doc.data() };
+                    listContainer.appendChild(createApprovalCard(approval));
+                });
+            }
+        } catch (error) {
+            console.error("Error loading approvals:", error);
+            listContainer.innerHTML = `<p class="text-red-500 p-4"><b>فشل جلب الطلبات.</b><br>تأكد من إنشاء الفهرس (Index) المطلوب في Firestore.</p>`;
+        } finally {
+            loader.classList.add('hidden');
+        }
+    }
+
+    function createApprovalCard(approval) {
+        const card = document.createElement('div');
+        card.id = `approval-card-${approval.id}`;
+        card.className = 'bg-white rounded-xl shadow-md p-5 grid grid-cols-1 md:grid-cols-3 gap-4 items-center';
+        
+        const date = approval.submittedAt?.toDate ? approval.submittedAt.toDate().toLocaleString('ar-EG') : '...';
+        
+        const isPaymentProof = approval.type === 'payment_proof';
+        const taskTitle = isPaymentProof ? `إثبات دفع: ${approval.courseTitle}` : approval.taskTitle;
+        const taskColor = isPaymentProof ? 'text-blue-600' : 'text-purple-600';
+
+        // (*** جديد: تحديد قيمة العملات ***)
+        // إذا كان إثبات دفع، استخدم القيمة من الإعدادات.
+        // إذا كانت مهمة، استخدم القيمة المرفقة مع المهمة.
+        const pointsToAward = isPaymentProof 
+            ? (dawaratSettings.registrationBonus || 0) 
+            : (approval.points || 0);
+
+        card.innerHTML = `
+            <div class="md:col-span-1">
+                <p class="font-bold text-lg">${approval.userName}</p>
+                <p class="text-sm text-gray-500">${date}</p>
+            </div>
+            <div class="md:col-span-1">
+                <p class="font-semibold ${taskColor}">${taskTitle}</p>
+                <p class="font-bold text-green-600">+${pointsToAward} عملة 🪙</p>
+                <a href="${approval.proofImageUrl}" target="_blank" class="text-blue-500 hover:underline font-semibold">
+                    <i class="fas fa-image ml-1"></i> عرض الإثبات (الصورة)
+                </a>
+            </div>
+            <div class="md:col-span-1 flex items-center justify-end gap-3">
+                <button class="reject-btn bg-red-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-red-700" 
+                        data-id="${approval.id}" data-user-id="${approval.userId}" data-title="${taskTitle}">
+                    <span><i class="fas fa-times"></i> رفض</span>
+                </button>
+                <button class="approve-btn bg-green-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-green-700" 
+                        data-id="${approval.id}" data-user-id="${approval.userId}" 
+                        data-points="${pointsToAward}" data-title="${taskTitle}"
+                        data-type="${approval.type}" data-course-id="${approval.courseId || ''}">
+                    <span><i class="fas fa-check"></i> موافقة</span>
+                </button>
+            </div>
+        `;
+        return card;
+    }
+
+    async function handleApproval(btn, isApproved) {
+        const card = btn.closest('.bg-white');
+        const { id, userId, points, title, type, courseId } = btn.dataset;
+        
+        const approveBtn = card.querySelector('.approve-btn');
+        const rejectBtn = card.querySelector('.reject-btn');
+        const approveBtnText = approveBtn.innerHTML;
+        const rejectBtnText = rejectBtn.innerHTML;
+        
+        setButtonLoading(approveBtn, true);
+        setButtonLoading(rejectBtn, true);
+
+        try {
+            const approvalDocRef = doc(db, "loyalty_approvals", id);
+            const userDocRef = doc(db, "users", userId);
+            
+            const batch = writeBatch(db);
+
+            if (isApproved) {
+                const pointsToAward = parseInt(points, 10);
+                
+                // 1. أضف "العملات" للعميل (إذا كانت أكبر من صفر)
+                if (pointsToAward > 0) {
+                    // (*** جديد: الكتابة في محفظة العملات ***)
+                    batch.update(userDocRef, {
+                        dawarat_coins: increment(pointsToAward) // <-- اسم الحقل الجديد
+                    });
+                }
+
+                // 2. أضف سجل في "تاريخ العملات" للعميل
+                // (*** جديد: الكتابة في سجل العملات ***)
+                const changeLogRef = doc(collection(db, 'users', userId, 'dawarat_coin_changes')); // <-- اسم السجل الجديد
+                batch.set(changeLogRef, {
+                    type: type === 'payment_proof' ? 'course_registration' : 'task_reward',
+                    pointsAdded: pointsToAward,
+                    reason: title,
+                    adminId: auth.currentUser.uid,
+                    timestamp: serverTimestamp()
+                });
+
+                // 3. أرسل إشعاراً للعميل
+                const notificationRef = doc(collection(db, 'users', userId, 'notifications'));
+                batch.set(notificationRef, {
+                    title: "✅ تمت الموافقة على طلبك!",
+                    // (جديد) تغيير النص إلى "عملة"
+                    body: `أحسنت! تمت الموافقة على طلبك لـ: "${title}". ${pointsToAward > 0 ? `وتمت إضافة ${pointsToAward} عملة 🪙 لرصيدك.` : ''}`,
+                    timestamp: serverTimestamp(),
+                    isRead: false,
+                    type: type === 'payment_proof' ? "course_approved" : "task_approved"
+                });
+
+                // 4. (الأهم) إذا كان هذا إثبات دفع لبذلورة، امنح الطالب الوصول إليها
+                if (type === 'payment_proof' && courseId) {
+                    // (هذا الكود جاهز ويعمل كما هو)
+                    batch.update(userDocRef, {
+                        [`courseAccess.${courseId}`]: true 
+                    });
+                }
+
+                // 5. حدّث حالة الطلب إلى "موافق عليه"
+                batch.update(approvalDocRef, { status: "approved", processedAt: serverTimestamp() });
+                
+                await batch.commit();
+                
+                showToast('تمت الموافقة ومنح العملات والصلاحية!', 'success');
+
+            } else {
+                // (رفض)
+                // 1. أرسل إشعاراً للعميل
+                const notificationRef = doc(collection(db, 'users', userId, 'notifications'));
+                batch.set(notificationRef, {
+                    title: "❌ تم رفض طلبك",
+                    body: `نعتذر، تم رفض طلبك لـ: "${title}". ${type === 'payment_proof' ? 'يرجى مراجعة بيانات الدفع والمحاولة مجدداً.' : 'يرجى المحاولة مجدداً بصورة أوضح.'}`,
+                    timestamp: serverTimestamp(),
+                    isRead: false,
+                    type: type === 'payment_proof' ? "course_rejected" : "task_rejected"
+                });
+                
+                // 2. حدّث حالة الطلب إلى "مرفوض"
+                batch.update(approvalDocRef, { status: "rejected", processedAt: serverTimestamp() });
+                
+                await batch.commit();
+                
+                showToast('تم رفض الطلب بنجاح.', 'success');
+            }
+
+            // إزالة الكرت من الواجهة
+            card.remove();
+            if (getEl('approvals-list').children.length === 0) {
+                getEl('no-approvals-msg').classList.remove('hidden');
+            }
+
+        } catch (error) {
+            console.error("Error handling approval:", error);
+            showToast('حدث خطأ فادح: ' + error.message, 'error');
+            setButtonLoading(approveBtn, false, approveBtnText);
+            setButtonLoading(rejectBtn, false, rejectBtnText);
+        }
+    }
+
+</script>
+
+</body>
+</html>

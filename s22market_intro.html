@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مرحبا بكم في S22MARKET</title> <link rel="preconnect" href="https://fonts.googleapis.com">
+    <title>مرحبا بكم في S22MARKET</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     
@@ -66,6 +67,7 @@
         /* --- Header & Title --- */
         header {
             width: 100%;
+            max-width: 1200px;
             text-align: center;
             margin-bottom: 2.5rem;
         }
@@ -138,12 +140,11 @@
             transform: scale(0.96);
         }
 
-        /* --- Main Content Section (Cards) --- */
+        /* --- Main Content Section (Video) --- */
         .main-content {
             display: flex;
             justify-content: center;
             align-items: stretch;
-            gap: 2.5rem;
             width: 100%;
             max-width: 1200px;
             margin-bottom: 3rem;
@@ -166,48 +167,11 @@
                 box-shadow: 0 20px 40px rgba(0,0,0,0.6);
             }
         }
-
-        /* --- Special Offer Card --- */
-        .offer-box {
-            padding: 25px;
-            text-align: center;
-            width: 100%;
-            max-width: 420px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .offer-box p {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: var(--text-light);
-            margin: 15px 0;
-            background-color: rgba(245, 158, 11, 0.15); /* Gold with opacity */
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--accent-gold);
-        }
-
-        .offer-box img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            outline: 3px solid var(--accent-blue);
-            margin-top: 10px;
-            transition: transform 0.3s ease;
-        }
-        
-        @media (hover: hover) {
-            .offer-box img:hover {
-                transform: scale(1.05);
-            }
-        }
         
         /* --- Video Frame Card --- */
         .video-frame-container {
             width: 100%;
-            max-width: 600px;
+            max-width: 600px; /* Max width on large screens */
             aspect-ratio: 16 / 9;
             overflow: hidden;
             background-color: #000;
@@ -232,42 +196,54 @@
             object-fit: cover;
         }
         
-        /* --- Footer Section --- */
+        /* ==================================
+           الأنماط الجديدة للفوتر
+        ==================================
+        */
         footer {
             width: 100%;
+            max-width: 1200px;
             text-align: center;
-            margin-top: auto; /* Pushes footer to the bottom */
+            margin-top: auto; /* يدفع الفوتر للأسفل */
+            padding: 2rem 1rem;
             animation: slideUp 0.8s 0.6s ease-out forwards;
             opacity: 0;
         }
 
-        .footer-btn {
-            background-image: linear-gradient(45deg, var(--accent-gold), #fca510);
-            border: none;
-            color: #1a1a1a;
-            padding: 15px 35px;
-            border-radius: 50px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 20px rgba(245, 158, 11, 0.4);
-            text-decoration: none; 
-            display: inline-flex; 
+        .social-links {
+            display: flex;
+            flex-wrap: wrap; /* للسماح بالالتفاف على الشاشات الضيقة جداً */
+            justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 2rem; /* مسافة بين الأيقونات */
+        }
+
+        .social-icon {
+            font-size: 2.2rem; /* حجم الأيقونات (كبير وسهل النقر) */
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        @media (hover: hover) {
+            .social-icon:hover {
+                color: var(--text-light);
+                transform: translateY(-5px) scale(1.1);
+            }
+            
+            /* ألوان المنصات عند التمرير (لأجهزة الكمبيوتر) */
+            .social-icon.whatsapp:hover { color: #25D366; }
+            .social-icon.facebook:hover { color: #1877F2; }
+            .social-icon.instagram:hover { color: #E4405F; }
+            .social-icon.telegram:hover { color: #26A5E4; }
+            .social-icon.phone:hover { color: var(--accent-green); }
         }
         
-        @media (hover: hover) {
-            .footer-btn:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 10px 25px rgba(245, 158, 11, 0.6);
-            }
+        .social-icon:active {
+            transform: scale(0.95); /* تأثير النقر (للهواتف) */
         }
-        .footer-btn:active {
-            transform: scale(0.95);
-        }
+
 
         /* --- Animation Keyframes --- */
         @keyframes slideDown {
@@ -280,22 +256,42 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* --- Responsive Design --- */
+        /* ==================================
+           تحسينات الاستجابة للشاشات
+        ==================================
+        */
         @media (max-width: 992px) {
             .main-content {
                 flex-direction: column;
                 align-items: center;
                 gap: 2rem;
             }
-            .offer-box { order: 1; }
-            .video-frame-container { order: 2; width: 95%; max-width: 500px; }
+            .video-frame-container { 
+                width: 95%; 
+                max-width: 600px; /* حجم مناسب للأجهزة اللوحية */
+            }
         }
         
         @media (max-width: 480px) {
             .page-container { padding: 1.5rem 1rem; }
             .action-buttons-nav { gap: 10px; }
-            .action-btn { font-size: 1rem; padding: 12px 20px; width: 100%; } 
-            .offer-box p { font-size: 1em; }
+            .action-btn { 
+                font-size: 1rem; 
+                padding: 12px 20px; 
+                width: 100%; /* يجعل كل زر يأخذ عرض كامل (يضعهم فوق بعض) */
+            } 
+            
+            .video-frame-container {
+                max-width: 100%; /* يجعل الفيديو يملأ العرض على الهواتف */
+            }
+
+            .social-links {
+                gap: 1.5rem; /* تقليل المسافة بين الأيقونات على الشاشات الصغيرة */
+            }
+
+            .social-icon {
+                font-size: 2rem; /* تصغير الأيقونات قليلاً على الهواتف */
+            }
         }
         
 
@@ -328,12 +324,29 @@
 
         </main>
 
+        
         <footer>
-            <a href="contact.html" class="footer-btn">
-                <i class="fas fa-envelope"></i> تواصل معنا </a>
+            <div class="social-links">
+                <a href="https://wa.me/213699443914" target="_blank" rel="noopener noreferrer" class="social-icon whatsapp" aria-label="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a href="https://www.facebook.com/profile.php?id=61563869504735&mibextid=ZbWKwL" target="_blank" rel="noopener noreferrer" class="social-icon facebook" aria-label="Facebook">
+                    <i class="fab fa-facebook"></i>
+                </a>
+                <a href="https://www.instagram.com/s22market2?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" class="social-icon instagram" aria-label="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://t.me/S22MARKET" target="_blank" rel="noopener noreferrer" class="social-icon telegram" aria-label="Telegram">
+                    <i class="fab fa-telegram"></i>
+                </a>
+                <a href="tel:+213699443914" class="social-icon phone" aria-label="Phone">
+                    <i class="fas fa-phone"></i>
+                </a>
+            </div>
         </footer>
+       
 
-    </div>
-
-    </body>
+    </div> </body>
 </html>
+
+

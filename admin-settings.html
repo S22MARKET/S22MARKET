@@ -27,11 +27,7 @@
 <body>
 
 <div id="login-page" class="hidden min-h-screen flex items-center justify-center bg-gray-100 p-4">
-    <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl space-y-6">
-        <h2 class="text-3xl font-extrabold text-center text-gray-900">يرجى تسجيل الدخول</h2>
-        <p class="text-center text-red-500">تم تسجيل خروجك. يرجى العودة إلى <a href="dashboard.html" class="font-bold underline">صفحة الدخول الرئيسية</a>.</p>
     </div>
-</div>
 
 <div id="dashboard-page" class="hidden">
     <div class="relative min-h-screen md:flex">
@@ -54,6 +50,11 @@
                 <a href="admin-applications.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
                 <a href="admin-notepad.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
                 <a href="admin-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
+                
+                <hr class="border-gray-700 my-4">
+                
+                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">أدوات الأكاديمية</h6>
+                <a href="dawarat_admin_manager.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-graduation-cap fa-fw mr-3 text-gray-400"></i> الذهاب لإدارة البذلورات</a>
             </nav>
             <div class="p-4 border-t border-gray-700">
                 <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
@@ -104,7 +105,7 @@
     const getNum = (id) => parseFloat(getVal(id));
     const getChecked = (id) => getEl(id)?.checked || false;
 
-    // (دوال المصادقة والقائمة الجانبية - مكررة في كل صفحة للتحكم)
+    // --- دوال المصادقة والتنقل ---
     function checkAdminPermissions(user) {
         if (user && ADMIN_EMAILS.includes(user.email)) {
             loginPage.classList.add('hidden');
@@ -133,14 +134,13 @@
         });
     }
 
-    // (الدالة الرئيسية لهذه الصفحة)
+    // --- الدالة الرئيسية ---
     async function initializeDashboard() {
         setActiveTab();
         loadStoreSettings();
     }
 
-    // --- (جميع الدوال المنسوخة من الملف القديم والمخصصة للإعدادات) ---
-    
+    // --- (جديد) تم تعديل هذه الدالة ---
     async function loadStoreSettings() {
         const panel = getEl('settings-panel');
         const docRef = doc(db, "settings", "storeConfig");
@@ -148,8 +148,9 @@
         const settings = docSnap.exists() ? docSnap.data() : {};
 
         panel.innerHTML = `
-            <h1 class="text-3xl font-bold text-gray-800 mb-6">إعدادات المتجر</h1>
+            <h1 class="text-3xl font-bold text-gray-800 mb-6">إعدادات المتجر العامة</h1>
             <div class="bg-white p-6 rounded-xl shadow-md space-y-6">
+                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div><label class="font-semibold text-sm">عنوان SEO (يظهر في جوجل)</label><input type="text" id="setting-seo-title" class="mt-1 w-full p-2 border rounded" value="${settings.seoTitle || 'S22 Market'}"></div>
                     <div><label class="font-semibold text-sm">رابط لوجو المتجر (اختياري)</label><input type="url" id="setting-logo-url" class="mt-1 w-full p-2 border rounded" placeholder="https://i.ibb.co/..." value="${settings.logoUrl || ''}"></div>
@@ -163,7 +164,7 @@
                 </div>
 
                 <div class="border-t pt-4 space-y-4">
-                    <h3 class="font-bold text-lg text-indigo-700">إعدادات التوصيل</h3>
+                    <h3 class="font-bold text-lg text-indigo-700">إعدادات التوصيل (للمتجر)</h3>
                     <div><label class="font-semibold text-sm">سعر التوصيل الافتراضي (د.ج)</label><input type="number" id="setting-shipping-cost" class="mt-1 w-full p-2 border rounded" value="${settings.shippingCost || 0}"></div>
                     <div><label class="font-semibold text-sm">حد التوصيل المجاني (د.ج)</label><input type="number" id="setting-free-shipping" class="mt-1 w-full p-2 border rounded" value="${settings.freeShippingThreshold || 0}" placeholder="0 لتعطيل التوصيل المجاني"></div>
                 </div>
@@ -178,10 +179,42 @@
                         <div><label class="font-semibold text-sm">هاتف (للاتصال)</label><input type="tel" id="setting-social-phone" class="mt-1 w-full p-2 border rounded" value="${settings.socialLinks?.phone || ''}" dir="ltr"></div>
                     </div>
                 </div>
-                 <div class="border-t pt-4 space-y-4">
+                
+                <div class="border-t pt-4 space-y-4">
                     <h3 class="font-bold text-lg text-indigo-700">أكواد التتبع (Tracking)</h3>
                     <div><label class="font-semibold text-sm">Google Analytics ID</label><input type="text" id="setting-ga-id" class="mt-1 w-full p-2 border rounded" value="${settings.gaId || ''}" placeholder="G-XXXXXXXXXX"></div>
                     <div><label class="font-semibold text-sm">Facebook Pixel ID</label><input type="text" id="setting-pixel-id" class="mt-1 w-full p-2 border rounded" value="${settings.fbPixelId || ''}"></div>
+                </div>
+
+                <div class="border-t pt-4 space-y-4">
+                    <h3 class="font-bold text-lg text-orange-700">
+                        <i class="fas fa-exchange-alt"></i> إدارة أسعار التصريف (التحويل)
+                    </h3>
+                    <p class="text-sm text-gray-500">هنا تحدد سعر التحويل الذي سيراه العضو في بروفايله.</p>
+                    
+                    <div class="p-4 bg-gray-50 rounded-lg grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="font-semibold">التحويل من (جواهر المتجر 💎) إلى (عملات الأكاديمية 🪙)</label>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="text-lg font-bold text-blue-700">100</span>
+                                <span class="text-gray-600">جوهرة 💎</span>
+                                <span class="text-gray-600">=</span>
+                                <input type="number" id="exchange_jewels_to_coins" class="w-24 p-2 border rounded text-center font-bold" value="${settings.exchangeRates?.jewels_to_coins || 50}">
+                                <span class="text-gray-600">عملة 🪙</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="font-semibold">التحويل من (عملات الأكاديمية 🪙) إلى (جواهر المتجر 💎)</label>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="text-lg font-bold text-green-700">100</span>
+                                <span class="text-gray-600">عملة 🪙</span>
+                                <span class="text-gray-600">=</span>
+                                <input type="number" id="exchange_coins_to_jewels" class="w-24 p-2 border rounded text-center font-bold" value="${settings.exchangeRates?.coins_to_jewels || 50}">
+                                <span class="text-gray-600">جوهرة 💎</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="border-t pt-6">
                     <button id="save-settings-btn" class="w-full md:w-auto bg-green-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-green-700">
@@ -214,11 +247,19 @@
                 },
                 gaId: getVal('setting-ga-id'),
                 fbPixelId: getVal('setting-pixel-id'),
+                
+                // (جديد) إضافة كائن سعر التصريف
+                exchangeRates: {
+                    jewels_to_coins: getNum('exchange_jewels_to_coins') || 0,
+                    coins_to_jewels: getNum('exchange_coins_to_jewels') || 0,
+                },
+
                 lastUpdated: serverTimestamp()
             };
 
             try {
-                await setDoc(docRef, data);
+                // (جديد) سيتم دمج البيانات الجديدة مع القديمة
+                await setDoc(docRef, data, { merge: true }); 
                 status.textContent = 'تم الحفظ بنجاح!';
                 status.classList.remove('hidden', 'text-red-600');
                 status.classList.add('text-green-600');

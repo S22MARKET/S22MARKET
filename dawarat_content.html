@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Learning - ...</title> 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        /* (جديد) إضافة سبينر صغير */
+        .small-loader { border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
+        
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; translateY(0); } }
+        
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; width: 100%; background-color: #000; border-radius: 0.75rem; }
+        .video-container iframe, .video-container video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        
+        .course-content-body { line-height: 1.8; font-size: 1.1rem; }
+        .course-content-body h2 { font-size: 1.75rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .course-content-body p { margin-bottom: 1rem; }
+        .course-content-body ul { list-style-type: disc; margin-right: 2rem; margin-bottom: 1rem; }
+
+        .professor-card { background-color: white; border-radius: 0.75rem; box-shadow: 0 4px 15px rgba(0,0,0,0.07); padding: 1.5rem; text-align: center; position: sticky; top: 100px; }
+        .professor-card img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin: 0 auto 1rem; border: 4px solid #eef2ff; }
+        .professor-social-links a { color: #6b7280; transition: color 0.2s; font-size: 1.25rem; }
+        .professor-social-links a:hover { color: #4f46e5; }
+        
+        .module-header { background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 1rem; font-weight: 700; font-size: 1.125rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background-color 0.2s; }
+        .module-header:hover { background-color: #f1f5f9; }
+        .module-header .icon { transition: transform 0.3s ease; }
+        .module-header.active .icon { transform: rotate(180deg); }
+        .module-content { padding: 1rem; border: 1px solid #e2e8f0; border-top: 0; display: none; }
+        .lesson-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0.5rem; border-bottom: 1px dashed #e2e8f0; }
+        .lesson-item:last-child { border-bottom: 0; }
+        .lesson-link { display: flex; align-items: center; gap: 0.75rem; font-weight: 500; color: #334155; cursor: pointer; flex-grow: 1; }
+        .lesson-link.locked { color: #94a3b8; cursor: not-allowed; }
+        .lesson-link:not(.locked):hover { color: #4f46e5; }
+        .lesson-link.completed-lesson { color: #16a34a; text-decoration: line-through; }
+        .lesson-link.active-lesson { font-weight: 700; color: #4f46e5; }
+
+        #user-menu-dropdown.show { display: block; animation: slideInUp 0.2s ease-out; }
+
+        /* (جديد) ستايل النافذة المنبثقة */
+        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 40; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+        .modal-backdrop.active { opacity: 1; pointer-events: all; }
+        .modal-content { background-color: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 500px; z-index: 50; transform: scale(0.95); opacity: 0; transition: all 0.3s ease; }
+        .modal-backdrop.active .modal-content { transform: scale(1); opacity: 1; }
+
+        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10001; }
+        .toast { background-color: #2d3748; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards; }
+        .toast.error { background-color: #c53030; }
+        @keyframes fadeOut { from { opacity: 1; } to: { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+             <a href="index.html" class="flex items-center gap-3">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+                    S22<span class="text-blue-600">MARKET</span>
+                </h1>
+            </a>
+            <div id="header-actions" class="flex items-center gap-4 relative">
+                <a href="index.html" id="store-btn" class="relative text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 shadow-lg">
+                    <i class="fas fa-store"></i>
+                    <span>المتجر</span>
+                </a>
+                <a href="login.html" id="login-btn" class="hidden relative text-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-full transition-colors items-center gap-2 sm:flex">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>دخول / تسجيل</span>
+                </a>
+                <div id="user-menu" class="hidden">
+                    <button id="user-menu-button" class="flex items-center gap-2 text-lg font-semibold text-gray-700 bg-green-100 hover:bg-green-200 px-5 py-2.5 rounded-full transition-colors">
+                        <i class="fas fa-user-check text-green-700"></i>
+                        <span id="user-menu-name">...</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="user-menu-dropdown" class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
+                        <div class="p-3 border-b">
+                            <p class="text-sm text-gray-500">مرحباً بك،</p>
+                            <p class="font-bold text-gray-800" id="user-menu-displayname">...</p>
+                        </div>
+                        <a href="profile.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي ومحافطي</a>
+                        <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</div>
+                        <a href="dawarat_learning_dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-graduation-cap fa-fw ml-2 text-indigo-400"></i> بذلوراتي المسجلة</a>
+                        <a href="dawarat_loyalty_tasks.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-tasks fa-fw ml-2 text-purple-400"></i> كسب العملات (المهام)</a>
+                        <a href="dawarat_loyalty_rewards.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-gift fa-fw ml-2 text-yellow-400"></i> استبدال العملات</a>
+                        <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">المتجر</div>
+                        <a href="seller-dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
+                        <a href="order_history.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
+                        <a href="loyalty_card.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء (الجواهر)</a>
+                        <button id="logout-btn" class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        
+        <div id="page-loader" class="text-center py-20">
+            <div class="loader mx-auto"></div>
+            <p class="mt-4 text-gray-600 text-lg">جاري جلب بيانات البذلورة...</p>
+        </div>
+        
+        <div id="error-message" class="hidden text-center py-20 bg-white rounded-xl shadow-md" style="animation: slideInUp 0.5s ease-out;">
+            <i class="fas fa-exclamation-triangle text-5xl text-red-500"></i>
+            <h1 class="mt-4 text-3xl font-extrabold text-gray-900">خطأ</h1>
+            <p id="error-text" class="mt-2 text-xl font-semibold text-gray-500">لم يتم العثور على البذلورة المطلوبة.</p>
+        </div>
+
+        <div id="course-content-wrapper" class="hidden" style="animation: slideInUp 0.5s ease-out;">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-2 space-y-8">
+                    <div id="video-player-container" class="video-container shadow-lg bg-gray-900 flex items-center justify-center text-white/50 rounded-lg">
+                        <i class="fas fa-play-circle text-6xl"></i>
+                    </div>
+
+                    <div id="register-container" class="hidden">
+                        <button id="register-btn" class="w-full bg-green-600 text-white font-extrabold text-xl py-4 rounded-lg shadow-lg hover:bg-green-700 transition-transform transform hover:scale-105">
+                            <i class="fas fa-rocket mr-2"></i> سجل الآن وابدأ رحلتك!
+                        </button>
+                    </div>
+
+                    <div id="community-links-container" class="hidden bg-indigo-50 border border-indigo-200 p-4 rounded-lg">
+                        </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div id="stats-bar" class="flex flex-wrap gap-x-6 gap-y-3 items-center text-gray-600 font-semibold mb-6 border-b pb-6"></div>
+                        <h2 class="text-2xl font-bold mb-4">ماذا ستتعلم؟</h2>
+                        <ul id="objectives-list" class="space-y-2 list-inside"></ul>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <h2 class="text-2xl font-bold p-6 border-b">منهج البذلورة</h2>
+                        <div id="curriculum-container" class="space-y-2 p-4"></div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">عن البذلورة</h2>
+                        <div id="course-description-content" class="course-content-body"></div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1">
+                    <h1 id="course-title" class="lg:hidden text-3xl font-extrabold text-gray-900 mb-4"></h1>
+                    <div id="professor-card" class="professor-card hidden">
+                        <img id="prof-image" src="https://placehold.co/150x150" alt="صورة الأستاذ">
+                        <h3 class="text-xl font-bold text-gray-900">يقدمها:</h3>
+                        <h2 id="prof-name" class="text-2xl font-bold text-indigo-600 mb-2">...</h2>
+                        <p id="prof-bio" class="text-sm text-gray-600 mb-4">...</p>
+                        <div id="prof-social-links" class="flex justify-center gap-5 professor-social-links border-t pt-4"></div>
+                        <a id="prof-full-profile-link" href="#" class="mt-4 inline-block text-sm font-semibold text-indigo-600 hover:underline">
+                            عرض الملف الكامل للأستاذ <i class="fas fa-arrow-left text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div id="toast-container"></div>
+    
+    <div id="payment-proof-modal" class="modal-backdrop">
+        <div class="modal-content">
+             <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 class="text-xl font-bold">إثبات التسجيل في البذلورة</h3>
+                <button id="close-payment-modal-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            
+            <div id="payment-modal-content">
+                <p class="text-gray-600 mb-4">للتسجيل، يرجى إرسال إثبات الدفع (لقطة شاشة) وسيقوم المدير بمراجعة طلبك وتفعيل البذلورة لك (وستحصل على عملات 🪙 كمكافأة!).</p>
+                <form id="payment-proof-form" class="space-y-4">
+                    <div>
+                        <label for="payment-proof-image" class="block text-sm font-bold text-gray-700">ارفع صورة الإثبات <span class="text-red-500">*</span></label>
+                        <input type="file" id="payment-proof-image" class="mt-1 block w-full text-sm text-gray-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-full file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-indigo-50 file:text-indigo-700
+                            hover:file:bg-indigo-100"
+                            accept="image/*" required>
+                        <img id="image-preview" src="" class="hidden w-full max-h-48 object-contain rounded-md mt-3 border bg-gray-50">
+                    </div>
+                    <button id="submit-proof-btn" type="submit" class="w-full flex justify-center items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105 disabled:bg-green-400">
+                        <span class="button-text">إرسال الطلب للمراجعة</span>
+                        <div class="small-loader button-loader hidden"></div>
+                    </button>
+                </form>
+            </div>
+            
+            <div id="payment-modal-success" class="hidden text-center py-8">
+                <i class="fas fa-check-circle text-6xl text-green-500 mb-4"></i>
+                <h3 class="text-2xl font-bold">تم إرسال طلبك بنجاح!</h3>
+                <p class="text-gray-600 mt-2">سيقوم المدير بمراجعة طلبك قريباً. ستتلقى إشعاراً عند الموافقة.</p>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // ... (نفس إعدادات Firebase) ...
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- عناصر الواجهة (نفس العناصر السابقة) ---
+        const pageLoader = document.getElementById('page-loader');
+        const errorContainer = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        const contentWrapper = document.getElementById('course-content-wrapper');
+        const courseTitle = document.getElementById('course-title');
+        const videoPlayerContainer = document.getElementById('video-player-container');
+        const registerContainer = document.getElementById('register-container');
+        const registerBtn = document.getElementById('register-btn');
+        const communityContainer = document.getElementById('community-links-container');
+        const communityList = document.getElementById('community-links-list');
+        const statsBar = document.getElementById('stats-bar');
+        const objectivesList = document.getElementById('objectives-list');
+        const curriculumContainer = document.getElementById('curriculum-container');
+        const descriptionContent = document.getElementById('course-description-content');
+        const profCard = document.getElementById('professor-card');
+        const profImage = document.getElementById('prof-image');
+        const profName = document.getElementById('prof-name');
+        const profBio = document.getElementById('prof-bio');
+        const profSocialLinks = document.getElementById('prof-social-links');
+        const profFullProfileLink = document.getElementById('prof-full-profile-link');
+        const loginBtn = document.getElementById('login-btn');
+        const userMenu = document.getElementById('user-menu');
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenuDropdown = document.getElementById('user-menu-dropdown');
+        const userMenuName = document.getElementById('user-menu-name');
+        const userMenuDisplayName = document.getElementById('user-menu-displayname');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // --- (جديد) عناصر نافذة إثبات الدفع ---
+        const paymentModal = document.getElementById('payment-proof-modal');
+        const closePaymentModalBtn = document.getElementById('close-payment-modal-btn');
+        const paymentModalContent = document.getElementById('payment-modal-content');
+        const paymentModalSuccess = document.getElementById('payment-modal-success');
+        const paymentProofForm = document.getElementById('payment-proof-form');
+        const paymentProofImage = document.getElementById('payment-proof-image');
+        const imagePreview = document.getElementById('image-preview');
+        const submitProofBtn = document.getElementById('submit-proof-btn');
+        
+        // --- متغيرات الحالة (نفس المتغيرات السابقة) ---
+        let currentUser = null; 
+        let currentBidluraId = null;
+        let currentBidluraData = {};
+        let isOwned = false;
+        let userProgress = [];
+        let currentLessonEl = null;
+
+        // --- (جديد) دوال المساعدة (showToast, toggleButtonState, ... ) ---
+        const showToast = (message, type = 'success') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+            toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        };
+        function toggleButtonState(button, isLoading) {
+            const text = button.querySelector('.button-text');
+            const loader = button.querySelector('.button-loader');
+            if (isLoading) {
+                button.disabled = true;
+                if (text) text.classList.add('hidden');
+                if (loader) loader.classList.remove('hidden');
+            } else {
+                button.disabled = false;
+                if (text) text.classList.remove('hidden');
+                if (loader) loader.classList.add('hidden');
+            }
+        }
+        
+        // --- (جديد) دوال رفع وضغط الصور ---
+        async function uploadImageToImgBB(file) {
+            const apiKey = "ac296feb5a275923598bdbfd4f9aed8c"; // (مفتاح الـ API الخاص بك)
+            const formData = new FormData();
+            formData.append('image', file);
+            try {
+                const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, { method: 'POST', body: formData });
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    return { success: false, error: `فشل الاتصال بالخادم: (${response.status})` };
+                }
+                const result = await response.json();
+                if (result.success) { return { success: true, url: result.data.url }; } 
+                else { return { success: false, error: `خطأ من خدمة رفع الصور: ${result.error.message}` }; }
+            } catch (error) {
+                return { success: false, error: `خطأ في الشبكة. تأكد من اتصالك بالإنترنت.` };
+            }
+        }
+        function resizeAndCompressImage(file, maxWidth = 800, quality = 0.8) { 
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = event => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let { width, height } = img;
+                        if (width > maxWidth) { const scale = maxWidth / width; width = maxWidth; height = height * scale; }
+                        canvas.width = width; canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        canvas.toBlob(blob => { 
+                            if (!blob) { reject(new Error("Canvas to Blob conversion failed")); return; }
+                            resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() })); 
+                        }, 'image/jpeg', quality);
+                    }; img.onerror = reject;
+                }; reader.onerror = error => reject(error);
+            });
+        }
+
+
+        // --- (الدوال من المرحلة السابقة: loadVideoInPlayer, renderProfessorCard, renderCurriculum, attachCurriculumListeners) ---
+        // (الكود هنا مطابق تماماً للمرحلة السابقة)
+        function loadVideoInPlayer(url) {
+            if (!url) { videoPlayerContainer.innerHTML = '<div class="p-4 text-center">لا يوجد فيديو لهذا الدرس.</div>'; return; }
+            let iframeHtml = '';
+            if (url.includes('youtube.com/watch?v=')) { const videoId = url.split('v=')[1].split('&')[0]; iframeHtml = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`; } 
+            else if (url.includes('youtu.be/')) { const videoId = url.split('youtu.be/')[1].split('?')[0]; iframeHtml = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`; } 
+            else if (url.includes('vimeo.com/')) { const videoId = url.split('vimeo.com/')[1].split('?')[0]; iframeHtml = `<iframe src="https://player.vimeo.com/video/${videoId}?autoplay=1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`; } 
+            else if (url.includes('facebook.com/') && url.includes('/videos/')) { iframeHtml = `<iframe src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>`; } 
+            else { iframeHtml = `<video controls autoplay class="absolute top-0 left-0 w-full h-full" src="${url}" style="border:0;"></video>`; }
+            videoPlayerContainer.innerHTML = iframeHtml;
+        }
+        function renderProfessorCard(profId) {
+            if (!profId) return;
+            const profDocRef = doc(db, 'professors', profId);
+            getDoc(profDocRef).then(profDocSnap => {
+                if (profDocSnap.exists()) {
+                    const prof = profDocSnap.data();
+                    profImage.src = prof.imageUrl || 'https://placehold.co/150x150';
+                    profName.textContent = prof.name;
+                    profBio.textContent = prof.bio || 'لا توجد نبذة حالياً.';
+                    const links = prof.socialLinks || {};
+                    let socialHTML = '';
+                    if (links.facebook) socialHTML += `<a href="${links.facebook}" target="_blank" title="فيسبوك"><i class="fab fa-facebook"></i></a>`;
+                    if (links.instagram) socialHTML += `<a href="https://instagram.com/${links.instagram.replace('@','')}" target="_blank" title="انستغرام"><i class="fab fa-instagram"></i></a>`;
+                    if (links.telegram) socialHTML += `<a href="https://t.me/${links.telegram.replace('@','')}" target="_blank" title="تيليجرام"><i class="fab fa-telegram"></i></a>`;
+                    profSocialLinks.innerHTML = socialHTML || '<p class="text-xs text-gray-400">لا توجد روابط تواصل.</p>';
+                    profFullProfileLink.href = `dawarat_professor_profile.html?id=${profId}`;
+                    profCard.classList.remove('hidden');
+                }
+            });
+        }
+        function renderCurriculum(curriculum = [], isOwned, progress = []) {
+            curriculumContainer.innerHTML = '';
+            if (curriculum.length === 0) { curriculumContainer.innerHTML = '<p class="p-4 text-gray-500">لم يتم إضافة منهج لهذه البذلورة بعد.</p>'; return; }
+            curriculum.forEach(module => {
+                const moduleEl = document.createElement('div');
+                moduleEl.className = 'module-item';
+                let lessonsHTML = '';
+                if (module.lessons && module.lessons.length > 0) {
+                    lessonsHTML = module.lessons.map(lesson => {
+                        const isCompleted = progress.includes(lesson.id);
+                        let icon = 'fa-lock'; let linkClass = 'locked'; let dataType = ''; let dataUrl = '';
+                        if (isOwned) {
+                            linkClass = isCompleted ? 'completed-lesson' : '';
+                            if (lesson.type === 'quiz') icon = 'fa-file-alt';
+                            else if (lesson.type === 'file') icon = 'fa-download';
+                            else if (lesson.type === 'live') icon = 'fa-broadcast-tower';
+                            else icon = 'fa-play-circle';
+                            dataType = lesson.type; dataUrl = lesson.url;
+                        }
+                        return `
+                            <div class="lesson-item">
+                                <span class="lesson-link ${linkClass}" data-lesson-id="${lesson.id}" data-lesson-type="${dataType}" data-lesson-url="${dataUrl}" data-lesson-details="${lesson.details || ''}">
+                                    <i class="fas ${icon} w-5 text-center"></i>
+                                    <span>${lesson.title}</span>
+                                </span>
+                                ${isOwned ? `<button data-lesson-id="${lesson.id}" class="complete-lesson-btn text-gray-400 hover:text-green-500 disabled:text-green-500 disabled:opacity-70" ${isCompleted ? 'disabled' : ''}>
+                                    <i class="fas ${isCompleted ? 'fa-check-circle text-green-500' : 'fa-check-circle'}"></i>
+                                </button>` : ''}
+                            </div>`;
+                    }).join('');
+                }
+                moduleEl.innerHTML = `
+                    <div class="module-header">
+                        <span>${module.title}</span>
+                        <i class="fas fa-chevron-down icon"></i>
+                    </div>
+                    <div class="module-content">
+                        ${lessonsHTML || '<p class="text-sm text-gray-500">لا توجد دروس في هذا الفصل.</p>'}
+                    </div>`;
+                curriculumContainer.appendChild(moduleEl);
+            });
+            document.querySelectorAll('.module-header').forEach(header => {
+                header.onclick = () => {
+                    header.classList.toggle('active');
+                    const content = header.nextElementSibling;
+                    content.style.display = content.style.display === 'block' ? 'none' : 'block';
+                };
+            });
+        }
+        function attachCurriculumListeners() {
+            curriculumContainer.addEventListener('click', async (e) => {
+                const lessonLink = e.target.closest('.lesson-link');
+                const completeBtn = e.target.closest('.complete-lesson-btn');
+                if (lessonLink && !lessonLink.classList.contains('locked')) {
+                    const type = lessonLink.dataset.lessonType; const url = lessonLink.dataset.lessonUrl; const details = lessonLink.dataset.lessonDetails;
+                    if (currentLessonEl) currentLessonEl.classList.remove('active-lesson');
+                    lessonLink.classList.add('active-lesson');
+                    currentLessonEl = lessonLink;
+                    if (type === 'video') { loadVideoInPlayer(url); } 
+                    else if (type === 'live') { videoPlayerContainer.innerHTML = `<div class="p-8 text-center"><i class="fas fa-broadcast-tower text-5xl mb-4 text-red-500"></i><h3 class="text-2xl font-bold">بث مباشر</h3><p class="mt-2 text-lg">${details}</p><a href="${url}" target="_blank" class="mt-4 inline-block bg-red-600 text-white font-bold py-2 px-4 rounded-lg">الانضمام للبث <i class="fas fa-external-link-alt ml-2"></i></a></div>`; } 
+                    else if (type === 'quiz' || type === 'file') { videoPlayerContainer.innerHTML = `<div class="p-8 text-center"><i class="fas ${type === 'quiz' ? 'fa-file-alt' : 'fa-download'} text-5xl mb-4 text-indigo-500"></i><h3 class="text-2xl font-bold">${type === 'quiz' ? 'اختبار' : 'ملف للتحميل'}</h3><a href="${url}" target="_blank" class="mt-4 inline-block bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg">فتح الرابط <i class="fas fa-external-link-alt ml-2"></i></a></div>`; }
+                } else if (completeBtn && !completeBtn.disabled) {
+                    const lessonId = completeBtn.dataset.lessonId;
+                    completeBtn.disabled = true; completeBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-green-500"></i>';
+                    try {
+                        const userDocRef = doc(db, "users", currentUser.uid);
+                        const progressField = `courseProgress.${currentBidluraId}.completedLessons`;
+                        await updateDoc(userDocRef, { [progressField]: arrayUnion(lessonId) });
+                        completeBtn.innerHTML = '<i class="fas fa-check-circle text-green-500"></i>';
+                        const link = completeBtn.previousElementSibling;
+                        if(link) link.classList.add('completed-lesson');
+                        showToast('تم حفظ تقدمك. أحسنت!', 'success');
+                    } catch (err) { console.error("Error updating progress: ", err); showToast('فشل حفظ التقدم.', 'error'); completeBtn.disabled = false; completeBtn.innerHTML = '<i class="fas fa-check-circle"></i>'; }
+                }
+            });
+        }
+        
+        // --- (دالة تحميل الصفحة الرئيسية - مطابقة للمرحلة السابقة) ---
+        async function initializePage(user) {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                currentBidluraId = params.get('id');
+                if (!currentBidluraId) { throw new Error("لم يتم تحديد معرّف البذلورة (ID)."); }
+                
+                const courseDocRef = doc(db, 'products', currentBidluraId);
+                const courseDocSnap = await getDoc(courseDocRef);
+                if (!courseDocSnap.exists() || courseDocSnap.data().productType !== 'course') { throw new Error("بيانات البذلورة غير موجودة أو غير صالحة."); }
+                currentBidluraData = courseDocSnap.data();
+                
+                let userData = {};
+                if (user) {
+                    const userDocRef = doc(db, 'users', user.uid);
+                    const userDocSnap = await getDoc(userDocRef);
+                    if (userDocSnap.exists()) { userData = userDocSnap.data(); }
+                }
+                
+                isOwned = userData.courseAccess?.[currentBidluraId] === true;
+                userProgress = userData.courseProgress?.[currentBidluraId]?.completedLessons || [];
+                
+                const nameEl = document.createElement('div'); nameEl.innerHTML = currentBidluraData.name;
+                const plainName = nameEl.textContent || "بذلورة";
+                document.title = `S22 Learning - ${plainName}`;
+                courseTitle.innerHTML = currentBidluraData.name;
+                descriptionContent.innerHTML = currentBidluraData.description || "<p>لا يوجد وصف لهذه البذلورة.</p>";
+                renderProfessorCard(currentBidluraData.professorId);
+                statsBar.innerHTML = `<span><i class="fas fa-clock fa-fw ml-1 text-indigo-500"></i> ${currentBidluraData.stats?.hours || 0} ساعات</span><span><i class="fas fa-layer-group fa-fw ml-1 text-indigo-500"></i> ${currentBidluraData.stats?.level || '...'}</span><span><i class="fas fa-list-ol fa-fw ml-1 text-indigo-500"></i> ${currentBidluraData.curriculum?.reduce((acc, mod) => acc + (mod.lessons?.length || 0), 0) || 0} درس</span>`;
+                objectivesList.innerHTML = '';
+                if (currentBidluraData.objectives && currentBidluraData.objectives.length > 0) {
+                    currentBidluraData.objectives.forEach(obj => { objectivesList.innerHTML += `<li class="flex items-start gap-2"><i class="fas fa-check-circle text-green-500 mt-1.5"></i> ${obj}</li>`; });
+                } else { objectivesList.innerHTML = '<li class="text-gray-500">لم يتم تحديد أهداف لهذه البذلورة.</li>'; }
+                renderCurriculum(currentBidluraData.curriculum, isOwned, userProgress);
+                
+                if (isOwned) {
+                    registerContainer.classList.add('hidden');
+                    communityContainer.classList.remove('hidden');
+                    const links = currentBidluraData.communityLinks || {};
+                    communityList.innerHTML = '';
+                    if (links.telegram) communityList.innerHTML += `<a href="${links.telegram}" target="_blank" class="bg-indigo-600 text-white font-semibold py-2 px-4 rounded-full text-sm hover:bg-indigo-700"><i class="fab fa-telegram-plane mr-2"></i> انضم لمجموعة التليجرام</a>`;
+                    if (links.facebook) communityList.innerHTML += `<a href="${links.facebook}" target="_blank" class="bg-blue-600 text-white font-semibold py-2 px-4 rounded-full text-sm hover:bg-blue-700"><i class="fab fa-facebook mr-2"></i> انضم لمجموعة الفيسبوك</a>`;
+                    if (links.whatsapp) communityList.innerHTML += `<a href="${links.whatsapp}" target="_blank" class="bg-green-500 text-white font-semibold py-2 px-4 rounded-full text-sm hover:bg-green-600"><i class="fab fa-whatsapp mr-2"></i> انضم لمجموعة الواتساب</a>`;
+                    if(communityList.innerHTML === '') communityList.innerHTML = '<p class="text-sm text-gray-500">لا توجد روابط مجتمع حالياً.</p>';
+                    const firstLesson = currentBidluraData.curriculum?.[0]?.lessons?.[0];
+                    if (firstLesson && firstLesson.type === 'video') {
+                        loadVideoInPlayer(firstLesson.url);
+                        currentLessonEl = document.querySelector('.lesson-link');
+                        if(currentLessonEl) currentLessonEl.classList.add('active-lesson');
+                    } else { videoPlayerContainer.innerHTML = '<div class="p-4 text-center">أهلاً بك! اختر درساً من المنهج للبدء.</div>'; }
+                } else {
+                    registerContainer.classList.remove('hidden');
+                    communityContainer.classList.add('hidden');
+                    if (currentBidluraData.trailerUrl) { loadVideoInPlayer(currentBidluraData.trailerUrl); } 
+                    else { videoPlayerContainer.innerHTML = `<div class="p-4 text-center text-xl font-bold">شاهد الفيديو الترويجي (قريباً)</div>`; }
+                }
+                attachCurriculumListeners();
+                
+                // (جديد) تعديل زر التسجيل
+                registerBtn.onclick = () => {
+                    if (currentUser) {
+                        // المستخدم مسجل، افتح النافذة
+                        paymentModal.classList.add('active');
+                    } else {
+                        // المستخدم زائر، أرسله لصفحة التسجيل
+                        showToast('يجب عليك تسجيل الدخول أولاً لتتمكن من التسجيل.', 'error');
+                        setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+                    }
+                };
+                
+                pageLoader.classList.add('hidden');
+                contentWrapper.classList.remove('hidden');
+            } catch (error) {
+                console.error("Error loading course content:", error);
+                errorText.textContent = error.message;
+                pageLoader.classList.add('hidden');
+                errorContainer.classList.remove('hidden');
+            }
+        }
+
+        // --- (جديد) معالجات نافذة إثبات الدفع ---
+        closePaymentModalBtn.onclick = () => {
+            paymentModal.classList.remove('active');
+            // إعادة تعيين الفورم عند الإغلاق
+            paymentProofForm.reset();
+            imagePreview.classList.add('hidden');
+            paymentModalContent.classList.remove('hidden');
+            paymentModalSuccess.classList.add('hidden');
+        };
+        
+        paymentProofImage.onchange = (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    imagePreview.src = event.target.result;
+                    imagePreview.classList.remove('hidden');
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        };
+
+        paymentProofForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) {
+                showToast('حدث خطأ، يرجى تسجيل الدخول مجدداً.', 'error');
+                return;
+            }
+            
+            const file = paymentProofImage.files[0];
+            if (!file) {
+                showToast('يرجى اختيار صورة أولاً.', 'error');
+                return;
+            }
+
+            toggleButtonState(submitProofBtn, true);
+
+            try {
+                // 1. ضغط ورفع الصورة
+                showToast('جاري ضغط ورفع الصورة...', 'success');
+                const compressedFile = await resizeAndCompressImage(file);
+                const uploadResult = await uploadImageToImgBB(compressedFile);
+
+                if (!uploadResult.success) {
+                    throw new Error(uploadResult.error);
+                }
+                
+                showToast('تم رفع الصورة، جاري إرسال الطلب...', 'success');
+
+                // 2. إعداد بيانات الطلب
+                const nameEl = document.createElement('div');
+                nameEl.innerHTML = currentBidluraData.name;
+                const plainName = nameEl.textContent || "بذلورة";
+                
+                const approvalData = {
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName || "اسم غير معروف",
+                    courseId: currentBidluraId,
+                    courseTitle: plainName,
+                    proofImageUrl: uploadResult.url,
+                    status: "pending",
+                    submittedAt: serverTimestamp(),
+                    type: "payment_proof",
+                    points: 0 // (ملاحظة) النقاط ستُمنح من لوحة التحكم
+                };
+
+                // 3. إرسال الطلب إلى Firestore
+                await addDoc(collection(db, "loyalty_approvals"), approvalData);
+
+                // 4. إظهار رسالة النجاح
+                paymentModalContent.classList.add('hidden');
+                paymentModalSuccess.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Error submitting proof: ", error);
+                showToast(`فشل إرسال الطلب: ${error.message}`, 'error');
+            } finally {
+                toggleButtonState(submitProofBtn, false);
+            }
+        });
+
+
+        // --- منطق المصادقة والتحكم بالصفحة (لـ S22 Market) ---
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user; 
+            if (user) {
+                loginBtn.classList.add('hidden'); loginBtn.classList.remove('sm:flex');
+                userMenu.classList.remove('hidden');
+                const displayName = user.displayName || "عميلنا";
+                userMenuName.textContent = displayName.split(' ')[0];
+                userMenuDisplayName.textContent = displayName;
+            } else {
+                loginBtn.classList.remove('hidden'); loginBtn.classList.add('sm:flex');
+                userMenu.classList.add('hidden');
+            }
+            initializePage(user);
+        });
+
+        // --- معالجات القائمة وتسجيل الخروج (لـ S22 Market) ---
+        userMenuButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userMenuDropdown.classList.toggle('show');
+        });
+        document.addEventListener('click', () => {
+            if (userMenuDropdown.classList.contains('show')) {
+                userMenuDropdown.classList.remove('show');
+            }
+        });
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).catch((error) => console.error('Logout Error', error));
+        });
+    </script>
+</body>
+</html>

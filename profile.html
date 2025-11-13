@@ -3,20 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S22 Market - ملفي الشخصي</title>
+    <title>S22 Market - ملفي الشخصي ومحافطي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
-        /* تم تغيير الألوان لتطابق S22 Market */
-        :root {
-            --primary-color: #3b82f6;
-            --bg-body: #f1f5f9;
-        }
-        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-body); }
-        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
         .small-loader { border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; translateY(0); } }
         
         #user-menu-dropdown.show {
@@ -24,11 +19,38 @@
             animation: slideInUp 0.2s ease-out;
         }
         
-        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 100; }
+        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10001; }
         .toast { background-color: #2d3748; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards; }
-        .toast.success { background-color: #2f855a; }
         .toast.error { background-color: #c53030; }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes fadeOut { from { opacity: 1; } to: { opacity: 0; } }
+
+        /* (جديد) ستايل بطاقات المحفظة */
+        .wallet-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid white;
+            text-align: center;
+        }
+        .wallet-title {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: #475569;
+        }
+        .wallet-balance {
+            font-weight: 800;
+            font-size: 2.5rem;
+            line-height: 1;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* (جديد) ستايل نافذة التحويل */
+        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 40; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+        .modal-backdrop.active { opacity: 1; pointer-events: all; }
+        .modal-content { background-color: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 500px; z-index: 50; transform: scale(0.95); opacity: 0; transition: all 0.3s ease; }
+        .modal-backdrop.active .modal-content { transform: scale(1); opacity: 1; }
     </style>
 </head>
 <body>
@@ -50,6 +72,7 @@
                     <i class="fas fa-sign-in-alt"></i>
                     <span>دخول / تسجيل</span>
                 </a>
+                
                 <div id="user-menu" class="hidden">
                     <button id="user-menu-button" class="flex items-center gap-2 text-lg font-semibold text-gray-700 bg-green-100 hover:bg-green-200 px-5 py-2.5 rounded-full transition-colors">
                         <i class="fas fa-user-check text-green-700"></i>
@@ -61,105 +84,148 @@
                             <p class="text-sm text-gray-500">مرحباً بك،</p>
                             <p class="font-bold text-gray-800" id="user-menu-displayname">...</p>
                         </div>
+                        <a href="profile.html" class="block px-4 py-3 text-gray-700 bg-gray-100 font-bold transition-colors"><i class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي ومحافطي</a>
+                        
+                        <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</div>
+                        <a href="dawarat_learning_dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-graduation-cap fa-fw ml-2 text-indigo-400"></i> بذلوراتي المسجلة</a>
+                        <a href="dawarat_loyalty_tasks.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-tasks fa-fw ml-2 text-purple-400"></i> كسب العملات (المهام)</a>
+                        <a href="dawarat_loyalty_rewards.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-gift fa-fw ml-2 text-yellow-400"></i> استبدال العملات</a>
+
+                        <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">المتجر</div>
                         <a href="seller-dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
-                        <a href="profile.html" class="block px-4 py-3 text-gray-700 bg-gray-100 font-bold transition-colors"><i class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي</a>
                         <a href="order_history.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
-                        <a href="loyalty_card.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء</a>
+                        <a href="loyalty_card.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء (الجواهر)</a>
+
                         <button id="logout-btn" class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
                     </div>
                 </div>
             </div>
-
         </div>
     </header>
-    <main class="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+
+    <main class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         
         <div id="auth-loader" class="text-center py-20">
             <div class="loader mx-auto"></div>
-            <p class="mt-4 text-gray-600 text-lg">جاري جلب بياناتك...</p>
+            <p class="mt-4 text-gray-600 text-lg">جاري جلب بيانات ملفك الشخصي...</p>
         </div>
 
         <div id="profile-content" class="hidden" style="animation: slideInUp 0.5s ease-out;">
             <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 text-center mb-8">
-                <i class="fas fa-user-edit text-blue-500"></i> ملفي الشخصي
+                ملفي الشخصي ومحافطي
             </h1>
 
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <form id="profile-form" class="space-y-6 p-8">
-                    
-                    <div>
-                        <label for="profile-name" class="block text-sm font-semibold text-gray-700 mb-1">الاسم الكامل (يظهر للعملاء) <span class="text-red-500">*</span></label>
-                        <input type="text" id="profile-name" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-700 mb-4">المحافظ</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <div class="wallet-card md:col-span-1">
+                        <div class="wallet-title">جواهر المتجر <i class="fas fa-gem text-blue-500"></i></div>
+                        <div id="jewels-balance" class="wallet-balance text-blue-600">0</div>
+                        <div class="text-sm text-gray-500">تستخدم لشراء المنتجات من المتجر.</div>
                     </div>
+                    <div class="text-center md:col-span-1">
+                        <button id="open-convert-modal-btn" class="bg-gray-700 text-white font-bold p-4 rounded-full shadow-lg hover:bg-gray-800 transform hover:scale-105 transition-transform">
+                            <i class="fas fa-exchange-alt fa-fw"></i>
+                        </button>
+                        <p class="text-sm font-semibold text-gray-600 mt-2">تحويل العملات</p>
+                    </div>
+                    <div class="wallet-card md:col-span-1">
+                        <div class="wallet-title">عملات الأكاديمية <i class="fas fa-coins text-yellow-500"></i></div>
+                        <div id="coins-balance" class="wallet-balance text-green-600">0</div>
+                        <div class="text-sm text-gray-500">تستخدم لاستبدال المكافآت.</div>
+                    </div>
+                </div>
+            </div>
 
-                    <div>
-                        <label for="profile-email" class="block text-sm font-semibold text-gray-700 mb-1">البريد الإلكتروني</label>
-                        <input type="email" id="profile-email" class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed" disabled>
-                        <p class="text-xs text-gray-400 mt-1">لا يمكن تغيير البريد الإلكتروني بعد التسجيل.</p>
-                    </div>
-
-                    <div>
-                        <label for="profile-phone" class="block text-sm font-semibold text-gray-700 mb-1">رقم الهاتف (يظهر للعملاء عند الطلب) <span class="text-red-500">*</span></label>
-                        <input type="tel" id="profile-phone" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" dir="ltr" required>
-                    </div>
-                    
-                    <div class="border-t pt-6 space-y-6">
-                        <h2 class="text-xl font-bold text-gray-800">
-                            <i class="fas fa-store text-blue-500 ml-2"></i> معلومات المتجر (للبائعين)
-                        </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold text-gray-700 mb-6 border-b pb-3">المعلومات الشخصية</h2>
+                    <form id="profile-form" class="space-y-4">
                         <div>
-                            <label for="profile-store-name" class="block text-sm font-semibold text-gray-700 mb-1">اسم المتجر (يظهر في ملفك) <span class="text-red-500">*</span></label>
-                            <input type="text" id="profile-store-name" placeholder="مثال: متجر الأناقة العصرية" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            <label for="profile-name" class="block text-sm font-bold text-gray-700">الاسم الكامل</label>
+                            <input type="text" id="profile-name" class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg" required>
                         </div>
-
-                        <h3 class="text-md font-semibold text-gray-700 -mb-2">روابط التواصل الاجتماعي (اختياري)</h3>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <i class="fab fa-facebook text-gray-400"></i>
-                            </span>
-                            <input type="url" id="profile-social-facebook" placeholder="https://facebook.com/username" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" dir="ltr">
+                        <div>
+                            <label for="profile-phone" class="block text-sm font-bold text-gray-700">رقم الهاتف (لطلبات المتجر)</label>
+                            <input type="tel" id="profile-phone" dir="ltr" class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg" placeholder="05xxxxxxxx">
                         </div>
-                        <div class="relative">
-                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <i class="fab fa-instagram text-gray-400"></i>
-                            </span>
-                            <input type="url" id="profile-social-instagram" placeholder="https://instagram.com/username" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" dir="ltr">
+                        <div>
+                            <label for="profile-email" class="block text-sm font-bold text-gray-700">البريد الإلكتروني</label>
+                            <input type="email" id="profile-email" class="mt-1 block w-full p-3 bg-gray-200 border border-gray-300 rounded-lg text-gray-500" disabled>
                         </div>
-                        <div class="relative">
-                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <i class="fab fa-telegram text-gray-400"></i>
-                            </span>
-                            <input type="url" id="profile-social-telegram" placeholder="https://t.me/username" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" dir="ltr">
-                        </div>
-                        <div class="relative">
-                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <i class="fab fa-snapchat text-gray-400"></i>
-                            </span>
-                            <input type="url" id="profile-social-snapchat" placeholder="https://snapchat.com/add/username" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" dir="ltr">
-                        </div>
+                        <button id="save-profile-btn" type="submit" class="w-full flex justify-center items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105 disabled:bg-indigo-400">
+                            <span class="button-text">حفظ التعديلات</span>
+                            <div class="small-loader button-loader hidden"></div>
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold text-gray-700 mb-6 border-b pb-3">كود الدعوة الخاص بك</h2>
+                    <p class="text-gray-600">شارك هذا الكود مع أصدقائك. عند تسجيلهم به، ستحصل على **<span id="referral-bonus-amount">...</span> عملة 🪙** (بعد اعتمادهم من الإدارة).</p>
+                    
+                    <div id="referral-loader" class="text-center py-10">
+                        <div class="loader mx-auto !w-10 !h-10"></div>
+                        <p class="mt-2 text-gray-500">جاري إنشاء كود الدعوة...</p>
                     </div>
-                    <div class="border-t pt-6">
-                        <button type="submit" id="save-profile-btn" class="w-full flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors">
-                            <span id="save-btn-text">حفظ التعديلات</span>
-                            <div id="save-btn-loader" class="small-loader hidden"></div>
+
+                    <div id="referral-code-container" class="hidden mt-6 text-center">
+                        <p class="text-lg font-bold text-gray-500">الكود الخاص بك هو:</p>
+                        <div class="my-3 p-4 bg-indigo-50 border-2 border-dashed border-indigo-300 rounded-lg">
+                            <span id="referral-code" class="text-4xl font-extrabold text-indigo-600 tracking-widest"></span>
+                        </div>
+                        <button id="copy-referral-code-btn" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg transition-colors">
+                            <i class="fas fa-copy mr-2"></i> <span>نسخ الكود</span>
                         </button>
                     </div>
-
-                </form>
+                </div>
             </div>
         </div>
     </main>
     
+    <div id="convert-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 class="text-xl font-bold">تحويل العملات</h3>
+                <button id="close-convert-modal-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            
+            <form id="convert-form">
+                <div class="space-y-4">
+                    <div>
+                        <label class="font-semibold">تحويل من:</label>
+                        <select id="convert-from" class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg">
+                            <option value="jewels">جواهر المتجر 💎</option>
+                            <option value="coins">عملات الأكاديمية 🪙</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="convert-amount" class="font-semibold">المبلغ المراد تحويله:</label>
+                        <input type="number" id="convert-amount" class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg" placeholder="0">
+                    </div>
+                    <div class="text-center p-4 bg-indigo-50 rounded-lg">
+                        <p class="text-gray-600">ستحصل على:</p>
+                        <p id="convert-result" class="text-3xl font-extrabold text-indigo-600">0.00</p>
+                        <p id="convert-rate-display" class="text-sm text-gray-500 mt-2">سعر الصرف: ...</p>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-4 mt-6 border-t pt-4">
+                    <button id="convert-confirm-btn" type="submit" class="w-full flex justify-center items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105 disabled:bg-green-400">
+                        <span class="button-text">تأكيد التحويل</span>
+                        <div class="small-loader button-loader hidden"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="toast-container"></div>
 
     <script type="module">
-        // --- إعدادات Firebase ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, writeBatch, increment, runTransaction, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
-        // === (بداية التعديل: إعدادات Firebase) ===
-        // تم استخدام الإعدادات الخاصة بـ S22 Market
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
             authDomain: "s22market-4e3e6.firebaseapp.com",
@@ -169,13 +235,12 @@
             appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
             measurementId: "G-MWYNCVP4WQ"
         };
-        // === (نهاية التعديل: إعدادات Firebase) ===
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- عناصر واجهة المستخدم ---
+        // --- عناصر الواجهة ---
         const loginBtn = document.getElementById('login-btn');
         const userMenu = document.getElementById('user-menu');
         const userMenuButton = document.getElementById('user-menu-button');
@@ -186,167 +251,345 @@
 
         const authLoader = document.getElementById('auth-loader');
         const profileContent = document.getElementById('profile-content');
-        const profileForm = document.getElementById('profile-form');
-        const profileName = document.getElementById('profile-name');
-        const profileEmail = document.getElementById('profile-email');
-        const profilePhone = document.getElementById('profile-phone');
         
-        // === (بداية الإضافة: عناصر البائع) ===
-        const profileStoreName = document.getElementById('profile-store-name');
-        const profileFacebook = document.getElementById('profile-social-facebook');
-        const profileInstagram = document.getElementById('profile-social-instagram');
-        const profileTelegram = document.getElementById('profile-social-telegram');
-        const profileSnapchat = document.getElementById('profile-social-snapchat');
-        // === (نهاية الإضافة: عناصر البائع) ===
+        const profileForm = document.getElementById('profile-form');
+        const saveProfileBtn = document.getElementById('save-profile-btn');
+        
+        const referralLoader = document.getElementById('referral-loader');
+        const referralContainer = document.getElementById('referral-code-container');
+        const referralCodeEl = document.getElementById('referral-code');
+        const copyReferralCodeBtn = document.getElementById('copy-referral-code-btn');
+        const referralBonusAmountEl = document.getElementById('referral-bonus-amount');
 
-        const saveBtn = document.getElementById('save-profile-btn');
-        const saveBtnText = document.getElementById('save-btn-text');
-        const saveBtnLoader = document.getElementById('save-btn-loader');
+        // (جديد) عناصر المحافظ
+        const jewelsBalanceEl = document.getElementById('jewels-balance');
+        const coinsBalanceEl = document.getElementById('coins-balance');
+        
+        // (جديد) عناصر نافذة التحويل
+        const convertModal = document.getElementById('convert-modal');
+        const openConvertModalBtn = document.getElementById('open-convert-modal-btn');
+        const closeConvertModalBtn = document.getElementById('close-convert-modal-btn');
+        const convertForm = document.getElementById('convert-form');
+        const convertFromSelect = document.getElementById('convert-from');
+        const convertAmountInput = document.getElementById('convert-amount');
+        const convertResultEl = document.getElementById('convert-result');
+        const convertRateDisplayEl = document.getElementById('convert-rate-display');
+        const convertConfirmBtn = document.getElementById('convert-confirm-btn');
 
-        // --- دالة التنبيهات (Toast) ---
+        let currentUser = null;
+        let currentUserData = {};
+        // (جديد) متغيرات لحفظ الإعدادات
+        let exchangeRates = {};
+        let dawaratSettings = {};
+
+        // --- (دوال مساعدة) ---
         const showToast = (message, type = 'success') => {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
             const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
             toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
             container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+            setTimeout(() => toast.remove(), 4000);
         };
+        function toggleButtonState(button, isLoading) {
+            const text = button.querySelector('.button-text');
+            const loader = button.querySelector('.button-loader');
+            if (isLoading) {
+                button.disabled = true;
+                if (text) text.classList.add('hidden');
+                if (loader) loader.classList.remove('hidden');
+            } else {
+                button.disabled = false;
+                if (text) text.classList.remove('hidden');
+                if (loader) loader.classList.add('hidden');
+            }
+        }
+        
+        // (جديد) دالة لإنشاء كود دعوة فريد
+        async function generateUniqueReferralCode() {
+            let code;
+            let isUnique = false;
+            while (!isUnique) {
+                code = Math.random().toString(36).substring(2, 8).toUpperCase();
+                const q = query(collection(db, "users"), where("referralCode", "==", code));
+                const snapshot = await getDocs(q);
+                if (snapshot.empty) {
+                    isUnique = true;
+                }
+            }
+            return code;
+        }
 
-        // --- جلب بيانات الملف الشخصي ---
+        // --- (دالة تحميل بيانات البروفايل) ---
         async function loadProfileData(user) {
             try {
+                // (جديد) جلب الإعدادات (سعر التصريف ومكافأة الدعوة)
+                const settingsPromises = [
+                    getDoc(doc(db, "settings", "storeConfig")), // إعدادات المتجر (لسعر التصريف)
+                    getDoc(doc(db, "settings", "dawarat_loyalty_config")) // إعدادات الأكاديمية (لمكافأة الدعوة)
+                ];
+                const [storeConfigSnap, dawaratSettingsSnap] = await Promise.all(settingsPromises);
+                
+                if (storeConfigSnap.exists()) {
+                    exchangeRates = storeConfigSnap.data().exchangeRates || {};
+                }
+                if (dawaratSettingsSnap.exists()) {
+                    dawaratSettings = dawaratSettingsSnap.data();
+                    referralBonusAmountEl.textContent = dawaratSettings.referralBonus || 0;
+                }
+                
+                // جلب بيانات المستخدم
                 const userDocRef = doc(db, 'users', user.uid);
                 const userDocSnap = await getDoc(userDocRef);
 
                 if (userDocSnap.exists()) {
-                    const data = userDocSnap.data();
-                    profileName.value = data.displayName || user.displayName || '';
-                    profileEmail.value = data.email || user.email || '';
-                    profilePhone.value = data.phone || '';
+                    currentUserData = userDocSnap.data();
                     
-                    // === (بداية الإضافة: جلب بيانات البائع) ===
-                    profileStoreName.value = data.storeName || '';
-                    if (data.socialLinks) {
-                        profileFacebook.value = data.socialLinks.facebook || '';
-                        profileInstagram.value = data.socialLinks.instagram || '';
-                        profileTelegram.value = data.socialLinks.telegram || '';
-                        profileSnapchat.value = data.socialLinks.snapchat || '';
+                    // ملء المعلومات الشخصية
+                    document.getElementById('profile-name').value = user.displayName || '';
+                    document.getElementById('profile-email').value = user.email || '';
+                    document.getElementById('profile-phone').value = currentUserData.phone || '';
+
+                    // (جديد) ملء المحافظ
+                    jewelsBalanceEl.textContent = (currentUserData.loyaltyPoints || 0).toLocaleString();
+                    coinsBalanceEl.textContent = (currentUserData.dawarat_coins || 0).toLocaleString();
+
+                    // التعامل مع كود الدعوة
+                    if (currentUserData.referralCode) {
+                        referralCodeEl.textContent = currentUserData.referralCode;
+                        referralLoader.classList.add('hidden');
+                        referralContainer.classList.remove('hidden');
+                    } else {
+                        // إنشاء كود جديد إذا لم يكن موجوداً
+                        const newCode = await generateUniqueReferralCode();
+                        await updateDoc(userDocRef, { referralCode: newCode });
+                        referralCodeEl.textContent = newCode;
+                        referralLoader.classList.add('hidden');
+                        referralContainer.classList.remove('hidden');
                     }
-                    // === (نهاية الإضافة: جلب بيانات البائع) ===
-
+                    
                 } else {
-                    // في حال كان المستخدم موجوداً في Auth ولكن ليس في Firestore (نادر)
-                    profileName.value = user.displayName || '';
-                    profileEmail.value = user.email || '';
-                    profilePhone.value = user.phoneNumber || '';
-                    // نترك حقول البائع فارغة
+                    throw new Error("لم يتم العثور على بيانات المستخدم.");
                 }
-
+                
                 authLoader.classList.add('hidden');
                 profileContent.classList.remove('hidden');
 
             } catch (error) {
-                console.error("Error fetching profile data: ", error);
-                authLoader.innerHTML = '<p class="text-red-500 text-center">حدث خطأ أثناء جلب بياناتك.</p>';
+                console.error("Error loading profile data: ", error);
+                authLoader.innerHTML = `<p class="text-red-500 text-center">حدث خطأ أثناء جلب بياناتك: ${error.message}</p>`;
             }
         }
 
-        // --- معالج حفظ التعديلات ---
+        // --- (معالج حفظ البروفايل) ---
         profileForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const newName = profileName.value.trim();
-            const newPhone = profilePhone.value.trim();
-            
-            // === (بداية الإضافة: قراءة بيانات البائع) ===
-            const newStoreName = profileStoreName.value.trim();
-            // === (نهاية الإضافة: قراءة بيانات البائع) ===
+            toggleButtonState(saveProfileBtn, true);
 
-            // تم إضافة newStoreName للتحقق الإلزامي
-            if (!newName || !newPhone || !newStoreName) {
-                showToast('الرجاء ملء الحقول الإلزامية (الاسم، الهاتف، واسم المتجر)', 'error');
+            const newName = document.getElementById('profile-name').value.trim();
+            const newPhone = document.getElementById('profile-phone').value.trim();
+
+            if (!newName || !newPhone) {
+                showToast('يرجى ملء الاسم ورقم الهاتف.', 'error');
+                toggleButtonState(saveProfileBtn, false);
                 return;
             }
 
-            saveBtn.disabled = true;
-            saveBtnText.classList.add('hidden');
-            saveBtnLoader.classList.remove('hidden');
-
             try {
-                const user = auth.currentUser;
-                // 1. تحديث بيانات Auth (للاسم المعروض)
-                await updateProfile(user, { displayName: newName });
-
-                // === (بداية الإضافة: تجميع بيانات البائع) ===
-                const socialLinks = {
-                    facebook: profileFacebook.value.trim(),
-                    instagram: profileInstagram.value.trim(),
-                    telegram: profileTelegram.value.trim(),
-                    snapchat: profileSnapchat.value.trim()
-                };
-                // === (نهاية الإضافة: تجميع بيانات البائع) ===
-
-                // 2. تحديث بيانات Firestore (للاسم والهاتف وبيانات المتجر)
-                const userDocRef = doc(db, 'users', user.uid);
-                // تم إضافة الحقول الجديدة
-                await setDoc(userDocRef, {
+                const batch = writeBatch(db);
+                
+                // 1. تحديث مستند 'users'
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                batch.update(userDocRef, {
                     displayName: newName,
-                    phone: newPhone,
-                    storeName: newStoreName,
-                    socialLinks: socialLinks
-                }, { merge: true }); // merge: true تضمن عدم مسح البيانات الأخرى مثل النقاط
+                    phone: newPhone
+                });
 
-                showToast('تم حفظ التعديلات بنجاح!', 'success');
-                // تحديث اسم القائمة في الهيدر
+                // 2. تحديث (Auth)
+                await updateProfile(currentUser, { displayName: newName });
+                
+                await batch.commit();
+
+                // تحديث الاسم في القائمة المنسدلة
                 userMenuName.textContent = newName.split(' ')[0];
                 userMenuDisplayName.textContent = newName;
-
+                
+                showToast('تم حفظ التعديلات بنجاح!', 'success');
             } catch (error) {
                 console.error("Error updating profile: ", error);
                 showToast('حدث خطأ أثناء حفظ التعديلات.', 'error');
             } finally {
-                saveBtn.disabled = false;
-                saveBtnText.classList.remove('hidden');
-                saveBtnLoader.classList.add('hidden');
+                toggleButtonState(saveProfileBtn, false);
+            }
+        });
+
+        // --- (معالج نسخ كود الدعوة) ---
+        copyReferralCodeBtn.addEventListener('click', () => {
+            const code = referralCodeEl.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                copyReferralCodeBtn.querySelector('span').textContent = 'تم النسخ!';
+                copyReferralCodeBtn.classList.add('bg-green-200');
+                setTimeout(() => {
+                    copyReferralCodeBtn.querySelector('span').textContent = 'نسخ الكود';
+                    copyReferralCodeBtn.classList.remove('bg-green-200');
+                }, 2000);
+            });
+        });
+
+        // --- (جديد) منطق نافذة التحويل ---
+        openConvertModalBtn.addEventListener('click', () => {
+            updateConversionRate(); // تحديث سعر الصرف عند الفتح
+            convertModal.classList.add('active');
+        });
+        closeConvertModalBtn.addEventListener('click', () => convertModal.classList.remove('active'));
+
+        function updateConversionRate() {
+            const fromCurrency = convertFromSelect.value;
+            let rateText = "";
+            let toCurrencyText = "";
+            let result = 0;
+            const amount = getNum('convert-amount');
+            
+            const rate_J_to_C = (exchangeRates.jewels_to_coins || 0) / 100; // مثال: 0.5
+            const rate_C_to_J = (exchangeRates.coins_to_jewels || 0) / 100; // مثال: 0.5
+            
+            if (fromCurrency === 'jewels') {
+                result = amount * rate_J_to_C;
+                toCurrencyText = "عملة 🪙";
+                rateText = `السعر: 1 جوهرة 💎 = ${rate_J_to_C} عملة 🪙`;
+            } else { // from 'coins'
+                result = amount * rate_C_to_J;
+                toCurrencyText = "جوهرة 💎";
+                rateText = `السعر: 1 عملة 🪙 = ${rate_C_to_J} جوهرة 💎`;
+            }
+            
+            convertResultEl.textContent = `${result.toFixed(2)} ${toCurrencyText}`;
+            convertRateDisplayEl.textContent = rateText;
+        }
+
+        convertFromSelect.addEventListener('change', updateConversionRate);
+        convertAmountInput.addEventListener('input', updateConversionRate);
+
+        // (جديد) دالة تنفيذ التحويل
+        convertForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            toggleButtonState(convertConfirmBtn, true);
+
+            const amount = getNum('convert-amount');
+            const fromCurrency = convertFromSelect.value;
+            
+            const currentJewels = currentUserData.loyaltyPoints || 0;
+            const currentCoins = currentUserData.dawarat_coins || 0;
+            
+            const rate_J_to_C = (exchangeRates.jewels_to_coins || 0) / 100;
+            const rate_C_to_J = (exchangeRates.coins_to_jewels || 0) / 100;
+
+            let jewelsToRemove = 0;
+            let coinsToGet = 0;
+            let coinsToRemove = 0;
+            let jewelsToGet = 0;
+            
+            if (fromCurrency === 'jewels') {
+                jewelsToRemove = amount;
+                coinsToGet = amount * rate_J_to_C;
+                if (jewelsToRemove > currentJewels) {
+                    showToast('ليس لديك رصيد جواهر 💎 كافٍ.', 'error');
+                    toggleButtonState(convertConfirmBtn, false);
+                    return;
+                }
+            } else { // from 'coins'
+                coinsToRemove = amount;
+                jewelsToGet = amount * rate_C_to_J;
+                if (coinsToRemove > currentCoins) {
+                    showToast('ليس لديك رصيد عملات 🪙 كافٍ.', 'error');
+                    toggleButtonState(convertConfirmBtn, false);
+                    return;
+                }
+            }
+
+            if (amount <= 0) {
+                showToast('يرجى إدخال مبلغ صحيح.', 'error');
+                toggleButtonState(convertConfirmBtn, false);
+                return;
+            }
+
+            try {
+                // استخدام Transaction لضمان الأمان
+                const userDocRef = doc(db, "users", currentUser.uid);
+                await runTransaction(db, async (transaction) => {
+                    const userDoc = await transaction.get(userDocRef);
+                    if (!userDoc.exists()) {
+                        throw "User document does not exist!";
+                    }
+                    
+                    const data = userDoc.data();
+                    const newJewels = (data.loyaltyPoints || 0) - jewelsToRemove + jewelsToGet;
+                    const newCoins = (data.dawarat_coins || 0) - coinsToRemove + coinsToGet;
+
+                    if (newJewels < 0 || newCoins < 0) {
+                        throw "رصيد غير كافٍ. تم إلغاء العملية.";
+                    }
+
+                    transaction.update(userDocRef, {
+                        loyaltyPoints: newJewels,
+                        dawarat_coins: newCoins
+                    });
+                });
+
+                // تحديث الواجهة والبيانات المحلية
+                currentUserData.loyaltyPoints = (currentUserData.loyaltyPoints || 0) - jewelsToRemove + jewelsToGet;
+                currentUserData.dawarat_coins = (currentUserData.dawarat_coins || 0) - coinsToRemove + coinsToGet;
+                
+                jewelsBalanceEl.textContent = currentUserData.loyaltyPoints.toLocaleString();
+                coinsBalanceEl.textContent = currentUserData.dawarat_coins.toLocaleString();
+                
+                convertAmountInput.value = "";
+                updateConversionRate();
+                convertModal.classList.remove('active');
+                showToast('تم التحويل بنجاح!', 'success');
+
+            } catch (error) {
+                console.error("Conversion Error: ", error);
+                showToast(`فشل التحويل: ${error.toString()}`, 'error');
+            } finally {
+                toggleButtonState(convertConfirmBtn, false);
             }
         });
 
         // --- منطق المصادقة والتحكم بالصفحة ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // المستخدم قام بتسجيل الدخول
+                currentUser = user;
                 loginBtn.classList.add('hidden');
+                loginBtn.classList.remove('sm:flex');
                 userMenu.classList.remove('hidden');
                 
-                const displayName = user.displayName || "زبوننا";
+                const displayName = user.displayName || "عميلنا";
                 userMenuName.textContent = displayName.split(' ')[0];
                 userMenuDisplayName.textContent = displayName;
 
-                // جلب بيانات الملف الشخصي
                 loadProfileData(user);
 
             } else {
-                // المستخدم زائر، قم بإعادته لصفحة التسجيل
-                window.location.href = 'login.html';
+                window.location.href = 'login.html'; 
             }
         });
 
-        // --- معالجات القائمة وتسجيل الخروج ---
+        // --- معالجات القائمة وتسجيل الخروج (لـ S22 Market) ---
         userMenuButton.addEventListener('click', (e) => {
             e.stopPropagation();
             userMenuDropdown.classList.toggle('show');
         });
-
         document.addEventListener('click', () => {
             if (userMenuDropdown.classList.contains('show')) {
                 userMenuDropdown.classList.remove('show');
             }
         });
-
         logoutBtn.addEventListener('click', () => {
             signOut(auth).catch((error) => console.error('Logout Error', error));
         });
     </script>
 </body>
 </html>
+

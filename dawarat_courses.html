@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Learning - تصفح البذلورات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; translateY(0); } }
+        
+        #user-menu-dropdown.show {
+            display: block;
+            animation: slideInUp 0.2s ease-out;
+        }
+        
+        /* (جديد) ستايل بطاقة الدورة الاحترافية */
+        .course-card-pro {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s, box-shadow 0.3s;
+            animation: slideInUp 0.5s ease-out;
+            position: relative; /* (جديد) لإضافة الشارة */
+        }
+        .course-card-pro:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .course-card-pro-image {
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+        }
+        .course-card-pro-content {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .course-card-pro-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: #64748b;
+            padding-top: 0.75rem;
+            border-top: 1px solid #f1f5f9;
+            margin-top: 0.75rem;
+        }
+        /* (جديد) شارة "مسجل" */
+        .enrolled-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: #10b981; /* (أخضر) */
+            color: white;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+             <a href="index.html" class="flex items-center gap-3">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+                    S22<span class="text-blue-600">MARKET</span>
+                </h1>
+            </a>
+            <div id="header-actions" class="flex items-center gap-4 relative">
+                <a href="index.html" id="store-btn" class="relative text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 shadow-lg">
+                    <i class="fas fa-store"></i>
+                    <span>المتجر</span>
+                </a>
+                <a href="login.html" id="login-btn" class="hidden relative text-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-full transition-colors items-center gap-2 sm:flex">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>دخول / تسجيل</span>
+                </a>
+                <div id="user-menu" class="hidden">
+                    <button id="user-menu-button" class="flex items-center gap-2 text-lg font-semibold text-gray-700 bg-green-100 hover:bg-green-200 px-5 py-2.5 rounded-full transition-colors">
+                        <i class="fas fa-user-check text-green-700"></i>
+                        <span id="user-menu-name">...</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="user-menu-dropdown" class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
+                        <div class="p-3 border-b">
+                            <p class="text-sm text-gray-500">مرحباً بك،</p>
+                            <p class="font-bold text-gray-800" id="user-menu-displayname">...</p>
+                        </div>
+                        <a href="profile.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي ومحافطي</a>
+                        
+                        <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</div>
+                        <a href="dawarat_learning_dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-graduation-cap fa-fw ml-2 text-indigo-400"></i> بذلوراتي المسجلة</a>
+                        <a href="dawarat_loyalty_tasks.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-tasks fa-fw ml-2 text-purple-400"></i> كسب العملات (المهام)</a>
+                        <a href="dawarat_loyalty_rewards.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-gift fa-fw ml-2 text-yellow-400"></i> استبدال العملات</a>
+
+                        <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">المتجر</div>
+                        <a href="seller-dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
+                        <a href="order_history.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
+                        <a href="loyalty_card.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء (الجواهر)</a>
+
+                        <button id="logout-btn" class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        
+        <div id="page-loader" class="text-center py-20">
+            <div class="loader mx-auto"></div>
+            <p class="mt-4 text-gray-600 text-lg">جاري جلب البذلورات المتاحة...</p>
+        </div>
+
+        <div id="courses-content" class="hidden">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-8 text-center">
+                تصفح جميع البذلورات
+            </h1>
+
+            <div id="no-courses-msg" class="hidden text-center py-20 bg-white rounded-xl shadow-md" style="animation: slideInUp 0.5s ease-out;">
+                <i class="fas fa-book-reader text-5xl text-gray-400"></i>
+                <h2 class="mt-4 text-3xl font-extrabold text-gray-900">لا توجد بذلورات متاحة حالياً</h2>
+                <p class="mt-2 text-xl font-semibold text-gray-500">نعمل على إضافة المزيد قريباً. ترقبونا!</p>
+            </div>
+
+            <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // ... (نفس إعدادات Firebase) ...
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- عناصر الواجهة ---
+        const pageLoader = document.getElementById('page-loader');
+        const coursesContent = document.getElementById('courses-content');
+        const noCoursesMsg = document.getElementById('no-courses-msg');
+        const coursesGrid = document.getElementById('courses-grid');
+        
+        // --- عناصر الهيدر ---
+        const loginBtn = document.getElementById('login-btn');
+        const userMenu = document.getElementById('user-menu');
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenuDropdown = document.getElementById('user-menu-dropdown');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        let currentUser = null;
+        let ownedCourses = {};
+
+        // --- (جديد) دالة تحميل الكتالوج ---
+        async function loadLearningData(user) {
+            try {
+                // 1. جلب بيانات الطالب (لمعرفة البذلورات المملوكة)
+                if (user) {
+                    const userDocRef = doc(db, 'users', user.uid);
+                    const userDocSnap = await getDoc(userDocRef);
+                    if (userDocSnap.exists()) {
+                        ownedCourses = userDocSnap.data().courseAccess || {};
+                    }
+                }
+                
+                // 2. جلب الأساتذة
+                const professorsSnap = await getDocs(collection(db, 'professors'));
+                const professorsMap = new Map();
+                professorsSnap.forEach(doc => {
+                    professorsMap.set(doc.id, doc.data().name);
+                });
+
+                // 3. جلب كل البذلورات
+                const coursesQuery = query(
+                    collection(db, 'products'), 
+                    where("productType", "==", "course"),
+                    orderBy("createdAt", "desc")
+                );
+                const coursesSnapshot = await getDocs(coursesQuery);
+
+                if (coursesSnapshot.empty) {
+                    noCoursesMsg.classList.remove('hidden');
+                    pageLoader.classList.add('hidden');
+                    coursesContent.classList.remove('hidden');
+                    return;
+                }
+
+                coursesGrid.innerHTML = ''; // تفريغ الشبكة
+                
+                coursesSnapshot.forEach(doc => {
+                    const course = { id: doc.id, ...doc.data() };
+                    
+                    const isOwned = ownedCourses[course.id] === true;
+                    const professorName = professorsMap.get(course.professorId) || 'أستاذ غير معروف';
+                    
+                    coursesGrid.appendChild(createCourseCard(course, professorName, isOwned));
+                });
+
+                pageLoader.classList.add('hidden');
+                coursesContent.classList.remove('hidden');
+                
+            } catch (error) {
+                console.error("Error loading courses:", error);
+                pageLoader.innerHTML = `<p class="text-red-500 text-center">حدث خطأ أثناء جلب البذلورات: ${error.message}</p>`;
+            }
+        }
+        
+        // --- (جديد) دالة إنشاء كرت البذلورة (نسخة الكتالوج) ---
+        function createCourseCard(course, professorName, isOwned) {
+            const card = document.createElement('div');
+            card.className = 'course-card-pro';
+            
+            const image = (course.imageUrls && course.imageUrls.length > 0) ? course.imageUrls[0] : 'https://placehold.co/300x180/e2e8f0/94a3b8?text=Image';
+            
+            const nameEl = document.createElement('div');
+            nameEl.innerHTML = course.name;
+            const plainName = nameEl.textContent;
+
+            // حساب إجمالي الدروس
+            let totalLessons = 0;
+            if (course.curriculum) {
+                totalLessons = course.curriculum.reduce((acc, module) => acc + (module.lessons?.length || 0), 0);
+            }
+
+            card.innerHTML = `
+                ${isOwned ? '<div class="enrolled-badge"><i class="fas fa-check-circle mr-1"></i> مسجل</div>' : ''}
+                
+                <div class="course-card-pro-image" style="background-image: url('${image}')"></div>
+                <div class="course-card-pro-content">
+                    <h3 class="text-lg font-bold text-gray-900 mb-1 h-14 overflow-hidden">${plainName}</h3>
+                    <p class="text-sm text-gray-500 mb-3">مع: ${professorName}</p>
+                    
+                    <div class="flex-grow"></div> <div class="course-card-pro-stats">
+                        <span><i class="fas fa-clock fa-fw ml-1"></i> ${course.stats?.hours || 0} س</span>
+                        <span><i class="fas fa-layer-group fa-fw ml-1"></i> ${course.stats?.level || '...'}</span>
+                        <span><i class="fas fa-list-ol fa-fw ml-1"></i> ${totalLessons} درس</span>
+                    </div>
+                    
+                    <a href="dawarat_content.html?id=${course.id}" class="mt-4 block w-full text-center bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors">
+                        ${isOwned ? 'متابعة الدراسة' : 'عرض التفاصيل'}
+                    </a>
+                </div>
+            `;
+            return card;
+        }
+
+
+        // --- منطق المصادقة والتحكم بالصفحة (لـ S22 Market) ---
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            
+            if (user) {
+                loginBtn.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+                
+                const displayName = user.displayName || "عميلنا";
+                const userMenuName = document.getElementById('user-menu-name');
+                const userMenuDisplayName = document.getElementById('user-menu-displayname');
+                
+                if (userMenuName) userMenuName.textContent = displayName.split(' ')[0];
+                if (userMenuDisplayName) userMenuDisplayName.textContent = displayName;
+
+            } else {
+                loginBtn.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+            }
+            
+            loadLearningData(user);
+        });
+
+        // --- معالجات القائمة وتسجيل الخروج (لـ S22 Market) ---
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenuDropdown = document.getElementById('user-menu-dropdown');
+
+        if (userMenuButton) {
+            userMenuButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userMenuDropdown.classList.toggle('show');
+            });
+        }
+        document.addEventListener('click', () => {
+            if (userMenuDropdown && userMenuDropdown.classList.contains('show')) {
+                userMenuDropdown.classList.remove('show');
+            }
+        });
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                signOut(auth).catch((error) => console.error('Logout Error', error));
+            });
+        }
+    </script>
+</body>
+</html>

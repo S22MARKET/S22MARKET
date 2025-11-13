@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Dawarat - استبدال العملات (المكافآت)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        .small-loader { border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; translateY(0); } }
+        
+        #user-menu-dropdown.show {
+            display: block;
+            animation: slideInUp 0.2s ease-out;
+        }
+        
+        /* (جديد) ستايل النافذة المنبثقة */
+        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 40; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+        .modal-backdrop.active { opacity: 1; pointer-events: all; }
+        .modal-content { background-color: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 500px; z-index: 50; transform: scale(0.95); opacity: 0; transition: all 0.3s ease; }
+        .modal-backdrop.active .modal-content { transform: scale(1); opacity: 1; }
+
+        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10001; }
+        .toast { background-color: #2d3748; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards; }
+        .toast.error { background-color: #c53030; }
+        @keyframes fadeOut { from { opacity: 1; } to: { opacity: 0; } }
+
+    </style>
+</head>
+<body>
+
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+             <a href="index.html" class="flex items-center gap-3">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+                    S22<span class="text-blue-600">MARKET</span>
+                </h1>
+            </a>
+            <div id="header-actions" class="flex items-center gap-4 relative">
+                <a href="index.html" id="store-btn" class="relative text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 shadow-lg">
+                    <i class="fas fa-store"></i>
+                    <span>المتجر</span>
+                </a>
+                <a href="login.html" id="login-btn" class="hidden relative text-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-full transition-colors items-center gap-2 sm:flex">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>دخول / تسجيل</span>
+                </a>
+                <div id="user-menu" class="hidden">
+                    <button id="user-menu-button" class="flex items-center gap-2 text-lg font-semibold text-gray-700 bg-green-100 hover:bg-green-200 px-5 py-2.5 rounded-full transition-colors">
+                        <i class="fas fa-user-check text-green-700"></i>
+                        <span id="user-menu-name">...</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="user-menu-dropdown" class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
+                        <div class="p-3 border-b">
+                            <p class="text-sm text-gray-500">مرحباً بك،</p>
+                            <p class="font-bold text-gray-800" id="user-menu-displayname">...</p>
+                        </div>
+                        <a href="profile.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي ومحافطي</a>
+                        
+                        <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</div>
+                        <a href="dawarat_learning_dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-graduation-cap fa-fw ml-2 text-indigo-400"></i> بذلوراتي المسجلة</a>
+                        <a href="dawarat_loyalty_tasks.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-tasks fa-fw ml-2 text-purple-400"></i> كسب العملات (المهام)</a>
+                        <a href="dawarat_loyalty_rewards.html" class="block px-4 py-3 text-gray-700 bg-gray-100 font-bold transition-colors"><i class="fas fa-gift fa-fw ml-2 text-yellow-400"></i> استبدال العملات</a>
+
+                        <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">المتجر</div>
+                        <a href="seller-dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
+                        <a href="order_history.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
+                        <a href="loyalty_card.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء (الجواهر)</a>
+
+                        <button id="logout-btn" class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        
+        <div id="auth-loader" class="text-center py-20">
+            <div class="loader mx-auto"></div>
+            <p class="mt-4 text-gray-600 text-lg">جاري جلب المكافآت المتاحة...</p>
+        </div>
+
+        <div id="rewards-content" class="hidden" style="animation: slideInUp 0.5s ease-out;">
+            <div class="text-center mb-8">
+                <i class="fas fa-gift text-5xl text-yellow-500 mb-3"></i>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900">متجر المكافآت (بالعملات 🪙)</h1>
+                <p class="mt-3 text-lg text-gray-600">استخدم "العملات" التي كسبتها من المهام والتسجيل في البذلورات لاستبدالها بهذه المكافآت القيمة.</p>
+            </div>
+
+            <div class="mb-8 p-6 bg-white rounded-xl shadow-md flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-700">رصيدك الحالي من العملات</h2>
+                <div id="user-coins-balance" class="text-4xl font-extrabold text-green-600">
+                    <span class="animate-pulse">...</span> 🪙
+                </div>
+            </div>
+
+            <div id="rewards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+
+            <div id="no-rewards-msg" class="hidden text-center py-20 bg-white rounded-xl shadow-md">
+                <i class="fas fa-box-open text-5xl text-gray-400"></i>
+                <p class="mt-4 text-xl font-semibold text-gray-500">لا توجد مكافآت متاحة للاستبدال حاليًا.</p>
+            </div>
+        </div>
+    </main>
+    
+    <div id="claim-reward-modal" class="modal-backdrop">
+        <div class="modal-content">
+             <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 class="text-xl font-bold">تأكيد الاستبدال</h3>
+                <button id="close-claim-modal-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            
+            <p id="claim-confirm-text" class="text-lg text-gray-700 text-center my-6">
+                هل أنت متأكد أنك تريد استبدال...؟
+            </p>
+
+            <div class="flex justify-end gap-4 mt-6 border-t pt-4">
+                <button id="cancel-claim-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300">
+                    إلغاء
+                </button>
+                <button id="confirm-claim-btn" class="w-40 flex justify-center items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg disabled:bg-green-400">
+                    <span class="button-text">نعم، استبدال</span>
+                    <div class="small-loader button-loader hidden"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast-container"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, addDoc, query, where, serverTimestamp, orderBy, increment, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // ... (نفس إعدادات Firebase) ...
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- عناصر الواجهة ---
+        const authLoader = document.getElementById('auth-loader');
+        const rewardsContent = document.getElementById('rewards-content');
+        const rewardsGrid = document.getElementById('rewards-grid');
+        const noRewardsMsg = document.getElementById('no-rewards-msg');
+        const userCoinsBalance = document.getElementById('user-coins-balance');
+
+        // --- عناصر الهيدر ---
+        const loginBtn = document.getElementById('login-btn');
+        const userMenu = document.getElementById('user-menu');
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenuDropdown = document.getElementById('user-menu-dropdown');
+        const logoutBtn = document.getElementById('logout-btn');
+        
+        // --- (جديد) عناصر نافذة التأكيد ---
+        const claimModal = document.getElementById('claim-reward-modal');
+        const closeClaimModalBtn = document.getElementById('close-claim-modal-btn');
+        const cancelClaimBtn = document.getElementById('cancel-claim-btn');
+        const confirmClaimBtn = document.getElementById('confirm-claim-btn');
+        const claimConfirmText = document.getElementById('claim-confirm-text');
+        
+        // --- متغيرات الحالة ---
+        let currentUser = null;
+        let currentUserData = {};
+        let currentClaimData = {}; // (جديد) لتخزين بيانات المكافأة
+        
+        // --- (جديد) أسماء الإعدادات والمجموعات ---
+        const DAW_SETTINGS_DOC_ID = "dawarat_loyalty_config";
+        const REWARDS_COLLECTION_ID = "dawarat_rewards";
+
+        // --- (دوال مساعدة: showToast, toggleButtonState, ... ) ---
+        const showToast = (message, type = 'success') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+            toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        };
+        function toggleButtonState(button, isLoading) {
+            const text = button.querySelector('.button-text');
+            const loader = button.querySelector('.button-loader');
+            if (isLoading) {
+                button.disabled = true;
+                if (text) text.classList.add('hidden');
+                if (loader) loader.classList.remove('hidden');
+            } else {
+                button.disabled = false;
+                if (text) text.classList.remove('hidden');
+                if (loader) loader.classList.add('hidden');
+            }
+        }
+        
+        // --- (جديد) دالة تحميل المكافآت ---
+        async function loadRewards(user) {
+            try {
+                // 1. جلب بيانات المستخدم (للرصيد)
+                const userDocRef = doc(db, 'users', user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists()) {
+                    currentUserData = userDocSnap.data();
+                    userCoinsBalance.textContent = `${(currentUserData.dawarat_coins || 0).toLocaleString()} 🪙`;
+                }
+
+                // 2. جلب كل المكافآت المتاحة
+                const rewardsQuery = collection(db, "settings", DAW_SETTINGS_DOC_ID, REWARDS_COLLECTION_ID);
+                const rewardsSnapshot = await getDocs(query(rewardsQuery, orderBy("points")));
+
+                rewardsGrid.innerHTML = '';
+                if (rewardsSnapshot.empty) {
+                    noRewardsMsg.classList.remove('hidden');
+                } else {
+                    rewardsSnapshot.forEach(doc => {
+                        const reward = { id: doc.id, ...doc.data() };
+                        rewardsGrid.appendChild(createRewardCard(reward));
+                    });
+                }
+                
+            } catch (error) {
+                console.error("Error loading rewards: ", error);
+                rewardsGrid.innerHTML = '<p class="text-red-500 col-span-full text-center">حدث خطأ أثناء جلب المكافآت.</p>';
+            }
+        }
+        
+        // --- (جديد) دالة إنشاء كرت المكافأة ---
+        function createRewardCard(reward) {
+            const card = document.createElement('div');
+            card.className = 'bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center';
+            
+            const userBalance = currentUserData.dawarat_coins || 0;
+            const canAfford = userBalance >= reward.points;
+
+            card.innerHTML = `
+                <div class="text-5xl text-yellow-500 mb-3">
+                    <i class="fas fa-gift"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900">${reward.title}</h3>
+                <p class="text-3xl font-extrabold text-green-600 my-3">
+                    ${reward.points.toLocaleString()} 🪙
+                </p>
+                <button class="claim-reward-btn w-full mt-auto bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        ${!canAfford ? 'disabled' : ''}
+                        data-reward-id="${reward.id}"
+                        data-reward-title="${reward.title}"
+                        data-reward-points="${reward.points}">
+                    ${canAfford ? 'استبدال الآن' : 'لا يوجد رصيد كافٍ'}
+                </button>
+            `;
+            return card;
+        }
+
+        // --- (جديد) معالجات نافذة تأكيد الاستبدال ---
+        rewardsGrid.addEventListener('click', (e) => {
+            const claimBtn = e.target.closest('.claim-reward-btn');
+            if (claimBtn) {
+                const { rewardId, rewardTitle, rewardPoints } = claimBtn.dataset;
+                
+                currentClaimData = {
+                    id: rewardId,
+                    title: rewardTitle,
+                    points: parseInt(rewardPoints, 10)
+                };
+
+                claimConfirmText.innerHTML = `هل أنت متأكد أنك تريد استبدال 
+                    <strong class="text-green-600">${currentClaimData.points} عملة 🪙</strong>
+                    مقابل 
+                    <strong class="text-indigo-600">${currentClaimData.title}</strong>؟`;
+                
+                claimModal.classList.add('active');
+            }
+        });
+
+        closeClaimModalBtn.onclick = () => claimModal.classList.remove('active');
+        cancelClaimBtn.onclick = () => claimModal.classList.remove('active');
+        
+        // --- (جديد) دالة تنفيذ الاستبدال (الأهم) ---
+        confirmClaimBtn.addEventListener('click', async () => {
+            toggleButtonState(confirmClaimBtn, true);
+
+            try {
+                const userDocRef = doc(db, "users", currentUser.uid);
+                
+                // 1. استخدام Transaction لضمان الأمان
+                await runTransaction(db, async (transaction) => {
+                    const userDoc = await transaction.get(userDocRef);
+                    if (!userDoc.exists()) { throw new Error("لم يتم العثور على بيانات المستخدم."); }
+                    
+                    const data = userDoc.data();
+                    const currentCoins = data.dawarat_coins || 0;
+
+                    if (currentCoins < currentClaimData.points) {
+                        throw new Error("رصيدك من العملات غير كافٍ لإتمام العملية.");
+                    }
+                    
+                    // 2. خصم العملات
+                    const newCoins = currentCoins - currentClaimData.points;
+                    transaction.update(userDocRef, { dawarat_coins: newCoins });
+
+                    // 3. تسجيل العملية في سجل العملات
+                    const logRef = doc(collection(db, `users/${currentUser.uid}/dawarat_coin_changes`));
+                    transaction.set(logRef, {
+                        type: 'reward_spent',
+                        pointsSubtracted: currentClaimData.points, // (جديد) نقاط مخصومة
+                        reason: `استبدال مكافأة: ${currentClaimData.title}`,
+                        timestamp: serverTimestamp()
+                    });
+                });
+
+                // 4. (اختياري) إرسال إشعار
+                const notifRef = doc(collection(db, `users/${currentUser.uid}/notifications`));
+                await addDoc(collection(db, `users/${currentUser.uid}/notifications`), {
+                    title: "🎁 تم استبدال المكافأة!",
+                    body: `لقد نجحت في استبدال ${currentClaimData.points} عملة 🪙 مقابل "${currentClaimData.title}".`,
+                    isRead: false,
+                    timestamp: serverTimestamp(),
+                    type: "reward_claimed"
+                });
+
+                // 5. تحديث الواجهة
+                const newBalance = (currentUserData.dawarat_coins || 0) - currentClaimData.points;
+                currentUserData.dawarat_coins = newBalance;
+                userCoinsBalance.textContent = `${newBalance.toLocaleString()} 🪙`;
+                
+                // إعادة تحميل كروت المكافآت لتحديث الأزرار (تعطيل ما لا يمكن شراؤه)
+                await loadRewards(currentUser); 
+                
+                claimModal.classList.remove('active');
+                showToast('تم استبدال المكافأة بنجاح!', 'success');
+
+            } catch (error) {
+                console.error("Error claiming reward: ", error);
+                showToast(error.message || 'فشل استبدال المكافأة.', 'error');
+            } finally {
+                toggleButtonState(confirmClaimBtn, false);
+            }
+        });
+
+        // --- منطق المصادقة والتحكم بالصفحة ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loginBtn.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+                
+                const displayName = user.displayName || "عميلنا";
+                const userMenuName = document.getElementById('user-menu-name');
+                const userMenuDisplayName = document.getElementById('user-menu-displayname');
+                
+                if (userMenuName) userMenuName.textContent = displayName.split(' ')[0];
+                if (userMenuDisplayName) userMenuDisplayName.textContent = displayName;
+
+                // بدء تحميل بيانات الصفحة
+                authLoader.classList.add('hidden');
+                rewardsContent.classList.remove('hidden');
+                loadRewards(user); 
+
+            } else {
+                window.location.href = 'login.html'; 
+            }
+        });
+
+        // --- معالجات القائمة وتسجيل الخروج (لـ S22 Market) ---
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenuDropdown = document.getElementById('user-menu-dropdown');
+        
+        if (userMenuButton) {
+            userMenuButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userMenuDropdown.classList.toggle('show');
+            });
+        }
+        document.addEventListener('click', () => {
+            if (userMenuDropdown && userMenuDropdown.classList.contains('show')) {
+                userMenuDropdown.classList.remove('show');
+            }
+        });
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                signOut(auth).catch((error) => console.error('Logout Error', error));
+            });
+        }
+    </script>
+</body>
+</html>

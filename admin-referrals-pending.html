@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Market - مكافآt الدعوات المعلقة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* (تم التعديل) استخدام ألوان S22 Market الزرقاء */
+        body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
+        .hidden { display: none; }
+        .dashboard-tab:hover { background-color: #4338ca; }
+        .dashboard-tab.active-tab { background-color: #4f46e5; color: white; font-weight: bold; }
+        .dashboard-panel { animation: fadeIn 0.5s; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        .spinner-dark { width: 24px; height: 24px; border: 4px solid rgba(0,0,0, 0.1); border-top-color: #333; border-radius: 50%; animation: spin 1s linear infinite; }
+        .fa-spinner { animation: spin 1s linear infinite; } 
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 100; }
+        .toast { background-color: #2f855a; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards; }
+        .toast.error { background-color: #c53030; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+<div id="login-page" class="hidden min-h-screen flex items-center justify-center bg-gray-100 p-4">
+    <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl space-y-6">
+        <h2 class="text-3xl font-extrabold text-center text-gray-900">يرجى تسجيل الدخول</h2>
+        <p class="text-center text-red-500">تم تسجيل خروجك. يرجى العودة إلى <a href="dashboard.html" class="font-bold underline">صفحة الدخول الرئيسية</a>.</p>
+    </div>
+</div>
+
+<div id="dashboard-page" class="hidden">
+    <div class="relative min-h-screen md:flex">
+        <aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
+            <div class="p-3 text-center border-b border-gray-700">
+                <h2 class="text-2xl font-bold">S22 Market</h2>
+                <p id="admin-welcome-name" class="text-sm text-indigo-300"></p>
+            </div>
+            <nav class="flex-1 p-2 space-y-2">
+                <a href="dashboard.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chart-line fa-fw mr-3"></i> لوحة التحكم</a>
+                <a href="admin-sellers.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-users-cog fa-fw mr-3"></i> إدارة البائعين</a>
+                <a href="admin-reports.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-flag fa-fw mr-3 text-red-400"></i> الإبلاغات</a>
+                <a href="admin-products.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
+                <a href="admin-offers.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-star fa-fw mr-3"></i> العروض</a>
+                <a href="admin-product-requests.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-user-plus fa-fw mr-3"></i> طلبات الزوار</a>
+                <a href="admin-categories.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
+                <a href="admin-orders.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
+                <a href="admin-coupons.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-tags fa-fw mr-3"></i> الكوبونات</a>
+                <a href="admin-inquiries.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-envelope-open-text fa-fw mr-3"></i> الرسائل الواردة</a>
+                <a href="admin-applications.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
+                <a href="admin-notepad.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
+                
+                <a href="admin-loyalty-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-gift fa-fw mr-3 text-yellow-400"></i> نظام المكافآt</a>
+                <a href="admin-loyalty-approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات الدفع/المهام</a>
+                <a href="admin-referrals-pending.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
+
+                <a href="admin-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
+            </nav>
+            <div class="p-4 border-t border-gray-700">
+                <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+            
+            <div id="main-loader" class="text-center p-12">
+                <div class="loader mx-auto"></div>
+                <p class="mt-4 text-gray-600">جاري جلب بيانات العملاء والإعدادات...</p>
+            </div>
+
+            <div id="main-content" class="hidden dashboard-panel">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">مكافآت الدعوات المعلقة</h1>
+                    <p class="text-gray-600 mb-4">هؤلاء العملاء سجلوا باستخدام كود دعوة ولم تتم مكافأة الداعي بعد. اضغط "اعتماد" لإرسال النقاط.</p>
+                    
+                    <div class="overflow-x-auto bg-white rounded-xl shadow-md">
+                        <table class="w-full text-right">
+                            <thead class="bg-gray-100"><tr>
+                                <th class="p-3">العميل الجديد (ب)</th>
+                                <th class="p-3">الكود المستخدم</th>
+                                <th class="p-3">الداعي (أ)</th>
+                                <th class="p-3">المكافأة المقررة</th>
+                                <th class="p-3">اعتماد</th>
+                            </tr></thead>
+                            <tbody id="pending-referrals-tbody">
+                                </tbody>
+                        </table>
+                    </div>
+                    <p id="no-pending-msg" class="hidden text-center p-8 bg-white rounded-xl shadow-md text-gray-500 font-semibold">
+                        <i class="fas fa-check-circle text-green-500 text-3xl mb-3"></i><br>
+                        لا توجد أي مكافآt معلقة. أنت مُطلع على كل شيء!
+                    </p>
+                </div>
+
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-trophy text-yellow-500"></i> لوحة صدارة الدعوات
+                    </h1>
+                    <p class="text-gray-600 mb-4">أكثر الأعضاء نجاحاً في دعوة أصدقاء جدد (فقط الدعوات التي تم اعتمادها).</p>
+                    
+                    <div class="overflow-x-auto bg-white rounded-xl shadow-md">
+                        <table class="w-full text-right">
+                            <thead class="bg-gray-100"><tr>
+                                <th class="p-3">#</th>
+                                <th class="p-3">اسم الداعي</th>
+                                <th class="p-3">الكود الخاص به</th>
+                                <th class="p-3">إجمالي الدعوات الناجحة</th>
+                            </tr></thead>
+                            <tbody id="leaderboard-tbody">
+                                </tbody>
+                        </table>
+                    </div>
+                    <p id="no-leaderboard-msg" class="hidden text-center p-8 bg-white rounded-xl shadow-md text-gray-500 font-semibold">
+                        لم يتم اعتماد أي دعوات ناجحة بعد.
+                    </p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+    // (تم التعديل) استخدام إعدادات S22 Market
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, query, serverTimestamp, orderBy, getDoc, setDoc, getDocs, where, Timestamp, increment, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+        authDomain: "s22market-4e3e6.firebaseapp.com",
+        projectId: "s22market-4e3e6",
+        storageBucket: "s22market-4e3e6.appspot.com",
+        messagingSenderId: "119186699901",
+        appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+        measurementId: "G-MWYNCVP4WQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // (تم التعديل) قائمة الإيميلات الخاصة بـ S22 Market
+    const ADMIN_EMAILS = [
+        's22market@gmail.com',
+        'yacinee474474@gmail.com',
+        'nourmt01@gmail.com'
+    ];
+    
+    // --- عناصر الواجهة ---
+    const loginPage = document.getElementById('login-page');
+    const dashboardPage = document.getElementById('dashboard-page');
+    const logoutBtn = document.getElementById('logout-btn');
+    const getEl = (id) => document.getElementById(id);
+
+    const mainLoader = getEl('main-loader');
+    const mainContent = getEl('main-content');
+    const pendingTbody = getEl('pending-referrals-tbody');
+    const noPendingMsg = getEl('no-pending-msg');
+    const leaderboardTbody = getEl('leaderboard-tbody');
+    const noLeaderboardMsg = getEl('no-leaderboard-msg');
+
+    // --- مخزن البيانات ---
+    let allUsersCache = []; 
+    let usersByCodeMap = new Map(); 
+    let usersByIdMap = new Map(); 
+    let loyaltySettings = {}; // لتخزين قيمة المكافأة
+
+    // --- (الدوال المساعدة: showToast) ---
+    const showToast = (message, type = 'success') => {
+        const container = getEl('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+        toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    };
+    // --- (نهاية الدوال المساعدة) ---
+
+    // --- (دوال المصادقة والتنقل) ---
+    function checkAdminPermissions(user) {
+        if (user && ADMIN_EMAILS.includes(user.email)) {
+            loginPage.classList.add('hidden');
+            dashboardPage.classList.remove('hidden');
+            getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
+            initializeDashboard();
+        } else {
+            dashboardPage.classList.add('hidden');
+            loginPage.classList.remove('hidden');
+            if (user) signOut(auth);
+        }
+    }
+    onAuthStateChanged(auth, user => { checkAdminPermissions(user); });
+    logoutBtn.addEventListener('click', async () => { await signOut(auth); });
+
+    function setActiveTab() {
+        const currentPage = window.location.pathname.split('/').pop();
+        const tabs = document.querySelectorAll('.dashboard-tab');
+        tabs.forEach(tab => {
+            const tabHref = tab.getAttribute('href').split('/').pop();
+            if (tabHref === currentPage) {
+                tab.classList.add('active-tab');
+            } else {
+                tab.classList.remove('active-tab');
+            }
+        });
+    }
+
+    // --- (الدالة الرئيسية) ---
+    function initializeDashboard() {
+        setActiveTab();
+        loadInitialData(); // <-- تحميل البيانات
+    }
+
+    // --- (*** الكود الأساسي لهذه الصفحة ***) ---
+    // (منسوخ من TEXMEX وجاهز للعمل)
+
+    // 1. جلب كل البيانات المطلوبة (العملاء + الإعدادات)
+    async function loadInitialData() {
+        try {
+            const [usersSnapshot, settingsSnap] = await Promise.all([
+                getDocs(collection(db, "users")),
+                getDoc(doc(db, "settings", "loyalty"))
+            ]);
+
+            if (settingsSnap.exists()) {
+                loyaltySettings = settingsSnap.data();
+            } else {
+                showToast('لم يتم العثور على إعدادات الوفاء. سيتم استخدام 50 كنقطة افتراضية.', 'error');
+            }
+
+            allUsersCache = usersSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
+            usersByCodeMap.clear();
+            usersByIdMap.clear();
+            allUsersCache.forEach(user => {
+                usersByIdMap.set(user.id, user);
+                if (user.referralCode) {
+                    usersByCodeMap.set(user.referralCode, user);
+                }
+            });
+
+            renderPendingReferrals();
+            renderLeaderboard();
+
+            mainLoader.classList.add('hidden');
+            mainContent.classList.remove('hidden');
+
+        } catch (error) {
+            console.error("Error loading data: ", error);
+            mainLoader.innerHTML = `<p class="text-red-500">فشل تحميل البيانات: ${error.message}</p>`;
+        }
+    }
+
+    // 2. رسم جدول المكافآt المعلقة
+    function renderPendingReferrals() {
+        pendingTbody.innerHTML = '';
+        const bonusAmount = loyaltySettings.referralBonusPoints || 50; 
+
+        const pendingUsers = allUsersCache.filter(user => 
+            user.referredBy && (user.referralProcessed === false || user.referralProcessed === undefined)
+        );
+
+        if (pendingUsers.length === 0) {
+            noPendingMsg.classList.remove('hidden');
+        } else {
+            noPendingMsg.classList.add('hidden');
+        }
+
+        pendingUsers.forEach(newUser => {
+            const referrerCode = newUser.referredBy;
+            const referrer = usersByCodeMap.get(referrerCode); 
+            
+            let referrerName = 'غير معروف (كود خاطئ)';
+            let referrerId = null;
+            if (referrer) {
+                referrerName = referrer.displayName;
+                referrerId = referrer.id;
+            }
+
+            const row = document.createElement('tr');
+            row.className = 'border-b';
+            row.id = `pending-row-${newUser.id}`; 
+            row.innerHTML = `
+                <td class="p-3 font-semibold">${newUser.displayName}</td>
+                <td class="p-3 font-mono">${referrerCode}</td>
+                <td class="p-3 font-semibold ${referrer ? '' : 'text-red-500'}">${referrerName}</td>
+                <td class="p-3 font-bold text-green-600">${bonusAmount} نقطة</td>
+                <td class="p-3">
+                    <button class="approve-btn bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-400" 
+                            data-new-user-id="${newUser.id}" 
+                            data-new-user-name="${newUser.displayName}" 
+                            data-referrer-id="${referrerId}"
+                            data-bonus-amount="${bonusAmount}"
+                            ${!referrerId ? 'disabled title="لا يمكن الموافقة، الكود خاطئ"' : `title="مكافأة ${referrerName}"`}>
+                        <i class="fas fa-check"></i> اعتماد
+                    </button>
+                </td>
+            `;
+            pendingTbody.appendChild(row);
+        });
+    }
+
+    // 3. رسم لوحة الصدارة (Leaderboard)
+    function renderLeaderboard() {
+        leaderboardTbody.innerHTML = '';
+        
+        const referralCounts = new Map();
+        
+        const processedUsers = allUsersCache.filter(user => user.referredBy && user.referralProcessed === true);
+        
+        processedUsers.forEach(user => {
+            const referrerCode = user.referredBy;
+            const count = (referralCounts.get(referrerCode) || 0) + 1;
+            referralCounts.set(referrerCode, count);
+        });
+
+        if (referralCounts.size === 0) {
+            noLeaderboardMsg.classList.remove('hidden');
+            return;
+        } else {
+            noLeaderboardMsg.classList.add('hidden');
+        }
+
+        const sortedLeaderboard = Array.from(referralCounts.entries()).sort((a, b) => b[1] - a[1]); 
+
+        sortedLeaderboard.slice(0, 10).forEach(([code, count], index) => {
+            const referrer = usersByCodeMap.get(code);
+            const referrerName = referrer ? referrer.displayName : 'عضو غير معروف';
+
+            const row = document.createElement('tr');
+            row.className = 'border-b';
+            row.innerHTML = `
+                <td class="p-3 font-bold text-lg ${index === 0 ? 'text-yellow-500' : (index === 1 ? 'text-gray-500' : (index === 2 ? 'text-orange-700' : ''))}">
+                    ${index === 0 ? '<i class="fas fa-trophy"></i>' : (index + 1)}
+                </td>
+                <td class="p-3 font-semibold">${referrerName}</td>
+                <td class="p-3 font-mono">${code}</td>
+                <td class="p-3 font-bold text-xl">${count}</td>
+            `;
+            leaderboardTbody.appendChild(row);
+        });
+    }
+
+    // 4. دالة الموافقة على المكافأة
+    async function handleApproveReferral(e) {
+        const btn = e.target.closest('.approve-btn');
+        if (!btn) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ...';
+
+        const { newUserId, newUserName, referrerId, bonusAmount } = btn.dataset;
+        const bonus = parseInt(bonusAmount, 10);
+
+        if (!referrerId || referrerId === "null") {
+            showToast('خطأ: لا يوجد معرّف للداعي.', 'error');
+            return;
+        }
+
+        try {
+            const batch = writeBatch(db);
+
+            // 1. تحديث العميل "الجديد" (ب)
+            const newUserDocRef = doc(db, "users", newUserId);
+            batch.update(newUserDocRef, { referralProcessed: true });
+
+            // 2. تحديث العميل "القديم" (أ)
+            const referrerDocRef = doc(db, "users", referrerId);
+            batch.update(referrerDocRef, { loyaltyPoints: increment(bonus) });
+
+            // 3. إضافة سجل في "سجل النقاط" للعميل "أ"
+            const reason = `مكافأة دعوة: ${newUserName}`;
+            const logRef = doc(collection(db, `users/${referrerId}/loyaltyChanges`));
+            batch.set(logRef, {
+                type: 'task_reward', // نعتبرها "مهمة"
+                pointsAdded: bonus,
+                reason: reason,
+                timestamp: serverTimestamp(),
+                referredUserId: newUserId 
+            });
+
+            // 4. إضافة "إشعار" للعميل "أ"
+            const notifRef = doc(collection(db, `users/${referrerId}/notifications`));
+            batch.set(notifRef, {
+                title: "🎁 مكافأة دعوة!",
+                body: `شكرًا لك! لقد حصلت على ${bonus} نقطة كمكافأة لتسجيل ${newUserName} عبر الكود الخاص بك.`,
+                isRead: false,
+                timestamp: serverTimestamp(),
+                type: "referral_bonus"
+            });
+
+            await batch.commit();
+
+            showToast('تم اعتماد المكافأة وإرسال النقاط بنجاح!', 'success');
+            
+            getEl(`pending-row-${newUserId}`).remove();
+            
+            // تحديث الكاش
+            const userInCache = usersByIdMap.get(newUserId);
+            if(userInCache) userInCache.referralProcessed = true;
+            
+            renderLeaderboard();
+            
+            if (pendingTbody.children.length === 0) {
+                noPendingMsg.classList.remove('hidden');
+            }
+
+        } catch (error) {
+            console.error("Error approving referral: ", error);
+            showToast('فشل اعتماد المكافأة: ' + error.message, 'error');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> اعتماد';
+        }
+    }
+    
+    // ربط الحدث
+    pendingTbody.addEventListener('click', handleApproveReferral);
+
+</script>
+
+</body>
+</html>

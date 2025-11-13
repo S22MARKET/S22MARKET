@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Learning - دوراتي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; translateY(0); } }
+        
+        .course-card {
+            display: flex;
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+            animation: slideInUp 0.5s ease-out;
+        }
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+        }
+        .course-card img {
+            width: 150px;
+            height: 100%;
+            object-fit: cover;
+        }
+        @media (max-width: 640px) {
+            .course-card { flex-direction: column; }
+            .course-card img { width: 100%; height: 180px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        </header>
+
+    <main class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        
+        <div id="auth-loader" class="text-center py-20">
+            <div class="loader mx-auto"></div>
+            <p class="mt-4 text-gray-600 text-lg">جاري التحقق من هويتك وجلب دوراتك...</p>
+        </div>
+
+        <div id="learning-content" class="hidden space-y-8">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 text-center">
+                <i class="fas fa-graduation-cap text-indigo-500"></i> 
+                أرشيف دوراتي (S22 Learning)
+            </h1>
+            
+            <div id="courses-list" class="space-y-6">
+                </div>
+
+            <div id="no-courses-msg" class="hidden text-center py-20 bg-white rounded-xl shadow-md">
+                <i class="fas fa-box-open text-5xl text-gray-400"></i>
+                <p class="mt-4 text-xl font-semibold text-gray-500">ليس لديك أي دورات مسجلة حالياً.</p>
+                <a href="index.html" class="mt-4 inline-block bg-indigo-600 text-white font-bold py-2 px-6 rounded-full hover:bg-indigo-700">
+                    تصفح الدورات المتاحة
+                </a>
+            </div>
+            
+        </div>
+    </main>
+    
+    <div id="toast-container"></div>
+
+    <script type="module">
+        // (تم التعديل) استخدام إعدادات S22 Market
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- عناصر الواجهة ---
+        const authLoader = document.getElementById('auth-loader');
+        const learningContent = document.getElementById('learning-content');
+        const coursesList = document.getElementById('courses-list');
+        const noCoursesMsg = document.getElementById('no-courses-msg');
+        
+        let currentUser = null; 
+
+        // --- (دوال مساعدة: showToast) ---
+        const showToast = (message, type = 'success') => { /* ... (كما هي) ... */ };
+
+
+        // --- (جديد) جلب بيانات المنصة ---
+        async function loadLearningDashboard(user) {
+            try {
+                // 1. جلب بيانات الطالب (لمعرفة ما يمتلكه)
+                const userDocRef = doc(db, 'users', user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+                
+                if (!userDocSnap.exists()) {
+                    throw new Error("User data not found.");
+                }
+                
+                const userData = userDocSnap.data();
+                // (هذا هو الحقل الذي نتحكم به من لوحة الموافقات)
+                const ownedCourseAccess = userData.courseAccess || {}; 
+                const ownedCourseIds = Object.keys(ownedCourseAccess).filter(key => ownedCourseAccess[key] === true);
+
+                if (ownedCourseIds.length === 0) {
+                    // الطالب لا يمتلك أي دورات
+                    noCoursesMsg.classList.remove('hidden');
+                    authLoader.classList.add('hidden');
+                    learningContent.classList.remove('hidden');
+                    return;
+                }
+
+                // 2. جلب "كل" الدورات المتاحة من المتجر
+                const productsRef = collection(db, "products");
+                const q = query(productsRef, where("productType", "==", "course"));
+                const coursesSnapshot = await getDocs(q);
+                
+                let coursesFound = 0;
+                coursesSnapshot.forEach(doc => {
+                    const course = { id: doc.id, ...doc.data() };
+                    
+                    // 3. (الأهم) التحقق إذا كان الطالب يمتلك هذه الدورة
+                    if (ownedCourseIds.includes(course.id)) {
+                        coursesList.appendChild(createCourseCard(course));
+                        coursesFound++;
+                    }
+                });
+
+                if (coursesFound === 0) {
+                    noCoursesMsg.classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error("Error loading learning dashboard:", error);
+                authLoader.innerHTML = '<p class="text-red-500 text-center">حدث خطأ أثناء جلب دوراتك.</p>';
+            } finally {
+                authLoader.classList.add('hidden');
+                learningContent.classList.remove('hidden');
+            }
+        }
+
+        // (جديد) دالة إنشاء كرت الدورة
+        function createCourseCard(course) {
+            const card = document.createElement('div');
+            card.className = 'course-card';
+            
+            const image = (course.imageUrls && course.imageUrls.length > 0) ? course.imageUrls[0] : 'https://placehold.co/300x200/e2e8f0/94a3b8?text=S22+Learning';
+            const nameEl = document.createElement('div');
+            nameEl.innerHTML = course.name;
+            const plainName = nameEl.textContent || "دورة";
+
+            const descriptionEl = document.createElement('div');
+            descriptionEl.innerHTML = course.description;
+            // (جديد) أخذ ملخص قصير للوصف
+            const shortDescription = descriptionEl.textContent.substring(0, 100) + '...';
+
+            card.innerHTML = `
+                <img src="${image}" alt="${plainName}">
+                <div class="p-5 flex flex-col justify-between w-full">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900">${plainName}</h3>
+                        <p class="text-sm text-gray-600 mt-2">${shortDescription}</p>
+                    </div>
+                    <a href="course_content.html?id=${course.id}" 
+                       class="mt-4 w-full md:w-auto self-end bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-indigo-700 text-center">
+                        <i class="fas fa-play mr-2"></i> بدء الدورة
+                    </a>
+                </div>
+            `;
+            return card;
+        }
+
+
+        // --- منطق المصادقة والتحكم بالصفحة (لـ S22 Market) ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user; 
+                
+                // (ملاحظة: هذا الكود يفترض وجود عناصر الهيدر في هذه الصفحة)
+                const loginBtn = document.getElementById('login-btn');
+                const userMenu = document.getElementById('user-menu');
+                if (loginBtn) loginBtn.classList.add('hidden');
+                if (userMenu) userMenu.classList.remove('hidden');
+                
+                const displayName = user.displayName || "عميلنا";
+                const userMenuName = document.getElementById('user-menu-name');
+                const userMenuDisplayName = document.getElementById('user-menu-displayname');
+                
+                if (userMenuName) userMenuName.textContent = displayName.split(' ')[0];
+                if (userMenuDisplayName) userMenuDisplayName.textContent = displayName;
+
+                // بدء تحميل بيانات المنصة
+                loadLearningDashboard(user);
+
+            } else {
+                window.location.href = 'login.html'; 
+            }
+        });
+
+        // --- معالجات القائمة وتسجيل الخروج (لـ S22 Market) ---
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenuDropdown = document.getElementById('user-menu-dropdown');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        if (userMenuButton) {
+            userMenuButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userMenuDropdown.classList.toggle('show');
+            });
+        }
+        document.addEventListener('click', () => {
+            if (userMenuDropdown && userMenuDropdown.classList.contains('show')) {
+                userMenuDropdown.classList.remove('show');
+            }
+        });
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                signOut(auth).catch((error) => console.error('Logout Error', error));
+            });
+        }
+    </script>
+</body>
+</html>
+
