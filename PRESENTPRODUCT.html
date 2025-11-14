@@ -170,13 +170,62 @@
             <i class="fas fa-check-circle text-5xl text-green-500 mb-4"></i>
             <h2 class="text-2xl font-bold text-gray-900 mb-3">تمت الإضافة للسلة!</h2>
             <p class="text-gray-600 mb-6">ماذا تريد أن تفعل الآن؟</p>
-            <a id="guest-checkout-btn" href="index.html#cart-action" class="block w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg mb-3 hover:bg-blue-700">
+            <button id="guest-checkout-btn" class="block w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg mb-3 hover:bg-blue-700">
                 إتمام الطلب (كزائر)
-            </a>
+            </button>
             <a id="login-checkout-btn" href="login.html" onclick="saveRedirectUrl()" class="block w-full bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg text-lg hover:bg-gray-300">
                 تسجيل الدخول (لكسب النقاط 💎)
             </a>
+        </div>
+    </div>
+
+    <div id="guest-checkout-modal" class="modal-backdrop">
+        <div class="modal-content !max-w-lg">
+            <div class="p-5 border-b flex justify-between items-center">
+                <h2 class="text-xl font-bold">إتمام الطلب كزائر</h2>
+                <button id="close-guest-checkout-modal" class="text-2xl hover:text-red-500">&times;</button>
             </div>
+            <div class="p-5 max-h-[70vh] overflow-y-auto">
+                <form id="quick-checkout-form" class="space-y-4">
+                    <div id="quick-cart-summary" class="mb-4 p-3 bg-gray-50 rounded-lg">
+                        </div>
+                    <hr>
+                    <h3 class="text-lg font-bold pt-2">معلومات التوصيل</h3>
+                    <div>
+                        <label for="q-customer-name" class="block text-sm font-bold text-gray-700">الاسم واللقب*</label>
+                        <input type="text" id="q-customer-name" class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label for="q-customer-phone" class="block text-sm font-bold text-gray-700">رقم الهاتف*</label>
+                        <input type="tel" id="q-customer-phone" class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg" dir="ltr" required>
+                    </div>
+                    <div>
+                        <label for="q-customer-wilaya" class="block text-sm font-bold text-gray-700">الولاية*</label>
+                        <input type="text" id="q-customer-wilaya" class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label for="q-customer-baladiya" class="block text-sm font-bold text-gray-700">البلدية/الدائرة*</label>
+                        <input type="text" id="q-customer-baladiya" class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label for="q-customer-address" class="block text-sm font-bold text-gray-700">العنوان الدقيق (مكان الاستلام)*</label>
+                        <textarea id="q-customer-address" class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg" rows="2" required></textarea>
+                    </div>
+                    <div>
+                        <label for="q-customer-notes" class="block text-sm font-bold text-gray-700">ملاحظات (اختياري)</label>
+                        <textarea id="q-customer-notes" class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg" rows="2"></textarea>
+                    </div>
+                    <hr>
+                    <div class="text-xl font-bold text-center">
+                        المجموع: <span id="quick-total-price" class="text-blue-600">...</span>
+                    </div>
+                    <button type="submit" id="submit-quick-checkout-btn" class="w-full flex justify-center items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg">
+                        <span class="button-text">تأكيد الطلب</span>
+                        <div class="small-loader button-loader hidden"></div>
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -225,16 +274,15 @@
             sellerInfoCard: document.getElementById('seller-info-card'),
             reportProductBtn: document.getElementById('report-product-btn'),
             cartBtn: document.getElementById('cart-btn'),
-
-            // عناصر اللافتة الذكية
             smartBannerModal: document.getElementById('smart-banner-modal'),
             smartBannerIcon: document.getElementById('smart-banner-icon'),
             smartBannerTitle: document.getElementById('smart-banner-title'),
             smartBannerBody: document.getElementById('smart-banner-body'),
             smartBannerPrimaryBtn: document.getElementById('smart-banner-primary-btn'),
             smartBannerSecondaryBtn: document.getElementById('smart-banner-secondary-btn'),
-            
-            cartDecisionModal: document.getElementById('cart-decision-modal')
+            cartDecisionModal: document.getElementById('cart-decision-modal'),
+            // (جديد)
+            guestCheckoutModal: document.getElementById('guest-checkout-modal')
         };
         
         // --- الدوال المساعدة ---
@@ -248,10 +296,26 @@
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 5000);
         }
+
+        // ================== بداية التعديل 3: إضافة دالة تحميل الزر ==================
+        function toggleButtonState(button, isLoading) {
+            const text = button.querySelector('.button-text');
+            const loader = button.querySelector('.button-loader');
+            if (isLoading) {
+                button.disabled = true;
+                if (text) text.classList.add('hidden');
+                if (loader) loader.classList.remove('hidden');
+            } else {
+                button.disabled = false;
+                if (text) text.classList.remove('hidden');
+                if (loader) loader.classList.add('hidden');
+            }
+        }
+        // ================== نهاية التعديل 3 ==================
         
         function showLoadingModal(text = 'جاري التحميل...') { /* ... (كما هي) ... */ }
-        function closeModal() { /* ... (كما هي) ... */ }
-        function showDirectContactModal(product, links) { /* ... (كما هي) ... */ }
+        function closeModal() { elements.modalContainer.innerHTML = ''; }
+        function showDirectContactModal(product, links) { /* ... (كماEما هي) ... */ }
         function updateMainImage(newImageUrl) { /* ... (كما هي) ... */ }
         async function loadSellerInfo(sellerId) { /* ... (كما هي) ... */ }
         function showSellerInquiryModal() { /* ... (كما هي) ... */ }
@@ -266,8 +330,6 @@
             return "PC";
         }
         
-        // ================== بداية التعديل 1 ==================
-        // (تحديث نص اللافتة الذكية)
         function showSmartBanner() {
             if (sessionStorage.getItem('smartBannerShown')) return;
             const os = detectOS();
@@ -283,9 +345,7 @@
             } else {
                 elements.smartBannerIcon.className = "fas fa-gem text-5xl text-blue-500 mb-4";
                 elements.smartBannerTitle.textContent = "لا تفوت المكافآت!";
-                // --- هذا هو النص المعدل ---
                 elements.smartBannerBody.textContent = "تطبيق الحاسوب والآيفون قيد التطوير. يمكنك التسجيل عبر المتصفح الآن للحفاظ على نقاطك!";
-                // --- نهاية النص المعدل ---
                 elements.smartBannerPrimaryBtn.textContent = "التسجيل الآن";
                 elements.smartBannerPrimaryBtn.href = "login.html";
                 elements.smartBannerPrimaryBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
@@ -295,18 +355,113 @@
             elements.smartBannerModal.classList.add('active');
             sessionStorage.setItem('smartBannerShown', 'true');
         }
-        // ================== نهاية التعديل 1 ==================
+
+        function renderProduct(product) {
+            currentProduct = product;
+            const productNamePlainText = (product.name || '').replace(/<[^>]*>?/gm, '');
+            const priceFormatted = `${(product.price || 0).toLocaleString()} د.ج`;
+            document.title = productNamePlainText;
+            elements.productName.innerHTML = product.name;
+            elements.productPrice.textContent = priceFormatted;
+            elements.mobileStickyPrice.textContent = priceFormatted;
+            elements.productDescription.innerHTML = product.description || '<p>لا يوجد وصف.</p>';
+            if (product.location) { elements.productLocation.textContent = product.location; elements.productLocationContainer.classList.remove('hidden'); } 
+            else { elements.productLocationContainer.classList.add('hidden'); }
+            const images = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls : ['https://placehold.co/600x600/E2E8F0/475569?text=No+Image'];
+            updateMainImage(images[0]);
+            elements.mainImage.alt = productNamePlainText;
+            elements.thumbnailsContainer.innerHTML = '';
+            if (images.length > 1) {
+                images.forEach((img, index) => {
+                    const thumbDiv = document.createElement('div');
+                    thumbDiv.className = `thumbnail ${index === 0 ? 'active' : ''}`;
+                    thumbDiv.dataset.image = img;
+                    thumbDiv.innerHTML = `<img src="${img}" alt="صورة مصغرة ${index + 1}">`;
+                    elements.thumbnailsContainer.appendChild(thumbDiv);
+                });
+                elements.thumbnailsContainer.classList.remove('hidden');
+            } else { elements.thumbnailsContainer.classList.add('hidden'); }
+            
+            const productType = product.productType || 'regular';
+            const isOffer = product.isOffer === true;
+            const availability = product.availability || 'available';
+
+            let showDirectButton = false;
+            let showCartButton = false;
+            let showCourseButton = false;
+
+            if (isOffer) {
+                showCartButton = true;
+            } else if (productType === 'direct') {
+                showDirectButton = Object.values(product.directContactLinks || {}).some(link => link);
+            } else if (productType === 'course') {
+                showCourseButton = true;
+            } else { // 'regular'
+                showCartButton = true;
+            }
+
+            let desktopButtonsHTML = '';
+            let mobileButtonsHTML = '';
+
+            if (showCourseButton) {
+                const courseLink = product.courseLink || `dawarat_content.html?id=${product.id}`;
+                desktopButtonsHTML += `<a href="${courseLink}" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-6 rounded-lg text-xl flex items-center justify-center gap-3 transition-colors"><i class="fas fa-graduation-cap"></i><span>عرض البذلورة</span></a>`;
+                mobileButtonsHTML += `<a href="${courseLink}" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg text-base flex items-center justify-center gap-2"><i class="fas fa-graduation-cap"></i> عرض البذلورة</a>`;
+            }
+            if (showDirectButton) {
+                desktopButtonsHTML += `<button id="direct-order-btn-desktop" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg text-xl flex items-center justify-center gap-3 transform hover:scale-105 transition-transform"><i class="fas fa-paper-plane"></i><span>اطلب الآن</span></button>`;
+                mobileButtonsHTML += `<button id="direct-order-btn-mobile" class="w-full bg-green-600 text-white font-semibold py-3 rounded-lg text-base flex items-center justify-center gap-2"><i class="fas fa-paper-plane"></i> اطلب الآن</button>`;
+            }
+            
+            if (showCartButton) {
+                if (availability === 'available') {
+                    desktopButtonsHTML += `<button id="add-to-cart-btn-desktop" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg text-xl flex items-center justify-center gap-3 transition-colors"><i class="fas fa-cart-plus"></i><span>أضف للسلة</span></button>`;
+                    mobileButtonsHTML += `<button id="add-to-cart-btn-mobile" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg text-base flex items-center justify-center gap-2"><i class="fas fa-cart-plus"></i> أضف للسلة</button>`;
+                } else {
+                    const statusText = availability === 'soon' ? 'قريباً' : 'نفذ المخزون';
+                    desktopButtonsHTML += `<button class="w-full bg-gray-400 text-white font-bold py-4 px-6 rounded-lg text-xl flex items-center justify-center gap-3 cursor-not-allowed" disabled>
+                                            <i class="fas fa-ban"></i><span>${statusText}</span>
+                                        </button>`;
+                    mobileButtonsHTML += `<button class="w-full bg-gray-400 text-white font-semibold py-3 rounded-lg text-base flex items-center justify-center gap-2 cursor-not-allowed" disabled>
+                                            <i class="fas fa-ban"></i><span>${statusText}</span>
+                                        </button>`;
+                }
+            }
+            
+            elements.productButtonsContainer.innerHTML = desktopButtonsHTML;
+            elements.mobileButtonsContainer.innerHTML = mobileButtonsHTML;
+
+            const mobileButtonsCount = [showCartButton, showDirectButton, showCourseButton].filter(Boolean).length;
+            if (mobileButtonsCount === 1) {
+                elements.mobileButtonsContainer.classList.remove('grid-cols-2');
+                elements.mobileButtonsContainer.classList.add('grid-cols-1');
+            } else { 
+                 elements.mobileButtonsContainer.classList.remove('grid-cols-1');
+                elements.mobileButtonsContainer.classList.add('grid-cols-2');
+            }
+            
+            if (product.sellerId && !isOffer) { loadSellerInfo(product.sellerId); } 
+            else { elements.sellerInfoCard.classList.add('hidden'); }
+            
+            elements.pageLoader.classList.add('hidden');
+            elements.pageContent.classList.remove('hidden');
+        }
 
 
-        function renderProduct(product) { /* ... (كما هي) ... */ }
-        async function fetchItem(collectionName, itemId) { /* ... (كما هي) ... */ }
+        async function fetchItem(collectionName, itemId) {
+             try {
+                const docRef = doc(db, collectionName, itemId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    return { id: docSnap.id, ...docSnap.data() };
+                } else {
+                    return null;
+                }
+            } catch (error) { console.error(`Error fetching from ${collectionName}:`, error); throw error; }
+        }
 
-        // ================== بداية التعديل 2 ==================
-        // (إضافة دالة حفظ الرابط)
         window.saveRedirectUrl = function() {
-            // نحفظ الرابط الكامل للصفحة الحالية (بما في ذلك ?product=... )
             localStorage.setItem('redirectToAfterLogin', window.location.href);
-            // سيقوم المتصفح الآن بالانتقال إلى "login.html" بشكل طبيعي
         }
         
         function addToCart() {
@@ -317,11 +472,28 @@
                 return;
             }
             
+            if (currentProduct.availability === 'sold_out' || currentProduct.availability === 'soon') {
+                showToast('عفواً، هذا المنتج غير متاح حالياً.', 'error');
+                return;
+            }
+            
             let cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
             const productNamePlainText = (currentProduct.isOffer ? currentProduct.name : currentProduct.name.replace(/<[^>]*>?/gm, ''));
             const existingItem = cart.find(item => item.id === currentProduct.id);
-            if (existingItem) { existingItem.quantity = (existingItem.quantity || 1) + 1; } 
-            else { cart.push({ id: currentProduct.id, name: productNamePlainText, price: currentProduct.price, imageUrls: currentProduct.imageUrls, quantity: 1, isOffer: currentProduct.isOffer || false }); }
+            if (existingItem) { 
+                showToast('هذا المنتج موجود بالفعل في السلة.', 'error');
+                return; // (تعديل) منع إضافة نفس المنتج مرتين
+            } 
+            else { 
+                cart.push({ 
+                    id: currentProduct.id, 
+                    name: productNamePlainText, 
+                    price: currentProduct.price, 
+                    imageUrls: currentProduct.imageUrls, 
+                    quantity: 1, // (تعديل) الكمية 1 فقط عند الإضافة
+                    isOffer: currentProduct.isOffer || false 
+                }); 
+            }
             localStorage.setItem('s22market_cart', JSON.stringify(cart));
             
             if (!currentUser) {
@@ -330,27 +502,113 @@
                 showToast(`تمت الإضافة إلى السلة!`);
             }
         }
-        // ================== نهاية التعديل 2 ==================
         
         async function shareProduct() { /* ... (كما هي) ... */ }
         async function copyLink() { /* ... (كما هي) ... */ }
+
+        // ================== بداية التعديل 4: دالة إرسال الطلب السريع ==================
+        async function handleQuickCheckoutSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-quick-checkout-btn');
+            toggleButtonState(btn, true);
+
+            // 1. جلب البيانات من النموذج السريع
+            const orderData = {
+                customerName: document.getElementById('q-customer-name').value,
+                customerContact: document.getElementById('q-customer-phone').value,
+                customerWilaya: document.getElementById('q-customer-wilaya').value,
+                customerBaladiya: document.getElementById('q-customer-baladiya').value,
+                customerLocation: document.getElementById('q-customer-address').value,
+                customerInquiry: document.getElementById('q-customer-notes').value,
+                
+                // (مهم) جلب بيانات المنتج من السلة (التي أضفناها للتو)
+                items: JSON.parse(localStorage.getItem('s22market_cart')) || [],
+                
+                totalPrice: currentProduct.price, // (نفترض أن السعر هو سعر المنتج فقط)
+                shippingCost: 0, // (سيتم تحديده لاحقاً من الأدمن)
+                discountAmount: 0,
+                status: 'new', // طلب جديد
+                createdAt: serverTimestamp(),
+                userId: null // طلب زائر
+            };
+
+            // 2. التحقق من الحقول
+            if (!orderData.customerName || !orderData.customerContact || !orderData.customerLocation || !orderData.customerWilaya || !orderData.customerBaladiya) {
+                showToast('يرجى ملء جميع الحقول الإلزامية.', 'error');
+                toggleButtonState(btn, false);
+                return;
+            }
+            
+            // 3. التحقق من أن السلة (المنتج) لا تزال موجودة
+            if (orderData.items.length === 0 || orderData.items[0].id !== currentProduct.id) {
+                 showToast('حدث خطأ، المنتج غير موجود في السلة. أعد المحاولة.', 'error');
+                 toggleButtonState(btn, false);
+                 elements.guestCheckoutModal.classList.remove('active');
+                 return;
+            }
+
+            try {
+                // 4. إرسال الطلب إلى Firebase
+                await addDoc(collection(db, "orders"), orderData);
+                
+                // 5. النجاح
+                localStorage.removeItem('s22market_cart'); // تفريغ السلة
+                elements.guestCheckoutModal.classList.remove('active');
+                showToast('تم إرسال طلبك بنجاح! سنتصل بك قريباً.', 'success');
+                
+                // 6. تعطيل أزرار الطلب في الصفحة
+                const successMessage = `<p class="text-center text-green-600 font-bold text-lg">👍 تم إرسال طلبك بنجاح!</p>`;
+                elements.productButtonsContainer.innerHTML = successMessage;
+                elements.mobileButtonsContainer.innerHTML = successMessage;
+                document.getElementById('mobile-sticky-bar').classList.add('hidden'); // إخفاء الشريط السفلي
+
+            } catch (error) {
+                console.error("Order submission error: ", error);
+                showToast('حدث خطأ أثناء إرسال الطلب. حاول مجدداً.', 'error');
+                toggleButtonState(btn, false);
+            }
+        }
+        // ================== نهاية التعديل 4 ==================
         
         document.addEventListener('DOMContentLoaded', async () => {
-            // ... (بقية كود تحميل الصفحة كما هو) ...
             const params = new URLSearchParams(window.location.search);
             const productId = params.get('product');
             const offerId = params.get('offer');
             
             let data = null;
-            let errorMsg = '';
+            let errorMsg = 'لم يتم تحديد أي منتج أو عرض.';
 
             try {
-                if (productId) { data = await fetchItem('products', productId); if (!data) errorMsg = 'عفواً، هذا المنتج غير موجود.'; } 
-                else if (offerId) { const offerData = await fetchItem('offers', offerId); if (offerData) { data = { id: offerData.id, name: offerData.title, description: offerData.description, price: offerData.price, imageUrls: [offerData.imageUrl], location: 'عرض خاص', isOffer: true }; } else { errorMsg = 'عفواً، هذا العرض غير موجود.'; } } 
-                else { errorMsg = 'لم يتم تحديد أي منتج أو عرض.'; }
-                if (data) { renderProduct(data); } 
-                else { elements.pageLoader.innerHTML = `<p class="text-red-500 text-xl">${errorMsg}</p>`; }
-            } catch (error) { elements.pageLoader.innerHTML = '<p class="text-red-500 text-xl">حدث خطأ أثناء تحميل البيانات.</p>'; }
+                if (productId) { 
+                    data = await fetchItem('products', productId); 
+                    if (!data) errorMsg = 'عفواً، هذا المنتج غير موجود أو تم حذفه.';
+                } 
+                else if (offerId) { 
+                    const offerData = await fetchItem('offers', offerId); 
+                    if (offerData) { 
+                        data = { 
+                            id: offerData.id, name: offerData.title, description: offerData.description,
+                            price: offerData.price, imageUrls: [offerData.imageUrl],
+                            location: 'عرض خاص', isOffer: true, availability: 'available'
+                        }; 
+                    } else { 
+                        errorMsg = 'عفواً، هذا العرض غير موجود أو انتهت صلاحيته.'; 
+                    } 
+                } 
+                
+                if (data) {
+                    renderProduct(data);
+                } else {
+                    elements.pageLoader.classList.remove('hidden');
+                    showToast(errorMsg, 'error');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                }
+
+            } catch (error) { 
+                elements.pageLoader.innerHTML = '<p class="text-red-500 text-xl">حدث خطأ أثناء تحميل البيانات.</p>'; 
+            }
 
             elements.thumbnailsContainer.addEventListener('click', (e) => {
                 const thumb = e.target.closest('.thumbnail');
@@ -390,6 +648,37 @@
                     elements.cartDecisionModal.classList.remove('active');
                  }
             });
+
+            // ================== بداية التعديل 5: ربط الأحداث للنافذة الجديدة ==================
+            const guestCheckoutBtn = document.getElementById('guest-checkout-btn');
+            guestCheckoutBtn.onclick = (e) => {
+                e.preventDefault(); 
+                
+                // 1. إغلاق نافذة القرار
+                elements.cartDecisionModal.classList.remove('active');
+                
+                // 2. تحضير النافذة الجديدة
+                const quickCheckoutModal = document.getElementById('guest-checkout-modal');
+                
+                // 3. ملء ملخص الطلب
+                document.getElementById('quick-cart-summary').innerHTML = `
+                    <p class="font-bold">منتجك:</p>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="font-semibold">${currentProduct.name.replace(/<[^>]*>?/gm, '')}</span>
+                        <span class="font-mono font-bold">${currentProduct.price.toLocaleString()} د.ج</span>
+                    </div>`;
+                document.getElementById('quick-total-price').textContent = `${currentProduct.price.toLocaleString()} د.ج`;
+
+                // 4. فتح النافذة الجديدة
+                quickCheckoutModal.classList.add('active');
+                
+                // 5. ربط أحداث الإغلاق والإرسال للنافذة الجديدة
+                document.getElementById('close-guest-checkout-modal').onclick = () => {
+                    quickCheckoutModal.classList.remove('active');
+                };
+                document.getElementById('quick-checkout-form').onsubmit = handleQuickCheckoutSubmit;
+            };
+            // ================== نهاية التعديل 5 ==================
         });
         
         onAuthStateChanged(auth, (user) => {
