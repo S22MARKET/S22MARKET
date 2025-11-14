@@ -26,7 +26,6 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        /* (تم التعديل) استخدام ألوان S22 Market الزرقاء */
         .tab-button.active {
             border-color: #4f46e5; /* indigo-600 */
             color: #4f46e5;
@@ -142,7 +141,6 @@
     </div>
 
     <script type="module">
-        // (تم التعديل) استخدام إعدادات S22 Market
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, Timestamp, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -170,12 +168,25 @@
         const loginForm = document.getElementById('login-form');
         
         // --- (Helper Functions) ---
-        function redirectToNextPage() {
-             // (ملاحظة) يمكنك تغيير هذا الرابط لاحقاً
-             window.location.href = 'index.html'; 
+
+        // ================== بداية التعديل 1 ==================
+        // (الدالة الجديدة لإدارة إعادة التوجيه)
+        function handleSuccessfulAuth() {
+            // 1. ابحث عن الرابط المحفوظ
+            const redirectUrl = localStorage.getItem('redirectToAfterLogin');
+            
+            if (redirectUrl) {
+                // 2. إذا وجد، احذفه (حتى لا نستخدمه مرة أخرى)
+                localStorage.removeItem('redirectToAfterLogin');
+                // 3. أعد التوجيه إلى صفحة المنتج
+                window.location.href = redirectUrl;
+            } else {
+                // 4. إذا لم يوجد، اذهب للصفحة الرئيسية كالمعتاد
+                window.location.href = 'index.html'; 
+            }
         }
+        // ================== نهاية التعديل 1 ==================
         
-        // (جديد) دالة التنبيهات (Toast)
         const showToast = (message, type = 'success') => {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -189,7 +200,10 @@
         // التحقق من المستخدم المسجل
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                redirectToNextPage();
+                // (تم التعديل) استدعاء الدالة الجديدة بدلاً من التوجيه المباشر
+                // هذا يضمن أن المستخدم الذي كان بالفعل مسجلاً وتم توجيهه إلى هنا
+                // يتم إعادته أيضاً
+                handleSuccessfulAuth();
             }
         });
 
@@ -208,7 +222,6 @@
             registerTabButton.classList.add('active');
         });
 
-        // (جديد) دالة تحميل الأزرار
         function toggleButtonState(button, isLoading) {
             const text = button.querySelector('.button-text');
             const loader = button.querySelector('.button-loader');
@@ -223,7 +236,6 @@
             }
         }
         
-        // (جديد) دالة إظهار/إخفاء كلمة المرور
         function setupPasswordToggle(button) {
             const targetInput = document.getElementById(button.dataset.target);
             const eyeOpen = button.querySelector('[id^="eye-open"]');
@@ -244,7 +256,7 @@
         document.querySelectorAll('.password-toggle').forEach(setupPasswordToggle);
 
         
-        // --- (*** منطق تسجيل الدخول ***) ---
+        // --- (منطق تسجيل الدخول) ---
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = document.getElementById('login-submit-button');
@@ -255,9 +267,13 @@
 
             try {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                // تم تسجيل الدخول بنجاح، onAuthStateChanged سيتكفل بالباقي
                 showToast('تم تسجيل الدخول بنجاح! جاري توجيهك...', 'success');
-                redirectToNextPage(); // توجيه فوري
+                
+                // ================== بداية التعديل 2 ==================
+                // (استدعاء الدالة الجديدة)
+                handleSuccessfulAuth();
+                // ================== نهاية التعديل 2 ==================
+
             } catch (error) {
                 console.error("Login Error:", error.code);
                 if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
@@ -271,7 +287,7 @@
         });
 
         
-        // --- (*** منطق إنشاء الحساب (مع كود الدعوة) ***) ---
+        // --- (منطق إنشاء الحساب) ---
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = document.getElementById('register-submit-button');
@@ -280,10 +296,8 @@
             const name = document.getElementById('register-name').value.trim();
             const email = document.getElementById('register-email').value.trim();
             const password = document.getElementById('register-password').value;
-            
-            // (*** هذا هو الحقل الأهم ***)
             const referralCodeInput = document.getElementById('register-referral-code');
-            const referralCode = referralCodeInput.value.trim().toUpperCase() || null; // (null إذا كان فارغاً)
+            const referralCode = referralCodeInput.value.trim().toUpperCase() || null; 
 
             if (!name || !email || password.length < 6) {
                 showToast('يرجى ملء جميع الحقول والتأكد من أن كلمة المرور لا تقل عن 6 أحرف.', 'error');
@@ -292,40 +306,35 @@
             }
 
             try {
-                // (ملاحظة) لقد أزلنا التحقق من الهاتف هنا، لأنه سيتم إضافته لاحقاً في "profile.html"
-                
-                // 1. إنشاء الحساب في (Authentication)
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const newUser = userCredential.user;
 
-                // 2. تحديث الاسم في (Authentication)
                 await updateProfile(newUser, { displayName: name });
                 
-                // (*** هذا هو الكود المقتبس من TEXMEX لإنشاء ملف العميل ***)
                 const batch = writeBatch(db);
 
-                // 3. إنشاء مستند العميل في 'users'
                 const userDocRef = doc(db, 'users', newUser.uid);
                 batch.set(userDocRef, {
                     uid: newUser.uid,
                     displayName: name,
                     email,
-                    phone: null, // (جديد) سيقوم العميل بإضافته لاحقاً من البروفايل
+                    phone: null, 
                     registrationDate: Timestamp.now(),
                     lastLogin: Timestamp.now(),
-                    loyaltyPoints: 0, // (جديد) بدء رصيد النقاط
-                    referralCode: null, // (جديد) سيتم إنشاؤه لاحقاً
-                    referredBy: referralCode, // (*** الأهم ***) تسجيل من دعاه
-                    referralProcessed: false // (*** الأهم ***) تعيين المكافأة كـ "معلقة"
+                    loyaltyPoints: 0, 
+                    referralCode: null, 
+                    referredBy: referralCode, 
+                    referralProcessed: false 
                 });
                 
-                // (ملاحظة) لسنا بحاجة لحجز رقم الهاتف هنا بعد الآن
-
-                // 4. تنفيذ الدفعة
                 await batch.commit();
 
                 showToast('تم إنشاء حسابك بنجاح! يتم توجيهك الآن...', 'success', 3000);
-                redirectToNextPage();
+
+                // ================== بداية التعديل 3 ==================
+                // (استدعاء الدالة الجديدة)
+                handleSuccessfulAuth();
+                // ================== نهاية التعديل 3 ==================
 
             } catch (error) {
                 console.error("Registration Error:", error.code, error.message);

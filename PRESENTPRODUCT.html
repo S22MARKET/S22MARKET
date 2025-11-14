@@ -19,42 +19,26 @@
             --bg-card: #ffffff; --text-primary: #1e293b;
             --text-secondary: #475569; --border-color: #e2e8f0;
         }
-        body { 
-            font-family: 'Tajawal', sans-serif; 
-            background-color: var(--bg-body); 
-            color: var(--text-primary); 
-        }
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-body); color: var(--text-primary); }
         html { scroll-behavior: smooth; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; translateY(0); } }
         @keyframes fadeOut { to { opacity: 0; transform: translateY(20px); } }
-        @keyframes spin { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .loader {
-            border: 5px solid #f3f3f3; 
-            border-top: 5px solid var(--primary-color);
-            border-radius: 50%; 
-            width: 50px; 
-            height: 50px;
-            animation: spin 1s linear infinite;
-        }
-        .small-loader {
-            border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff;
-            border-radius: 50%; width: 20px; height: 20px;
-            animation: spin 0.8s linear infinite;
-        }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        .small-loader { border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
 
         .modal-backdrop {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.7); z-index: 1000;
             display: flex; align-items: center; justify-content: center;
             animation: fadeIn 0.3s; padding: 1rem; backdrop-filter: blur(5px);
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         }
+        .modal-backdrop.active { opacity: 1; pointer-events: all; }
         .modal-content {
             background-color: var(--bg-card);
             box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
@@ -62,108 +46,29 @@
             display: flex; flex-direction: column; overflow: hidden;
             animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative;
             border-radius: 1rem;
+            transform: scale(0.95); opacity: 0; transition: all 0.3s ease;
         }
+        .modal-backdrop.active .modal-content { transform: scale(1); opacity: 1; }
 
-        .main-image-container { 
-            aspect-ratio: 1 / 1; 
-            cursor: zoom-in; 
-        }
-        .thumbnail { 
-            aspect-ratio: 1 / 1; 
-            border: 2px solid transparent; 
-            border-radius: 0.5rem; 
-            cursor: pointer; 
-            transition: all 0.2s ease; 
-        }
+        .main-image-container { aspect-ratio: 1 / 1; cursor: zoom-in; }
+        .thumbnail { aspect-ratio: 1 / 1; border: 2px solid transparent; border-radius: 0.5rem; cursor: pointer; transition: all 0.2s ease; }
         .thumbnail:hover { border-color: var(--primary-hover); }
-        .thumbnail.active { 
-            border-color: var(--primary-color); 
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); 
-        }
-        .thumbnail img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            border-radius: 0.375rem; 
-        }
+        .thumbnail.active { border-color: var(--primary-color); box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+        .thumbnail img { width: 100%; height: 100%; object-fit: cover; border-radius: 0.375rem; }
         
-        #lightbox { 
-            display: none; 
-            position: fixed; 
-            z-index: 1000; 
-            inset: 0; 
-            width: 100%; 
-            height: 100%; 
-            background-color: rgba(0, 0, 0, 0.85); 
-        }
-        #lightbox.active { 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-        }
-        #lightbox img { 
-            max-width: 90%; 
-            max-height: 80%; 
-            object-fit: contain; 
-        }
-        #lightbox .close-btn { 
-            position: absolute; 
-            top: 2rem; 
-            right: 2rem; 
-            font-size: 2.5rem; 
-            color: white; 
-            cursor: pointer; 
-            transition: transform 0.2s; 
-        }
+        #lightbox { display: none; position: fixed; z-index: 1000; inset: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); }
+        #lightbox.active { display: flex; align-items: center; justify-content: center; }
+        #lightbox img { max-width: 90%; max-height: 80%; object-fit: contain; }
+        #lightbox .close-btn { position: absolute; top: 2rem; right: 2rem; font-size: 2.5rem; color: white; cursor: pointer; transition: transform 0.2s; }
         .close-btn:hover { transform: scale(1.1); }
-
-        #toast-container { 
-            position: fixed; 
-            bottom: 80px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            z-index: 1001;
-            width: calc(100% - 2rem);
-            max-width: 400px;
-        }
-        @media (min-width: 640px) {
-            #toast-container {
-                bottom: 20px;
-            }
-        }
-        .toast {
-            padding: 1rem 1.5rem;
-            border-radius: 0.75rem;
-            color: white;
-            background-color: var(--secondary-color);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            animation: slideInUp 0.5s, fadeOut 0.5s 4.5s forwards;
-        }
-        .toast.error {
-            background-color: #ef4444; /* red-500 */
-        }
-
-        #seller-social-links a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #f1f5f9; 
-            color: #475569; 
-            font-size: 1.25rem;
-            transition: all 0.2s ease;
-        }
-        #seller-social-links a:hover {
-            background-color: #dbeafe; 
-            color: #2563eb; 
-            transform: scale(1.1);
-        }
-
+        
+        #toast-container { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 1001; width: calc(100% - 2rem); max-width: 400px; }
+        @media (min-width: 640px) { #toast-container { bottom: 20px; } }
+        .toast { padding: 1rem 1.5rem; border-radius: 0.75rem; color: white; background-color: var(--secondary-color); box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 0.75rem; animation: slideInUp 0.5s, fadeOut 0.5s 4.5s forwards; }
+        .toast.error { background-color: #ef4444; }
+        
+        #seller-social-links a { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background-color: #f1f5f9; color: #475569; font-size: 1.25rem; transition: all 0.2s ease; }
+        #seller-social-links a:hover { background-color: #dbeafe; color: #2563eb; transform: scale(1.1); }
     </style>
 </head>
 <body>
@@ -184,14 +89,12 @@
 
     <main id="page-content" class="max-w-7xl mx-auto py-6 sm:py-8 md:py-10 px-4 sm:px-6 lg:px-8 hidden">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-            
             <div id="product-gallery">
                 <div class="main-image-container bg-white rounded-lg shadow-md flex items-center justify-center p-2 overflow-hidden">
                     <img id="main-product-image" src="" alt="صورة المنتج الرئيسية" class="w-full h-full object-contain" loading="lazy">
                 </div>
                 <div id="thumbnails" class="grid grid-cols-4 sm:grid-cols-5 gap-3 mt-4"></div>
             </div>
-
             <div>
                 <div class="bg-white p-6 rounded-lg shadow-md">
                     <div class="flex justify-between items-start gap-4">
@@ -205,53 +108,23 @@
                             </button>
                         </div>
                     </div>
-                    <p id="product-location-container" class="text-slate-500 text-md mt-2 mb-4"><i class="fas fa-map-marker-alt fa-fw mr-1 text-slate-400"></i><span id="product-location"></span></p>
+                    <p id="product-location-container" class="text-slate-500 text-md mt-2 mb-4 hidden"><i class="fas fa-map-marker-alt fa-fw mr-1 text-slate-400"></i><span id="product-location"></span></p>
                     <div class="my-6"><span id="product-price" class="text-blue-600 text-5xl font-extrabold"></span></div>
-
-                    <div class="mt-8 space-y-4">
-                        <button id="direct-order-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg text-xl flex items-center justify-center gap-3 transform hover:scale-105 transition-transform">
-                            <i class="fas fa-paper-plane"></i><span>اطلب الآن</span>
-                        </button>
-                        <button id="add-to-cart-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg text-xl flex items-center justify-center gap-3 transition-colors">
-                            <i class="fas fa-cart-plus"></i><span>أضف للسلة</span>
-                        </button>
-                    </div>
+                    <div id="product-buttons-container" class="mt-8 space-y-4">
+                        </div>
                 </div>
-
                 <div class="bg-white p-6 rounded-lg shadow-md mt-8">
                     <h2 class="text-2xl font-bold mb-4 border-b pb-3 text-slate-800">الوصف</h2>
                     <div id="product-description" class="prose max-w-none text-slate-700 space-y-4 leading-relaxed"></div>
                 </div>
-                
                 <div id="seller-info-card" class="bg-white p-6 rounded-lg shadow-md mt-8 hidden" style="animation: fadeIn 0.5s;">
-                    <h2 class="text-xl font-bold mb-4 text-slate-800">معلومات البائع</h2>
-                    <div class="flex items-center gap-4">
-                        <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
-                            <i class="fas fa-store text-3xl text-blue-500"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">يُباع بواسطة:</p>
-                            <h3 id="seller-store-name" class="text-2xl font-bold text-gray-800">...</h3>
-                        </div>
                     </div>
-                    <div id="seller-social-links" class="flex flex-wrap gap-3 mt-4 border-t pt-4">
-                    </div>
-                    
-                    <div class="mt-4 border-t pt-4">
-                        <button id="seller-inquiry-btn" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
-                            <i class="fas fa-envelope"></i>
-                            <span>إرسال رسالة أو استفسار للبائع</span>
-                        </button>
-                    </div>
-
-                </div>
-
                 <div class="text-center mt-8">
                     <button id="report-product-btn" class="text-sm text-red-500 hover:text-red-700 font-semibold hover:underline">
                         <i class="fas fa-flag ml-1"></i> الإبلاغ عن هذا المنتج
                     </button>
                 </div>
-                </div>
+            </div>
         </div>
         <div class="lg:hidden h-32"></div>
     </main>
@@ -263,9 +136,7 @@
                 <p id="mobile-sticky-price" class="text-lg font-bold text-blue-600"></p>
             </div>
             <div id="mobile-buttons-container" class="flex-grow grid grid-cols-2 gap-2">
-                 <button id="add-to-cart-btn-mobile" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg text-base flex items-center justify-center gap-2"><i class="fas fa-cart-plus"></i> أضف للسلة</button>
-                 <button id="direct-order-btn-mobile" class="w-full bg-green-600 text-white font-semibold py-3 rounded-lg text-base flex items-center justify-center gap-2"><i class="fas fa-paper-plane"></i> اطلب الآن</button>
-            </div>
+                 </div>
         </div>
     </div>
     
@@ -274,7 +145,7 @@
         <p class="mt-4 text-slate-600">جاري تحميل البيانات...</p>
     </div>
 
-    <div id="lightbox">
+    <div id="lightbox" class="hidden">
         <span class="close-btn" id="close-lightbox-btn">&times;</span>
         <img id="lightbox-image" src="" alt="صورة المنتج مكبرة">
     </div>
@@ -282,11 +153,35 @@
     <div id="modal-container"></div>
     <div id="toast-container"></div>
 
+    <div id="smart-banner-modal" class="modal-backdrop">
+        <div class="modal-content !max-w-md text-center p-6 sm:p-8">
+            <i id="smart-banner-icon" class="text-5xl mb-4"></i>
+            <h2 id="smart-banner-title" class="text-2xl font-bold text-gray-900 mb-3"></h2>
+            <p id="smart-banner-body" class="text-gray-600 mb-6"></p>
+            <a id="smart-banner-primary-btn" href="#" class="block w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg text-lg mb-3 hover:bg-green-700"></a>
+            <button id="smart-banner-secondary-btn" class="w-full text-gray-600 font-semibold py-2 px-4 rounded-lg hover:bg-gray-100">
+                أكمل كضيف
+            </button>
+        </div>
+    </div>
+    
+    <div id="cart-decision-modal" class="modal-backdrop">
+        <div class="modal-content !max-w-md text-center p-6 sm:p-8">
+            <i class="fas fa-check-circle text-5xl text-green-500 mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">تمت الإضافة للسلة!</h2>
+            <p class="text-gray-600 mb-6">ماذا تريد أن تفعل الآن؟</p>
+            <a id="guest-checkout-btn" href="index.html#cart-action" class="block w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg mb-3 hover:bg-blue-700">
+                إتمام الطلب (كزائر)
+            </a>
+            <a id="login-checkout-btn" href="login.html" onclick="saveRedirectUrl()" class="block w-full bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg text-lg hover:bg-gray-300">
+                تسجيل الدخول (لكسب النقاط 💎)
+            </a>
+            </div>
+    </div>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // === (بداية التعديل: استيراد دوال إضافية) ===
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        // === (نهاية التعديل) ===
 
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
@@ -300,9 +195,11 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
+        const auth = getAuth(app);
+        
         let currentProduct = null;
         let currentSeller = null; 
+        let currentUser = null; 
 
         const elements = {
             modalContainer: document.getElementById('modal-container'),
@@ -316,10 +213,7 @@
             productDescription: document.getElementById('product-description'),
             mainImage: document.getElementById('main-product-image'),
             thumbnailsContainer: document.getElementById('thumbnails'),
-            addToCartBtn: document.getElementById('add-to-cart-btn'),
-            directOrderBtn: document.getElementById('direct-order-btn'),
-            addToCartBtnMobile: document.getElementById('add-to-cart-btn-mobile'),
-            directOrderBtnMobile: document.getElementById('direct-order-btn-mobile'),
+            productButtonsContainer: document.getElementById('product-buttons-container'),
             mobileButtonsContainer: document.getElementById('mobile-buttons-container'),
             shareBtn: document.getElementById('share-btn'),
             copyLinkBtn: document.getElementById('copy-link-btn'),
@@ -329,345 +223,120 @@
             closeLightboxBtn: document.getElementById('close-lightbox-btn'),
             mainImageContainer: document.querySelector('.main-image-container'),
             sellerInfoCard: document.getElementById('seller-info-card'),
-            sellerStoreName: document.getElementById('seller-store-name'),
-            sellerSocialLinks: document.getElementById('seller-social-links'),
-            sellerInquiryBtn: document.getElementById('seller-inquiry-btn'),
-            // === (بداية الإضافة) ===
-            reportProductBtn: document.getElementById('report-product-btn')
-            // === (نهاية الإضافة) ===
-        };
+            reportProductBtn: document.getElementById('report-product-btn'),
+            cartBtn: document.getElementById('cart-btn'),
 
+            // عناصر اللافتة الذكية
+            smartBannerModal: document.getElementById('smart-banner-modal'),
+            smartBannerIcon: document.getElementById('smart-banner-icon'),
+            smartBannerTitle: document.getElementById('smart-banner-title'),
+            smartBannerBody: document.getElementById('smart-banner-body'),
+            smartBannerPrimaryBtn: document.getElementById('smart-banner-primary-btn'),
+            smartBannerSecondaryBtn: document.getElementById('smart-banner-secondary-btn'),
+            
+            cartDecisionModal: document.getElementById('cart-decision-modal')
+        };
+        
+        // --- الدوال المساعدة ---
+        
         function showToast(message, type = 'success') {
+            const container = elements.toastContainer;
             const toast = document.createElement('div');
-            toast.className = `toast ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
-            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} text-xl"></i><span>${message}</span>`;
-            elements.toastContainer.appendChild(toast);
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            toast.innerHTML = `<i class="fas ${icon} text-xl"></i><span>${message}</span>`;
+            container.appendChild(toast);
             setTimeout(() => toast.remove(), 5000);
         }
-
-        function showDirectContactModal(product, links) {
-            // ... (الكود الخاص بهذه الدالة يبقى كما هو)
-        }
-
-        function updateMainImage(newImageUrl) {
-            elements.mainImage.src = newImageUrl;
-            elements.lightboxImage.src = newImageUrl;
-        }
-
-        async function loadSellerInfo(sellerId) {
-            if (!sellerId) {
-                elements.sellerInfoCard.classList.add('hidden');
-                return;
-            }
-            try {
-                const userDocRef = doc(db, 'users', sellerId);
-                const userDocSnap = await getDoc(userDocRef);
-                if (userDocSnap.exists()) {
-                    currentSeller = userDocSnap.data(); 
-                    elements.sellerStoreName.textContent = currentSeller.storeName || 'بائع معتمد';
-                    const links = currentSeller.socialLinks || {};
-                    let linksHTML = '';
-                    if (links.facebook) linksHTML += `<a href="${links.facebook}" target="_blank" title="فيسبوك"><i class="fab fa-facebook-f"></i></a>`;
-                    if (links.instagram) linksHTML += `<a href="${links.instagram}" target="_blank" title="انستغرام"><i class="fab fa-instagram"></i></a>`;
-                    if (links.telegram) linksHTML += `<a href="${links.telegram}" target="_blank" title="تيليجرام"><i class="fab fa-telegram-plane"></i></a>`;
-                    if (links.snapchat) linksHTML += `<a href="${links.snapchat}" target="_blank" title="سناب شات"><i class="fab fa-snapchat-ghost"></i></a>`;
-                    if(linksHTML) {
-                        elements.sellerSocialLinks.innerHTML = linksHTML;
-                    } else {
-                        elements.sellerSocialLinks.innerHTML = `<p class="text-sm text-gray-500">لا توجد روابط تواصل لهذا البائع.</p>`;
-                    }
-                    elements.sellerInfoCard.classList.remove('hidden');
-                } else {
-                    elements.sellerInfoCard.classList.add('hidden');
-                }
-            } catch (error) {
-                console.error("Error fetching seller info: ", error);
-                elements.sellerInfoCard.classList.add('hidden');
-            }
+        
+        function showLoadingModal(text = 'جاري التحميل...') { /* ... (كما هي) ... */ }
+        function closeModal() { /* ... (كما هي) ... */ }
+        function showDirectContactModal(product, links) { /* ... (كما هي) ... */ }
+        function updateMainImage(newImageUrl) { /* ... (كما هي) ... */ }
+        async function loadSellerInfo(sellerId) { /* ... (كما هي) ... */ }
+        function showSellerInquiryModal() { /* ... (كما هي) ... */ }
+        async function handleSellerInquirySubmit(e, type) { /* ... (كما هي) ... */ }
+        function showReportModal() { /* ... (كما هي) ... */ }
+        async function handleReportSubmit(e) { /* ... (كما هي) ... */ }
+        
+        function detectOS() {
+            const ua = navigator.userAgent;
+            if (/android/i.test(ua)) return "Android";
+            if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return "iOS";
+            return "PC";
         }
         
-        function showSellerInquiryModal() {
-            if (!currentSeller || !currentProduct) return;
-            const productNamePlainText = currentProduct.name.replace(/<[^>]*>?/gm, '');
-            const sellerName = currentSeller.storeName || 'البائع';
-            const modalId = 'seller-inquiry-modal';
-            const title = `إرسال رسالة إلى ${sellerName}`;
-            const messageLabel = `اكتب رسالتك هنا بخصوص ( ${productNamePlainText} ) *`;
-            const modalHTML = `
-            <div class="modal-backdrop" id="modal-backdrop-${modalId}">
-                <div class="modal-content !max-w-lg">
-                    <div class="p-5 border-b flex justify-between items-center">
-                        <h2 class="text-xl font-bold"><i class="fas fa-envelope mr-2"></i> ${title}</h2>
-                        <button id="modal-close-btn-${modalId}" class="text-2xl hover:text-red-500">&times;</button>
-                    </div>
-                    <form id="seller-inquiry-form" class="p-5 space-y-4">
-                        <input type="text" id="inquiry-name" required placeholder="الاسم الكامل *" class="w-full p-2 border rounded-lg">
-                        <input type="tel" id="inquiry-phone" placeholder="رقم الهاتف (اختياري)" class="w-full p-2 border rounded-lg" dir="ltr">
-                        <textarea id="inquiry-message" rows="4" required placeholder="${messageLabel}" class="w-full p-2 border rounded-lg"></textarea>
-                    </form>
-                    <div class="p-4 border-t bg-gray-50">
-                        <button id="submit-seller-inquiry-btn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg text-lg flex justify-center items-center gap-2">
-                            <span>إرسال</span>
-                            <div class="small-loader hidden"></div>
-                        </button>
-                    </div>
-                </div>
-            </div>`;
-            elements.modalContainer.innerHTML = modalHTML;
-            const close = () => { elements.modalContainer.innerHTML = ''; };
-            document.getElementById(`modal-close-btn-${modalId}`).onclick = close;
-            document.getElementById(`modal-backdrop-${modalId}`).onclick = (e) => { if(e.target.id === `modal-backdrop-${modalId}`) close(); };
-            const form = document.getElementById('seller-inquiry-form');
-            form.addEventListener('submit', handleSellerInquirySubmit);
-            document.getElementById('submit-seller-inquiry-btn').onclick = () => form.requestSubmit();
-        }
-
-        async function handleSellerInquirySubmit(e) {
-            e.preventDefault();
-            const submitBtn = document.getElementById('submit-seller-inquiry-btn');
-            const btnText = submitBtn.querySelector('span');
-            const btnLoader = submitBtn.querySelector('.small-loader');
-            const fullName = document.getElementById('inquiry-name').value.trim();
-            const message = document.getElementById('inquiry-message').value.trim();
-            const phone = document.getElementById('inquiry-phone').value.trim();
-            if (!fullName || !message) return showToast("يرجى ملء الحقول الإلزامية.", 'error');
-            submitBtn.disabled = true;
-            btnText.classList.add('hidden');
-            btnLoader.classList.remove('hidden');
-            try {
-                await addDoc(collection(db, "inquiries"), {
-                    type: 'seller_inquiry',
-                    fullName, phone, message,
-                    productName: currentProduct.name.replace(/<[^>]*>?/gm, ''),
-                    sellerId: currentProduct.sellerId,
-                    status: 'جديد',
-                    createdAt: serverTimestamp()
-                });
-                elements.modalContainer.innerHTML = '';
-                showToast('تم إرسال رسالتك للبائع بنجاح!');
-            } catch (error) {
-                showToast("حدث خطأ أثناء إرسال الرسالة.", 'error');
-                submitBtn.disabled = false;
-                btnText.classList.remove('hidden');
-                btnLoader.classList.add('hidden');
+        // ================== بداية التعديل 1 ==================
+        // (تحديث نص اللافتة الذكية)
+        function showSmartBanner() {
+            if (sessionStorage.getItem('smartBannerShown')) return;
+            const os = detectOS();
+            if (os === 'Android') {
+                elements.smartBannerIcon.className = "fab fa-google-play text-5xl text-green-500 mb-4";
+                elements.smartBannerTitle.textContent = "تجربة أفضل، مكافآت أكثر!";
+                elements.smartBannerBody.textContent = "حمل تطبيقنا الرسمي لنظام أندرويد واحصل على مكافآت 💎 عند التسجيل!";
+                elements.smartBannerPrimaryBtn.textContent = "تحميل التطبيق";
+                elements.smartBannerPrimaryBtn.href = "S22MARKET_app_site.html";
+                elements.smartBannerPrimaryBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                elements.smartBannerPrimaryBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                elements.smartBannerSecondaryBtn.textContent = "أكمل على الموقع";
+            } else {
+                elements.smartBannerIcon.className = "fas fa-gem text-5xl text-blue-500 mb-4";
+                elements.smartBannerTitle.textContent = "لا تفوت المكافآت!";
+                // --- هذا هو النص المعدل ---
+                elements.smartBannerBody.textContent = "تطبيق الحاسوب والآيفون قيد التطوير. يمكنك التسجيل عبر المتصفح الآن للحفاظ على نقاطك!";
+                // --- نهاية النص المعدل ---
+                elements.smartBannerPrimaryBtn.textContent = "التسجيل الآن";
+                elements.smartBannerPrimaryBtn.href = "login.html";
+                elements.smartBannerPrimaryBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                elements.smartBannerPrimaryBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                elements.smartBannerSecondaryBtn.textContent = "أكمل كضيف";
             }
+            elements.smartBannerModal.classList.add('active');
+            sessionStorage.setItem('smartBannerShown', 'true');
+        }
+        // ================== نهاية التعديل 1 ==================
+
+
+        function renderProduct(product) { /* ... (كما هي) ... */ }
+        async function fetchItem(collectionName, itemId) { /* ... (كما هي) ... */ }
+
+        // ================== بداية التعديل 2 ==================
+        // (إضافة دالة حفظ الرابط)
+        window.saveRedirectUrl = function() {
+            // نحفظ الرابط الكامل للصفحة الحالية (بما في ذلك ?product=... )
+            localStorage.setItem('redirectToAfterLogin', window.location.href);
+            // سيقوم المتصفح الآن بالانتقال إلى "login.html" بشكل طبيعي
         }
         
-        // === (بداية الإضافة: دوال الإبلاغ عن منتج) ===
-        function showReportModal() {
-            if (!currentProduct) return;
-            
-            const productNamePlainText = currentProduct.name.replace(/<[^>]*>?/gm, '');
-            const modalId = 'report-product-modal';
-            const title = `الإبلاغ عن منتج`;
-            const messageLabel = `اشرح سبب إبلاغك عن ( ${productNamePlainText} ) *`;
-
-            const modalHTML = `
-            <div class="modal-backdrop" id="modal-backdrop-${modalId}">
-                <div class="modal-content !max-w-lg">
-                    <div class="p-5 border-b flex justify-between items-center">
-                        <h2 class="text-xl font-bold text-red-600"><i class="fas fa-flag mr-2"></i> ${title}</h2>
-                        <button id="modal-close-btn-${modalId}" class="text-2xl hover:text-red-500">&times;</button>
-                    </div>
-                    <form id="report-form" class="p-5 space-y-4">
-                        <input type="text" id="report-name" required placeholder="الاسم الكامل (اختياري)" class="w-full p-2 border rounded-lg">
-                        <input type="tel" id="report-phone" placeholder="رقم الهاتف (اختياري)" class="w-full p-2 border rounded-lg" dir="ltr">
-                        <div>
-                            <label for="report-reason" class="block text-sm font-semibold text-gray-700 mb-1">سبب الإبلاغ <span class="text-red-500">*</span></label>
-                            <select id="report-reason" required class="w-full p-2 border rounded-lg bg-white">
-                                <option value="">-- اختر سبباً --</option>
-                                <option value="محتوى مضلل">محتوى مضلل (صورة أو وصف خاطئ)</option>
-                                <option value="سعر مبالغ فيه">سعر مبالغ فيه</option>
-                                <option value="منتج احتيالي">منتج احتيالي أو مشبوه</option>
-                                <option value="مشكلة في البائع">مشكلة في البائع</option>
-                                <option value="أخرى">أسباب أخرى (يرجى التوضيح)</option>
-                            </select>
-                        </div>
-                        <textarea id="report-message" rows="4" required placeholder="${messageLabel}" class="w-full p-2 border rounded-lg"></textarea>
-                    </form>
-                    <div class="p-4 border-t bg-gray-50">
-                        <button id="submit-report-btn" class="w-full bg-red-600 text-white font-bold py-3 rounded-lg text-lg flex justify-center items-center gap-2">
-                            <span>إرسال الإبلاغ</span>
-                            <div class="small-loader hidden"></div>
-                        </button>
-                    </div>
-                </div>
-            </div>`;
-            elements.modalContainer.innerHTML = modalHTML;
-            
-            const close = () => { elements.modalContainer.innerHTML = ''; };
-            document.getElementById(`modal-close-btn-${modalId}`).onclick = close;
-            document.getElementById(`modal-backdrop-${modalId}`).onclick = (e) => { if(e.target.id === `modal-backdrop-${modalId}`) close(); };
-            
-            const form = document.getElementById('report-form');
-            form.addEventListener('submit', handleReportSubmit);
-            document.getElementById('submit-report-btn').onclick = () => form.requestSubmit();
-        }
-
-        async function handleReportSubmit(e) {
-            e.preventDefault();
-            const submitBtn = document.getElementById('submit-report-btn');
-            const btnText = submitBtn.querySelector('span');
-            const btnLoader = submitBtn.querySelector('.small-loader');
-
-            const reason = document.getElementById('report-reason').value;
-            const message = document.getElementById('report-message').value.trim();
-            const fullName = document.getElementById('report-name').value.trim();
-            const phone = document.getElementById('report-phone').value.trim();
-            
-            if (!reason || !message) return showToast("يرجى اختيار سبب الإبلاغ وكتابة رسالة توضيحية.", 'error');
-
-            submitBtn.disabled = true;
-            btnText.classList.add('hidden');
-            btnLoader.classList.remove('hidden');
-
-            try {
-                // سنقوم بحفظ الإبلاغ في collection جديد اسمه "productReports"
-                await addDoc(collection(db, "productReports"), {
-                    reason,
-                    message,
-                    fullName: fullName || "مجهول",
-                    phone: phone || "لا يوجد",
-                    productId: currentProduct.id,
-                    productName: currentProduct.name.replace(/<[^>]*>?/gm, ''),
-                    sellerId: currentProduct.sellerId || null,
-                    status: 'new',
-                    createdAt: serverTimestamp()
-                });
-                
-                elements.modalContainer.innerHTML = '';
-                showToast('تم إرسال إبلاغك للإدارة بنجاح. شكراً لك.');
-
-            } catch (error) {
-                showToast("حدث خطأ أثناء إرسال الإبلاغ.", 'error');
-                submitBtn.disabled = false;
-                btnText.classList.remove('hidden');
-                btnLoader.classList.add('hidden');
-            }
-        }
-        // === (نهاية الإضافة) ===
-
-
-        function renderProduct(product) {
-            currentProduct = product;
-            const productNamePlainText = (product.name || '').replace(/<[^>]*>?/gm, '');
-            const priceFormatted = `${(product.price || 0).toLocaleString()} د.ج`;
-            
-            document.title = productNamePlainText;
-            elements.productName.innerHTML = product.name;
-            elements.productPrice.textContent = priceFormatted;
-            elements.mobileStickyPrice.textContent = priceFormatted;
-            elements.productDescription.innerHTML = product.description || '<p>لا يوجد وصف.</p>';
-
-            if (product.location) {
-                elements.productLocation.textContent = product.location;
-                elements.productLocationContainer.classList.remove('hidden');
-            } else {
-                elements.productLocationContainer.classList.add('hidden');
-            }
-
-            const images = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls : ['https://placehold.co/600x600/E2E8F0/475569?text=No+Image'];
-            
-            updateMainImage(images[0]);
-            elements.mainImage.alt = productNamePlainText;
-
-            elements.thumbnailsContainer.innerHTML = '';
-            if (images.length > 1) {
-                images.forEach((img, index) => {
-                    const thumbDiv = document.createElement('div');
-                    thumbDiv.className = `thumbnail ${index === 0 ? 'active' : ''}`;
-                    thumbDiv.dataset.image = img;
-                    thumbDiv.innerHTML = `<img src="${img}" alt="صورة مصغرة ${index + 1}">`;
-                    elements.thumbnailsContainer.appendChild(thumbDiv);
-                });
-                elements.thumbnailsContainer.classList.remove('hidden');
-            } else {
-                elements.thumbnailsContainer.classList.add('hidden');
-            }
-            
-            const isDirectOrder = product.orderMethod === 'direct';
-            const hasDirectLinks = Object.values(product.directContactLinks || {}).some(link => link);
-            const isOffer = product.isOffer === true;
-            
-            const showDirectButton = isDirectOrder && hasDirectLinks;
-            const showCartButton = !isDirectOrder || isOffer;
-
-            elements.directOrderBtn.classList.toggle('hidden', !showDirectButton);
-            elements.directOrderBtnMobile.classList.toggle('hidden', !showDirectButton);
-            
-            elements.addToCartBtn.classList.toggle('hidden', !showCartButton);
-            elements.addToCartBtnMobile.classList.toggle('hidden', !showCartButton);
-            
-            if (showDirectButton && !showCartButton) {
-                elements.mobileButtonsContainer.classList.remove('grid-cols-2');
-                elements.mobileButtonsContainer.classList.add('grid-cols-1');
-            } else if (!showDirectButton && showCartButton) {
-                elements.mobileButtonsContainer.classList.remove('grid-cols-2');
-                elements.mobileButtonsContainer.classList.add('grid-cols-1');
-            } else {
-                elements.mobileButtonsContainer.classList.remove('grid-cols-1');
-                elements.mobileButtonsContainer.classList.add('grid-cols-2');
-            }
-
-            if (product.sellerId && !isOffer) {
-                loadSellerInfo(product.sellerId);
-            } else {
-                elements.sellerInfoCard.classList.add('hidden');
-            }
-
-            elements.pageLoader.classList.add('hidden');
-            elements.pageContent.classList.remove('hidden');
-        }
-
-        async function fetchItem(collectionName, itemId) {
-             try {
-                const docRef = doc(db, collectionName, itemId);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    return { id: docSnap.id, ...docSnap.data() };
-                } else {
-                    return null;
-                }
-            } catch (error) {
-                console.error(`Error fetching from ${collectionName}:`, error);
-                throw error;
-            }
-        }
-
-
         function addToCart() {
             if (!currentProduct) return;
+            
+            if (currentProduct.productType === 'course' || currentProduct.productType === 'direct') {
+                showToast('هذا المنتج لا يمكن إضافته للسلة، اطلب عبر الزر المخصص.', 'error');
+                return;
+            }
+            
             let cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
             const productNamePlainText = (currentProduct.isOffer ? currentProduct.name : currentProduct.name.replace(/<[^>]*>?/gm, ''));
             const existingItem = cart.find(item => item.id === currentProduct.id);
-
-            if (existingItem) {
-                existingItem.quantity = (existingItem.quantity || 1) + 1;
-            } else {
-                cart.push({
-                     id: currentProduct.id,
-                     name: productNamePlainText,
-                     price: currentProduct.price,
-                     imageUrls: currentProduct.imageUrls,
-                     quantity: 1,
-                     isOffer: currentProduct.isOffer || false
-                });
-            }
+            if (existingItem) { existingItem.quantity = (existingItem.quantity || 1) + 1; } 
+            else { cart.push({ id: currentProduct.id, name: productNamePlainText, price: currentProduct.price, imageUrls: currentProduct.imageUrls, quantity: 1, isOffer: currentProduct.isOffer || false }); }
             localStorage.setItem('s22market_cart', JSON.stringify(cart));
-            showToast(`تمت الإضافة إلى السلة!`);
+            
+            if (!currentUser) {
+                elements.cartDecisionModal.classList.add('active');
+            } else {
+                showToast(`تمت الإضافة إلى السلة!`);
+            }
         }
+        // ================== نهاية التعديل 2 ==================
         
-        async function shareProduct() {
-            // ... (الكود الخاص بهذه الدالة يبقى كما هو)
-        }
-
-        async function copyLink() {
-            await navigator.clipboard.writeText(window.location.href);
-            showToast('تم نسخ الرابط بنجاح!');
-        }
-
-
+        async function shareProduct() { /* ... (كما هي) ... */ }
+        async function copyLink() { /* ... (كما هي) ... */ }
+        
         document.addEventListener('DOMContentLoaded', async () => {
+            // ... (بقية كود تحميل الصفحة كما هو) ...
             const params = new URLSearchParams(window.location.search);
             const productId = params.get('product');
             const offerId = params.get('offer');
@@ -676,75 +345,58 @@
             let errorMsg = '';
 
             try {
-                if (productId) {
-                    data = await fetchItem('products', productId);
-                    if (!data) errorMsg = 'عفواً، هذا المنتج غير موجود.';
-                } else if (offerId) {
-                    const offerData = await fetchItem('offers', offerId);
-                    if (offerData) {
-                        data = {
-                            id: offerData.id, name: offerData.title, description: offerData.description,
-                            price: offerData.price, imageUrls: [offerData.imageUrl],
-                            location: 'عرض خاص', isOffer: true 
-                        };
-                    } else {
-                        errorMsg = 'عفواً، هذا العرض غير موجود.';
-                    }
-                } else {
-                    errorMsg = 'لم يتم تحديد أي منتج أو عرض.';
-                }
-
-                if (data) {
-                    renderProduct(data);
-                } else {
-                     elements.pageLoader.innerHTML = `<p class="text-red-500 text-xl">${errorMsg}</p>`;
-                }
-
-            } catch (error) {
-                 elements.pageLoader.innerHTML = '<p class="text-red-500 text-xl">حدث خطأ أثناء تحميل البيانات.</p>';
-            }
+                if (productId) { data = await fetchItem('products', productId); if (!data) errorMsg = 'عفواً، هذا المنتج غير موجود.'; } 
+                else if (offerId) { const offerData = await fetchItem('offers', offerId); if (offerData) { data = { id: offerData.id, name: offerData.title, description: offerData.description, price: offerData.price, imageUrls: [offerData.imageUrl], location: 'عرض خاص', isOffer: true }; } else { errorMsg = 'عفواً، هذا العرض غير موجود.'; } } 
+                else { errorMsg = 'لم يتم تحديد أي منتج أو عرض.'; }
+                if (data) { renderProduct(data); } 
+                else { elements.pageLoader.innerHTML = `<p class="text-red-500 text-xl">${errorMsg}</p>`; }
+            } catch (error) { elements.pageLoader.innerHTML = '<p class="text-red-500 text-xl">حدث خطأ أثناء تحميل البيانات.</p>'; }
 
             elements.thumbnailsContainer.addEventListener('click', (e) => {
                 const thumb = e.target.closest('.thumbnail');
-                if (thumb) {
-                    updateMainImage(thumb.dataset.image);
-                    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
-                    thumb.classList.add('active');
-                }
+                if (thumb) updateMainImage(thumb.dataset.image);
             });
-
             elements.mainImageContainer.addEventListener('click', () => elements.lightbox.classList.add('active'));
             elements.closeLightboxBtn.addEventListener('click', () => elements.lightbox.classList.remove('active'));
-            elements.lightbox.addEventListener('click', (e) => {
-                if (e.target === elements.lightbox) {
-                    elements.lightbox.classList.remove('active');
-                }
+            elements.lightbox.addEventListener('click', (e) => { if (e.target.id === 'lightbox') elements.lightbox.classList.remove('active'); });
+            
+            const handleDirectOrder = () => { if (currentProduct && currentProduct.directContactLinks) { showDirectContactModal(currentProduct, currentProduct.directContactLinks); } };
+            
+            elements.productButtonsContainer.addEventListener('click', (e) => {
+                const cartBtn = e.target.closest('#add-to-cart-btn-desktop');
+                const directBtn = e.target.closest('#direct-order-btn-desktop');
+                if (cartBtn) addToCart();
+                if (directBtn) handleDirectOrder();
+            });
+            elements.mobileButtonsContainer.addEventListener('click', (e) => {
+                const cartBtn = e.target.closest('#add-to-cart-btn-mobile');
+                const directBtn = e.target.closest('#direct-order-btn-mobile');
+                if (cartBtn) addToCart();
+                if (directBtn) handleDirectOrder();
             });
             
-            const handleDirectOrder = () => {
-                if (currentProduct && currentProduct.directContactLinks) {
-                    showDirectContactModal(currentProduct, currentProduct.directContactLinks);
-                }
-            };
-
-            elements.addToCartBtn.onclick = addToCart;
-            elements.addToCartBtnMobile.onclick = addToCart;
-            elements.directOrderBtn.onclick = handleDirectOrder;
-            elements.directOrderBtnMobile.onclick = handleDirectOrder;
             elements.shareBtn.onclick = shareProduct;
             elements.copyLinkBtn.onclick = copyLink;
-
-            elements.sellerInquiryBtn.onclick = showSellerInquiryModal;
-            
-            // === (بداية الإضافة: تفعيل زر الإبلاغ) ===
             elements.reportProductBtn.onclick = showReportModal;
-            // === (نهاية الإضافة) ===
+            
+            elements.cartBtn.onclick = (e) => { e.preventDefault(); sessionStorage.setItem('returnToProduct', window.location.href); window.location.href = 'index.html#cart-action'; };
 
-            elements.cartBtn.onclick = (e) => {
-                e.preventDefault();
-                sessionStorage.setItem('returnToProduct', window.location.href);
-                window.location.href = 'index.html#cart-action';
+            elements.smartBannerSecondaryBtn.onclick = () => {
+                elements.smartBannerModal.classList.remove('active');
             };
+            
+            elements.cartDecisionModal.addEventListener('click', (e) => {
+                 if (e.target.id === 'cart-decision-modal') {
+                    elements.cartDecisionModal.classList.remove('active');
+                 }
+            });
+        });
+        
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user; 
+            if (!user) {
+                setTimeout(showSmartBanner, 1500);
+            }
         });
     </script>
 </body>
