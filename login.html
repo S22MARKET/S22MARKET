@@ -140,207 +140,209 @@
         <div id="toast-container"></div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        
-        import { getFirestore, doc, setDoc, Timestamp, writeBatch, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
-            authDomain: "s22market-4e3e6.firebaseapp.com",
-            projectId: "s22market-4e3e6",
-            storageBucket: "s22market-4e3e6.appspot.com",
-            messagingSenderId: "119186699901",
-            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
-            measurementId: "G-MWYNCVP4WQ"
-        };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
 
-        // --- (DOM Elements) ---
-        const loginView = document.getElementById('login-view');
-        const registerView = document.getElementById('register-view');
-        const loginTabButton = document.getElementById('login-tab-button');
-        const registerTabButton = document.getElementById('register-tab-button');
-        const registerForm = document.getElementById('register-form');
-        const loginForm = document.getElementById('login-form');
-        
-        // --- (Helper Functions) ---
-        function handleSuccessfulAuth() {
-            const redirectUrl = localStorage.getItem('redirectToAfterLogin');
-            if (redirectUrl) {
-                localStorage.removeItem('redirectToAfterLogin');
-                window.location.href = redirectUrl;
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, Timestamp, getDoc, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+        authDomain: "s22market-4e3e6.firebaseapp.com",
+        projectId: "s22market-4e3e6",
+        storageBucket: "s22market-4e3e6.appspot.com",
+        messagingSenderId: "119186699901",
+        appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+        measurementId: "G-MWYNCVP4WQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // --- (عناصر الواجهة) ---
+    const loginView = document.getElementById('login-view');
+    const registerView = document.getElementById('register-view');
+    const loginTabButton = document.getElementById('login-tab-button');
+    const registerTabButton = document.getElementById('register-tab-button');
+    const registerForm = document.getElementById('register-form');
+    const loginForm = document.getElementById('login-form'); 
+    const forgotPasswordLink = document.getElementById('forgot-password-link'); 
+    const toastContainer = document.getElementById('toast-container');
+
+    // --- (دوال مساعدة) ---
+    function handleSuccessfulAuth() {
+        const redirectUrl = localStorage.getItem('redirectToAfterLogin');
+        if (redirectUrl) {
+            localStorage.removeItem('redirectToAfterLogin');
+            window.location.href = redirectUrl;
+        } else {
+            window.location.href = 'index.html'; // الصفحة الرئيسية
+        }
+    }
+
+    const showToast = (message, type = 'error', duration = 4000) => {
+        if (!toastContainer) return;
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+        toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+        toastContainer.appendChild(toast);
+        setTimeout(() => toast.remove(), duration);
+    };
+    
+    function toggleButtonState(button, isLoading) {
+        const text = button.querySelector('.button-text');
+        const loader = button.querySelector('.button-loader');
+        if (isLoading) {
+            button.disabled = true;
+            if (text) text.classList.add('hidden');
+            if (loader) loader.classList.remove('hidden');
+        } else {
+            button.disabled = false;
+            if (text) text.classList.remove('hidden');
+            if (loader) loader.classList.add('hidden');
+        }
+    }
+
+    function setupPasswordToggle(button) {
+        const targetInput = document.getElementById(button.dataset.target);
+        const eyeOpen = button.querySelector('[id^="eye-open"]');
+        const eyeClosed = button.querySelector('[id^="eye-closed"]');
+        if (!targetInput) return;
+        button.addEventListener('click', () => {
+            if (targetInput.type === 'password') {
+                targetInput.type = 'text';
+                eyeOpen.classList.add('hidden');
+                eyeClosed.classList.remove('hidden');
             } else {
-                window.location.href = 'index.html'; 
-            }
-        }
-        
-        const showToast = (message, type = 'success') => {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
-            const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
-            toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
-        };
-
-        // (تعديل) عدم التحويل التلقائي عند تحميل الصفحة
-        onAuthStateChanged(auth, (user) => {
-            if (user && window.location.pathname.includes('login.html')) {
-                 // المستخدم مسجل بالفعل وهو في صفحة الدخول، دعه وشأنه
-                 // أو يمكننا توجيهه، لكن الكود القديم كان يسبب مشكلة
-                 // console.log("User already logged in");
+                targetInput.type = 'password';
+                eyeOpen.classList.remove('hidden');
+                eyeClosed.classList.add('hidden');
             }
         });
+    }
+    document.querySelectorAll('.password-toggle').forEach(setupPasswordToggle);
 
-        // --- (التحكم بالتبويبات) ---
-        loginTabButton.addEventListener('click', () => {
-            loginView.classList.remove('hidden');
-            registerView.classList.add('hidden');
-            loginTabButton.classList.add('active');
-            registerTabButton.classList.remove('active');
-        });
+    // --- (التحكم بالتبويبات) ---
+    loginTabButton.addEventListener('click', () => {
+        loginView.classList.remove('hidden');
+        registerView.classList.add('hidden');
+        loginTabButton.classList.add('active');
+        registerTabButton.classList.remove('active');
+    });
 
-        registerTabButton.addEventListener('click', () => {
-            loginView.classList.add('hidden');
-            registerView.classList.remove('hidden');
-            loginTabButton.classList.remove('active');
-            registerTabButton.classList.add('active');
-        });
+    registerTabButton.addEventListener('click', () => {
+        loginView.classList.add('hidden');
+        registerView.classList.remove('hidden');
+        loginTabButton.classList.remove('active');
+        registerTabButton.classList.add('active');
+    });
 
-        function toggleButtonState(button, isLoading) {
-            const text = button.querySelector('.button-text');
-            const loader = button.querySelector('.button-loader');
-            if (isLoading) {
-                button.disabled = true;
-                if (text) text.classList.add('hidden');
-                if (loader) loader.classList.remove('hidden');
-            } else {
-                button.disabled = false;
-                if (text) text.classList.remove('hidden');
-                if (loader) loader.classList.add('hidden');
-            }
-        }
-        
-        function setupPasswordToggle(button) {
-            const targetInput = document.getElementById(button.dataset.target);
-            const eyeOpen = button.querySelector('[id^="eye-open"]');
-            const eyeClosed = button.querySelector('[id^="eye-closed"]');
-            if (!targetInput) return;
-            button.addEventListener('click', () => {
-                if (targetInput.type === 'password') {
-                    targetInput.type = 'text';
-                    eyeOpen.classList.add('hidden');
-                    eyeClosed.classList.remove('hidden');
-                } else {
-                    targetInput.type = 'password';
-                    eyeOpen.classList.remove('hidden');
-                    eyeClosed.classList.add('hidden');
-                }
-            });
-        }
-        document.querySelectorAll('.password-toggle').forEach(setupPasswordToggle);
-
-        
-        // --- (منطق تسجيل الدخول) ---
+    // --- (مستمع تسجيل الدخول) ---
+    if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = document.getElementById('login-submit-button');
             toggleButtonState(submitButton, true);
-
-            const email = document.getElementById('login-email').value.trim();
+            const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
 
             try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                showToast('تم تسجيل الدخول بنجاح! جاري توجيهك...', 'success');
-                handleSuccessfulAuth(); // <-- التحويل يحدث هنا بعد الدخول
+                await signInWithEmailAndPassword(auth, email, password);
+                handleSuccessfulAuth();
             } catch (error) {
-                console.error("Login Error:", error.code);
-                if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-                    showToast('البريد الإلكتروني أو كلمة المرور غير صحيحة.', 'error');
-                } else {
-                    showToast('حدث خطأ أثناء تسجيل الدخول.', 'error');
-                }
+                showToast('البريد الإلكتروني أو كلمة المرور غير صحيحة.', 'error');
             } finally {
                 toggleButtonState(submitButton, false);
             }
         });
+    }
 
-        
-        // --- (منطق إنشاء الحساب) ---
-      
-     registerForm.addEventListener('submit', async (e) => {
+    // --- (مستمع نسيت كلمة المرور) ---
+    if (forgotPasswordLink) {
+        forgotPasswordLink.addEventListener('click', async (e) => {
             e.preventDefault();
-            const submitButton = document.getElementById('register-submit-button');
-            toggleButtonState(submitButton, true);
-
-            const name = document.getElementById('register-name').value.trim();
-            const email = document.getElementById('register-email').value.trim();
-            const password = document.getElementById('register-password').value;
-            const referralCodeInput = document.getElementById('register-referral-code');
-            
-            const referralCode = referralCodeInput.value.trim().toUpperCase() || null; 
-
-            if (!name || !email || password.length < 6) {
-                showToast('يرجى ملء جميع الحقول والتأكد من أن كلمة المرور لا تقل عن 6 أحرف.', 'error');
-                toggleButtonState(submitButton, false);
+            const email = document.getElementById('login-email').value;
+            if (!email) {
+                showToast('يرجى إدخال بريدك الإلكتروني أولاً في حقل الإيميل.', 'error');
                 return;
             }
-
             try {
+                await sendPasswordResetEmail(auth, email);
+                showToast('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك.', 'success');
+            } catch (error) {
+                showToast('فشل إرسال الرابط. تأكد من صحة الإيميل.', 'error');
+            }
+        });
+    }
+
+    // --- (مستمع إنشاء حساب - الكود الصحيح) ---
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitButton = document.getElementById('register-submit-button');
+        toggleButtonState(submitButton, true);
+
+        const name = document.getElementById('register-name').value.trim();
+        const email = document.getElementById('register-email').value.trim();
+        const password = document.getElementById('register-password').value;
+        const referralCodeInput = document.getElementById('register-referral-code');
+        
+        const referralCode = referralCodeInput.value.trim().toUpperCase() || null; 
+
+        if (!name || !email || password.length < 6) {
+            showToast('يرجى ملء جميع الحقول والتأكد من أن كلمة المرور لا تقل عن 6 أحرف.', 'error');
+            toggleButtonState(submitButton, false);
+            return;
+        }
+
+        try {
+            
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const newUser = userCredential.user;
+
+            await updateProfile(newUser, { displayName: name });
+            
+            const batch = writeBatch(db);
+            const userDocRef = doc(db, 'users', newUser.uid);
+            
+            // (مهم) نقوم بإنشاء المستخدم مع كود دعوة "null"
+            // هذا يتوافق مع قاعدة 'isSecureCreate' في firestore.rules
+            batch.set(userDocRef, {
+                uid: newUser.uid,
+                displayName: name,
+                email: newUser.email, 
+                phone: null, 
+                registrationDate: Timestamp.now(),
+                lastLogin: Timestamp.now(),
                 
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const newUser = userCredential.user;
-
-                await updateProfile(newUser, { displayName: name });
+                loyaltyPoints: 0, 
+                dawarat_coins: 0, 
                 
-                const batch = writeBatch(db);
-                const userDocRef = doc(db, 'users', newUser.uid);
+                referralCode: null, // <-- (مهم جداً) اترك هذا null
                 
-                // ================== (بداية التعديل) ==================
-                // (جديد) نقوم بإنشاء الكود مباشرة عند التسجيل
-                const newReferralCode = newUser.uid.substring(0, 8).toUpperCase();
-                // ================== (نهاية التعديل) ==================
+                referredBy: referralCode, 
+                referralProcessed: referralCode ? false : null 
+            });
+            
+            await batch.commit();
 
-                batch.set(userDocRef, {
-                    uid: newUser.uid,
-                    displayName: name,
-                    email: newUser.email, 
-                    phone: null, 
-                    registrationDate: Timestamp.now(),
-                    lastLogin: Timestamp.now(),
-                    
-                    loyaltyPoints: 0, 
-                    dawarat_coins: 0, 
-                    
-                    // ================== (بداية التعديل) ==================
-                    referralCode: newReferralCode, // <-- تطبيق الكود الجديد هنا
-                    // ================== (نهاية التعديل) ==================
-                    
-                    referredBy: referralCode, 
-                    referralProcessed: referralCode ? false : null 
-                    
-                });
-                
-                await batch.commit();
+            showToast('تم إنشاء حسابك بنجاح! يتم توجيهك الآن...', 'success', 3000);
+            handleSuccessfulAuth(); 
 
-                showToast(
-
-
-
-
-
-
-
-
-
-                
-    </script>
+        } catch (error) {
+            console.error("Registration Error:", error.code, error.message);
+            if (error.code === 'auth/email-already-in-use') {
+                showToast('هذا البريد الإلكتروني مسجل بالفعل. يمكنك تسجيل الدخول.', 'error');
+            } else {
+                showToast(`خطأ في التسجيل: ${error.message}`, 'error');
+            }
+        } finally {
+            toggleButtonState(submitButton, false);
+        }
+    });
+</script>
 </body>
 </html>
