@@ -356,7 +356,9 @@
             sessionStorage.setItem('smartBannerShown', 'true');
         }
 
-        function renderProduct(product) {
+       
+       
+function renderProduct(product) {
             currentProduct = product;
             const productNamePlainText = (product.name || '').replace(/<[^>]*>?/gm, '');
             const priceFormatted = `${(product.price || 0).toLocaleString()} د.ج`;
@@ -367,7 +369,14 @@
             elements.productDescription.innerHTML = product.description || '<p>لا يوجد وصف.</p>';
             if (product.location) { elements.productLocation.textContent = product.location; elements.productLocationContainer.classList.remove('hidden'); } 
             else { elements.productLocationContainer.classList.add('hidden'); }
-            const images = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls : ['https://placehold.co/600x600/E2E8F0/475569?text=No+Image'];
+            
+            // ================== (بداية السطر المُعدل) ==================
+            // هذا السطر يتحقق الآن من 'imageUrls' (مصفوفة) وأيضاً من 'imageUrl' (نص)
+            const images = (product.imageUrls && product.imageUrls.length > 0) 
+                ? product.imageUrls 
+                : (product.imageUrl ? [product.imageUrl] : ['https://placehold.co/600x600/E2E8F0/475569?text=No+Image']);
+            // ================== (نهاية السطر المُعدل) ==================
+
             updateMainImage(images[0]);
             elements.mainImage.alt = productNamePlainText;
             elements.thumbnailsContainer.innerHTML = '';
@@ -447,6 +456,7 @@
             elements.pageContent.classList.remove('hidden');
         }
 
+    
 
         async function fetchItem(collectionName, itemId) {
              try {

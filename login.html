@@ -143,8 +143,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, Timestamp, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
+        import { getFirestore, doc, setDoc, Timestamp, writeBatch, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
             authDomain: "s22market-4e3e6.firebaseapp.com",
@@ -168,24 +169,15 @@
         const loginForm = document.getElementById('login-form');
         
         // --- (Helper Functions) ---
-
-        // ================== بداية التعديل 1 ==================
-        // (الدالة الجديدة لإدارة إعادة التوجيه)
         function handleSuccessfulAuth() {
-            // 1. ابحث عن الرابط المحفوظ
             const redirectUrl = localStorage.getItem('redirectToAfterLogin');
-            
             if (redirectUrl) {
-                // 2. إذا وجد، احذفه (حتى لا نستخدمه مرة أخرى)
                 localStorage.removeItem('redirectToAfterLogin');
-                // 3. أعد التوجيه إلى صفحة المنتج
                 window.location.href = redirectUrl;
             } else {
-                // 4. إذا لم يوجد، اذهب للصفحة الرئيسية كالمعتاد
                 window.location.href = 'index.html'; 
             }
         }
-        // ================== نهاية التعديل 1 ==================
         
         const showToast = (message, type = 'success') => {
             const container = document.getElementById('toast-container');
@@ -197,13 +189,12 @@
             setTimeout(() => toast.remove(), 4000);
         };
 
-        // التحقق من المستخدم المسجل
+        // (تعديل) عدم التحويل التلقائي عند تحميل الصفحة
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // (تم التعديل) استدعاء الدالة الجديدة بدلاً من التوجيه المباشر
-                // هذا يضمن أن المستخدم الذي كان بالفعل مسجلاً وتم توجيهه إلى هنا
-                // يتم إعادته أيضاً
-                handleSuccessfulAuth();
+            if (user && window.location.pathname.includes('login.html')) {
+                 // المستخدم مسجل بالفعل وهو في صفحة الدخول، دعه وشأنه
+                 // أو يمكننا توجيهه، لكن الكود القديم كان يسبب مشكلة
+                 // console.log("User already logged in");
             }
         });
 
@@ -268,12 +259,7 @@
             try {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 showToast('تم تسجيل الدخول بنجاح! جاري توجيهك...', 'success');
-                
-                // ================== بداية التعديل 2 ==================
-                // (استدعاء الدالة الجديدة)
-                handleSuccessfulAuth();
-                // ================== نهاية التعديل 2 ==================
-
+                handleSuccessfulAuth(); // <-- التحويل يحدث هنا بعد الدخول
             } catch (error) {
                 console.error("Login Error:", error.code);
                 if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
@@ -288,7 +274,8 @@
 
         
         // --- (منطق إنشاء الحساب) ---
-        registerForm.addEventListener('submit', async (e) => {
+      
+     registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = document.getElementById('register-submit-button');
             toggleButtonState(submitButton, true);
@@ -297,6 +284,7 @@
             const email = document.getElementById('register-email').value.trim();
             const password = document.getElementById('register-password').value;
             const referralCodeInput = document.getElementById('register-referral-code');
+            
             const referralCode = referralCodeInput.value.trim().toUpperCase() || null; 
 
             if (!name || !email || password.length < 6) {
@@ -306,47 +294,53 @@
             }
 
             try {
+                
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const newUser = userCredential.user;
 
                 await updateProfile(newUser, { displayName: name });
                 
                 const batch = writeBatch(db);
-
                 const userDocRef = doc(db, 'users', newUser.uid);
+                
+                // ================== (بداية التعديل) ==================
+                // (جديد) نقوم بإنشاء الكود مباشرة عند التسجيل
+                const newReferralCode = newUser.uid.substring(0, 8).toUpperCase();
+                // ================== (نهاية التعديل) ==================
+
                 batch.set(userDocRef, {
                     uid: newUser.uid,
                     displayName: name,
-                    email,
+                    email: newUser.email, 
                     phone: null, 
                     registrationDate: Timestamp.now(),
                     lastLogin: Timestamp.now(),
+                    
                     loyaltyPoints: 0, 
-                    referralCode: null, 
+                    dawarat_coins: 0, 
+                    
+                    // ================== (بداية التعديل) ==================
+                    referralCode: newReferralCode, // <-- تطبيق الكود الجديد هنا
+                    // ================== (نهاية التعديل) ==================
+                    
                     referredBy: referralCode, 
-                    referralProcessed: false 
+                    referralProcessed: referralCode ? false : null 
+                    
                 });
                 
                 await batch.commit();
 
-                showToast('تم إنشاء حسابك بنجاح! يتم توجيهك الآن...', 'success', 3000);
+                showToast(
 
-                // ================== بداية التعديل 3 ==================
-                // (استدعاء الدالة الجديدة)
-                handleSuccessfulAuth();
-                // ================== نهاية التعديل 3 ==================
 
-            } catch (error) {
-                console.error("Registration Error:", error.code, error.message);
-                if (error.code === 'auth/email-already-in-use') {
-                    showToast('هذا البريد الإلكتروني مسجل بالفعل. يمكنك تسجيل الدخول.', 'error');
-                } else {
-                    showToast(`خطأ في التسجيل: ${error.message}`, 'error');
-                }
-            } finally {
-                toggleButtonState(submitButton, false);
-            }
-        });
+
+
+
+
+
+
+
+                
     </script>
 </body>
 </html>
