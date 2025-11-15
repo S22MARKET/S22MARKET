@@ -234,7 +234,6 @@
             smartBannerPrimaryBtn: document.getElementById('smart-banner-primary-btn'),
             smartBannerSecondaryBtn: document.getElementById('smart-banner-secondary-btn'),
             cartDecisionModal: document.getElementById('cart-decision-modal'),
-            // (تم الحذف) العناصر الخاصة بالنافذة المحذوفة
         };
         
         // --- الدوال المساعدة ---
@@ -252,7 +251,13 @@
         function showLoadingModal(text = 'جاري التحميل...') { /* ... (كما هي) ... */ }
         function closeModal() { elements.modalContainer.innerHTML = ''; }
         function showDirectContactModal(product, links) { /* ... (كما هي) ... */ }
-        function updateMainImage(newImageUrl) { /* ... (كما هي) ... */ }
+        function updateMainImage(newImageUrl) {
+            elements.mainImage.src = newImageUrl;
+            elements.lightboxImage.src = newImageUrl;
+            document.querySelectorAll('#thumbnails .thumbnail').forEach(th => {
+                th.classList.toggle('active', th.dataset.image === newImageUrl);
+            });
+        }
         async function loadSellerInfo(sellerId) { /* ... (كما هي) ... */ }
         function showSellerInquiryModal() { /* ... (كما هي) ... */ }
         async function handleSellerInquirySubmit(e, type) { /* ... (كما هي) ... */ }
@@ -292,8 +297,8 @@
             sessionStorage.setItem('smartBannerShown', 'true');
         }
 
-        // ================== (بداية التعديل 2) ==================
-        // إصلاح دالة عرض الصور
+        // ================== (بداية التعديل) ==================
+        // إصلاح دالة عرض الصور للتعامل مع العروض (imageUrl) والمنتجات (imageUrls)
         function renderProduct(product) {
             currentProduct = product;
             const productNamePlainText = (product.name || '').replace(/<[^>]*>?/gm, '');
@@ -307,6 +312,7 @@
             else { elements.productLocationContainer.classList.add('hidden'); }
             
             // --- (هذا هو السطر الذي تم إصلاحه) ---
+            // يتحقق من مصفوفة الصور أولاً، ثم من الصورة المفردة (للعروض)، ثم يضع صورة افتراضية
             const images = (product.imageUrls && product.imageUrls.length > 0) 
                 ? product.imageUrls 
                 : (product.imageUrl ? [product.imageUrl] : ['https://placehold.co/600x600/E2E8F0/475569?text=No+Image']);
@@ -389,7 +395,7 @@
             elements.pageLoader.classList.add('hidden');
             elements.pageContent.classList.remove('hidden');
         }
-        // ================== (نهاية التعديل 2) ==================
+        // ================== (نهاية التعديل) ==================
 
         async function fetchItem(collectionName, itemId) {
              try {
@@ -428,7 +434,8 @@
                     id: currentProduct.id, 
                     name: productNamePlainText, 
                     price: currentProduct.price, 
-                    imageUrls: currentProduct.imageUrls, 
+                    imageUrls: currentProduct.imageUrls, // (ملاحظة: هذا الحقل لا يزال يستخدم imageUrls)
+                    imageUrl: currentProduct.imageUrl, // (احتياط)
                     quantity: 1,
                     isOffer: currentProduct.isOffer || false 
                 }); 
@@ -445,13 +452,6 @@
         async function shareProduct() { /* ... (كما هي) ... */ }
         async function copyLink() { /* ... (كما هي) ... */ }
         
-        // ================== (بداية التعديل 3) ==================
-        // تم حذف دوال:
-        // - toggleButtonState
-        // - handleQuickCheckoutSubmit
-        // لأنها انتقلت إلى صفحة cart.html أو لم نعد بحاجتها هنا
-        // ================== (نهاية التعديل 3) ==================
-
         
         document.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
@@ -471,7 +471,8 @@
                     if (offerData) { 
                         data = { 
                             id: offerData.id, name: offerData.title, description: offerData.description,
-                            price: offerData.price, imageUrl: offerData.imageUrl, // (مهم) تمرير الحقل الصحيح
+                            price: offerData.price, 
+                            imageUrl: offerData.imageUrl, // (مهم) تمرير الحقل الصحيح
                             location: 'عرض خاص', isOffer: true, availability: 'available'
                         }; 
                     } else { 
@@ -520,7 +521,7 @@
             elements.copyLinkBtn.onclick = copyLink;
             elements.reportProductBtn.onclick = showReportModal;
             
-            elements.cartBtn.onclick = (e) => { e.preventDefault(); window.location.href = 'cart.html'; }; // (تعديل) توجيه مباشر للسلة
+            elements.cartBtn.onclick = (e) => { e.preventDefault(); window.location.href = 'cart.html'; }; 
 
             elements.smartBannerSecondaryBtn.onclick = () => {
                 elements.smartBannerModal.classList.remove('active');
@@ -532,10 +533,6 @@
                  }
             });
             
-            // ================== (بداية التعديل 4) ==================
-            // تم حذف كل الأكواد المتعلقة بـ guestCheckoutBtn
-            // لأن الأزرار في النافذة أصبحت روابط مباشرة
-            // ================== (نهاية التعديل 4) ==================
         });
         
         onAuthStateChanged(auth, (user) => {
