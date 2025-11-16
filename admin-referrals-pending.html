@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S22 Market - مكافآt الدعوات المعلقة</title>
+    <title>S22 Market - موافقات الدعوات (المتجر)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
-        /* (تم التعديل) استخدام ألوان S22 Market الزرقاء */
         body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
         .hidden { display: none; }
         .dashboard-tab:hover { background-color: #4338ca; }
@@ -23,7 +22,7 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes fadeOut { from { opacity: 1; } to: { opacity: 0; } }
     </style>
 </head>
 <body>
@@ -37,6 +36,7 @@
 
 <div id="dashboard-page" class="hidden">
     <div class="relative min-h-screen md:flex">
+
         <aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
             <div class="p-3 text-center border-b border-gray-700">
                 <h2 class="text-2xl font-bold">S22 Market</h2>
@@ -56,17 +56,28 @@
                 <a href="admin-applications.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
                 <a href="admin-notepad.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
                 
-                <a href="admin-loyalty-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-gift fa-fw mr-3 text-yellow-400"></i> نظام المكافآt</a>
-                <a href="admin-loyalty-approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات الدفع/المهام</a>
+                <hr class="border-gray-700 my-2">
+                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">نظام الولاء (المتجر)</h6>
+                <a href="admin-loyalty-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-gem fa-fw mr-3 text-yellow-400"></i> إعدادات الجواهر 💎</a>
+                <a href="admin-loyalty-approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات المهام</a>
                 <a href="admin-referrals-pending.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
+                <hr class="border-gray-700 my-2">
 
                 <a href="admin-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
+                
+                <hr class="border-gray-700 my-2">
+                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</h6>
+                <a href="dawarat_admin_manager.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700" target="_blank">
+                    <i class="fas fa-graduation-cap fa-fw mr-3 text-gray-400"></i>
+                    <span>إدارة البذلورات</span>
+                    <i class="fas fa-external-link-alt fa-xs ml-auto"></i>
+                </a>
+
             </nav>
             <div class="p-4 border-t border-gray-700">
                 <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
             </div>
         </aside>
-
         <main class="flex-1 p-4 md:p-8 overflow-y-auto">
             
             <div id="main-loader" class="text-center p-12">
@@ -76,13 +87,14 @@
 
             <div id="main-content" class="hidden dashboard-panel">
                 <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-gray-800 mb-2">مكافآت الدعوات المعلقة</h1>
-                    <p class="text-gray-600 mb-4">هؤلاء العملاء سجلوا باستخدام كود دعوة ولم تتم مكافأة الداعي بعد. اضغط "اعتماد" لإرسال النقاط.</p>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">مكافآت الدعوات المعلقة (للمتجر)</h1>
+                    <p class="text-gray-600 mb-4">هؤلاء العملاء سجلوا باستخدام كود دعوة ولم تتم مكافأة الداعي بعد. اضغط "اعتماد" لإرسال "الجواهر 💎".</p>
                     
                     <div class="overflow-x-auto bg-white rounded-xl shadow-md">
                         <table class="w-full text-right">
                             <thead class="bg-gray-100"><tr>
                                 <th class="p-3">العميل الجديد (ب)</th>
+                                <th class="p-3">بيانات الاتصال (للمراجعة)</th>
                                 <th class="p-3">الكود المستخدم</th>
                                 <th class="p-3">الداعي (أ)</th>
                                 <th class="p-3">المكافأة المقررة</th>
@@ -94,7 +106,7 @@
                     </div>
                     <p id="no-pending-msg" class="hidden text-center p-8 bg-white rounded-xl shadow-md text-gray-500 font-semibold">
                         <i class="fas fa-check-circle text-green-500 text-3xl mb-3"></i><br>
-                        لا توجد أي مكافآt معلقة. أنت مُطلع على كل شيء!
+                        لا توجد أي مكافآت معلقة. أنت مُطلع على كل شيء!
                     </p>
                 </div>
 
@@ -129,7 +141,6 @@
 <div id="toast-container"></div>
 
 <script type="module">
-    // (تم التعديل) استخدام إعدادات S22 Market
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, query, serverTimestamp, orderBy, getDoc, setDoc, getDocs, where, Timestamp, increment, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -148,7 +159,6 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // (تم التعديل) قائمة الإيميلات الخاصة بـ S22 Market
     const ADMIN_EMAILS = [
         's22market@gmail.com',
         'yacinee474474@gmail.com',
@@ -172,7 +182,8 @@
     let allUsersCache = []; 
     let usersByCodeMap = new Map(); 
     let usersByIdMap = new Map(); 
-    let loyaltySettings = {}; // لتخزين قيمة المكافأة
+    // (*** تعديل: استخدام إعدادات المتجر ***)
+    let loyaltySettings = {}; 
 
     // --- (الدوال المساعدة: showToast) ---
     const showToast = (message, type = 'success') => {
@@ -221,12 +232,12 @@
         loadInitialData(); // <-- تحميل البيانات
     }
 
-    // --- (*** الكود الأساسي لهذه الصفحة ***) ---
-    // (منسوخ من TEXMEX وجاهز للعمل)
+    // --- (*** الكود الأساسي لهذه الصفحة - معدل ***) ---
 
-    // 1. جلب كل البيانات المطلوبة (العملاء + الإعدادات)
+    // 1. جلب كل البيانات المطلوبة (العملاء + إعدادات المتجر)
     async function loadInitialData() {
         try {
+            // (*** تعديل: جلب إعدادات المتجر ***)
             const [usersSnapshot, settingsSnap] = await Promise.all([
                 getDocs(collection(db, "users")),
                 getDoc(doc(db, "settings", "loyalty"))
@@ -235,7 +246,7 @@
             if (settingsSnap.exists()) {
                 loyaltySettings = settingsSnap.data();
             } else {
-                showToast('لم يتم العثور على إعدادات الوفاء. سيتم استخدام 50 كنقطة افتراضية.', 'error');
+                showToast('لم يتم العثور على إعدادات الوفاء. سيتم استخدام 50 كجوهرة افتراضية.', 'error');
             }
 
             allUsersCache = usersSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -264,6 +275,7 @@
     // 2. رسم جدول المكافآt المعلقة
     function renderPendingReferrals() {
         pendingTbody.innerHTML = '';
+        // (*** تعديل: استخدام مكافأة المتجر ***)
         const bonusAmount = loyaltySettings.referralBonusPoints || 50; 
 
         const pendingUsers = allUsersCache.filter(user => 
@@ -277,31 +289,45 @@
         }
 
         pendingUsers.forEach(newUser => {
-            const referrerCode = newUser.referredBy;
-            const referrer = usersByCodeMap.get(referrerCode); 
+            const referrerCodeOrId = newUser.referredBy; // (قد يكون كود أو ID)
             
-            let referrerName = 'غير معروف (كود خاطئ)';
+            // (*** إصلاح الخلل: البحث بالكود أولاً ثم بالـ ID ***)
+            let referrer = usersByCodeMap.get(referrerCodeOrId); // البحث بالكود
+            if (!referrer) {
+                referrer = usersByIdMap.get(referrerCodeOrId); // البحث بالـ ID (للحسابات الجديدة)
+            }
+            
+            let referrerName = 'غير معروف';
             let referrerId = null;
             if (referrer) {
                 referrerName = referrer.displayName;
                 referrerId = referrer.id;
+            } else {
+                referrerName = `<span class="text-red-500">كود/ID غير صالح: ${referrerCodeOrId}</span>`;
             }
+
+            const newUserPhone = newUser.phone || '<span class="text-red-500 font-bold">لم يُدخل</span>';
+            const newUserEmail = newUser.email || '<span class="text-red-500 font-bold">لا يوجد</span>';
 
             const row = document.createElement('tr');
             row.className = 'border-b';
             row.id = `pending-row-${newUser.id}`; 
             row.innerHTML = `
                 <td class="p-3 font-semibold">${newUser.displayName}</td>
-                <td class="p-3 font-mono">${referrerCode}</td>
-                <td class="p-3 font-semibold ${referrer ? '' : 'text-red-500'}">${referrerName}</td>
-                <td class="p-3 font-bold text-green-600">${bonusAmount} نقطة</td>
+                <td class="p-3" style="min-width: 220px;">
+                    <div class="text-sm" dir="ltr" style="text-align: right;"><strong>الايميل:</strong> ${newUserEmail}</div>
+                    <div class="text-sm" dir="ltr" style="text-align: right;"><strong>الهاتف:</strong> ${newUserPhone}</div>
+                </td>
+                <td class="p-3 font-mono">${newUser.referredBy}</td> 
+                <td class="p-3 font-semibold">${referrerName}</td>
+                <td class="p-3 font-bold text-green-600">${bonusAmount} جوهرة 💎</td>
                 <td class="p-3">
                     <button class="approve-btn bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-400" 
                             data-new-user-id="${newUser.id}" 
                             data-new-user-name="${newUser.displayName}" 
                             data-referrer-id="${referrerId}"
                             data-bonus-amount="${bonusAmount}"
-                            ${!referrerId ? 'disabled title="لا يمكن الموافقة، الكود خاطئ"' : `title="مكافأة ${referrerName}"`}>
+                            ${!referrerId ? 'disabled title="لا يمكن الموافقة، الداعي غير معروف"' : `title="مكافأة ${referrerName}"`}>
                         <i class="fas fa-check"></i> اعتماد
                     </button>
                 </td>
@@ -319,9 +345,17 @@
         const processedUsers = allUsersCache.filter(user => user.referredBy && user.referralProcessed === true);
         
         processedUsers.forEach(user => {
-            const referrerCode = user.referredBy;
-            const count = (referralCounts.get(referrerCode) || 0) + 1;
-            referralCounts.set(referrerCode, count);
+            // (*** إصلاح الخلل: البحث بالكود أو الـ ID ***)
+            const referrerCodeOrId = user.referredBy;
+            let referrer = usersByCodeMap.get(referrerCodeOrId);
+            if (!referrer) {
+                referrer = usersByIdMap.get(referrerCodeOrId);
+            }
+            
+            if (referrer) {
+                const count = (referralCounts.get(referrer.id) || 0) + 1;
+                referralCounts.set(referrer.id, count);
+            }
         });
 
         if (referralCounts.size === 0) {
@@ -333,9 +367,10 @@
 
         const sortedLeaderboard = Array.from(referralCounts.entries()).sort((a, b) => b[1] - a[1]); 
 
-        sortedLeaderboard.slice(0, 10).forEach(([code, count], index) => {
-            const referrer = usersByCodeMap.get(code);
+        sortedLeaderboard.slice(0, 10).forEach(([referrerId, count], index) => {
+            const referrer = usersByIdMap.get(referrerId);
             const referrerName = referrer ? referrer.displayName : 'عضو غير معروف';
+            const referrerCode = referrer ? referrer.referralCode : '---';
 
             const row = document.createElement('tr');
             row.className = 'border-b';
@@ -344,7 +379,7 @@
                     ${index === 0 ? '<i class="fas fa-trophy"></i>' : (index + 1)}
                 </td>
                 <td class="p-3 font-semibold">${referrerName}</td>
-                <td class="p-3 font-mono">${code}</td>
+                <td class="p-3 font-mono">${referrerCode}</td>
                 <td class="p-3 font-bold text-xl">${count}</td>
             `;
             leaderboardTbody.appendChild(row);
@@ -364,6 +399,7 @@
 
         if (!referrerId || referrerId === "null") {
             showToast('خطأ: لا يوجد معرّف للداعي.', 'error');
+            btn.innerHTML = 'خطأ';
             return;
         }
 
@@ -376,13 +412,18 @@
 
             // 2. تحديث العميل "القديم" (أ)
             const referrerDocRef = doc(db, "users", referrerId);
-            batch.update(referrerDocRef, { loyaltyPoints: increment(bonus) });
+            
+            // (*** تعديل: إضافة "جواهر" المتجر ***)
+            batch.update(referrerDocRef, { 
+                loyaltyPoints: increment(bonus) 
+            });
 
             // 3. إضافة سجل في "سجل النقاط" للعميل "أ"
             const reason = `مكافأة دعوة: ${newUserName}`;
+            // (*** تعديل: استخدام سجل المتجر ***)
             const logRef = doc(collection(db, `users/${referrerId}/loyaltyChanges`));
             batch.set(logRef, {
-                type: 'task_reward', // نعتبرها "مهمة"
+                type: 'referral_bonus_market', // (نوع جديد لتمييزه)
                 pointsAdded: bonus,
                 reason: reason,
                 timestamp: serverTimestamp(),
@@ -393,7 +434,8 @@
             const notifRef = doc(collection(db, `users/${referrerId}/notifications`));
             batch.set(notifRef, {
                 title: "🎁 مكافأة دعوة!",
-                body: `شكرًا لك! لقد حصلت على ${bonus} نقطة كمكافأة لتسجيل ${newUserName} عبر الكود الخاص بك.`,
+                // (*** تعديل: تغيير النص إلى "جوهرة" ***)
+                body: `شكرًا لك! لقد حصلت على ${bonus} جوهرة 💎 كمكافأة لتسجيل ${newUserName} عبر الكود الخاص بك.`,
                 isRead: false,
                 timestamp: serverTimestamp(),
                 type: "referral_bonus"
@@ -401,14 +443,17 @@
 
             await batch.commit();
 
-            showToast('تم اعتماد المكافأة وإرسال النقاط بنجاح!', 'success');
+            showToast('تم اعتماد المكافأة وإرسال الجواهر بنجاح!', 'success');
             
             getEl(`pending-row-${newUserId}`).remove();
             
-            // تحديث الكاش
             const userInCache = usersByIdMap.get(newUserId);
             if(userInCache) userInCache.referralProcessed = true;
             
+            // تحديث الكاش
+            const referrerInCache = usersByIdMap.get(referrerId);
+            if(referrerInCache) referrerInCache.loyaltyPoints = (referrerInCache.loyaltyPoints || 0) + bonus;
+
             renderLeaderboard();
             
             if (pendingTbody.children.length === 0) {
@@ -423,7 +468,6 @@
         }
     }
     
-    // ربط الحدث
     pendingTbody.addEventListener('click', handleApproveReferral);
 
 </script>

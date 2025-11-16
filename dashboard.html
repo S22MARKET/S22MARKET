@@ -95,7 +95,24 @@
                 <a href="admin-inquiries.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-envelope-open-text fa-fw mr-3"></i> الرسائل الواردة</a>
                 <a href="admin-applications.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
                 <a href="admin-notepad.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
+                
+                <hr class="border-gray-700 my-2">
+                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">نظام الولاء (المتجر)</h6>
+                <a href="admin-loyalty-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-gem fa-fw mr-3 text-yellow-400"></i> إعدادات الجواهر 💎</a>
+                <a href="admin-loyalty-approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات المهام</a>
+                <a href="admin-referrals-pending.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
+                <hr class="border-gray-700 my-2">
+
                 <a href="admin-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
+                
+                <hr class="border-gray-700 my-2">
+                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</h6>
+                <a href="dawarat_admin_manager.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700" target="_blank">
+                    <i class="fas fa-graduation-cap fa-fw mr-3 text-gray-400"></i>
+                    <span>إدارة البذلورات</span>
+                    <i class="fas fa-external-link-alt fa-xs ml-auto"></i>
+                </a>
+
             </nav>
             <div class="p-4 border-t border-gray-700">
                 <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
@@ -218,13 +235,11 @@
         sidebar.classList.toggle('translate-x-full');
     });
     
-    // === (بداية التعديل: تحديد التبويب النشط) ===
     function setActiveTab() {
         const currentPage = window.location.pathname.split('/').pop();
         const tabs = document.querySelectorAll('.dashboard-tab');
         tabs.forEach(tab => {
             const tabHref = tab.getAttribute('href').split('/').pop();
-            // (جعل dashboard.html هو الافتراضي)
             if (tabHref === currentPage || (currentPage === '' && tabHref === 'dashboard.html') || (currentPage === 'dashboard.html' && tabHref === 'dashboard.html')) {
                 tab.classList.add('active-tab');
             } else {
@@ -232,12 +247,10 @@
             }
         });
     }
-    // === (نهاية التعديل) ===
     
     function initializeDashboard() {
         setActiveTab(); 
         
-        // (تحميل البيانات للإحصائيات)
         loadAnalytics();
         onSnapshot(query(collection(db, "products")), (snapshot) => {
             productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -252,7 +265,7 @@
     function loadAnalytics() {
         const panel = document.getElementById('analytics-panel');
         panel.innerHTML = `
-            <h1 class="text-3xl font-bold text-gray-800 mb-6">لوحة التحكم الرئيسية</h1>
+            <h1 class="text-3xl font-bold text-gray-800 mb-6">لوحة التحكم الرئيسية (المتجر)</h1>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
                     <i class="fas fa-hand-holding-usd text-4xl text-green-500 mr-4"></i>
@@ -294,6 +307,9 @@
     function updateAnalytics() {
         if(!getEl('total-products')) return; 
         
+        // (*** تعديل ***) فلترة المنتجات لتشمل المنتجات العادية فقط
+        const marketProducts = productsCache.filter(p => p.productType !== 'course');
+        
         const completedOrders = ordersCache.filter(o => o.status === 'completed');
         const incompleteOrders = ordersCache.filter(o => o.status === 'new');
         const totalProfit = completedOrders.reduce((sum, order) => sum + (order.profit || 0), 0);
@@ -301,7 +317,7 @@
         const incompleteOrdersCount = incompleteOrders.length;
         const avgProfit = completedOrdersCount > 0 ? totalProfit / completedOrdersCount : 0;
 
-        getEl('total-products').textContent = productsCache.length;
+        getEl('total-products').textContent = marketProducts.length; // (*** معدل ***)
         getEl('total-profit').textContent = `${totalProfit.toLocaleString()} د.ج`;
         getEl('avg-profit').textContent = `${avgProfit.toFixed(0).toLocaleString()} د.ج`;
         getEl('completed-orders').textContent = completedOrdersCount;

@@ -37,6 +37,7 @@
 
 <div id="dashboard-page" class="hidden">
     <div class="relative min-h-screen md:flex">
+        
         <aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
             <div class="p-3 text-center border-b border-gray-700">
                 <h2 class="text-2xl font-bold">S22 Market</h2>
@@ -50,26 +51,35 @@
                 <a href="admin-offers.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-star fa-fw mr-3"></i> العروض</a>
                 <a href="admin-product-requests.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-user-plus fa-fw mr-3"></i> طلبات الزوار</a>
                 <a href="admin-categories.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
-                
-                <a href="admin-professors.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chalkboard-teacher fa-fw mr-3 text-yellow-400"></i> إدارة الأساتذة</a>
-
                 <a href="admin-orders.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
                 <a href="admin-coupons.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-tags fa-fw mr-3"></i> الكوبونات</a>
                 <a href="admin-inquiries.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-envelope-open-text fa-fw mr-3"></i> الرسائل الواردة</a>
                 <a href="admin-applications.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
                 <a href="admin-notepad.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
                 
-                <a href="admin-loyalty-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-gift fa-fw mr-3 text-yellow-400"></i> نظام المكافآت</a>
-                <a href="admin-loyalty-approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات الدفع/المهام</a>
+                <hr class="border-gray-700 my-2">
+                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">نظام الولاء (المتجر)</h6>
+                <a href="admin-loyalty-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-gem fa-fw mr-3 text-yellow-400"></i> إعدادات الجواهر 💎</a>
+                <a href="admin-loyalty-approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات المهام</a>
                 <a href="admin-referrals-pending.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
+                <hr class="border-gray-700 my-2">
 
                 <a href="admin-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
+                
+                <hr class="border-gray-700 my-2">
+                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</h6>
+                <a href="dawarat_admin_manager.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700" target="_blank">
+                    <i class="fas fa-graduation-cap fa-fw mr-3 text-gray-400"></i>
+                    <span>إدارة البذلورات</span>
+                    <i class="fas fa-external-link-alt fa-xs ml-auto"></i>
+                </a>
+
             </nav>
             <div class="p-4 border-t border-gray-700">
                 <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
             </div>
         </aside>
-
+        
         <main class="flex-1 p-4 md:p-8 overflow-y-auto">
             <div id="products-panel" class="dashboard-panel">
                 <div class="text-center py-20">
@@ -110,8 +120,6 @@
 
     let categoriesCache = [];
     let productsCache = [];
-    // (*** تم الحذف ***) تم حذف كاش الأساتذة لأنه لم يعد مستخدماً
-    // let professorsCache = [];
     
     const loginPage = document.getElementById('login-page');
     const dashboardPage = document.getElementById('dashboard-page');
@@ -158,20 +166,23 @@
             onSnapshot(query(collection(db, "categories"), orderBy("orderIndex")), (snapshot) => {
                 categoriesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             })
-            // (*** تم الحذف ***) تم حذف جلب الأساتذة
         ]);
         loadProducts(); 
     }
 
-    // --- (دالة تحميل المنتجات - كاملة) ---
+    // --- (دالة تحميل المنتجات - معدلة) ---
     function loadProducts() {
         const panel = getEl('products-panel');
-        panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات</h1><button id="add-product-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div>
+        panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات (المتجر)</h1><button id="add-product-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div>
         <div id="products-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>`;
 
         getEl('add-product-btn').addEventListener('click', () => showProductModal());
         
-        const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+        // (*** تعديل هام ***) الفلترة لإزالة الدورات من هذا العرض
+        const q = query(collection(db, "products"), 
+                        where("productType", "!=", "course"), // <-- الشرط الجديد
+                        orderBy("productType"), // <-- مطلوب لإضافة الفلتر
+                        orderBy("createdAt", "desc"));
         
         onSnapshot(q, (snapshot) => {
             productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -182,7 +193,7 @@
         });
     }
 
-    // --- (دالة عرض كروت المنتجات - كاملة) ---
+    // --- (دالة عرض كروت المنتجات - معدلة) ---
     function renderProductsGrid() {
         const list = getEl('products-list');
         list.innerHTML = productsCache.length === 0 ? '<p class="text-center text-gray-500 col-span-full mt-8">لا توجد منتجات. أضف منتجاً جديداً للبدء.</p>' : '';
@@ -199,15 +210,12 @@
             }
 
             let productTypeBadge = '';
-            switch(product.productType) { // استخدام الحقل الجديد
+            // (*** تعديل ***) تم حذف حالة "course"
+            switch(product.productType) { 
                 case 'direct':
                     productTypeBadge = '<span class="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-full"><i class="fas fa-paper-plane mr-1"></i>تواصل مباشر</span>';
                     break;
-                case 'course':
-                    // (ملاحظة: هذا سيبقى هنا لعرض المنتجات القديمة إن وجدت)
-                    productTypeBadge = '<span class="absolute top-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full"><i class="fas fa-graduation-cap mr-1"></i>دورة (منصة)</span>';
-                    break;
-                default: // 'regular'
+                default: // 'regular' or undefined
                     productTypeBadge = '<span class="absolute top-2 right-2 bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded-full"><i class="fas fa-shopping-cart mr-1"></i>منتج عادي</span>';
             }
             
@@ -302,15 +310,13 @@
         });
     }
     
-    // --- (النافذة الموحدة - تم تعديلها) ---
+    // --- (النافذة الموحدة - معدلة للمتجر فقط) ---
     function showProductModal(product = null) {
         
         const productType = product?.productType || 'regular';
         let title = product ? 'تعديل منتج' : 'إضافة منتج جديد';
         
         const categoryOptions = categoriesCache.map(cat => `<option value="${cat.id}" ${product && product.categoryId === cat.id ? 'selected' : ''}>${cat.name}</option>`).join('');
-        
-        // (*** تم الحذف ***) تم حذف قائمة الأساتذة
         
         let existingImages = product ? (product.imageUrls || (product.imageUrl ? [product.imageUrl] : [])) : [];
         const existingImagesHTML = existingImages.map(url => `<div class="relative group"><img src="${url}" class="w-24 h-24 rounded object-cover border"><div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-white text-xs text-center">سيتم حذفها عند رفع صور جديدة</span></div></div>`).join('');
@@ -323,8 +329,7 @@
             </div>
         `).join('');
         
-        // (*** تم الحذف ***) تم حذف الحقول الخاصة بالدورة
-        
+        // (*** تعديل ***) حقول التواصل المباشر فقط
         const directOrderSpecificHTML = `
             <div id="direct-contact-container" class="hidden border-t pt-4 mt-4">
                 <h3 class="font-bold text-lg text-green-700 mb-2">روابط التواصل المباشر</h3>
@@ -344,7 +349,7 @@
                 <select id="product-type" class="w-full p-2 border rounded mt-1 bg-white">
                     <option value="regular" ${productType === 'regular' ? 'selected' : ''}>منتج عادي (يضاف للسلة)</option>
                     <option value="direct" ${productType === 'direct' ? 'selected' : ''}>منتج تواصل مباشر (واتساب، إلخ)</option>
-                    </select>
+                </select>
             </div>
             
             ${directOrderSpecificHTML}
@@ -360,7 +365,7 @@
             <div><label class="font-semibold">موقع المنتج (اختياري)</label><input type="text" id="product-location" class="mt-1 w-full p-2 border rounded" value="${product?.location || ''}" placeholder="مثال: مستودع الجزائر العاصمة"></div>
             <div class="border-t pt-4 mt-4"><label class="font-semibold">أسعار التوصيل الخاصة بالمنتج (اختياري)</label><div id="shipping-options-container" class="space-y-2 bg-gray-50 p-3 rounded-md">${shippingOptionsHTML}</div><button type="button" id="add-shipping-option-btn" class="text-sm mt-2 text-indigo-600 font-semibold hover:underline"><i class="fas fa-plus-circle mr-1"></i>إضافة سعر توصيل</button></div>
             <div class="border-t pt-4 mt-4 space-y-4"><h3 class="text-lg font-bold text-gray-500">معلومات داخلية (لا تظهر للعميل)</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="font-semibold text-gray-700">المورد</label><input type="text" id="product-supplier" class="mt-1 w-full p-2 border rounded" value="${product?.supplier || ''}" placeholder="اسم المورد أو الشركة"></div><div><label class="font-semibold text-gray-700">تواصل المورد</label><textarea id="product-supplier-contact" class="mt-1 w-full p-2 border rounded" rows="3" placeholder="أرقام الهواتف...">${product?.supplierContact || ''}</textarea></div></div><div><label class="font-semibold text-green-700">الربح من هذا المنتج</label><div class="flex items-center mt-1"><input type="number" id="product-profit-value" class="w-full p-2 border rounded-r-md" value="${product?.profitValue || ''}" placeholder="0"><select id="product-profit-type" class="p-2 border-l-0 border rounded-l-md bg-gray-100"><option value="fixed" ${product?.profitType === 'fixed' ? 'selected' : ''}>د.ج</option><option value="percentage" ${product?.profitType === 'percentage' ? 'selected' : ''}>%</option></select></div></div>
-                <div><label class="font-semibold text-purple-700">النقاط المخصصة (Override)</label><input type="number" id="product-loyalty-override" class="mt-1 w-full p-2 border rounded" value="${product?.loyaltyPointsOverride || ''}" placeholder="اتركه فارغاً لتطبيق القاعدة العامة"><p class="text-xs text-gray-500 mt-1">إذا وضعت 0، لن يربح العميل أي نقاط. إذا وضعت 500، سيربح 500 نقطة.</p></div>
+                <div><label class="font-semibold text-purple-700">الجواهر المخصصة (Override)</label><input type="number" id="product-loyalty-override" class="mt-1 w-full p-2 border rounded" value="${product?.loyaltyPointsOverride || ''}" placeholder="اتركه فارغاً لتطبيق القاعدة العامة"><p class="text-xs text-gray-500 mt-1">إذا وضعت 0، لن يربح العميل أي جواهر. إذا وضعت 500، سيربح 500 جوهرة.</p></div>
             </div>
             <div class="border-t pt-4 mt-4 space-y-4"><h3 class="text-lg font-bold text-gray-500">التصنيف والصور</h3><div><label class="font-semibold">القسم الرئيسي</label><select id="product-category-select" class="mt-1 w-full p-2 border rounded bg-white" required><option value="">اختر قسم...</option>${categoryOptions}</select></div><div id="product-subcategory-container" class="hidden"><label class="font-semibold">الفرع</label><select id="product-subcategory" class="mt-1 w-full p-2 border rounded bg-white"></select></div><div><label class="font-semibold">صور المنتج (يمكنك اختيار عدة صور)</label><input type="file" id="product-images" class="mt-1 w-full p-2 border rounded text-sm" accept="image/*" multiple>${product ? `<p class="text-sm text-gray-500 mt-1">الصور الحالية. رفع صور جديدة سيقوم باستبدالها.</p><div class="flex flex-wrap gap-2 mt-2">${existingImagesHTML}</div>` : ''}<div id="image-preview-container" class="flex flex-wrap gap-2 mt-2"></div></div>
         </div>`;
@@ -381,7 +386,6 @@
                 const productNameText = nameQuill.getText().trim();
                 
                 const newProductType = getVal('product-type');
-                // (*** تم الحذف ***) تم حذف متغيرات الدورة
                 const loyaltyPointsOverride = getNum('product-loyalty-override');
                 const directContactLinks = {
                     whatsapp: getVal('contact-link-whatsapp').trim(),
@@ -403,7 +407,6 @@
                 if (newProductType === 'direct' && Object.values(directContactLinks).every(link => !link)) {
                     return alert('لمنتجات التواصل المباشر، يجب إدخال وسيلة تواصل واحدة على الأقل.');
                 }
-                // (*** تم الحذف ***) تم حذف التحقق الخاص بالدورة
                 
                 const subcatSelect = getEl('product-subcategory');
                 const selectedSubcatOption = subcatSelect && subcatSelect.selectedIndex > -1 ? subcatSelect.options[subcatSelect.selectedIndex] : null;
@@ -438,7 +441,7 @@
                     
                     const productData = {
                         name: cleanName, 
-                        price: price || 0, // السعر سيُحفظ الآن لجميع الأنواع
+                        price: price || 0, 
                         description: cleanDescription, 
                         categoryId, 
                         imageUrls: newImageUrls,
@@ -454,9 +457,12 @@
                         shippingOptions: shippingOptionsData,
                         
                         productType: newProductType,
-                        // (*** تم الحذف ***) تم حذف حقول الدورة من الحفظ
                         loyaltyPointsOverride: loyaltyPointsOverride || null, 
                         directContactLinks: (newProductType === 'direct') ? directContactLinks : {}, 
+
+                        // (*** تعديل ***) حذف هذه الحقول لضمان عدم حفظها
+                        courseLink: null,
+                        professorId: null,
 
                         updatedAt: serverTimestamp(),
                         sellerId: product?.sellerId || null, 
@@ -514,17 +520,14 @@
             
             // (*** تعديل: ربط مستمع الأحداث لقائمة نوع المنتج ***)
             const productTypeSelect = getEl('product-type');
-            const courseContainer = getEl('course-fields-container'); // سيبقى null وهو المطلوب
             const contactContainer = getEl('direct-contact-container');
             const shippingContainer = getEl('shipping-options-container').closest('.border-t'); 
             const priceInput = getEl('product-price').closest('div');
             
             const toggleFields = () => {
                 const type = productTypeSelect.value;
-                if(courseContainer) courseContainer.classList.add('hidden'); // إخفاء حقول الدورة دائماً
                 contactContainer.classList.toggle('hidden', type !== 'direct');
                 
-                // (*** هذا هو التعديل المطلوب لحل المشكلتين ***)
                 // إظهار حقول السعر والشحن دائماً لجميع الأنواع
                 shippingContainer.classList.toggle('hidden', false);
                 priceInput.classList.toggle('hidden', false); 

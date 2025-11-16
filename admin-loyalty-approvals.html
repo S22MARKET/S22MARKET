@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S22 Market - موافقات الدفع والمهام</title>
+    <title>S22 Market - موافقات مهام الجواهر</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
-        /* (تم التعديل) استخدام ألوان S22 Market الزرقاء */
         body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
         .hidden { display: none; }
         .dashboard-tab:hover { background-color: #4338ca; }
@@ -38,6 +37,7 @@
 
 <div id="dashboard-page" class="hidden">
     <div class="relative min-h-screen md:flex">
+
         <aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
             <div class="p-3 text-center border-b border-gray-700">
                 <h2 class="text-2xl font-bold">S22 Market</h2>
@@ -57,24 +57,37 @@
                 <a href="admin-applications.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
                 <a href="admin-notepad.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
                 
-                <a href="admin-loyalty-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-gift fa-fw mr-3 text-yellow-400"></i> نظام المكافآt</a>
-                <a href="admin-loyalty-approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات الدفع/المهام</a>
+                <hr class="border-gray-700 my-2">
+                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">نظام الولاء (المتجر)</h6>
+                <a href="admin-loyalty-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-gem fa-fw mr-3 text-yellow-400"></i> إعدادات الجواهر 💎</a>
+                <a href="admin-loyalty-approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات المهام</a>
+                <a href="admin-referrals-pending.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
+                <hr class="border-gray-700 my-2">
 
                 <a href="admin-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
+                
+                <hr class="border-gray-700 my-2">
+                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</h6>
+                <a href="dawarat_admin_manager.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700" target="_blank">
+                    <i class="fas fa-graduation-cap fa-fw mr-3 text-gray-400"></i>
+                    <span>إدارة البذلورات</span>
+                    <i class="fas fa-external-link-alt fa-xs ml-auto"></i>
+                </a>
+
             </nav>
             <div class="p-4 border-t border-gray-700">
                 <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
             </div>
         </aside>
-
         <main class="flex-1 p-4 md:p-8 overflow-y-auto">
             
             <div id="approvals-panel" class="dashboard-panel">
                 <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-3xl font-bold text-gray-800">موافقات إثبات الدفع والمهام</h1>
+                    <h1 class="text-3xl font-bold text-gray-800">موافقات مهام (الجواهر 💎)</h1>
                     <button id="refresh-approvals" class="text-gray-500 hover:text-blue-500 text-2xl"><i class="fas fa-sync-alt"></i></button>
                 </div>
-                <p class="text-sm text-gray-600 mb-4 bg-yellow-50 p-3 rounded-lg"><i class="fas fa-info-circle ml-2"></i>هنا تظهر الطلبات المرسلة من العملاء لإثبات إكمالهم للمهام أو لإثبات دفعهم لرسوم الدورات. قم بمراجعة الصورة والموافقة لمنحهم النقاط و/أو تفعيل الدورة.</p>
+                <p class="text-sm text-gray-600 mb-4 bg-yellow-50 p-3 rounded-lg"><i class="fas fa-info-circle ml-2"></i>هنا تظهر الطلبات المرسلة من العملاء لإثبات إكمالهم لمهام المتجر. قم بمراجعة الصورة والموافقة لمنحهم (الجواهر 💎).</p>
+                <p class="text-sm text-gray-600 mb-4 bg-blue-50 p-3 rounded-lg"><i class="fas fa-info-circle ml-2"></i>ملاحظة: طلبات إثبات دفع البذلورات ومهام الأكاديمية (العملات 🪙) موجودة في <a href="dawarat_admin_approvals.html" class="font-bold underline" target="_blank">لوحة تحكم الأكاديمية</a>.</p>
                 
                 <div id="approvals-loader" class="text-center py-10">
                     <div class="loader mx-auto"></div>
@@ -97,7 +110,6 @@
 <div id="toast-container"></div>
 
 <script type="module">
-    // (تم التعديل) استخدام إعدادات S22 Market
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, query, serverTimestamp, orderBy, getDocs, where, increment, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -116,7 +128,6 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // (تم التعديل) قائمة الإيميلات الخاصة بـ S22 Market
     const ADMIN_EMAILS = [
         's22market@gmail.com',
         'yacinee474474@gmail.com',
@@ -127,9 +138,8 @@
     const dashboardPage = document.getElementById('dashboard-page');
     const logoutBtn = document.getElementById('logout-btn');
     const getEl = (id) => document.getElementById(id);
-
+    
     // --- (الدوال المساعدة: showToast, setButtonLoading) ---
-    // (تم نسخها بالكامل من ملف TEXMEX، لا حاجة لعرضها مرة أخرى)
     const showToast = (message, type = 'success') => {
         const container = getEl('toast-container');
         const toast = document.createElement('div');
@@ -187,7 +197,6 @@
         loadPendingApprovals();
         getEl('refresh-approvals').onclick = loadPendingApprovals;
         
-        // ربط مستمع الأحداث العام (لأزرار الموافقة والرفض)
         getEl('approvals-list').addEventListener('click', (e) => {
             const approveBtn = e.target.closest('.approve-btn');
             const rejectBtn = e.target.closest('.reject-btn');
@@ -196,8 +205,7 @@
         });
     }
 
-    // --- (*** الكود الأساسي لهذه الصفحة ***) ---
-    // (تم نسخ المنطق بالكامل من TEXMEX لأنه مطابق لما نحتاجه)
+    // --- (*** الكود الأساسي لهذه الصفحة - معدل ***) ---
 
     async function loadPendingApprovals() {
         const loader = getEl('approvals-loader');
@@ -209,10 +217,11 @@
         noMsg.classList.add('hidden');
 
         try {
-            // (ملاحظة) هذا الاستعلام يتطلب فهرس (index) في Firestore
+            // (*** تعديل هام: فلترة لجلب مهام المتجر فقط ***)
             const q = query(
                 collection(db, "loyalty_approvals"),
                 where("status", "==", "pending"),
+                where("type", "==", "task_reward"), // <-- هذا هو الفلتر
                 orderBy("submittedAt", "desc")
             );
             const snapshot = await getDocs(q);
@@ -240,10 +249,9 @@
         
         const date = approval.submittedAt?.toDate ? approval.submittedAt.toDate().toLocaleString('ar-EG') : '...';
         
-        // (جديد) تحديد نوع الطلب (مهمة أم إثبات دفع)
-        const isPaymentProof = approval.type === 'payment_proof'; // هذا هو النوع الذي سنستخدمه للدورات
-        const taskTitle = isPaymentProof ? `إثبات دفع: ${approval.courseTitle}` : approval.taskTitle;
-        const taskColor = isPaymentProof ? 'text-blue-600' : 'text-purple-600';
+        // (تم تبسيط الكود لأنه سيعرض نوع واحد فقط)
+        const taskTitle = approval.taskTitle;
+        const taskColor = 'text-purple-600';
 
         card.innerHTML = `
             <div class="md:col-span-1">
@@ -252,7 +260,7 @@
             </div>
             <div class="md:col-span-1">
                 <p class="font-semibold ${taskColor}">${taskTitle}</p>
-                <p class="font-bold text-green-600">+${approval.points} نقطة</p>
+                <p class="font-bold text-green-600">+${approval.points} جوهرة 💎</p> 
                 <a href="${approval.proofImageUrl}" target="_blank" class="text-blue-500 hover:underline font-semibold">
                     <i class="fas fa-image ml-1"></i> عرض الإثبات (الصورة)
                 </a>
@@ -265,7 +273,7 @@
                 <button class="approve-btn bg-green-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-green-700" 
                         data-id="${approval.id}" data-user-id="${approval.userId}" 
                         data-points="${approval.points}" data-title="${taskTitle}"
-                        data-type="${approval.type}" data-course-id="${approval.courseId || ''}">
+                        data-type="${approval.type}">
                     <span><i class="fas fa-check"></i> موافقة</span>
                 </button>
             </div>
@@ -275,10 +283,8 @@
 
     async function handleApproval(btn, isApproved) {
         const card = btn.closest('.bg-white');
-        // (جديد) جلب البيانات الإضافية من الزر
-        const { id, userId, points, title, type, courseId } = btn.dataset;
+        const { id, userId, points, title, type } = btn.dataset;
         
-        // تعطيل كلا الزرين
         const approveBtn = card.querySelector('.approve-btn');
         const rejectBtn = card.querySelector('.reject-btn');
         const approveBtnText = approveBtn.innerHTML;
@@ -291,81 +297,66 @@
             const approvalDocRef = doc(db, "loyalty_approvals", id);
             const userDocRef = doc(db, "users", userId);
             
-            // (جديد) استخدام "دفعة" لضمان تنفيذ كل شيء
             const batch = writeBatch(db);
 
             if (isApproved) {
                 const pointsToAward = parseInt(points, 10);
                 
-                // 1. أضف النقاط للعميل (إذا كانت أكبر من صفر)
                 if (pointsToAward > 0) {
+                    // (*** تعديل: هذا يمنح "جواهر" المتجر وهو الصحيح ***)
                     batch.update(userDocRef, {
                         loyaltyPoints: increment(pointsToAward)
                     });
                 }
 
-                // 2. أضف سجل في "تاريخ النقاط" للعميل
+                // إضافة سجل في "تاريخ النقاط" للعميل
                 const changeLogRef = doc(collection(db, 'users', userId, 'loyaltyChanges'));
                 batch.set(changeLogRef, {
-                    type: type === 'payment_proof' ? 'course_payment' : 'task_reward',
+                    type: "task_reward", // (تم التأكيد: هذا هو النوع الصحيح)
                     pointsAdded: pointsToAward,
                     reason: title,
                     adminId: auth.currentUser.uid,
                     timestamp: serverTimestamp()
                 });
 
-                // 3. أرسل إشعاراً للعميل
+                // إرسال إشعار للعميل
                 const notificationRef = doc(collection(db, 'users', userId, 'notifications'));
                 batch.set(notificationRef, {
-                    title: "✅ تمت الموافقة على طلبك!",
-                    body: `أحسنت! تمت الموافقة على طلبك لـ: "${title}". ${pointsToAward > 0 ? `وتمت إضافة ${pointsToAward} نقطة لرصيدك.` : ''}`,
+                    title: "✅ تمت الموافقة على مهمتك!",
+                    body: `أحسنت! تمت الموافقة على مهمتك: "${title}". وتمت إضافة ${pointsToAward} جوهرة 💎 لرصيدك.`,
                     timestamp: serverTimestamp(),
                     isRead: false,
-                    type: type === 'payment_proof' ? "course_approved" : "task_approved"
+                    type: "task_approved"
                 });
 
-                // 4. (*** الأهم ***) إذا كان هذا إثبات دفع لدورة، امنح الطالب الوصول إليها
-                if (type === 'payment_proof' && courseId) {
-                    // (ملاحظة) هذا يتطلب تعديل قواعد الأمان للسماح للأدمن بالكتابة على مصفوفة "courses"
-                    // (هذا هو المنطق الذي طلبته لفتح الدورة)
-                    batch.update(userDocRef, {
-                        // (سنحتاج إلى ضبط هذا الحقل لاحقاً في صفحة البروفايل)
-                        // 'enrolledCourses': arrayUnion(courseId) // (arrayUnion يتطلب استيراد)
-                        // سنستخدم طريقة أبسط حالياً
-                        [`courseAccess.${courseId}`]: true 
-                    });
-                }
+                // (*** تعديل هام: تم حذف الكود الخاص بـ courseAccess ***)
+                // لم نعد بحاجة لهذا الكود هنا
 
-                // 5. حدّث حالة الطلب إلى "موافق عليه"
+                // تحديث حالة الطلب إلى "موافق عليه"
                 batch.update(approvalDocRef, { status: "approved", processedAt: serverTimestamp() });
                 
-                // تنفيذ الدفعة
                 await batch.commit();
                 
-                showToast('تمت الموافقة ومنح النقاط!', 'success');
+                showToast('تمت الموافقة ومنح الجواهر!', 'success');
 
             } else {
                 // (رفض)
-                // 1. أرسل إشعاراً للعميل
                 const notificationRef = doc(collection(db, 'users', userId, 'notifications'));
                 batch.set(notificationRef, {
-                    title: "❌ تم رفض طلبك",
-                    body: `نعتذر، تم رفض طلبك لـ: "${title}". ${type === 'payment_proof' ? 'يرجى مراجعة بيانات الدفع والمحاولة مجدداً.' : 'يرجى المحاولة مجدداً بصورة أوضح.'}`,
+                    title: "❌ تم رفض مهمتك",
+                    body: `نعتذر، تم رفض طلبك لـ: "${title}". يرجى المحاولة مجدداً بصورة أوضح.`,
                     timestamp: serverTimestamp(),
                     isRead: false,
-                    type: type === 'payment_proof' ? "course_rejected" : "task_rejected"
+                    type: "task_rejected"
                 });
                 
-                // 2. حدّث حالة الطلب إلى "مرفوض"
                 batch.update(approvalDocRef, { status: "rejected", processedAt: serverTimestamp() });
                 
-                // تنفيذ الدفعة
                 await batch.commit();
                 
                 showToast('تم رفض الطلب بنجاح.', 'success');
             }
 
-            // إزالة الكرت من الواجهة
             card.remove();
             if (getEl('approvals-list').children.length === 0) {
                 getEl('no-approvals-msg').classList.remove('hidden');
@@ -374,7 +365,6 @@
         } catch (error) {
             console.error("Error handling approval:", error);
             showToast('حدث خطأ فادح: ' + error.message, 'error');
-            // إعادة تفعيل الأزرار عند الفشل
             setButtonLoading(approveBtn, false, approveBtnText);
             setButtonLoading(rejectBtn, false, rejectBtnText);
         }

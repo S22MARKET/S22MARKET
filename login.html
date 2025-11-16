@@ -10,46 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: #f0f2f5;
-        }
-        .loader {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #ffffff;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .tab-button.active {
-            border-color: #4f46e5; /* indigo-600 */
-            color: #4f46e5;
-            background-color: #eef2ff; /* indigo-50 */
-        }
-        .input-icon {
-            position: absolute;
-            inset-y: 0;
-            right: 0;
-            display: flex;
-            align-items: center;
-            padding-right: 0.75rem;
-            pointer-events: none;
-        }
-        .password-toggle {
-            position: absolute;
-            inset-y: 0;
-            left: 0;
-            display: flex;
-            align-items: center;
-            padding-left: 0.75rem;
-            cursor: pointer;
-            color: #9ca3af; /* gray-400 */
-        }
+        body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
+        .loader { border: 4px solid rgba(255, 255, 255, 0.3); border-top: 4px solid #ffffff; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .tab-button.active { border-color: #4f46e5; color: #4f46e5; background-color: #eef2ff; }
+        .input-icon { position: absolute; inset-y: 0; right: 0; display: flex; align-items: center; padding-right: 0.75rem; pointer-events: none; }
+        .password-toggle { position: absolute; inset-y: 0; left: 0; display: flex; align-items: center; padding-left: 0.75rem; cursor: pointer; color: #9ca3af; }
         @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; translateY(0); } }
         #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10001; }
         .toast { background-color: #2f855a; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards; }
@@ -68,15 +34,12 @@
     </header>
 
     <div id="app-container" class="container mx-auto p-4 sm:p-6 md:p-8">
-
         <div id="auth-view">
             <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden mt-8">
-
                 <div class="flex border-b border-gray-200">
                     <button id="login-tab-button" class="tab-button active w-1/2 p-4 font-semibold text-center text-gray-500 bg-transparent border-b-2 border-transparent focus:outline-none transition-colors">تسجيل الدخول</button>
                     <button id="register-tab-button" class="tab-button w-1/2 p-4 font-semibold text-center text-gray-500 bg-transparent border-b-2 border-transparent focus:outline-none transition-colors">إنشاء حساب</button>
                 </div>
-
                 <div class="p-8">
                     <div id="login-view">
                         <h2 class="text-3xl font-bold text-center text-gray-900 mb-2">مرحباً بعودتك!</h2>
@@ -136,17 +99,13 @@
                 </div>
             </div>
         </div>
-
         <div id="toast-container"></div>
     </div>
-
-
-
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, Timestamp, getDoc, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, Timestamp, getDoc, updateDoc, writeBatch, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
@@ -162,31 +121,29 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // --- (عناصر الواجهة) ---
     const loginView = document.getElementById('login-view');
     const registerView = document.getElementById('register-view');
     const loginTabButton = document.getElementById('login-tab-button');
     const registerTabButton = document.getElementById('register-tab-button');
     const registerForm = document.getElementById('register-form');
     const loginForm = document.getElementById('login-form'); 
-    const forgotPasswordLink = document.getElementById('forgot-password-link'); 
     const toastContainer = document.getElementById('toast-container');
 
-    // --- (دوال مساعدة) ---
     function handleSuccessfulAuth() {
         const redirectUrl = localStorage.getItem('redirectToAfterLogin');
         if (redirectUrl) {
             localStorage.removeItem('redirectToAfterLogin');
             window.location.href = redirectUrl;
         } else {
-            window.location.href = 'index.html'; // الصفحة الرئيسية
+            // *** تعديل: توجيه المستخدم إلى ملفه الشخصي بعد التسجيل/الدخول
+            window.location.href = 'profile.html'; 
         }
     }
 
     const showToast = (message, type = 'error', duration = 4000) => {
         if (!toastContainer) return;
         const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
+        toast.className = `toast ${type === 'error' ? 'error' : ''}`;
         const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
         toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
         toastContainer.appendChild(toast);
@@ -226,7 +183,6 @@
     }
     document.querySelectorAll('.password-toggle').forEach(setupPasswordToggle);
 
-    // --- (التحكم بالتبويبات) ---
     loginTabButton.addEventListener('click', () => {
         loginView.classList.remove('hidden');
         registerView.classList.add('hidden');
@@ -241,7 +197,6 @@
         registerTabButton.classList.add('active');
     });
 
-    // --- (مستمع تسجيل الدخول) ---
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -261,25 +216,7 @@
         });
     }
 
-    // --- (مستمع نسيت كلمة المرور) ---
-    if (forgotPasswordLink) {
-        forgotPasswordLink.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            if (!email) {
-                showToast('يرجى إدخال بريدك الإلكتروني أولاً في حقل الإيميل.', 'error');
-                return;
-            }
-            try {
-                await sendPasswordResetEmail(auth, email);
-                showToast('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك.', 'success');
-            } catch (error) {
-                showToast('فشل إرسال الرابط. تأكد من صحة الإيميل.', 'error');
-            }
-        });
-    }
-
-    // --- (مستمع إنشاء حساب - الكود الصحيح) ---
+    // --- (*** بداية الكود المعدل والمُصحح ***) ---
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const submitButton = document.getElementById('register-submit-button');
@@ -289,7 +226,6 @@
         const email = document.getElementById('register-email').value.trim();
         const password = document.getElementById('register-password').value;
         const referralCodeInput = document.getElementById('register-referral-code');
-        
         const referralCode = referralCodeInput.value.trim().toUpperCase() || null; 
 
         if (!name || !email || password.length < 6) {
@@ -298,18 +234,36 @@
             return;
         }
 
+        let referrerId = null; // (جديد) متغير لحفظ ID صاحب الدعوة
+
         try {
-            
+            // 1. (جديد) التحقق من كود الدعوة أولاً
+            if (referralCode) {
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("referralCode", "==", referralCode), limit(1));
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    showToast('كود الدعوة الذي أدخلته غير صحيح. سيتم إنشاء حسابك بدونه.', 'error');
+                } else {
+                    // تم العثور على صاحب الدعوة
+                    const referrerDoc = querySnapshot.docs[0];
+                    referrerId = referrerDoc.id; // (هام) احفظ الـ ID الخاص به
+                    console.log(`Referrer found: ${referrerId}`);
+                }
+            }
+
+            // 2. إنشاء حساب المصادقة (Auth)
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const newUser = userCredential.user;
 
+            // 3. تحديث ملف المصادقة (Auth Profile)
             await updateProfile(newUser, { displayName: name });
             
+            // 4. إنشاء مستند المستخدم في Firestore
             const batch = writeBatch(db);
             const userDocRef = doc(db, 'users', newUser.uid);
             
-            // (مهم) نقوم بإنشاء المستخدم مع كود دعوة "null"
-            // هذا يتوافق مع قاعدة 'isSecureCreate' في firestore.rules
             batch.set(userDocRef, {
                 uid: newUser.uid,
                 displayName: name,
@@ -318,13 +272,15 @@
                 registrationDate: Timestamp.now(),
                 lastLogin: Timestamp.now(),
                 
-                loyaltyPoints: 0, 
-                dawarat_coins: 0, 
+                loyaltyPoints: 0, // محفظة المتجر
+                dawarat_coins: 0, // محفظة الأكاديمية
                 
-                referralCode: null, // <-- (مهم جداً) اترك هذا null
+                referralCode: null, // سيتم إنشاؤه لاحقاً عند زيارة البروفايل
                 
-                referredBy: referralCode, 
-                referralProcessed: referralCode ? false : null 
+                // (هام) حفظ ID صاحب الدعوة بدلاً من الكود
+                referredBy: referrerId, 
+                // تحديد أن المكافأة لم تُمنح بعد
+                referralProcessed: referrerId ? false : null 
             });
             
             await batch.commit();
@@ -343,6 +299,7 @@
             toggleButtonState(submitButton, false);
         }
     });
+    // --- (*** نهاية الكود المعدل والمُصحح ***) ---
 </script>
 </body>
 </html>

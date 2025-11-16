@@ -46,6 +46,7 @@
 
 <div id="dashboard-page" class="hidden">
     <div class="relative min-h-screen md:flex">
+
         <aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
             <div class="p-3 text-center border-b border-gray-700">
                 <h2 class="text-2xl font-bold">S22 Market</h2>
@@ -64,13 +65,29 @@
                 <a href="admin-inquiries.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-envelope-open-text fa-fw mr-3"></i> الرسائل الواردة</a>
                 <a href="admin-applications.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
                 <a href="admin-notepad.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
+                
+                <hr class="border-gray-700 my-2">
+                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">نظام الولاء (المتجر)</h6>
+                <a href="admin-loyalty-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-gem fa-fw mr-3 text-yellow-400"></i> إعدادات الجواهر 💎</a>
+                <a href="admin-loyalty-approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات المهام</a>
+                <a href="admin-referrals-pending.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
+                <hr class="border-gray-700 my-2">
+
                 <a href="admin-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
+                
+                <hr class="border-gray-700 my-2">
+                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</h6>
+                <a href="dawarat_admin_manager.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700" target="_blank">
+                    <i class="fas fa-graduation-cap fa-fw mr-3 text-gray-400"></i>
+                    <span>إدارة البذلورات</span>
+                    <i class="fas fa-external-link-alt fa-xs ml-auto"></i>
+                </a>
+
             </nav>
             <div class="p-4 border-t border-gray-700">
                 <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
             </div>
         </aside>
-
         <main class="flex-1 p-4 md:p-8 overflow-y-auto">
             <div id="productRequests-panel" class="dashboard-panel">
                  <div class="text-center py-20">
@@ -88,8 +105,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, doc, getDoc, updateDoc, deleteDoc, onSnapshot, query, serverTimestamp, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    // (حذف الاستيراد الخاطئ)
 
     const firebaseConfig = {
         apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
@@ -184,7 +199,6 @@
 
         const imagesHTML = (req.imageUrls || []).map(url => `<a href="${url}" target="_blank"><img src="${url}" class="w-24 h-24 object-cover rounded-md border hover:opacity-80"></a>`).join('');
         
-        // (إضافة شارة للتمييز بين البائع والزائر)
         const submitterType = req.sellerId 
             ? `<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-full">بائع مسجل</span>`
             : `<span class="bg-gray-100 text-gray-800 text-xs font-bold px-2 py-1 rounded-full">زائر</span>`;
@@ -265,14 +279,14 @@
                 const productNameHTML = `<h3>${req.productName}</h3>`;
                 const productDescriptionHTML = `<p>${req.productDescription}</p>`;
 
-                showProductModal('traditional', {
+                // (*** تعديل: استخدام دالة عرض المنتج الخاصة بالمتجر فقط ***)
+                showProductModal('traditional', { // (استخدام 'traditional' كقيمة افتراضية قديمة، يمكن تغييرها إلى 'regular')
                     name: productNameHTML,
                     price: 0,
                     description: productDescriptionHTML,
                     imageUrls: req.imageUrls,
                     supplier: req.userName,
                     supplierContact: `الهاتف: ${req.userPhone}\nالإيميل: ${req.userEmail}`,
-                    // (إضافة بيانات البائع إذا كان الطلب منه)
                     sellerId: req.sellerId || null,
                     sellerName: req.sellerName || null
                 });
@@ -282,8 +296,7 @@
         });
     }
 
-    // --- (بداية الإضافة: نسخ الدوال المساعدة بالكامل) ---
-    // (هذا يحل مشكلة الصفحة الفارغة)
+    // --- (دوال المساعدة العامة) ---
     
     const generateUniqueId = () => 'sub_' + Math.random().toString(36).substring(2, 11);
 
@@ -323,10 +336,8 @@
                         if (!blob) { reject(new Error("Canvas to Blob conversion failed")); return; }
                         resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() })); 
                     }, 'image/jpeg', quality);
-                };
-                img.onerror = reject;
-            };
-            reader.onerror = error => reject(error);
+                }; img.onerror = reject;
+            }; reader.onerror = error => reject(error);
         });
     }
     
@@ -350,6 +361,8 @@
         }
     }
 
+    // (*** تعديل: هذه دالة عرض المنتج الخاصة بالمتجر فقط ***)
+    // (تم نسخها من admin-products.html المعدل)
     function showProductModal(productType, product = null) {
         const isDirectOrder = productType === 'direct';
         let title = 'موافقة على منتج';
@@ -357,7 +370,6 @@
         const categoryOptions = categoriesCache.map(cat => `<option value="${cat.id}" ${product && product.categoryId === cat.id ? 'selected' : ''}>${cat.name}</option>`).join('');
         let existingImages = product ? (product.imageUrls || (product.imageUrl ? [product.imageUrl] : [])) : [];
         const existingImagesHTML = existingImages.map(url => `<div class="relative group"><img src="${url}" class="w-24 h-24 rounded object-cover border"></div>`).join('');
-        
         const shippingOptions = product?.shippingOptions || [];
         let shippingOptionsHTML = shippingOptions.map(opt => `
             <div class="flex items-center gap-2 mb-2 shipping-option-item">
@@ -367,10 +379,8 @@
             </div>
         `).join('');
         
-        let orderSpecificHTML = '';
-        if (isDirectOrder) {
-             orderSpecificHTML = `
-            <div class="border-t pt-4 mt-4">
+        let orderSpecificHTML = `
+            <div id="direct-contact-container" class="hidden border-t pt-4 mt-4">
                 <h3 class="font-bold text-lg text-green-700 mb-2">روابط التواصل المباشر</h3>
                 <div class="mt-2 space-y-3 bg-green-50 p-4 rounded-lg border border-green-200">
                     <div><label class="font-semibold text-sm"><i class="fab fa-whatsapp text-green-500"></i> واتساب</label><input type="text" id="contact-link-whatsapp" class="mt-1 w-full p-2 border rounded" dir="ltr" value="${product?.directContactLinks?.whatsapp || ''}"></div>
@@ -380,9 +390,17 @@
                     <div><label class="font-semibold text-sm"><i class="fas fa-phone-alt text-teal-500"></i> هاتف</label><input type="tel" id="contact-link-phone" class="mt-1 w-full p-2 border rounded" dir="ltr" value="${product?.directContactLinks?.phone || ''}"></div>
                 </div>
             </div>`;
-        }
 
         const commonFields = `<div class="space-y-4">
+            <div>
+                <label class="font-semibold">نوع المنتج <span class="text-red-500">*</span></label>
+                <select id="product-type" class="w-full p-2 border rounded mt-1 bg-white">
+                    <option value="regular" ${productType === 'regular' ? 'selected' : ''}>منتج عادي (يضاف للسلة)</option>
+                    <option value="direct" ${productType === 'direct' ? 'selected' : ''}>منتج تواصل مباشر (واتساب، إلخ)</option>
+                </select>
+            </div>
+            ${orderSpecificHTML}
+            <hr>
             <div><label class="font-semibold">اسم المنتج</label><div id="product-name-editor" class="mt-1 bg-white"></div></div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div><label class="font-semibold">السعر (د.ج)</label><input type="number" id="product-price" class="mt-1 w-full p-2 border rounded" value="${product?.price || ''}" required></div>
@@ -392,15 +410,13 @@
             <div><label class="font-semibold">الوصف</label><div id="product-description-editor" class="mt-1 bg-white" style="min-height: 150px;"></div></div>
             <div><label class="font-semibold">موقع المنتج (اختياري)</label><input type="text" id="product-location" class="mt-1 w-full p-2 border rounded" value="${product?.location || ''}" placeholder="مثال: مستودع الجزائر العاصمة"></div>
             <div class="border-t pt-4 mt-4"><label class="font-semibold">أسعار التوصيل الخاصة</label><div id="shipping-options-container" class="space-y-2 bg-gray-50 p-3 rounded-md">${shippingOptionsHTML}</div><button type="button" id="add-shipping-option-btn" class="text-sm mt-2 text-indigo-600 font-semibold hover:underline"><i class="fas fa-plus-circle mr-1"></i>إضافة سعر توصيل</button></div>
-            ${orderSpecificHTML}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 mt-4">
                 <div><label class="font-semibold text-gray-700">المورد (داخلي)</label><input type="text" id="product-supplier" class="mt-1 w-full p-2 border rounded" value="${product?.supplier || ''}" placeholder="اسم المورد أو الشركة"></div>
                 <div><label class="font-semibold text-gray-700">تواصل المورد (داخلي)</label><textarea id="product-supplier-contact" class="mt-1 w-full p-2 border rounded" rows="3" placeholder="أرقام الهواتف، الإيميل...">${product?.supplierContact || ''}</textarea></div>
             </div>
             <div><label class="font-semibold text-green-700">الربح من هذا المنتج (داخلي)</label><div class="flex items-center mt-1"><input type="number" id="product-profit-value" class="w-full p-2 border rounded-r-md" value="${product?.profitValue || ''}" placeholder="0"><select id="product-profit-type" class="p-2 border-l-0 border rounded-l-md bg-gray-100"><option value="fixed" ${product?.profitType === 'fixed' ? 'selected' : ''}>د.ج</option><option value="percentage" ${product?.profitType === 'percentage' ? 'selected' : ''}>%</option></select></div></div>
-            <div><label class="font-semibold">القسم الرئيسي</label><select id="product-category-select" class="mt-1 w-full p-2 border rounded bg-white" required><option value="">اختر قسم...</option>${categoryOptions}</select></div>
-            <div id="product-subcategory-container" class="hidden"><label class="font-semibold">الفرع</label><select id="product-subcategory" class="mt-1 w-full p-2 border rounded bg-white"></select></div>
-            <div class="border-t pt-4"><label class="font-semibold">صور المنتج</label><p class="text-sm text-gray-500">الصور الحالية من الطلب:</p><div class="flex flex-wrap gap-2 mt-2">${existingImagesHTML}</div></div>
+            <div><label class="font-semibold text-purple-700">الجواهر المخصصة (Override)</label><input type="number" id="product-loyalty-override" class="mt-1 w-full p-2 border rounded" value="${product?.loyaltyPointsOverride || ''}" placeholder="اتركه فارغاً لتطبيق القاعدة العامة"><p class="text-xs text-gray-500 mt-1">إذا وضعت 0، لن يربح العميل أي جواهر.</p></div>
+            <div class="border-t pt-4 mt-4 space-y-4"><h3 class="text-lg font-bold text-gray-500">التصنيف والصور</h3><div><label class="font-semibold">القسم الرئيسي</label><select id="product-category-select" class="mt-1 w-full p-2 border rounded bg-white" required><option value="">اختر قسم...</option>${categoryOptions}</select></div><div id="product-subcategory-container" class="hidden"><label class="font-semibold">الفرع</label><select id="product-subcategory" class="mt-1 w-full p-2 border rounded bg-white"></select></div><div><label class="font-semibold">صور المنتج</label><p class="text-sm text-gray-500">الصور الحالية من الطلب:</p><div class="flex flex-wrap gap-2 mt-2">${existingImagesHTML}</div></div>
         </div>`;
 
             let nameQuill, descriptionQuill;
@@ -414,16 +430,22 @@
                 const cleanDescription = DOMPurify.sanitize(descriptionHTML);
                 const price = getNum('product-price');
                 const categoryId = getVal('product-category-select');
-                if (!cleanName || isNaN(price) || !categoryId) { return alert('يرجى ملء الحقول الإلزامية: اسم المنتج، السعر، والقسم الرئيسي.'); }
+                if (!cleanName || !categoryId) { return alert('يرجى ملء الحقول الإلزامية: اسم المنتج والقسم الرئيسي.'); }
                 
+                const newProductType = getVal('product-type');
                 const directContactLinks = {
-                    whatsapp: isDirectOrder ? getVal('contact-link-whatsapp').trim() : '',
-                    facebook: isDirectOrder ? getVal('contact-link-facebook').trim() : '',
-                    instagram: isDirectOrder ? getVal('contact-link-instagram').trim() : '',
-                    telegram: isDirectOrder ? getVal('contact-link-telegram').trim() : '',
-                    phone: isDirectOrder ? getVal('contact-link-phone').trim() : ''
+                    whatsapp: getVal('contact-link-whatsapp').trim(),
+                    facebook: getVal('contact-link-facebook').trim(),
+                    instagram: getVal('contact-link-instagram').trim(),
+                    telegram: getVal('contact-link-telegram').trim(),
+                    phone: getVal('contact-link-phone').trim()
                 };
-                if (isDirectOrder && Object.values(directContactLinks).every(link => !link)) { return alert('لمنتجات الطلب المباشر، يجب إدخال وسيلة تواصل واحدة على الأقل.'); }
+                if (newProductType === 'regular' && isNaN(price)) {
+                     return alert('للمنتج العادي: يرجى إدخال السعر.');
+                }
+                if (newProductType === 'direct' && Object.values(directContactLinks).every(link => !link)) {
+                    return alert('لمنتجات التواصل المباشر، يجب إدخال وسيلة تواصل واحدة على الأقل.');
+                }
                 
                 const subcatSelect = getEl('product-subcategory');
                 const selectedSubcatOption = subcatSelect && subcatSelect.selectedIndex > -1 ? subcatSelect.options[subcatSelect.selectedIndex] : null;
@@ -440,7 +462,7 @@
                     showLoadingModal('جاري حفظ البيانات...');
                     
                     const productData = {
-                        name: cleanName, price, description: cleanDescription, categoryId, imageUrls: existingImages,
+                        name: cleanName, price: price || 0, description: cleanDescription, categoryId, imageUrls: existingImages,
                         availability: getVal('product-availability'),
                         sku: getVal('product-sku').trim(),
                         location: getVal('product-location').trim(),
@@ -451,11 +473,11 @@
                         profitValue: getNum('product-profit-value') || 0,
                         profitType: getVal('product-profit-type'),
                         shippingOptions: shippingOptionsData,
-                        orderMethod: productType,
-                        directContactLinks, 
+                        productType: newProductType,
+                        directContactLinks: (newProductType === 'direct') ? directContactLinks : {},
+                        loyaltyPointsOverride: getNum('product-loyalty-override') || null,
                         updatedAt: serverTimestamp(),
-                        createdAt: serverTimestamp(), // (اعتباره منتج جديد)
-                        // (إضافة بيانات البائع إذا كان الطلب منه)
+                        createdAt: serverTimestamp(), 
                         sellerId: product.sellerId || null,
                         sellerName: product.sellerName || null
                     };
@@ -483,7 +505,7 @@
                     <input type="number" class="w-32 p-2 border rounded shipping-cost" placeholder="السعر (د.ج)">
                     <button type="button" class="text-red-500 remove-shipping-btn"><i class="fas fa-times-circle"></i></button>
                 `;
-                newItem.querySelector('.remove-shipping-btn').onclick = () => newItem.remove();
+                newItem.querySelector('.remove-sub-btn').onclick = () => newItem.remove();
                 container.appendChild(newItem);
             };
 
@@ -493,6 +515,15 @@
             if (product?.categoryId) {
                 populateSubcategories(product.categoryId, product.subCategoryID);
             }
+
+            const productTypeSelect = getEl('product-type');
+            const contactContainer = getEl('direct-contact-container');
+            const toggleFields = () => {
+                const type = productTypeSelect.value;
+                contactContainer.classList.toggle('hidden', type !== 'direct');
+            };
+            productTypeSelect.addEventListener('change', toggleFields);
+            toggleFields();
         }
     
     function showModal(title, content, onConfirm, confirmText = 'حفظ', showCancel = true) {
@@ -538,8 +569,6 @@
     function closeModal() {
         getEl('modal-container').innerHTML = '';
     }
-    // --- (نهاية نسخ الدوال المساعدة) ---
-
 </script>
 </body>
 </html>

@@ -99,14 +99,28 @@
                 <div class="bg-white p-6 rounded-lg shadow-md">
                     <div class="flex justify-between items-start gap-4">
                         <h1 id="product-name" class="flex-grow text-3xl lg:text-4xl font-extrabold text-slate-800 leading-tight"></h1>
-                        <div class="flex items-center gap-2 flex-shrink-0">
-                            <button id="copy-link-btn" title="نسخ الرابط" class="w-12 h-12 rounded-full bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-600 flex items-center justify-center text-xl transition-colors">
+                        
+                        <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                            <button id="copy-link-btn" title="نسخ الرابط" 
+                                    class="w-10 h-10 sm:w-12 sm:h-12 rounded-full 
+                                           bg-slate-50 border border-slate-200 text-slate-600 
+                                           hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 hover:shadow-lg 
+                                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                                           flex items-center justify-center 
+                                           text-lg sm:text-xl transition-all duration-200">
                                 <i class="fas fa-link"></i>
                             </button>
-                            <button id="share-btn" title="مشاركة المنتج" class="w-12 h-12 rounded-full bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-600 flex items-center justify-center text-xl transition-colors">
+                            <button id="share-btn" title="مشاركة المنتج" 
+                                    class="w-10 h-10 sm:w-12 sm:h-12 rounded-full 
+                                           bg-slate-50 border border-slate-200 text-slate-600 
+                                           hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 hover:shadow-lg 
+                                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                                           flex items-center justify-center 
+                                           text-lg sm:text-xl transition-all duration-200">
                                 <i class="fas fa-share-alt"></i>
                             </button>
                         </div>
+
                     </div>
                     <p id="product-location-container" class="text-slate-500 text-md mt-2 mb-4 hidden"><i class="fas fa-map-marker-alt fa-fw mr-1 text-slate-400"></i><span id="product-location"></span></p>
                     <div class="my-6"><span id="product-price" class="text-blue-600 text-5xl font-extrabold"></span></div>
@@ -548,8 +562,49 @@
             }
         }
         
-        async function shareProduct() { /* ... (كما هي) ... */ }
-        async function copyLink() { /* ... (كما هي) ... */ }
+        
+        // START: === (الكود المبرمج) ===
+        /**
+         * دالة مشاركة المنتج
+         */
+        async function shareProduct() {
+            if (!currentProduct) return;
+
+            const productName = (currentProduct.name || '').replace(/<[^>]*>?/gm, '');
+            const shareData = {
+                title: `اكتشف: ${productName}`,
+                text: `ألقِ نظرة على هذا المنتج الرائع "${productName}" على S22MARKET!`,
+                url: window.location.href
+            };
+
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                    // console.log('Product shared successfully');
+                } catch (err) {
+                    // console.error('Share failed:', err.message);
+                }
+            } else {
+                // خيار احتياطي للمتصفحات التي لا تدعم المشاركة
+                await copyLink();
+                showToast('المشاركة المباشرة غير مدعومة. تم نسخ الرابط!', 'success');
+            }
+        }
+
+        /**
+         * دالة نسخ الرابط
+         */
+        async function copyLink() {
+            const url = window.location.href;
+            try {
+                await navigator.clipboard.writeText(url);
+                showToast('تم نسخ الرابط بنجاح!');
+            } catch (err) {
+                showToast('فشل نسخ الرابط.', 'error');
+                console.error('Failed to copy link: ', err);
+            }
+        }
+        // END: === (الكود المبرمج) ===
         
         
         document.addEventListener('DOMContentLoaded', async () => {
