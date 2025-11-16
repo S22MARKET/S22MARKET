@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S22 Market - إدارة المنتجات</title>
+    <title>S22 Market - إدارة الدورات</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -47,22 +47,21 @@
                 <a href="admin-sellers.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-users-cog fa-fw mr-3"></i> إدارة البائعين</a>
                 <a href="admin-reports.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-flag fa-fw mr-3 text-red-400"></i> الإبلاغات</a>
                 <a href="admin-products.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
+                
+                <a href="admin-courses.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-graduation-cap fa-fw mr-3 text-blue-400"></i> إدارة الدورات</a>
+                
                 <a href="admin-offers.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-star fa-fw mr-3"></i> العروض</a>
                 <a href="admin-product-requests.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-user-plus fa-fw mr-3"></i> طلبات الزوار</a>
                 <a href="admin-categories.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
-                
                 <a href="admin-professors.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chalkboard-teacher fa-fw mr-3 text-yellow-400"></i> إدارة الأساتذة</a>
-
                 <a href="admin-orders.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
                 <a href="admin-coupons.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-tags fa-fw mr-3"></i> الكوبونات</a>
                 <a href="admin-inquiries.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-envelope-open-text fa-fw mr-3"></i> الرسائل الواردة</a>
                 <a href="admin-applications.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
                 <a href="admin-notepad.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
-                
                 <a href="admin-loyalty-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-gift fa-fw mr-3 text-yellow-400"></i> نظام المكافآت</a>
                 <a href="admin-loyalty-approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات الدفع/المهام</a>
                 <a href="admin-referrals-pending.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
-
                 <a href="admin-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
             </nav>
             <div class="p-4 border-t border-gray-700">
@@ -71,10 +70,10 @@
         </aside>
 
         <main class="flex-1 p-4 md:p-8 overflow-y-auto">
-            <div id="products-panel" class="dashboard-panel">
+            <div id="courses-panel" class="dashboard-panel">
                 <div class="text-center py-20">
                     <div class="loader mx-auto"></div>
-                    <p class="mt-4 text-gray-600">جاري تحميل المنتجات...</p>
+                    <p class="mt-4 text-gray-600">جاري تحميل الدورات...</p>
                 </div>
             </div>
         </main>
@@ -109,9 +108,8 @@
     ];
 
     let categoriesCache = [];
-    let productsCache = [];
-    // (*** تم الحذف ***) تم حذف كاش الأساتذة لأنه لم يعد مستخدماً
-    // let professorsCache = [];
+    let coursesCache = []; // تم تغيير اسم الكاش
+    let professorsCache = []; // كاش الأساتذة (مطلوب هنا)
     
     const loginPage = document.getElementById('login-page');
     const dashboardPage = document.getElementById('dashboard-page');
@@ -153,104 +151,85 @@
     // --- (الدالة الرئيسية - تم تعديلها) ---
     async function initializeDashboard() {
         setActiveTab();
-        // (*** تم التعديل ***) جلب الأقسام فقط
+        // جلب الأساتذة والأقسام قبل تحميل الدورات
         await Promise.all([
             onSnapshot(query(collection(db, "categories"), orderBy("orderIndex")), (snapshot) => {
                 categoriesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            }),
+            onSnapshot(query(collection(db, "professors"), orderBy("name")), (snapshot) => {
+                professorsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             })
-            // (*** تم الحذف ***) تم حذف جلب الأساتذة
         ]);
-        loadProducts(); 
+        loadCourses(); 
     }
 
-    // --- (دالة تحميل المنتجات - كاملة) ---
-    function loadProducts() {
-        const panel = getEl('products-panel');
-        panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات</h1><button id="add-product-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div>
-        <div id="products-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>`;
+    // --- (دالة تحميل الدورات - جديدة) ---
+    function loadCourses() {
+        const panel = getEl('courses-panel');
+        panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة الدورات</h1><button id="add-course-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة دورة</button></div>
+        <div id="courses-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>`;
 
-        getEl('add-product-btn').addEventListener('click', () => showProductModal());
+        getEl('add-course-btn').addEventListener('click', () => showCourseModal());
         
-        const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+        // (*** تعديل هام ***) الفلترة لجلب الدورات فقط
+        const q = query(collection(db, "products"), 
+                        where("productType", "==", "course"), 
+                        orderBy("createdAt", "desc"));
         
         onSnapshot(q, (snapshot) => {
-            productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderProductsGrid();
+            coursesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderCoursesGrid();
         }, (error) => {
-            console.error("Error fetching products: ", error);
-            panel.innerHTML = `<p class="text-red-500 text-center"><b>خطأ:</b> لم يتم جلب المنتجات. <br>السبب المحتمل هو أن الفهرس (Index) الخاص بـ 'products' لم يتم إنشاؤه بعد. يرجى مراجعة لوحة تحكم Firebase.</p>`;
+            console.error("Error fetching courses: ", error);
+            panel.innerHTML = `<p class="text-red-500 text-center"><b>خطأ:</b> لم يتم جلب الدورات. <br>السبب المحتمل هو أن الفهرس (Index) الخاص بـ 'products' (مع فلتر productType) لم يتم إنشاؤه بعد. يرجى مراجعة لوحة تحكم Firebase.</p>`;
         });
     }
 
-    // --- (دالة عرض كروت المنتجات - كاملة) ---
-    function renderProductsGrid() {
-        const list = getEl('products-list');
-        list.innerHTML = productsCache.length === 0 ? '<p class="text-center text-gray-500 col-span-full mt-8">لا توجد منتجات. أضف منتجاً جديداً للبدء.</p>' : '';
+    // --- (دالة عرض كروت الدورات - جديدة) ---
+    function renderCoursesGrid() {
+        const list = getEl('courses-list');
+        list.innerHTML = coursesCache.length === 0 ? '<p class="text-center text-gray-500 col-span-full mt-8">لا توجد دورات. أضف دورة جديدة للبدء.</p>' : '';
         
-        productsCache.forEach(product => {
+        coursesCache.forEach(course => {
             const card = document.createElement('div');
             card.className = `bg-white p-4 rounded-xl shadow-md flex flex-col relative`;
             
             let availabilityBadge = '';
-            switch(product.availability) {
+            switch(course.availability) {
                 case 'soon': availabilityBadge = '<span class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">قريبًا إن شاء الله</span>'; break;
                 case 'sold_out': availabilityBadge = '<span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">نفذ المخزون</span>'; break;
                 default: availabilityBadge = '<span class="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">متوفر</span>';
             }
 
-            let productTypeBadge = '';
-            switch(product.productType) { // استخدام الحقل الجديد
-                case 'direct':
-                    productTypeBadge = '<span class="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-full"><i class="fas fa-paper-plane mr-1"></i>تواصل مباشر</span>';
-                    break;
-                case 'course':
-                    // (ملاحظة: هذا سيبقى هنا لعرض المنتجات القديمة إن وجدت)
-                    productTypeBadge = '<span class="absolute top-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full"><i class="fas fa-graduation-cap mr-1"></i>دورة (منصة)</span>';
-                    break;
-                default: // 'regular'
-                    productTypeBadge = '<span class="absolute top-2 right-2 bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded-full"><i class="fas fa-shopping-cart mr-1"></i>منتج عادي</span>';
-            }
+            let productTypeBadge = '<span class="absolute top-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full"><i class="fas fa-graduation-cap mr-1"></i>دورة (منصة)</span>';
             
-            if(product.sellerId) {
-                productTypeBadge += `<span class="absolute top-10 right-2 bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded-full"><i class="fas fa-user-tag mr-1"></i>${product.sellerName || 'بائع'}</span>`;
-            }
-
-            const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : (product.imageUrl || 'https://placehold.co/300x160/e2e8f0/94a3b8?text=No+Image');
-
-            let profitDisplay = '';
-            if (product.profitType === 'percentage' && product.price && product.profitValue) {
-                const calculatedProfit = (product.price * product.profitValue) / 100;
-                profitDisplay = `<span class="text-xs text-green-600">الربح: ${calculatedProfit.toLocaleString()} د.ج</span>`;
-            } else if (product.profitValue) {
-                profitDisplay = `<span class="text-xs text-green-600">الربح: ${product.profitValue.toLocaleString()} د.ج</span>`;
-            }
+            const image = (course.imageUrls && course.imageUrls.length > 0) ? course.imageUrls[0] : (course.imageUrl || 'https://placehold.co/300x160/e2e8f0/94a3b8?text=No+Image');
 
             card.innerHTML = `
                 ${availabilityBadge}
                 ${productTypeBadge}
                 <img src="${image}" class="w-full h-40 object-cover rounded-lg mb-4 bg-gray-100">
-                <div class="description-content font-bold text-xl mb-2">${product.name || ''}</div>
-                <div class="flex-grow text-gray-600 text-sm mb-3">${product.supplier ? `<i class="fas fa-user-tie fa-fw mr-1 text-gray-400"></i>${product.supplier}` : ''}</div>
+                <div class="description-content font-bold text-xl mb-2">${course.name || ''}</div>
+                <div class="flex-grow text-gray-600 text-sm mb-3"></div>
                 <div class="flex justify-between items-center">
-                    <p class="text-lg font-bold text-indigo-600">${(product.price || 0) > 0 ? product.price.toLocaleString() + ' د.ج' : ''}</p>
-                    ${profitDisplay}
+                    <p class="text-lg font-bold text-indigo-600">دورة تعليمية</p>
                 </div>
                 <div class="border-t mt-4 pt-3 flex justify-end gap-2">
-                    <button class="copy-product-link-btn text-gray-400 hover:text-green-600" data-id="${product.id}" title="نسخ رابط المنتج"><i class="fas fa-link"></i></button>
-                    <button class="edit-product-btn text-gray-400 hover:text-indigo-600" data-id="${product.id}" title="تعديل"><i class="fas fa-edit"></i></button>
-                    <button class="delete-product-btn text-gray-400 hover:text-red-600" data-id="${product.id}" title="حذف"><i class="fas fa-trash"></i></button>
+                    <button class="copy-course-link-btn text-gray-400 hover:text-green-600" data-id="${course.id}" title="نسخ رابط الدورة"><i class="fas fa-link"></i></button>
+                    <button class="edit-course-btn text-gray-400 hover:text-indigo-600" data-id="${course.id}" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button class="delete-course-btn text-gray-400 hover:text-red-600" data-id="${course.id}" title="حذف"><i class="fas fa-trash"></i></button>
                 </div>`;
             
-            card.querySelector('.description-content').innerHTML = product.name || '';
+            card.querySelector('.description-content').innerHTML = course.name || '';
             list.appendChild(card);
         });
-        attachProductActionListeners();
+        attachCourseActionListeners();
     }
 
     // --- (دوال مساعدة - كاملة) ---
     function populateSubcategories(categoryId, selectedSubCategoryId = null) {
-        const subCategoryContainer = getEl('product-subcategory-container');
-        const subCategorySelect = getEl('product-subcategory');
+        const subCategoryContainer = getEl('course-subcategory-container');
+        const subCategorySelect = getEl('course-subcategory');
         if (!subCategoryContainer || !subCategorySelect) return;
         const selectedCategory = categoriesCache.find(c => c.id === categoryId);
         const allSubcategories = selectedCategory?.subcategories || [];
@@ -302,73 +281,59 @@
         });
     }
     
-    // --- (النافذة الموحدة - تم تعديلها) ---
-    function showProductModal(product = null) {
+    // --- (النافذة الموحدة - معدلة للدورات فقط) ---
+    function showCourseModal(course = null) {
         
-        const productType = product?.productType || 'regular';
-        let title = product ? 'تعديل منتج' : 'إضافة منتج جديد';
+        let title = course ? 'تعديل دورة' : 'إضافة دورة جديدة';
         
-        const categoryOptions = categoriesCache.map(cat => `<option value="${cat.id}" ${product && product.categoryId === cat.id ? 'selected' : ''}>${cat.name}</option>`).join('');
+        const categoryOptions = categoriesCache.map(cat => `<option value="${cat.id}" ${course && course.categoryId === cat.id ? 'selected' : ''}>${cat.name}</option>`).join('');
         
-        // (*** تم الحذف ***) تم حذف قائمة الأساتذة
+        // إنشاء قائمة الأساتذة
+        const professorOptions = professorsCache.map(prof => 
+            `<option value="${prof.id}" ${course && course.professorId === prof.id ? 'selected' : ''}>${prof.name}</option>`
+        ).join('');
         
-        let existingImages = product ? (product.imageUrls || (product.imageUrl ? [product.imageUrl] : [])) : [];
+        let existingImages = course ? (course.imageUrls || (course.imageUrl ? [course.imageUrl] : [])) : [];
         const existingImagesHTML = existingImages.map(url => `<div class="relative group"><img src="${url}" class="w-24 h-24 rounded object-cover border"><div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-white text-xs text-center">سيتم حذفها عند رفع صور جديدة</span></div></div>`).join('');
-        const shippingOptions = product?.shippingOptions || [];
-        let shippingOptionsHTML = shippingOptions.map(opt => `
-            <div class="flex items-center gap-2 mb-2 shipping-option-item">
-                <input type="text" class="w-full p-2 border rounded shipping-location" value="${opt.location || ''}" placeholder="اسم الموقع (مثال: الجزائر العاصمة)">
-                <input type="number" class="w-32 p-2 border rounded shipping-cost" value="${opt.cost || ''}" placeholder="السعر (د.ج)">
-                <button type="button" class="text-red-500 remove-shipping-btn"><i class="fas fa-times-circle"></i></button>
-            </div>
-        `).join('');
         
-        // (*** تم الحذف ***) تم حذف الحقول الخاصة بالدورة
-        
-        const directOrderSpecificHTML = `
-            <div id="direct-contact-container" class="hidden border-t pt-4 mt-4">
-                <h3 class="font-bold text-lg text-green-700 mb-2">روابط التواصل المباشر</h3>
-                <div class="mt-2 space-y-3 bg-green-50 p-4 rounded-lg border border-green-200">
-                    <p class="text-sm text-gray-600">أدخل روابط التواصل التي ستظهر للزبون. اترك الحقل فارغاً إذا لم ترد عرضه.</p>
-                    <div><label class="font-semibold text-sm flex items-center gap-2"><i class="fab fa-whatsapp text-green-500"></i> رقم واتساب</label><input type="text" id="contact-link-whatsapp" class="mt-1 w-full p-2 border rounded" dir="ltr" placeholder="213..." value="${product?.directContactLinks?.whatsapp || ''}"></div>
-                    <div><label class="font-semibold text-sm flex items-center gap-2"><i class="fab fa-facebook text-blue-600"></i> رابط فيسبوك</label><input type="url" id="contact-link-facebook" class="mt-1 w-full p-2 border rounded" placeholder="https://facebook.com/..." value="${product?.directContactLinks?.facebook || ''}"></div>
-                    <div><label class="font-semibold text-sm flex items-center gap-2"><i class="fab fa-instagram text-pink-500"></i> رابط انستغرام</label><input type="url" id="contact-link-instagram" class="mt-1 w-full p-2 border rounded" placeholder="https://instagram.com/..." value="${product?.directContactLinks?.instagram || ''}"></div>
-                    <div><label class="font-semibold text-sm flex items-center gap-2"><i class="fab fa-telegram text-sky-500"></i> رابط تيليجرام</label><input type="url" id="contact-link-telegram" class="mt-1 w-full p-2 border rounded" placeholder="https://t.me/..." value="${product?.directContactLinks?.telegram || ''}"></div>
-                    <div><label class="font-semibold text-sm flex items-center gap-2"><i class="fas fa-phone-alt text-teal-500"></i> رقم هاتف للاتصال</label><input type="tel" id="contact-link-phone" class="mt-1 w-full p-2 border rounded" dir="ltr" placeholder="0..." value="${product?.directContactLinks?.phone || ''}"></div>
+        // حقول الدورة فقط
+        const courseSpecificHTML = `
+            <div id="course-fields-container" class="space-y-4 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <div>
+                    <label class="font-semibold text-blue-800"><i class="fas fa-graduation-cap"></i> رابط منصة الدورة (S22 LEARNING)</label>
+                    <input type="url" id="course-link" class="mt-1 w-full p-2 border rounded" placeholder="https://.../s22learning/course_content.html?id=..." value="${course?.courseLink || ''}">
+                </div>
+                <div>
+                    <label class="font-semibold text-blue-800"><i class="fas fa-chalkboard-teacher"></i> الأستاذ (المحاضر)</label>
+                    <select id="course-professor-id" class="mt-1 w-full p-2 border rounded bg-white">
+                        <option value="">-- اختر أستاذ --</option>
+                        ${professorOptions}
+                    </select>
                 </div>
             </div>`;
 
         const commonFields = `<div class="space-y-4">
-            <div>
-                <label class="font-semibold">نوع المنتج <span class="text-red-500">*</span></label>
-                <select id="product-type" class="w-full p-2 border rounded mt-1 bg-white">
-                    <option value="regular" ${productType === 'regular' ? 'selected' : ''}>منتج عادي (يضاف للسلة)</option>
-                    <option value="direct" ${productType === 'direct' ? 'selected' : ''}>منتج تواصل مباشر (واتساب، إلخ)</option>
-                    </select>
+            ${courseSpecificHTML}
+            <hr>
+            <div><label class="font-semibold">اسم الدورة</label><div id="course-name-editor" class="mt-1 bg-white"></div></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="hidden"><label class="font-semibold">السعر (د.ج)</label><input type="number" id="course-price" class="mt-1 w-full p-2 border rounded" value="${course?.price || '0'}"></div>
+                <div><label class="font-semibold">SKU / رمز الدورة</label><input type="text" id="course-sku" class="mt-1 w-full p-2 border rounded" value="${course?.sku || ''}" placeholder="رمز فريد للدورة"></div>
+            </div>
+            <div><label class="font-semibold">حالة التوفر</label><select id="course-availability" class="w-full p-2 border rounded mt-1 bg-white"><option value="available" ${!course || course.availability === 'available' ? 'selected' : ''}>متوفر</option><option value="soon" ${course?.availability === 'soon' ? 'selected' : ''}>قريبًا</option><option value="sold_out" ${course?.availability === 'sold_out' ? 'selected' : ''}>نفذ المخزون</option></select></div>
+            <div><label class="font-semibold">الوصف</label><div id="course-description-editor" class="mt-1 bg-white" style="min-height: 150px;"></div></div>
+            
+            <div class="border-t pt-4 mt-4 space-y-4"><h3 class="text-lg font-bold text-gray-500">معلومات داخلية (لا تظهر للعميل)</h3>
+                <div><label class="font-semibold text-purple-700">النقاط المخصصة (Override)</label><input type="number" id="course-loyalty-override" class="mt-1 w-full p-2 border rounded" value="${course?.loyaltyPointsOverride || ''}" placeholder="اتركه فارغاً لتطبيق القاعدة العامة"><p class="text-xs text-gray-500 mt-1">إذا وضعت 0، لن يربح العميل أي نقاط. إذا وضعت 500، سيربح 500 نقطة.</p></div>
             </div>
             
-            ${directOrderSpecificHTML}
-
-            <hr>
-            <div><label class="font-semibold">اسم المنتج</label><div id="product-name-editor" class="mt-1 bg-white"></div></div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="font-semibold">السعر (د.ج)</label><input type="number" id="product-price" class="mt-1 w-full p-2 border rounded" value="${product?.price || ''}"></div>
-                <div><label class="font-semibold">SKU / رمز المنتج</label><input type="text" id="product-sku" class="mt-1 w-full p-2 border rounded" value="${product?.sku || ''}" placeholder="رمز فريد للمنتج"></div>
-            </div>
-            <div><label class="font-semibold">حالة التوفر</label><select id="product-availability" class="w-full p-2 border rounded mt-1 bg-white"><option value="available" ${!product || product.availability === 'available' ? 'selected' : ''}>متوفر</option><option value="soon" ${product?.availability === 'soon' ? 'selected' : ''}>قريبًا</option><option value="sold_out" ${product?.availability === 'sold_out' ? 'selected' : ''}>نفذ المخزون</option></select></div>
-            <div><label class="font-semibold">الوصف</label><div id="product-description-editor" class="mt-1 bg-white" style="min-height: 150px;"></div></div>
-            <div><label class="font-semibold">موقع المنتج (اختياري)</label><input type="text" id="product-location" class="mt-1 w-full p-2 border rounded" value="${product?.location || ''}" placeholder="مثال: مستودع الجزائر العاصمة"></div>
-            <div class="border-t pt-4 mt-4"><label class="font-semibold">أسعار التوصيل الخاصة بالمنتج (اختياري)</label><div id="shipping-options-container" class="space-y-2 bg-gray-50 p-3 rounded-md">${shippingOptionsHTML}</div><button type="button" id="add-shipping-option-btn" class="text-sm mt-2 text-indigo-600 font-semibold hover:underline"><i class="fas fa-plus-circle mr-1"></i>إضافة سعر توصيل</button></div>
-            <div class="border-t pt-4 mt-4 space-y-4"><h3 class="text-lg font-bold text-gray-500">معلومات داخلية (لا تظهر للعميل)</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="font-semibold text-gray-700">المورد</label><input type="text" id="product-supplier" class="mt-1 w-full p-2 border rounded" value="${product?.supplier || ''}" placeholder="اسم المورد أو الشركة"></div><div><label class="font-semibold text-gray-700">تواصل المورد</label><textarea id="product-supplier-contact" class="mt-1 w-full p-2 border rounded" rows="3" placeholder="أرقام الهواتف...">${product?.supplierContact || ''}</textarea></div></div><div><label class="font-semibold text-green-700">الربح من هذا المنتج</label><div class="flex items-center mt-1"><input type="number" id="product-profit-value" class="w-full p-2 border rounded-r-md" value="${product?.profitValue || ''}" placeholder="0"><select id="product-profit-type" class="p-2 border-l-0 border rounded-l-md bg-gray-100"><option value="fixed" ${product?.profitType === 'fixed' ? 'selected' : ''}>د.ج</option><option value="percentage" ${product?.profitType === 'percentage' ? 'selected' : ''}>%</option></select></div></div>
-                <div><label class="font-semibold text-purple-700">النقاط المخصصة (Override)</label><input type="number" id="product-loyalty-override" class="mt-1 w-full p-2 border rounded" value="${product?.loyaltyPointsOverride || ''}" placeholder="اتركه فارغاً لتطبيق القاعدة العامة"><p class="text-xs text-gray-500 mt-1">إذا وضعت 0، لن يربح العميل أي نقاط. إذا وضعت 500، سيربح 500 نقطة.</p></div>
-            </div>
-            <div class="border-t pt-4 mt-4 space-y-4"><h3 class="text-lg font-bold text-gray-500">التصنيف والصور</h3><div><label class="font-semibold">القسم الرئيسي</label><select id="product-category-select" class="mt-1 w-full p-2 border rounded bg-white" required><option value="">اختر قسم...</option>${categoryOptions}</select></div><div id="product-subcategory-container" class="hidden"><label class="font-semibold">الفرع</label><select id="product-subcategory" class="mt-1 w-full p-2 border rounded bg-white"></select></div><div><label class="font-semibold">صور المنتج (يمكنك اختيار عدة صور)</label><input type="file" id="product-images" class="mt-1 w-full p-2 border rounded text-sm" accept="image/*" multiple>${product ? `<p class="text-sm text-gray-500 mt-1">الصور الحالية. رفع صور جديدة سيقوم باستبدالها.</p><div class="flex flex-wrap gap-2 mt-2">${existingImagesHTML}</div>` : ''}<div id="image-preview-container" class="flex flex-wrap gap-2 mt-2"></div></div>
+            <div class="border-t pt-4 mt-4 space-y-4"><h3 class="text-lg font-bold text-gray-500">التصنيف والصور</h3><div><label class="font-semibold">القسم الرئيسي</label><select id="course-category-select" class="mt-1 w-full p-2 border rounded bg-white" required><option value="">اختر قسم...</option>${categoryOptions}</select></div><div id="course-subcategory-container" class="hidden"><label class="font-semibold">الفرع</label><select id="course-subcategory" class="mt-1 w-full p-2 border rounded bg-white"></select></div><div><label class="font-semibold">صور الدورة (يمكنك اختيار عدة صور)</label><input type="file" id="course-images" class="mt-1 w-full p-2 border rounded text-sm" accept="image/*" multiple>${course ? `<p class="text-sm text-gray-500 mt-1">الصور الحالية. رفع صور جديدة سيقوم باستبدالها.</p><div class="flex flex-wrap gap-2 mt-2">${existingImagesHTML}</div>` : ''}<div id="image-preview-container" class="flex flex-wrap gap-2 mt-2"></div></div>
         </div>`;
 
             let nameQuill, descriptionQuill;
             
             showModal(title, commonFields, async () => {
-                const imageFiles = getEl('product-images')?.files || [];
+                const imageFiles = getEl('course-images')?.files || [];
                 let nameHTML = nameQuill.root.innerHTML.trim();
                 let descriptionHTML = descriptionQuill.root.innerHTML.trim();
                 if (nameHTML === '<p><br></p>') nameHTML = '';
@@ -376,50 +341,29 @@
                 
                 const cleanName = DOMPurify.sanitize(nameHTML);
                 const cleanDescription = DOMPurify.sanitize(descriptionHTML);
-                const price = getNum('product-price');
-                const categoryId = getVal('product-category-select');
-                const productNameText = nameQuill.getText().trim();
+                const categoryId = getVal('course-category-select');
+                const courseNameText = nameQuill.getText().trim();
                 
-                const newProductType = getVal('product-type');
-                // (*** تم الحذف ***) تم حذف متغيرات الدورة
-                const loyaltyPointsOverride = getNum('product-loyalty-override');
-                const directContactLinks = {
-                    whatsapp: getVal('contact-link-whatsapp').trim(),
-                    facebook: getVal('contact-link-facebook').trim(),
-                    instagram: getVal('contact-link-instagram').trim(),
-                    telegram: getVal('contact-link-telegram').trim(),
-                    phone: getVal('contact-link-phone').trim()
-                };
+                const courseLink = getVal('course-link').trim();
+                const professorId = getVal('course-professor-id').trim() || null; 
+                const loyaltyPointsOverride = getNum('course-loyalty-override');
 
                 // --- التحقق ---
                 if (!cleanName || !categoryId) {
-                    return alert('يرجى ملء اسم المنتج والقسم الرئيسي.');
+                    return alert('يرجى ملء اسم الدورة والقسم الرئيسي.');
+                }
+                if (!courseLink || !professorId) {
+                    return alert('للدورة التعليمية، يجب إدخال رابط المنصة واختيار الأستاذ.');
                 }
                 
-                // (*** تعديل ***) أصبح السعر مطلوباً للمنتج العادي، واختيارياً للتواصل المباشر
-                if (newProductType === 'regular' && isNaN(price)) {
-                     return alert('للمنتج العادي: يرجى إدخال السعر.');
-                }
-                if (newProductType === 'direct' && Object.values(directContactLinks).every(link => !link)) {
-                    return alert('لمنتجات التواصل المباشر، يجب إدخال وسيلة تواصل واحدة على الأقل.');
-                }
-                // (*** تم الحذف ***) تم حذف التحقق الخاص بالدورة
-                
-                const subcatSelect = getEl('product-subcategory');
+                const subcatSelect = getEl('course-subcategory');
                 const selectedSubcatOption = subcatSelect && subcatSelect.selectedIndex > -1 ? subcatSelect.options[subcatSelect.selectedIndex] : null;
                 const subcatIdToSave = selectedSubcatOption ? selectedSubcatOption.dataset.id : null;
                 
                 try {
-                    const shippingOptionsData = [];
-                    document.querySelectorAll('.shipping-option-item').forEach(item => {
-                        const loc = item.querySelector('.shipping-location')?.value.trim();
-                        const costVal = item.querySelector('.shipping-cost')?.value;
-                        if (loc && costVal) { const cost = parseFloat(costVal); if (!isNaN(cost)) shippingOptionsData.push({ location: loc, cost }); }
-                    });
-                    
                     let newImageUrls = [];
-                    if (imageFiles.length === 0 && product) {
-                        newImageUrls = product.imageUrls || (product.imageUrl ? [product.imageUrl] : []);
+                    if (imageFiles.length === 0 && course) {
+                        newImageUrls = course.imageUrls || (course.imageUrl ? [course.imageUrl] : []);
                     }
                     if (imageFiles.length > 0) {
                         showLoadingModal(`جاري ضغط ورفع الصور (${imageFiles.length})...`);
@@ -432,59 +376,54 @@
                         }
                         newImageUrls = uploadResults.map(res => res.url);
                     }
-                    if (newImageUrls.length === 0 && !product) { closeModal(); return alert('يجب رفع صورة واحدة على الأقل للمنتج الجديد.'); }
+                    if (newImageUrls.length === 0 && !course) { closeModal(); return alert('يجب رفع صورة واحدة على الأقل للدورة الجديدة.'); }
 
                     showLoadingModal('جاري حفظ البيانات...');
                     
-                    const productData = {
+                    const courseData = {
                         name: cleanName, 
-                        price: price || 0, // السعر سيُحفظ الآن لجميع الأنواع
+                        price: 0, // السعر 0 دائماً للدورات
                         description: cleanDescription, 
                         categoryId, 
                         imageUrls: newImageUrls,
-                        availability: getVal('product-availability'),
-                        sku: getVal('product-sku').trim(),
-                        location: getVal('product-location').trim(),
+                        availability: getVal('course-availability'),
+                        sku: getVal('course-sku').trim(),
+                        location: null, // لا يوجد موقع للدورة
                         subCategoryName: selectedSubcatOption ? selectedSubcatOption.value : null,
                         subCategoryID: subcatIdToSave,
-                        supplier: getVal('product-supplier').trim(),
-                        supplierContact: getVal('product-supplier-contact').trim(),
-                        profitValue: getNum('product-profit-value') || 0,
-                        profitType: getVal('product-profit-type'),
-                        shippingOptions: shippingOptionsData,
+                        shippingOptions: [], // لا يوجد شحن للدورة
                         
-                        productType: newProductType,
-                        // (*** تم الحذف ***) تم حذف حقول الدورة من الحفظ
+                        productType: "course", // (*** هام ***) النوع مثبت على "دورة"
+                        courseLink: courseLink,
+                        professorId: professorId,
                         loyaltyPointsOverride: loyaltyPointsOverride || null, 
-                        directContactLinks: (newProductType === 'direct') ? directContactLinks : {}, 
+                        directContactLinks: {}, // فارغ
 
                         updatedAt: serverTimestamp(),
-                        sellerId: product?.sellerId || null, 
-                        sellerName: product?.sellerName || null
                     };
                     
-                    if (product) {
-                        await updateDoc(doc(db, "products", product.id), productData);
+                    if (course) {
+                        await updateDoc(doc(db, "products", course.id), courseData);
                     } else {
-                        productData.createdAt = serverTimestamp();
-                        await addDoc(collection(db, "products"), productData);
+                        courseData.createdAt = serverTimestamp();
+                        await addDoc(collection(db, "products"), courseData);
                     }
                     
                     closeModal();
                 } catch (error) {
-                    showModal('خطأ فادح', `فشل حفظ المنتج: ${error.message}`, () => closeModal(), 'موافق', false);
+                    showModal('خطأ فادح', `فشل حفظ الدورة: ${error.message}`, () => closeModal(), 'موافق', false);
                 }
             });
             
             // --- (إضافة محرر النصوص - كاملة) ---
             const fullToolbarOptions = [['bold', 'italic', 'underline', 'strike'],[{ 'list': 'ordered'}, { 'list': 'bullet' }],[{ 'align': [] }],[{ 'color': [] }, { 'background': [] }],['link'],['clean']];
-            nameQuill = new Quill('#product-name-editor', { theme: 'snow', modules: { toolbar: [ ['bold', 'italic', 'underline'], [{ 'color': [] }] ] } });
-            descriptionQuill = new Quill('#product-description-editor', { theme: 'snow', modules: { toolbar: fullToolbarOptions } });
-            if (product) { if(product.name) nameQuill.root.innerHTML = product.name; if(product.description) descriptionQuill.root.innerHTML = product.description; }
+            nameQuill = new Quill('#course-name-editor', { theme: 'snow', modules: { toolbar: [ ['bold', 'italic', 'underline'], [{ 'color': [] }] ] } });
+            descriptionQuill = new Quill('#course-description-editor', { theme: 'snow', modules: { toolbar: fullToolbarOptions } });
+            if (course) { if(course.name) nameQuill.root.innerHTML = course.name; if(course.description) descriptionQuill.root.innerHTML = course.description; }
 
             // --- (إضافة مستمعات الأحداث الداخلية للنافذة - كاملة) ---
-            getEl('product-category-select').addEventListener('change', (e) => populateSubcategories(e.target.value));
-            getEl('product-images').addEventListener('change', (e) => {
+            getEl('course-category-select').addEventListener('change', (e) => populateSubcategories(e.target.value));
+            getEl('course-images').addEventListener('change', (e) => {
                 const previewContainer = getEl('image-preview-container');
                 previewContainer.innerHTML = '';
                 Array.from(e.target.files).forEach(file => {
@@ -498,62 +437,34 @@
                     reader.readAsDataURL(file);
                 });
             });
-            const addShippingOption = () => {
-                const container = getEl('shipping-options-container');
-                const newItem = document.createElement('div');
-                newItem.className = 'flex items-center gap-2 mb-2 shipping-option-item';
-                newItem.innerHTML = `<input type="text" class="w-full p-2 border rounded shipping-location" placeholder="اسم الموقع (مثال: وهران)"><input type="number" class="w-32 p-2 border rounded shipping-cost" placeholder="السعر (د.ج)"><button type="button" class="text-red-500 remove-shipping-btn"><i class="fas fa-times-circle"></i></button>`;
-                newItem.querySelector('.remove-shipping-btn').onclick = () => newItem.remove();
-                container.appendChild(newItem);
-            };
-            getEl('add-shipping-option-btn').onclick = addShippingOption;
-            document.querySelectorAll('.remove-shipping-btn').forEach(btn => btn.onclick = (e) => e.currentTarget.closest('.shipping-option-item').remove());
-            if (product?.categoryId) {
-                populateSubcategories(product.categoryId, product.subCategoryID);
+            
+            if (course?.categoryId) {
+                populateSubcategories(course.categoryId, course.subCategoryID);
             }
-            
-            // (*** تعديل: ربط مستمع الأحداث لقائمة نوع المنتج ***)
-            const productTypeSelect = getEl('product-type');
-            const courseContainer = getEl('course-fields-container'); // سيبقى null وهو المطلوب
-            const contactContainer = getEl('direct-contact-container');
-            const shippingContainer = getEl('shipping-options-container').closest('.border-t'); 
-            const priceInput = getEl('product-price').closest('div');
-            
-            const toggleFields = () => {
-                const type = productTypeSelect.value;
-                if(courseContainer) courseContainer.classList.add('hidden'); // إخفاء حقول الدورة دائماً
-                contactContainer.classList.toggle('hidden', type !== 'direct');
-                
-                // (*** هذا هو التعديل المطلوب لحل المشكلتين ***)
-                // إظهار حقول السعر والشحن دائماً لجميع الأنواع
-                shippingContainer.classList.toggle('hidden', false);
-                priceInput.classList.toggle('hidden', false); 
-            };
-            
-            productTypeSelect.addEventListener('change', toggleFields);
-            toggleFields(); // التشغيل أول مرة لإظهار/إخفاء الحقول عند التعديل
         }
 
-    // --- (دالة ربط الأحداث - كاملة) ---
-    function attachProductActionListeners() {
-        document.querySelectorAll('.edit-product-btn').forEach(btn => btn.onclick = () => {
-            const productToEdit = productsCache.find(p => p.id === btn.dataset.id);
-            if (productToEdit) { showProductModal(productToEdit); }
+    // --- (دالة ربط الأحداث - معدلة) ---
+    function attachCourseActionListeners() {
+        document.querySelectorAll('.edit-course-btn').forEach(btn => btn.onclick = () => {
+            const courseToEdit = coursesCache.find(p => p.id === btn.dataset.id);
+            if (courseToEdit) { showCourseModal(courseToEdit); }
         });
-        document.querySelectorAll('.delete-product-btn').forEach(btn => {
+        document.querySelectorAll('.delete-course-btn').forEach(btn => {
             btn.onclick = async () => {
                  showDeleteConfirmationModal(async () => {
                     try {
+                        // (*** ملاحظة ***) الحذف يتم من 'products'
                         await deleteDoc(doc(db, "products", btn.dataset.id));
                         closeModal();
                     } catch(error) {
-                        showModal('خطأ',`فشل حذف المنتج: ${error.message}`, closeModal, 'موافق', false);
+                        showModal('خطأ',`فشل حذف الدورة: ${error.message}`, closeModal, 'موافق', false);
                     }
                 });
             }
         });
-        document.querySelectorAll('.copy-product-link-btn').forEach(btn => btn.onclick = (e) => {
+        document.querySelectorAll('.copy-course-link-btn').forEach(btn => btn.onclick = (e) => {
             const button = e.currentTarget;
+            // (*** هام ***) الرابط يجب أن يوجه إلى صفحة عرض المنتج/الدورة
             const productUrl = `https://s22market.github.io/S22MARKET/PRESENTPRODUCT.html?product=${button.dataset.id}`;
             navigator.clipboard.writeText(productUrl).then(() => {
                 const originalIcon = button.innerHTML;
