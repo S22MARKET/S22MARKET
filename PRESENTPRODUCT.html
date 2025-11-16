@@ -250,7 +250,106 @@
 
         function showLoadingModal(text = 'جاري التحميل...') { /* ... (كما هي) ... */ }
         function closeModal() { elements.modalContainer.innerHTML = ''; }
-        function showDirectContactModal(product, links) { /* ... (كما هي) ... */ }
+
+        // ================== (بداية الكود المُصحح) ==================
+
+        /**
+         * (جديد) دالة مساعدة لإنشاء نافذة منبثقة عامة
+         * (هذه الدالة كانت غير موجودة)
+         */
+        function showModal(title, content, showCloseButton = true) {
+            if (!elements.modalContainer) {
+                console.error("Modal container not found!");
+                return;
+            }
+
+            // نتأكد من عدم فتح نافذة فوق أخرى
+            if (document.getElementById('modal-backdrop-generic')) {
+                closeModal(); // أغلق أي نافذة قديمة أولاً
+            }
+            
+            elements.modalContainer.innerHTML = `
+                <div class="modal-backdrop active" id="modal-backdrop-generic">
+                    <div class="modal-content !max-w-md p-6 sm:p-8" style="animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);">
+                        <div class="flex justify-between items-center mb-4 border-b pb-3">
+                            <h3 class="text-xl font-bold text-gray-900">${title}</h3>
+                            <button id="modal-close-btn" class="text-gray-400 hover:text-gray-800 text-2xl ${showCloseButton ? '' : 'hidden'}">&times;</button>
+                        </div>
+                        <div id="modal-body">${content}</div>
+                        <div class="flex justify-end gap-4 mt-6 border-t pt-4">
+                            <button id="modal-cancel-btn" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إغلاق</button>
+                        </div>
+                    </div>
+                </div>`;
+
+            const backdrop = document.getElementById('modal-backdrop-generic');
+            const closeBtn = document.getElementById('modal-close-btn');
+            const cancelBtn = document.getElementById('modal-cancel-btn');
+
+            // نستخدم دالة الإغلاق 'closeModal' المعرّفة مسبقاً في ملفك
+            const closeModalFunc = () => {
+                closeModal(); 
+            };
+
+            if(closeBtn) closeBtn.onclick = closeModalFunc;
+            if(cancelBtn) cancelBtn.onclick = closeModalFunc;
+            if(backdrop) backdrop.onclick = (e) => { 
+                if (e.target.id === 'modal-backdrop-generic') {
+                    closeModalFunc(); 
+                }
+            };
+        }
+
+        /**
+         * (هذه هي الدالة التي كانت فارغة)
+         * دالة إظهار نافذة التواصل المباشر
+         */
+        function showDirectContactModal(product, links) {
+            let buttonsHTML = '<div class="space-y-4">';
+            
+            // تحضير رسالة الطلب
+            const productName = (product.name || '').replace(/<[^>]*>?/gm, ''); // إزالة تاجات HTML من الاسم
+            const introMessage = `مرحباً، أريد طلب هذا المنتج: ${productName}`;
+            const encodedMessage = encodeURIComponent(introMessage);
+
+            if (links.whatsapp && links.whatsapp.trim() !== '') {
+                let cleanWhatsapp = links.whatsapp.replace(/^(00|\+|0)/, '');
+                if (/^[567]\d{8}$/.test(cleanWhatsapp)) {
+                    cleanWhatsapp = '213' + cleanWhatsapp; // تحسين لأرقام الجزائر
+                }
+                buttonsHTML += `<a href="https://wa.me/${cleanWhatsapp}?text=${encodedMessage}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-3 w-full p-4 rounded-lg text-lg font-bold bg-green-500 text-white hover:bg-green-600 transition-colors">
+                                    <i class="fab fa-whatsapp"></i><span>تواصل عبر واتساب</span>
+                                </a>`;
+            }
+            if (links.facebook && links.facebook.trim() !== '') {
+                buttonsHTML += `<a href="${links.facebook}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-3 w-full p-4 rounded-lg text-lg font-bold bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                                    <i class="fab fa-facebook"></i><span>تواصل عبر فيسبوك</span>
+                                </a>`;
+            }
+            if (links.instagram && links.instagram.trim() !== '') {
+                buttonsHTML += `<a href="${links.instagram}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-3 w-full p-4 rounded-lg text-lg font-bold text-white hover:bg-pink-600 transition-colors" style="background-color: #E1306C;">
+                                    <i class="fab fa-instagram"></i><span>تواصل عبر انستغرام</span>
+                                </a>`;
+            }
+            if (links.telegram && links.telegram.trim() !== '') {
+                buttonsHTML += `<a href="${links.telegram}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-3 w-full p-4 rounded-lg text-lg font-bold bg-sky-500 text-white hover:bg-sky-600 transition-colors">
+                                    <i class="fab fa-telegram"></i><span>تواصل عبر تيليجرام</span>
+                                </a>`;
+            }
+            if (links.phone && links.phone.trim() !== '') {
+                buttonsHTML += `<a href="tel:${links.phone}" target="_blank" class="flex items-center justify-center gap-3 w-full p-4 rounded-lg text-lg font-bold bg-teal-500 text-white hover:bg-teal-600 transition-colors">
+                                    <i class="fas fa-phone-alt"></i><span>الاتصال هاتفياً</span>
+                                </a>`;
+            }
+
+            buttonsHTML += '</div>';
+
+            // استخدام الدالة الجديدة لإظهار النافذة
+            showModal('اختر وسيلة التواصل', buttonsHTML);
+        }
+
+        // ================== (نهاية الكود المُصحح) ==================
+
         function updateMainImage(newImageUrl) {
             elements.mainImage.src = newImageUrl;
             elements.lightboxImage.src = newImageUrl;
@@ -285,7 +384,7 @@
                 elements.smartBannerSecondaryBtn.textContent = "أكمل على الموقع";
             } else {
                 elements.smartBannerIcon.className = "fas fa-gem text-5xl text-blue-500 mb-4";
-                elements.smartBannerTitle.textContent = "لا تفوت المكافآت!";
+                elements.smartBannerTitle.textContent = "لا تفوت المكافآT!";
                 elements.smartBannerBody.textContent = "تطبيق الحاسوب والآيفون قيد التطوير. يمكنك التسجيل عبر المتصفح الآن للحفاظ على نقاطك!";
                 elements.smartBannerPrimaryBtn.textContent = "التسجيل الآن";
                 elements.smartBannerPrimaryBtn.href = "login.html";
