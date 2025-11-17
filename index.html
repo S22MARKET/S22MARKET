@@ -25,7 +25,6 @@
     body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-body); color: var(--text-primary); }
     html { scroll-behavior: smooth; }
 
-    /* (جديد) ستايل القائمة الجانبية (من index القديم) */
     .overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background-color: rgba(0,0,0,0.5); z-index: 1100;
@@ -40,7 +39,6 @@
     }
     .side-bar.active { right: 0; }
     
-    /* ستايل شريط التنقل السفلي */
     .bottom-nav {
         position: fixed; bottom: 0; left: 0; right: 0;
         background-color: var(--bg-card); border-top: 1px solid var(--border-color);
@@ -51,17 +49,12 @@
     .nav-item i { font-size: 1.25rem; margin-bottom: 0.25rem; }
     .nav-item.active { color: var(--primary-color); }
 
-    /* ستايل كرت الكاروسيل */
     .swiper-container { overflow: hidden; }
     .swiper-scrollbar { display: none; }
     .swiper-slide { width: auto; }
     
     .carousel-card {
-        /* (تعديل) استخدام vw للعرض المتجاوب على الهواتف مع حد أقصى وأدنى */
-        width: 42vw;          /* 42% من عرض الشاشة */
-        min-width: 150px;     /* أصغر عرض مسموح */
-        max-width: 170px;     /* أكبر عرض مسموح (قريب من الأصلي) */
-        
+        width: 42vw; min-width: 150px; max-width: 170px;
         background-color: var(--bg-card); border-radius: 0.75rem;
         box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden;
         border: 1px solid var(--border-color); flex-shrink: 0;
@@ -71,21 +64,14 @@
     .carousel-card-content { padding: 0.5rem; flex-grow: 1; display: flex; flex-direction: column; }
     .carousel-card-title {
         font-size: 0.875rem; font-weight: 700; line-height: 1.4;
-        height: 2.45em; /* سطرين */
-        overflow: hidden; margin-bottom: 0.25rem;
-        /* (إضافة) طريقة أفضل لضمان سطرين فقط */
+        height: 2.45em; overflow: hidden; margin-bottom: 0.25rem;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
     }
     
-    /* (جديد) ستايل كرت العرض (أكبر قليلاً) */
     .offer-carousel-card {
-        /* (تعديل) استخدام vw للعرض المتجاوب على الهواتف مع حد أقصى وأدنى */
-        width: 80vw;          /* 80% من عرض الشاشة */
-        min-width: 260px;     /* أصغر عرض مسموح */
-        max-width: 300px;     /* أكبر عرض مسموح (قريب من الأصلي) */
-        
+        width: 80vw; min-width: 260px; max-width: 300px;
         background-color: var(--bg-card); border-radius: 0.75rem;
         box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden;
         border: 1px solid var(--border-color); flex-shrink: 0;
@@ -93,9 +79,7 @@
     .offer-carousel-image { aspect-ratio: 16 / 9; background-size: cover; background-position: center; }
     .offer-carousel-title { 
         font-size: 1rem; font-weight: 700; margin: 0.75rem 0.75rem 0.5rem; 
-        /* (إضافة) تحديد ارتفاع العنوان لسطرين فقط */
-        height: 2.6em; /* 1.3 * 2 (سطرين) */
-        line-height: 1.3;
+        height: 2.6em; line-height: 1.3;
         overflow: hidden;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -103,7 +87,6 @@
     }
     .offer-price { color: var(--primary-color); font-size: 1.25rem; font-weight: 800; margin: 0 0.75rem 0.75rem; }
     
-    /* (جديد) ستايل المؤقت (من offers.html) */
     .countdown-timer-container {
         background-color: rgba(239, 68, 68, 0.1);
         border-top: 1px solid rgba(239, 68, 68, 0.2);
@@ -121,14 +104,12 @@
     .countdown-timer > div { display: flex; flex-direction: column; align-items: center; min-width: 1.5rem; }
     .countdown-timer span { font-size: 0.6rem; font-weight: 500; color: #b91c1c; }
 
-    /* (جديد) ستايل أيقونات الأقسام */
     .category-icon-item { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--text-primary); font-weight: 600; font-size: 0.875rem; }
     .category-icon-circle { width: 64px; height: 64px; border-radius: 50%; background-color: var(--bg-card); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: all 0.2s ease; }
     .category-icon-item:hover .category-icon-circle { transform: scale(1.05); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     
-    /* (جديد) الزر العائم */
     .fab {
-        position: fixed; bottom: 90px; /* فوق شريط التنقل */
+        position: fixed; bottom: 90px;
         left: 20px; width: 60px; height: 60px;
         background-color: var(--primary-color); color: white; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
@@ -137,10 +118,8 @@
     }
     .fab:hover { transform: scale(1.05); background-color: var(--primary-hover); }
     
-    /* (جديد) ستايل قائمة المستخدم */
     #user-menu-dropdown.show { display: block; animation: slideInUp 0.2s ease-out; }
     
-    /* (جديد) ستايل اللودر والتوست */
     .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
     .small-loader { border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -219,20 +198,24 @@
                     <a href="login.html" id="login-btn" class="hidden"></a>
                     <div id="user-menu" class="hidden">
                         <button id="user-menu-button"></button>
+                        
                         <div id="user-menu-dropdown" class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
                             <div class="p-3 border-b">
                                 <p class="text-sm text-gray-500">مرحباً بك،</p>
                                 <p class="font-bold text-gray-800" id="user-menu-displayname">...</p>
                             </div>
                             <a href="profile.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي ومحافطي</a>
-                            <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</div>
-                            <a href="dawarat_learning_dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-graduation-cap fa-fw ml-2 text-indigo-400"></i> بذلوراتي المسجلة</a>
+                            
                             <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">المتجر</div>
+                            <a href="seller-dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
                             <a href="order_history.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
                             <a href="loyalty_card.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء (الجواهر)</a>
+                            <a href="loyalty_tasks.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-tasks fa-fw ml-2 text-purple-400"></i> كسب الجواهر (المهام)</a>
+                            <a href="loyalty_rewards.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-gift fa-fw ml-2 text-yellow-400"></i> استبدال الجواهر</a>
+
                             <button id="logout-btn" class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
                         </div>
-                    </div>
+                        </div>
                 </div>
             </div>
         </header>
@@ -254,14 +237,7 @@
                 </div>
             </section>
 
-            <section id="courses-carousel-section" class="hidden">
-                <h2 class="text-2xl font-extrabold text-gray-800 mb-4 border-r-4 border-indigo-500 pr-4">أحدث البذلورات 🎓</h2>
-                <div class="swiper swiper-container">
-                    <div id="courses-carousel-wrapper" class="swiper-wrapper">
-                        </div>
-                </div>
-            </section>
-
+            <section id="courses-carousel-section" class="hidden"></section>
             <section id="products-carousel-section" class="hidden">
                 <h2 class="text-2xl font-extrabold text-gray-800 mb-4 border-r-4 border-blue-500 pr-4">منتجات المتجر 🛍️</h2>
                 <div class="swiper swiper-container">
@@ -287,19 +263,12 @@
             <i class="fas fa-home"></i>
             <span>الرئيسية</span>
         </a>
-        <a href="dawarat_courses.html" class="nav-item">
-            <i class="fas fa-graduation-cap"></i>
-            <span>البذلورات</span>
+       
+        <a href="cart.html" id="bottom-cart-btn" class="nav-item relative">
+            <i class="fas fa-shopping-cart"></i>
+            <span>السلة</span>
+            <span id="cart-badge-bottom" class="hidden absolute top-0 right-1/4 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white">0</span>
         </a>
-
-
-<a href="cart.html" id="bottom-cart-btn" class="nav-item relative">
-    <i class="fas fa-shopping-cart"></i>
-    <span>السلة</span>
-    <span id="cart-badge-bottom" class="absolute ...">0</span>
-</a>
-
-
         <a href="profile.html" id="bottom-profile-btn" class="nav-item">
             <i class="fas fa-user-circle"></i>
             <span>حسابي</span>
@@ -309,7 +278,6 @@
             <span>الدخول</span>
         </a>
     </footer>
-
     <div id="modal-container"></div>
     <div id="toast-container"></div>
 
@@ -318,7 +286,6 @@
     import { getFirestore, collection, getDocs, doc, getDoc, addDoc, query, orderBy, serverTimestamp, where, limit, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-    // ... (نفس إعدادات Firebase) ...
     const firebaseConfig = {
         apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
         authDomain: "s22market-4e3e6.firebaseapp.com",
@@ -339,14 +306,13 @@
     let cart = [];
     let storeSettings = {}; 
 
-    // (جديد) عناصر الواجهة المدمجة
     const elements = {
         modalContainer: document.getElementById('modal-container'),
         toastContainer: document.getElementById('toast-container'),
         loader: document.getElementById('store-loader'),
         
         // الهيدر
-        menuBtn: document.getElementById('menu-btn'), // (جديد) زر القائمة
+        menuBtn: document.getElementById('menu-btn'), 
         loginBtn: document.getElementById('login-btn'),
         userMenu: document.getElementById('user-menu'),
         userMenuButton: document.getElementById('user-menu-button'),
@@ -361,7 +327,7 @@
         bottomProfileBtn: document.getElementById('bottom-profile-btn'),
         bottomLoginBtn: document.getElementById('bottom-login-btn'),
         
-        // القائمة الجانبية (جديد)
+        // القائمة الجانبية
         sidebar: document.querySelector('.side-bar'),
         overlay: document.querySelector('.overlay'),
         closeSidebarBtn: document.getElementById('close-btn'),
@@ -371,24 +337,125 @@
         sidebarOrdersBtn: document.getElementById('sidebar-orders-btn'),
         
         // المحتوى
-        offersCarouselSection: document.getElementById('offers-carousel-section'), // (جديد)
-        offersCarouselWrapper: document.getElementById('offers-carousel-wrapper'), // (جديد)
+        offersCarouselSection: document.getElementById('offers-carousel-section'),
+        offersCarouselWrapper: document.getElementById('offers-carousel-wrapper'),
         categoryIconsWrapper: document.getElementById('category-icons-wrapper'),
-        coursesCarouselSection: document.getElementById('courses-carousel-section'),
-        coursesCarouselWrapper: document.getElementById('courses-carousel-wrapper'),
+        // (*** تعديل: تم حذف عناصر البذلورات ***)
+        // coursesCarouselSection: document.getElementById('courses-carousel-section'),
+        // coursesCarouselWrapper: document.getElementById('courses-carousel-wrapper'),
         productsCarouselSection: document.getElementById('products-carousel-section'),
         productsCarouselWrapper: document.getElementById('products-carousel-wrapper'),
     };
     
     // --- دوال المساعدة (Toast, Modals) ---
-    function showToast(message, isSuccess = true) { /* ... (كما هي) ... */ }
-    function showLoadingModal(text = 'جاري التحميل...') { /* ... (كما هي) ... */ }
+    // (الكود هنا كما هو، لا حاجة لتكراره)
+    function showToast(message, isSuccess = true) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${isSuccess ? '' : 'error'}`;
+        toast.innerHTML = `<i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i><span>${message}</span>`;
+        elements.toastContainer.appendChild(toast);
+        setTimeout(() => toast.remove(), 5000);
+    }
+    function showLoadingModal(text = 'جاري التحميل...') { /* ... */ }
     function closeModal() { elements.modalContainer.innerHTML = ''; }
     
-    // (جديد) دوال القائمة الجانبية (من index القديم)
-    function showInquiryModal(type) { /* ... (كود نافذة الشكوى) ... */ }
-    async function handleInquirySubmit(e, type) { /* ... (كود إرسال الشكوى) ... */ }
-    function showRedirectModal({ title, icon, message, targetUrl }) { /* ... (كود نافذة التحويل) ... */ }
+    // دوال القائمة الجانبية (Sidebar Modals)
+    function showInquiryModal(type) {
+        const title = type === 'complaint' ? 'تقديم شكوى أو رأي' : 'طلب منتج';
+        const content = `
+            <form id="inquiry-form" class="space-y-4">
+                <p class="text-sm text-gray-600">سيتم إرسال رسالتك مباشرة إلى الإدارة للمراجعة.</p>
+                <div>
+                    <label class="font-semibold text-sm">الاسم الكامل <span class="text-red-500">*</span></label>
+                    <input type="text" id="inq-name" class="mt-1 w-full p-2 border rounded" required>
+                </div>
+                <div>
+                    <label class="font-semibold text-sm">رقم الهاتف <span class="text-red-500">*</span></label>
+                    <input type="tel" id="inq-phone" class="mt-1 w-full p-2 border rounded" dir="ltr" required>
+                </div>
+                <div>
+                    <label class="font-semibold text-sm">نص الرسالة / الطلب <span class="text-red-500">*</span></label>
+                    <textarea id="inq-message" rows="4" class="mt-1 w-full p-2 border rounded" required></textarea>
+                </div>
+                <div class="text-left">
+                    <button type="submit" id="inq-submit-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                        <span class="button-text">إرسال</span>
+                        <div class="small-loader button-loader hidden"></div>
+                    </button>
+                </div>
+            </form>`;
+        elements.modalContainer.innerHTML = `
+            <div class="modal-backdrop active" id="modal-backdrop-inquiry">
+                <div class="modal-content !max-w-md p-6">
+                    <div class="flex justify-between items-center mb-4 border-b pb-3">
+                        <h3 class="text-xl font-bold">${title}</h3>
+                        <button id="modal-close-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button>
+                    </div>
+                    ${content}
+                </div>
+            </div>`;
+        
+        document.getElementById('modal-close-btn').onclick = closeModal;
+        document.getElementById('modal-backdrop-inquiry').onclick = (e) => { if (e.target.id === 'modal-backdrop-inquiry') closeModal(); };
+        document.getElementById('inquiry-form').onsubmit = (e) => handleInquirySubmit(e, type);
+    }
+
+    async function handleInquirySubmit(e, type) {
+        e.preventDefault();
+        const btn = document.getElementById('inq-submit-btn');
+        const btnText = btn.querySelector('.button-text');
+        const btnLoader = btn.querySelector('.button-loader');
+        
+        btn.disabled = true;
+        btnText.classList.add('hidden');
+        btnLoader.classList.remove('hidden');
+
+        try {
+            const data = {
+                type: type,
+                fullName: document.getElementById('inq-name').value,
+                phone: document.getElementById('inq-phone').value,
+                message: document.getElementById('inq-message').value,
+                status: 'جديد',
+                createdAt: serverTimestamp()
+            };
+            await addDoc(collection(db, "inquiries"), data);
+            closeModal();
+            showToast('تم إرسال رسالتك بنجاح، شكراً لك.', true);
+        } catch (error) {
+            console.error("Error submitting inquiry:", error);
+            showToast('فشل إرسال الرسالة، يرجى المحاولة لاحقاً.', false);
+        } finally {
+            btn.disabled = false;
+            btnText.classList.remove('hidden');
+            btnLoader.classList.add('hidden');
+        }
+    }
+
+    function showRedirectModal({ title, icon, message, targetUrl }) {
+        const content = `
+            <div class="text-center p-4">
+                <div class="text-6xl mb-4">${icon}</div>
+                <p class="text-lg text-gray-700">${message}</p>
+                <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="mt-6 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg hover:bg-blue-700 transition-all transform hover:scale-105 flex items-center justify-center gap-2">
+                    <i class="fas fa-external-link-alt"></i>
+                    متابعة
+                </a>
+            </div>`;
+        elements.modalContainer.innerHTML = `
+            <div class="modal-backdrop active" id="modal-backdrop-redirect">
+                <div class="modal-content !max-w-sm p-6">
+                    <div class="flex justify-between items-center mb-4 border-b pb-3">
+                        <h3 class="text-xl font-bold">${title}</h3>
+                        <button id="modal-close-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button>
+                    </div>
+                    ${content}
+                </div>
+            </div>`;
+        document.getElementById('modal-close-btn').onclick = closeModal;
+        document.getElementById('modal-backdrop-redirect').onclick = (e) => { if (e.target.id === 'modal-backdrop-redirect') closeModal(); };
+    }
+    
     const closeSidebar = () => {
         elements.sidebar.classList.remove('active');
         elements.overlay.classList.remove('active');
@@ -396,29 +463,17 @@
     };
 
     // --- دوال إعدادات المتجر ---
-    function applyStoreSettings() {
-        document.title = storeSettings.seoTitle || 'S22 Market';
-        // ... (بقية كود الإعدادات) ...
-    }
     async function loadStoreSettings() {
         try {
             const settingsDoc = await getDoc(doc(db, "settings", "storeConfig"));
             if(settingsDoc.exists()){
                 storeSettings = settingsDoc.data();
-                applyStoreSettings();
+                document.title = storeSettings.seoTitle || 'S22 Market';
             }
         } catch(e) { console.error("Could not fetch store settings:", e); }
     }
 
-    // --- (جديد) دوال المؤقت (من offers.html) ---
-    function calculateTimeRemaining(endTime) {
-        const total = Date.parse(endTime) - Date.parse(new Date());
-        const seconds = Math.floor((total / 1000) % 60);
-        const minutes = Math.floor((total / 1000 / 60) % 60);
-        const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
-        const days = Math.floor(total / (1000 * 60 * 60 * 24));
-        return { total, days, hours, minutes, seconds };
-    }
+    // --- دوال المؤقت (Timer) ---
     function updateCountdowns() {
         const countdownElements = document.querySelectorAll('.countdown-timer');
         countdownElements.forEach(el => {
@@ -438,9 +493,8 @@
         });
     }
 
-    // --- (جديد) دوال الأرفف (Carousels) المطورة ---
+    // --- دوال الأرفف (Carousels) ---
     
-    // (جديد) دالة العروض المطورة
     async function fetchAndRenderOffers() {
         try {
             const snapshot = await getDocs(query(collection(db, "offers"), orderBy("createdAt", "desc"), limit(5)));
@@ -459,7 +513,6 @@
                     freeMode: true,
                 });
                 
-                // (جديد) تشغيل المؤقت
                 if (document.querySelector('.countdown-timer')) {
                     updateCountdowns();
                     setInterval(updateCountdowns, 1000);
@@ -468,7 +521,6 @@
         } catch (error) { console.error("Error fetching offers:", error); }
     }
 
-    // (جديد) كرت العرض المطور
     function createOfferCard(offer) {
         const card = document.createElement('div');
         card.className = 'swiper-slide offer-carousel-card';
@@ -497,7 +549,6 @@
         return card;
     }
 
-    // (جديد) دالة جلب الأقسام (للقائمة الجانبية والأيقونات)
     async function fetchAndRenderCategories() {
         try {
             const snapshot = await getDocs(query(collection(db, "categories"), orderBy("orderIndex")));
@@ -506,31 +557,23 @@
             let categoriesIconsHTML = '';
             let categoriesSidebarHTML = `<div class="p-2 space-y-1">`;
             
-            // إضافة "كل المنتجات" للأيقونات
             categoriesIconsHTML += `
                 <a href="classproductindex.html" class="swiper-slide category-icon-item">
                     <div class="category-icon-circle"><i class="fas fa-store text-2xl text-gray-500"></i></div>
                     <span>كل المنتجات</span>
                 </a>`;
             
-            // (جديد) إضافة "تصفح البذلورات" للأيقونات
-            categoriesIconsHTML += `
-                <a href="dawarat_courses.html" class="swiper-slide category-icon-item">
-                    <div class="category-icon-circle"><i class="fas fa-graduation-cap text-2xl text-indigo-500"></i></div>
-                    <span>البذلورات</span>
-                </a>`;
+            // (*** تعديل: تم حذف أيقونة البذلورات من هنا ***)
 
             categoriesCache.forEach(cat => {
                 const activeSubcategories = cat.subcategories?.filter(s => s.active && s.id) || [];
                 
-                // 1. إضافة للأيقونات (الرئيسية فقط)
                 categoriesIconsHTML += `
                 <a href="classproductindex.html?category=${cat.id}" class="swiper-slide category-icon-item">
                     <div class="category-icon-circle"><i class="fas fa-tags text-2xl text-blue-500"></i></div>
                     <span>${cat.name}</span>
                 </a>`;
                 
-                // 2. إضافة للقائمة الجانبية (مع الفروع)
                 categoriesSidebarHTML += `
                     <div>
                         <a href="classproductindex.html?category=${cat.id}" class="flex items-center justify-between gap-4 p-3 text-lg font-semibold rounded-lg category-filter-btn hover:bg-gray-100" data-id="${cat.id}">
@@ -538,7 +581,7 @@
                             ${activeSubcategories.length > 0 ? `<i class="fas fa-chevron-down text-sm text-gray-400"></i>` : ''}
                         </a>`;
                 if(activeSubcategories.length > 0){
-                    categoriesSidebarHTML += `<div class="pr-8 mt-1 space-y-1 hidden">`; // Submenu hidden by default
+                    categoriesSidebarHTML += `<div class="pr-8 mt-1 space-y-1 hidden">`; 
                     activeSubcategories.forEach(sub => {
                         categoriesSidebarHTML += `<a href="classproductindex.html?subcategory=${sub.id}" class="block p-2 rounded-md hover:bg-gray-100 text-gray-600 font-medium">${sub.name}</a>`;
                     });
@@ -548,7 +591,6 @@
             });
             categoriesSidebarHTML += `</div>`;
 
-            // رسم الأيقونات
             elements.categoryIconsWrapper.innerHTML = categoriesIconsHTML;
             new Swiper('#category-icons-section .swiper-container', {
                 slidesPerView: 'auto',
@@ -556,39 +598,29 @@
                 freeMode: true,
             });
             
-            // رسم القائمة الجانبية
             elements.sidebarCategoriesContainer.innerHTML = categoriesSidebarHTML;
 
         } catch (error) { console.error("Error fetching categories:", error); }
     }
 
-    // (جديد) دالة جلب المنتجات والبذلورات
+    // (*** تعديل: دالة جلب المنتجات ***)
     async function fetchAndRenderProducts() {
         try {
-            const snapshot = await getDocs(query(
+            // (*** تعديل: جلب منتجات المتجر فقط ***)
+            const q = query(
                 collection(db, "products"), 
+                where("productType", "!=", "course"), // <-- الفلتر الجديد
+                orderBy("productType"),
                 orderBy("createdAt", "desc"), 
                 limit(20)
-            ));
+            );
+            const snapshot = await getDocs(q);
             productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-            // 1. فلترة البذلورات
-            const courses = productsCache.filter(p => p.productType === 'course' && p.availability !== 'sold_out');
-            if (courses.length > 0) {
-                elements.coursesCarouselWrapper.innerHTML = '';
-                courses.forEach(course => {
-                    elements.coursesCarouselWrapper.appendChild(createProductCard(course));
-                });
-                elements.coursesCarouselSection.classList.remove('hidden');
-                new Swiper('#courses-carousel-section .swiper-container', {
-                    slidesPerView: 'auto',
-                    spaceBetween: 16,
-                    freeMode: true,
-                });
-            }
+            // (*** تعديل: تم حذف منطق فلترة البذلورات ***)
 
             // 2. فلترة منتجات المتجر
-            const products = productsCache.filter(p => (p.productType === 'regular' || !p.productType) && p.availability !== 'sold_out');
+            const products = productsCache.filter(p => (p.productType === 'regular' || p.productType === 'direct' || !p.productType) && p.availability !== 'sold_out');
              if (products.length > 0) {
                 elements.productsCarouselWrapper.innerHTML = '';
                 products.forEach(product => {
@@ -608,7 +640,7 @@
         }
     }
     
-    // (جديد) كرت المنتج (للكاروسيل)
+    // (*** تعديل: كرت المنتج ***)
     function createProductCard(product) {
         const card = document.createElement('div');
         card.className = 'swiper-slide carousel-card';
@@ -618,13 +650,11 @@
         tempDiv.innerHTML = product.name;
         const productName = tempDiv.textContent || tempDiv.innerText || "";
         
+        // (*** تعديل: تم حذف منطق البذلورة ***)
         let cardLink = `PRESENTPRODUCT.html?product=${product.id}`;
         let priceHTML = `<p class="text-blue-600 font-bold mx-2 mb-2">${(product.price || 0).toLocaleString()} د.ج</p>`;
 
-        if (product.productType === 'course') {
-            cardLink = `dawarat_content.html?id=${product.id}`;
-            priceHTML = `<p class="text-indigo-600 font-bold mx-2 mb-2">عرض البذلورة</p>`;
-        } else if (product.productType === 'direct') {
+        if (product.productType === 'direct') {
             cardLink = `PRESENTPRODUCT.html?product=${product.id}`;
             priceHTML = `<p class="text-green-600 font-bold mx-2 mb-2">اطلب الآن</p>`;
         }
@@ -641,15 +671,20 @@
     }
 
     // --- دوال السلة ---
-    function loadCartFromStorage() { /* ... (كما هي) ... */ }
-    function saveCartToStorage() { /* ... (كما هي) ... */ }
+    function loadCartFromStorage() {
+        cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
+        updateCartIcon();
+    }
+    function saveCartToStorage() {
+        localStorage.setItem('s22market_cart', JSON.stringify(cart));
+        updateCartIcon();
+    }
     function updateCartIcon() {
         const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
         elements.cartBadgeBottom.textContent = totalItems;
         elements.cartBadgeBottom.classList.toggle('hidden', totalItems === 0);
     }
-    function showCartModal() { /* ... (كما هي) ... */ }
-    window.updateCartQuantity = (productId, newQuantity) => { /* ... (كما هي) ... */ };
+    function showCartModal() { window.location.href = 'cart.html'; } // (تعديل) توجيه مباشر للسلة
     
     // --- دالة بدء التشغيل الرئيسية ---
     async function initializeStore() {
@@ -668,7 +703,6 @@
         
         elements.loader.classList.add('hidden');
         
-        // (جديد) ربط القائمة الجانبية
         elements.menuBtn.onclick = () => {
             elements.sidebar.classList.add('active');
             elements.overlay.classList.add('active');
@@ -680,7 +714,6 @@
         elements.sidebarAddProductBtn.onclick = (e) => { e.preventDefault(); closeSidebar(); showRedirectModal({ title: "عرض منتج جديد", icon: "📦", message: "مرحباً بك، يبدو أن لديك منتج تريد عرضه يا زبوننا الكريم. نحن سنساعدك في البحث عنه كما سنساعدك في اقتنائه وبيعه على حد السواء.", targetUrl: e.currentTarget.href }); };
         elements.sidebarOrdersBtn.onclick = (e) => { e.preventDefault(); closeSidebar(); showRedirectModal({ title: "الطلبات والمأكولات", icon: "😋", message: "مرحباً بزائرنا الكريم، يبدو أنك جائع. لا تنسى، نحن نهتم بكل شيء عوضاً عنك. كما يمكنك أن تجد كوبونات لعدة مطاعم مستقبلاً.", targetUrl: e.currentTarget.href }); };
         
-        // (جديد) ربط القائمة المنسدلة (التي في الهيدر، والتي نستخدمها الآن كاحتياط)
         elements.userMenuButton.addEventListener('click', (e) => {
             e.stopPropagation();
             elements.userMenuDropdown.classList.toggle('show');
@@ -694,14 +727,11 @@
             signOut(auth).catch((error) => console.error('Logout Error', error));
         });
 
-        // (جديد) منطق المصادقة لشريط التنقل السفلي والهيدر
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // المستخدم مسجل
                 elements.bottomProfileBtn.classList.remove('hidden');
                 elements.bottomLoginBtn.classList.add('hidden');
                 
-                // (تحديث القائمة المنسدلة العلوية الاحتياطية)
                 elements.loginBtn.classList.add('hidden');
                 elements.loginBtn.classList.remove('sm:flex');
                 elements.userMenu.classList.remove('hidden');
@@ -710,11 +740,9 @@
                 elements.userMenuDisplayName.textContent = displayName;
                 
             } else {
-                // المستخدم زائر
                 elements.bottomProfileBtn.classList.add('hidden');
                 elements.bottomLoginBtn.classList.remove('hidden');
 
-                // (تحديث القائمة المنسدلة العلوية الاحتياطية)
                 elements.loginBtn.classList.remove('hidden');
                 elements.loginBtn.classList.add('sm:flex');
                 elements.userMenu.classList.add('hidden');
