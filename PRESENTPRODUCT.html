@@ -167,18 +167,6 @@
     <div id="modal-container"></div>
     <div id="toast-container"></div>
 
-    <div id="smart-banner-modal" class="modal-backdrop">
-        <div class="modal-content !max-w-md text-center p-6 sm:p-8">
-            <i id="smart-banner-icon" class="text-5xl mb-4"></i>
-            <h2 id="smart-banner-title" class="text-2xl font-bold text-gray-900 mb-3"></h2>
-            <p id="smart-banner-body" class="text-gray-600 mb-6"></p>
-            <a id="smart-banner-primary-btn" href="#" class="block w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg text-lg mb-3 hover:bg-green-700"></a>
-            <button id="smart-banner-secondary-btn" class="w-full text-gray-600 font-semibold py-2 px-4 rounded-lg hover:bg-gray-100">
-                أكمل كضيف
-            </button>
-        </div>
-    </div>
-    
     <div id="cart-decision-modal" class="modal-backdrop">
         <div class="modal-content !max-w-md text-center p-6 sm:p-8">
             <i class="fas fa-check-circle text-5xl text-green-500 mb-4"></i>
@@ -194,6 +182,7 @@
             </a>
         </div>
     </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -241,13 +230,9 @@
             sellerInfoCard: document.getElementById('seller-info-card'),
             reportProductBtn: document.getElementById('report-product-btn'),
             cartBtn: document.getElementById('cart-btn'),
-            smartBannerModal: document.getElementById('smart-banner-modal'),
-            smartBannerIcon: document.getElementById('smart-banner-icon'),
-            smartBannerTitle: document.getElementById('smart-banner-title'),
-            smartBannerBody: document.getElementById('smart-banner-body'),
-            smartBannerPrimaryBtn: document.getElementById('smart-banner-primary-btn'),
-            smartBannerSecondaryBtn: document.getElementById('smart-banner-secondary-btn'),
             cartDecisionModal: document.getElementById('cart-decision-modal'),
+            // (*** تم الحذف ***)
+            // تم حذف جميع عناصر smartBannerModal
         };
         
         // --- الدوال المساعدة ---
@@ -262,26 +247,20 @@
             setTimeout(() => toast.remove(), 5000);
         }
 
-        function showLoadingModal(text = 'جاري التحميل...') { /* ... (كما هي) ... */ }
+        function showLoadingModal(text = 'جاري التحميل...') {
+            elements.modalContainer.innerHTML = `
+            <div class="modal-backdrop active" id="modal-backdrop-loader">
+                <div class="modal-content !max-w-sm p-8 text-center" style="animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);">
+                    <div class="loader mx-auto"></div>
+                    <p class="mt-4 text-lg font-semibold text-gray-700">${text}</p>
+                </div>
+            </div>`;
+        }
         function closeModal() { elements.modalContainer.innerHTML = ''; }
 
-        // ================== (بداية الكود المُصحح) ==================
-
-        /**
-         * (جديد) دالة مساعدة لإنشاء نافذة منبثقة عامة
-         * (هذه الدالة كانت غير موجودة)
-         */
         function showModal(title, content, showCloseButton = true) {
-            if (!elements.modalContainer) {
-                console.error("Modal container not found!");
-                return;
-            }
-
-            // نتأكد من عدم فتح نافذة فوق أخرى
-            if (document.getElementById('modal-backdrop-generic')) {
-                closeModal(); // أغلق أي نافذة قديمة أولاً
-            }
-            
+            if (!elements.modalContainer) { console.error("Modal container not found!"); return; }
+            if (document.getElementById('modal-backdrop-generic')) { closeModal(); }
             elements.modalContainer.innerHTML = `
                 <div class="modal-backdrop active" id="modal-backdrop-generic">
                     <div class="modal-content !max-w-md p-6 sm:p-8" style="animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);">
@@ -295,42 +274,23 @@
                         </div>
                     </div>
                 </div>`;
-
             const backdrop = document.getElementById('modal-backdrop-generic');
             const closeBtn = document.getElementById('modal-close-btn');
             const cancelBtn = document.getElementById('modal-cancel-btn');
-
-            // نستخدم دالة الإغلاق 'closeModal' المعرّفة مسبقاً في ملفك
-            const closeModalFunc = () => {
-                closeModal(); 
-            };
-
+            const closeModalFunc = () => { closeModal(); };
             if(closeBtn) closeBtn.onclick = closeModalFunc;
             if(cancelBtn) cancelBtn.onclick = closeModalFunc;
-            if(backdrop) backdrop.onclick = (e) => { 
-                if (e.target.id === 'modal-backdrop-generic') {
-                    closeModalFunc(); 
-                }
-            };
+            if(backdrop) backdrop.onclick = (e) => { if (e.target.id === 'modal-backdrop-generic') closeModalFunc(); };
         }
 
-        /**
-         * (هذه هي الدالة التي كانت فارغة)
-         * دالة إظهار نافذة التواصل المباشر
-         */
         function showDirectContactModal(product, links) {
             let buttonsHTML = '<div class="space-y-4">';
-            
-            // تحضير رسالة الطلب
-            const productName = (product.name || '').replace(/<[^>]*>?/gm, ''); // إزالة تاجات HTML من الاسم
+            const productName = (product.name || '').replace(/<[^>]*>?/gm, '');
             const introMessage = `مرحباً، أريد طلب هذا المنتج: ${productName}`;
             const encodedMessage = encodeURIComponent(introMessage);
-
             if (links.whatsapp && links.whatsapp.trim() !== '') {
                 let cleanWhatsapp = links.whatsapp.replace(/^(00|\+|0)/, '');
-                if (/^[567]\d{8}$/.test(cleanWhatsapp)) {
-                    cleanWhatsapp = '213' + cleanWhatsapp; // تحسين لأرقام الجزائر
-                }
+                if (/^[567]\d{8}$/.test(cleanWhatsapp)) { cleanWhatsapp = '213' + cleanWhatsapp; }
                 buttonsHTML += `<a href="https://wa.me/${cleanWhatsapp}?text=${encodedMessage}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-3 w-full p-4 rounded-lg text-lg font-bold bg-green-500 text-white hover:bg-green-600 transition-colors">
                                     <i class="fab fa-whatsapp"></i><span>تواصل عبر واتساب</span>
                                 </a>`;
@@ -355,14 +315,9 @@
                                     <i class="fas fa-phone-alt"></i><span>الاتصال هاتفياً</span>
                                 </a>`;
             }
-
             buttonsHTML += '</div>';
-
-            // استخدام الدالة الجديدة لإظهار النافذة
             showModal('اختر وسيلة التواصل', buttonsHTML);
         }
-
-        // ================== (نهاية الكود المُصحح) ==================
 
         function updateMainImage(newImageUrl) {
             elements.mainImage.src = newImageUrl;
@@ -371,47 +326,158 @@
                 th.classList.toggle('active', th.dataset.image === newImageUrl);
             });
         }
-        async function loadSellerInfo(sellerId) { /* ... (كما هي) ... */ }
-        function showSellerInquiryModal() { /* ... (كما هي) ... */ }
-        async function handleSellerInquirySubmit(e, type) { /* ... (كما هي) ... */ }
-        function showReportModal() { /* ... (كما هي) ... */ }
-        async function handleReportSubmit(e) { /* ... (كما هي) ... */ }
         
-        function detectOS() {
-            const ua = navigator.userAgent;
-            if (/android/i.test(ua)) return "Android";
-            if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return "iOS";
-            return "PC";
-        }
-        
-        function showSmartBanner() {
-            if (sessionStorage.getItem('smartBannerShown')) return;
-            const os = detectOS();
-            if (os === 'Android') {
-                elements.smartBannerIcon.className = "fab fa-google-play text-5xl text-green-500 mb-4";
-                elements.smartBannerTitle.textContent = "تجربة أفضل، مكافآت أكثر!";
-                elements.smartBannerBody.textContent = "حمل تطبيقنا الرسمي لنظام أندرويد واحصل على مكافآت 💎 عند التسجيل!";
-                elements.smartBannerPrimaryBtn.textContent = "تحميل التطبيق";
-                elements.smartBannerPrimaryBtn.href = "S22MARKET_app_site.html";
-                elements.smartBannerPrimaryBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-                elements.smartBannerPrimaryBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
-                elements.smartBannerSecondaryBtn.textContent = "أكمل على الموقع";
-            } else {
-                elements.smartBannerIcon.className = "fas fa-gem text-5xl text-blue-500 mb-4";
-                elements.smartBannerTitle.textContent = "لا تفوت المكافآT!";
-                elements.smartBannerBody.textContent = "تطبيق الحاسوب والآيفون قيد التطوير. يمكنك التسجيل عبر المتصفح الآن للحفاظ على نقاطك!";
-                elements.smartBannerPrimaryBtn.textContent = "التسجيل الآن";
-                elements.smartBannerPrimaryBtn.href = "login.html";
-                elements.smartBannerPrimaryBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                elements.smartBannerPrimaryBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-                elements.smartBannerSecondaryBtn.textContent = "أكمل كضيف";
-            }
-            elements.smartBannerModal.classList.add('active');
-            sessionStorage.setItem('smartBannerShown', 'true');
+        async function loadSellerInfo(sellerId) {
+            try {
+                const sellerDoc = await getDoc(doc(db, "users", sellerId));
+                if (sellerDoc.exists()) {
+                    currentSeller = { id: sellerDoc.id, ...sellerDoc.data() };
+                    const links = currentSeller.socialLinks || {};
+                    let socialHTML = '';
+                    if (links.facebook) socialHTML += `<a href="${links.facebook}" target="_blank" title="فيسبوك"><i class="fab fa-facebook"></i></a>`;
+                    if (links.instagram) socialHTML += `<a href="https://instagram.com/${links.instagram.replace('@','')}" target="_blank" title="انستغرام"><i class="fab fa-instagram"></i></a>`;
+                    if (links.telegram) socialHTML += `<a href="https://t.me/${links.telegram.replace('@','')}" target="_blank" title="تيليجرام"><i class="fab fa-telegram"></i></a>`;
+
+                    elements.sellerInfoCard.innerHTML = `
+                        <h2 class="text-2xl font-bold mb-4 border-b pb-3 text-slate-800">عن البائع</h2>
+                        <div class="flex items-center gap-4">
+                            <i class="fas fa-user-tie fa-3x text-gray-400"></i>
+                            <div>
+                                <h3 class="text-xl font-bold">${currentSeller.displayName || 'بائع معتمد'}</h3>
+                                <p class="text-sm text-gray-500">متجر: ${currentSeller.storeName || 'غير محدد'}</p>
+                            </div>
+                        </div>
+                        <div id="seller-social-links" class="flex justify-center gap-4 mt-4 pt-4 border-t">
+                            ${socialHTML || '<p class="text-sm text-gray-400">لا توجد روابط تواصل للبائع.</p>'}
+                        </div>
+                        <button id="contact-seller-btn" class="mt-4 w-full bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-envelope mr-2"></i> مراسلة البائع
+                        </button>`;
+                    elements.sellerInfoCard.classList.remove('hidden');
+                    document.getElementById('contact-seller-btn').onclick = showSellerInquiryModal;
+                }
+            } catch (e) { console.error("Error loading seller info:", e); }
         }
 
-        // ================== (بداية التعديل) ==================
-        // إصلاح دالة عرض الصور للتعامل مع العروض (imageUrl) والمنتجات (imageUrls)
+        function showSellerInquiryModal() {
+            if (!currentSeller) return;
+            const content = `
+                <form id="seller-inquiry-form" class="space-y-4">
+                    <p class="text-sm text-gray-600">سيتم إرسال رسالتك مباشرة إلى البائع: <strong>${currentSeller.displayName}</strong>.</p>
+                    <input type="hidden" id="inq-seller-id" value="${currentSeller.id}">
+                    <input type="hidden" id="inq-seller-name" value="${currentSeller.displayName}">
+                    <div>
+                        <label class="font-semibold text-sm">اسمك الكامل*</label>
+                        <input type="text" id="inq-name" class="mt-1 w-full p-2 border rounded bg-gray-50" required>
+                    </div>
+                    <div>
+                        <label class="font-semibold text-sm">رقم هاتفك*</label>
+                        <input type="tel" id="inq-phone" class="mt-1 w-full p-2 border rounded bg-gray-50" dir="ltr" required>
+                    </div>
+                    <div>
+                        <label class="font-semibold text-sm">رسالتك*</label>
+                        <textarea id="inq-message" rows="4" class="mt-1 w-full p-2 border rounded bg-gray-50" required></textarea>
+                    </div>
+                    <div class="text-left">
+                        <button type="submit" id="inq-submit-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                            <span class="button-text">إرسال</span>
+                            <div class="small-loader button-loader hidden"></div>
+                        </button>
+                    </div>
+                </form>`;
+            showModal(`مراسلة البائع`, content);
+            document.getElementById('seller-inquiry-form').onsubmit = (e) => handleSellerInquirySubmit(e, 'seller_inquiry');
+        }
+
+        async function handleSellerInquirySubmit(e, type) {
+            e.preventDefault();
+            const btn = document.getElementById('inq-submit-btn');
+            toggleButtonState(btn, true);
+            try {
+                const data = {
+                    type: type,
+                    fullName: document.getElementById('inq-name').value,
+                    phone: document.getElementById('inq-phone').value,
+                    message: document.getElementById('inq-message').value,
+                    sellerId: document.getElementById('inq-seller-id').value,
+                    sellerName: document.getElementById('inq-seller-name').value,
+                    productName: currentProduct.name.replace(/<[^>]*>?/gm, ''),
+                    productId: currentProduct.id,
+                    status: 'جديد',
+                    createdAt: serverTimestamp()
+                };
+                await addDoc(collection(db, "inquiries"), data);
+                closeModal();
+                showToast('تم إرسال رسالتك بنجاح.', true);
+            } catch (error) { showToast('فشل إرسال الرسالة.', false); } 
+            finally { toggleButtonState(btn, false); }
+        }
+        
+        function showReportModal() {
+            const content = `
+                <form id="report-form" class="space-y-4">
+                    <p class="text-sm text-gray-600">سيتم إرسال بلاغك إلى الإدارة لمراجعته.</p>
+                    <div>
+                        <label class="font-semibold text-sm">اسمك الكامل*</label>
+                        <input type="text" id="report-name" class="mt-1 w-full p-2 border rounded bg-gray-50" required>
+                    </div>
+                    <div>
+                        <label class="font-semibold text-sm">رقم هاتفك*</label>
+                        <input type="tel" id="report-phone" class="mt-1 w-full p-2 border rounded bg-gray-50" dir="ltr" required>
+                    </div>
+                    <div>
+                        <label class="font-semibold text-sm">سبب الإبلاغ*</label>
+                        <select id="report-reason" class="mt-1 w-full p-2 border rounded bg-gray-50" required>
+                            <option value="">-- اختر سبباً --</option>
+                            <option value="محتوى مضلل">محتوى مضلل</option>
+                            <option value="منتج مقلد">منتج مقلد</option>
+                            <option value="احتيال">اشتباه في احتيال</option>
+                            <option value="محتوى غير لائق">محتوى غير لائق</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="font-semibold text-sm">رسالتك (توضيح)*</label>
+                        <textarea id="report-message" rows="4" class="mt-1 w-full p-2 border rounded bg-gray-50" required></textarea>
+                    </div>
+                    <div class="text-left">
+                        <button type="submit" id="report-submit-btn" class="bg-red-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-700 flex items-center gap-2">
+                            <span class="button-text">إرسال البلاغ</span>
+                            <div class="small-loader button-loader hidden"></div>
+                        </button>
+                    </div>
+                </form>`;
+            showModal(`الإبلاغ عن منتج`, content);
+            document.getElementById('report-form').onsubmit = handleReportSubmit;
+        }
+
+        async function handleReportSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('report-submit-btn');
+            toggleButtonState(btn, true);
+            try {
+                const data = {
+                    type: 'product_report',
+                    fullName: document.getElementById('report-name').value,
+                    phone: document.getElementById('report-phone').value,
+                    reason: document.getElementById('report-reason').value,
+                    message: document.getElementById('report-message').value,
+                    productName: currentProduct.name.replace(/<[^>]*>?/gm, ''),
+                    productId: currentProduct.id,
+                    status: 'pending',
+                    createdAt: serverTimestamp()
+                };
+                await addDoc(collection(db, "productReports"), data);
+                closeModal();
+                showToast('تم إرسال بلاغك بنجاح. شكراً لك.', true);
+            } catch (error) { showToast('فشل إرسال البلاغ.', false); } 
+            finally { toggleButtonState(btn, false); }
+        }
+
+        // (*** تم الحذف ***)
+        // function detectOS() { ... }
+        // function showSmartBanner() { ... }
+        
         function renderProduct(product) {
             currentProduct = product;
             const productNamePlainText = (product.name || '').replace(/<[^>]*>?/gm, '');
@@ -424,8 +490,6 @@
             if (product.location) { elements.productLocation.textContent = product.location; elements.productLocationContainer.classList.remove('hidden'); } 
             else { elements.productLocationContainer.classList.add('hidden'); }
             
-            // --- (هذا هو السطر الذي تم إصلاحه) ---
-            // يتحقق من مصفوفة الصور أولاً، ثم من الصورة المفردة (للعروض)، ثم يضع صورة افتراضية
             const images = (product.imageUrls && product.imageUrls.length > 0) 
                 ? product.imageUrls 
                 : (product.imageUrl ? [product.imageUrl] : ['https://placehold.co/600x600/E2E8F0/475569?text=No+Image']);
@@ -468,7 +532,7 @@
             if (showCourseButton) {
                 const courseLink = product.courseLink || `dawarat_content.html?id=${product.id}`;
                 desktopButtonsHTML += `<a href="${courseLink}" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-6 rounded-lg text-xl flex items-center justify-center gap-3 transition-colors"><i class="fas fa-graduation-cap"></i><span>عرض البذلورة</span></a>`;
-                mobileButtonsHTML += `<a href="${courseLink}" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg text-base flex items-center justify-center gap-2"><i class="fas fa-graduation-cap"></i> عرض البذلورة</a>`;
+                mobileButtonsHTML += `<a href="${courseLink}" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg text-base flex items-center justify-center gap-2"><i class="fas fa-graduation-cap"></i> عرض البذBذلورة</a>`;
             }
             if (showDirectButton) {
                 desktopButtonsHTML += `<button id="direct-order-btn-desktop" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg text-xl flex items-center justify-center gap-3 transform hover:scale-105 transition-transform"><i class="fas fa-paper-plane"></i><span>اطلب الآن</span></button>`;
@@ -508,7 +572,6 @@
             elements.pageLoader.classList.add('hidden');
             elements.pageContent.classList.remove('hidden');
         }
-        // ================== (نهاية التعديل) ==================
 
         async function fetchItem(collectionName, itemId) {
              try {
@@ -547,8 +610,8 @@
                     id: currentProduct.id, 
                     name: productNamePlainText, 
                     price: currentProduct.price, 
-                    imageUrls: currentProduct.imageUrls, // (ملاحظة: هذا الحقل لا يزال يستخدم imageUrls)
-                    imageUrl: currentProduct.imageUrl, // (احتياط)
+                    imageUrls: currentProduct.imageUrls,
+                    imageUrl: currentProduct.imageUrl,
                     quantity: 1,
                     isOffer: currentProduct.isOffer || false 
                 }); 
@@ -562,38 +625,22 @@
             }
         }
         
-        
-        // START: === (الكود المبرمج) ===
-        /**
-         * دالة مشاركة المنتج
-         */
         async function shareProduct() {
             if (!currentProduct) return;
-
             const productName = (currentProduct.name || '').replace(/<[^>]*>?/gm, '');
             const shareData = {
                 title: `اكتشف: ${productName}`,
                 text: `ألقِ نظرة على هذا المنتج الرائع "${productName}" على S22MARKET!`,
                 url: window.location.href
             };
-
             if (navigator.share) {
-                try {
-                    await navigator.share(shareData);
-                    // console.log('Product shared successfully');
-                } catch (err) {
-                    // console.error('Share failed:', err.message);
-                }
+                try { await navigator.share(shareData); } catch (err) {}
             } else {
-                // خيار احتياطي للمتصفحات التي لا تدعم المشاركة
                 await copyLink();
                 showToast('المشاركة المباشرة غير مدعومة. تم نسخ الرابط!', 'success');
             }
         }
 
-        /**
-         * دالة نسخ الرابط
-         */
         async function copyLink() {
             const url = window.location.href;
             try {
@@ -604,8 +651,6 @@
                 console.error('Failed to copy link: ', err);
             }
         }
-        // END: === (الكود المبرمج) ===
-        
         
         document.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
@@ -626,7 +671,7 @@
                         data = { 
                             id: offerData.id, name: offerData.title, description: offerData.description,
                             price: offerData.price, 
-                            imageUrl: offerData.imageUrl, // (مهم) تمرير الحقل الصحيح
+                            imageUrl: offerData.imageUrl, 
                             location: 'عرض خاص', isOffer: true, availability: 'available'
                         }; 
                     } else { 
@@ -677,9 +722,8 @@
             
             elements.cartBtn.onclick = (e) => { e.preventDefault(); window.location.href = 'cart.html'; }; 
 
-            elements.smartBannerSecondaryBtn.onclick = () => {
-                elements.smartBannerModal.classList.remove('active');
-            };
+            // (*** تم الحذف ***)
+            // elements.smartBannerSecondaryBtn.onclick = ...
             
             elements.cartDecisionModal.addEventListener('click', (e) => {
                  if (e.target.id === 'cart-decision-modal' || e.target.closest('a')) {
@@ -691,9 +735,8 @@
         
         onAuthStateChanged(auth, (user) => {
             currentUser = user; 
-            if (!user) {
-                setTimeout(showSmartBanner, 1500);
-            }
+            // (*** تم الحذف ***)
+            // تم حذف استدعاء showSmartBanner()
         });
     </script>
 </body>
