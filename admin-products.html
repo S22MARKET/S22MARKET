@@ -19,11 +19,9 @@
         .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
         .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 40; display: flex; align-items: center; justify-content: center; }
         .modal-content { background-color: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 700px; z-index: 50; max-height: 90vh; overflow-y: auto; }
-        /* تحسينات CSS للمحرر */
-        .ql-toolbar { border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem; z-index: 60; position: relative; }
-        .ql-container { border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem; min-height: 120px; }
-        .ql-editor { font-family: 'Tajawal', sans-serif; min-height: 120px; }
-        .ql-tooltip { z-index: 1000 !important; } /* حل مشكلة اختفاء قائمة الروابط */
+        .ql-toolbar { border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem; }
+        .ql-container { border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem; min-height: 80px; }
+        .ql-editor { font-family: 'Tajawal', sans-serif; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -131,6 +129,7 @@
     const getNum = (id) => parseFloat(getVal(id));
     const getChecked = (id) => getEl(id)?.checked || false;
 
+    // --- (دوال المصادقة والقائمة الجانبية - كاملة) ---
     function checkAdminPermissions(user) {
         if (user && ADMIN_EMAILS.includes(user.email)) {
             loginPage.classList.add('hidden');
@@ -159,8 +158,10 @@
         });
     }
 
+    // --- (الدالة الرئيسية - تم تعديلها) ---
     async function initializeDashboard() {
         setActiveTab();
+        // (*** تم التعديل ***) جلب الأقسام فقط
         await Promise.all([
             onSnapshot(query(collection(db, "categories"), orderBy("orderIndex")), (snapshot) => {
                 categoriesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -169,9 +170,7 @@
         loadProducts(); 
     }
 
-    // -----------------------------------------------------
-    // *** تصحيح هام: دالة تحميل المنتجات لعرض الجميع ***
-    // -----------------------------------------------------
+    // --- (دالة تحميل المنتجات - معدلة) ---
     function loadProducts() {
         const panel = getEl('products-panel');
         panel.innerHTML = `<div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">إدارة المنتجات (المتجر)</h1><button id="add-product-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"><i class="fas fa-plus mr-2"></i> إضافة منتج</button></div>
@@ -179,22 +178,22 @@
 
         getEl('add-product-btn').addEventListener('click', () => showProductModal());
         
-        // إزالة الفلتر المعقد لتجنب مشاكل الفهرسة
-        const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+        // (*** تعديل هام ***) الفلترة لإزالة الدورات من هذا العرض
+        const q = query(collection(db, "products"), 
+                        where("productType", "!=", "course"), // <-- الشرط الجديد
+                        orderBy("productType"), // <-- مطلوب لإضافة الفلتر
+                        orderBy("createdAt", "desc"));
         
         onSnapshot(q, (snapshot) => {
-            // فلترة الدورات هنا في المتصفح بدلاً من قاعدة البيانات
-            productsCache = snapshot.docs
-                .map(doc => ({ id: doc.id, ...doc.data() }))
-                .filter(p => p.productType !== 'course'); // استبعاد الدورات فقط، والإبقاء على الباقي
-
+            productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderProductsGrid();
         }, (error) => {
             console.error("Error fetching products: ", error);
-            panel.innerHTML = `<p class="text-red-500 text-center"><b>خطأ:</b> لم يتم جلب المنتجات.</p>`;
+            panel.innerHTML = `<p class="text-red-500 text-center"><b>خطأ:</b> لم يتم جلب المنتجات. <br>السبب المحتمل هو أن الفهرس (Index) الخاص بـ 'products' لم يتم إنشاؤه بعد. يرجى مراجعة لوحة تحكم Firebase.</p>`;
         });
     }
 
+    // --- (دالة عرض كروت المنتجات - معدلة) ---
     function renderProductsGrid() {
         const list = getEl('products-list');
         list.innerHTML = productsCache.length === 0 ? '<p class="text-center text-gray-500 col-span-full mt-8">لا توجد منتجات. أضف منتجاً جديداً للبدء.</p>' : '';
@@ -211,11 +210,12 @@
             }
 
             let productTypeBadge = '';
+            // (*** تعديل ***) تم حذف حالة "course"
             switch(product.productType) { 
                 case 'direct':
                     productTypeBadge = '<span class="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-full"><i class="fas fa-paper-plane mr-1"></i>تواصل مباشر</span>';
                     break;
-                default: 
+                default: // 'regular' or undefined
                     productTypeBadge = '<span class="absolute top-2 right-2 bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded-full"><i class="fas fa-shopping-cart mr-1"></i>منتج عادي</span>';
             }
             
@@ -255,6 +255,7 @@
         attachProductActionListeners();
     }
 
+    // --- (دوال مساعدة - كاملة) ---
     function populateSubcategories(categoryId, selectedSubCategoryId = null) {
         const subCategoryContainer = getEl('product-subcategory-container');
         const subCategorySelect = getEl('product-subcategory');
@@ -309,6 +310,7 @@
         });
     }
     
+    // --- (النافذة الموحدة - معدلة للمتجر فقط) ---
     function showProductModal(product = null) {
         
         const productType = product?.productType || 'regular';
@@ -327,6 +329,7 @@
             </div>
         `).join('');
         
+        // (*** تعديل ***) حقول التواصل المباشر فقط
         const directOrderSpecificHTML = `
             <div id="direct-contact-container" class="hidden border-t pt-4 mt-4">
                 <h3 class="font-bold text-lg text-green-700 mb-2">روابط التواصل المباشر</h3>
@@ -358,7 +361,7 @@
                 <div><label class="font-semibold">SKU / رمز المنتج</label><input type="text" id="product-sku" class="mt-1 w-full p-2 border rounded" value="${product?.sku || ''}" placeholder="رمز فريد للمنتج"></div>
             </div>
             <div><label class="font-semibold">حالة التوفر</label><select id="product-availability" class="w-full p-2 border rounded mt-1 bg-white"><option value="available" ${!product || product.availability === 'available' ? 'selected' : ''}>متوفر</option><option value="soon" ${product?.availability === 'soon' ? 'selected' : ''}>قريبًا</option><option value="sold_out" ${product?.availability === 'sold_out' ? 'selected' : ''}>نفذ المخزون</option></select></div>
-            <div><label class="font-semibold">الوصف</label><div id="product-description-editor" class="mt-1 bg-white"></div></div>
+            <div><label class="font-semibold">الوصف</label><div id="product-description-editor" class="mt-1 bg-white" style="min-height: 150px;"></div></div>
             <div><label class="font-semibold">موقع المنتج (اختياري)</label><input type="text" id="product-location" class="mt-1 w-full p-2 border rounded" value="${product?.location || ''}" placeholder="مثال: مستودع الجزائر العاصمة"></div>
             <div class="border-t pt-4 mt-4"><label class="font-semibold">أسعار التوصيل الخاصة بالمنتج (اختياري)</label><div id="shipping-options-container" class="space-y-2 bg-gray-50 p-3 rounded-md">${shippingOptionsHTML}</div><button type="button" id="add-shipping-option-btn" class="text-sm mt-2 text-indigo-600 font-semibold hover:underline"><i class="fas fa-plus-circle mr-1"></i>إضافة سعر توصيل</button></div>
             <div class="border-t pt-4 mt-4 space-y-4"><h3 class="text-lg font-bold text-gray-500">معلومات داخلية (لا تظهر للعميل)</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="font-semibold text-gray-700">المورد</label><input type="text" id="product-supplier" class="mt-1 w-full p-2 border rounded" value="${product?.supplier || ''}" placeholder="اسم المورد أو الشركة"></div><div><label class="font-semibold text-gray-700">تواصل المورد</label><textarea id="product-supplier-contact" class="mt-1 w-full p-2 border rounded" rows="3" placeholder="أرقام الهواتف...">${product?.supplierContact || ''}</textarea></div></div><div><label class="font-semibold text-green-700">الربح من هذا المنتج</label><div class="flex items-center mt-1"><input type="number" id="product-profit-value" class="w-full p-2 border rounded-r-md" value="${product?.profitValue || ''}" placeholder="0"><select id="product-profit-type" class="p-2 border-l-0 border rounded-l-md bg-gray-100"><option value="fixed" ${product?.profitType === 'fixed' ? 'selected' : ''}>د.ج</option><option value="percentage" ${product?.profitType === 'percentage' ? 'selected' : ''}>%</option></select></div></div>
@@ -371,14 +374,8 @@
             
             showModal(title, commonFields, async () => {
                 const imageFiles = getEl('product-images')?.files || [];
-                
-                // -----------------------------------------
-                // *** تصحيح هام: التأكد من قراءة القيم من المحرر ***
-                // -----------------------------------------
                 let nameHTML = nameQuill.root.innerHTML.trim();
                 let descriptionHTML = descriptionQuill.root.innerHTML.trim();
-                
-                // تنظيف القيم الفارغة
                 if (nameHTML === '<p><br></p>') nameHTML = '';
                 if (descriptionHTML === '<p><br></p>') descriptionHTML = '';
                 
@@ -386,6 +383,7 @@
                 const cleanDescription = DOMPurify.sanitize(descriptionHTML);
                 const price = getNum('product-price');
                 const categoryId = getVal('product-category-select');
+                const productNameText = nameQuill.getText().trim();
                 
                 const newProductType = getVal('product-type');
                 const loyaltyPointsOverride = getNum('product-loyalty-override');
@@ -397,10 +395,12 @@
                     phone: getVal('contact-link-phone').trim()
                 };
 
+                // --- التحقق ---
                 if (!cleanName || !categoryId) {
                     return alert('يرجى ملء اسم المنتج والقسم الرئيسي.');
                 }
                 
+                // (*** تعديل ***) أصبح السعر مطلوباً للمنتج العادي، واختيارياً للتواصل المباشر
                 if (newProductType === 'regular' && isNaN(price)) {
                      return alert('للمنتج العادي: يرجى إدخال السعر.');
                 }
@@ -460,6 +460,7 @@
                         loyaltyPointsOverride: loyaltyPointsOverride || null, 
                         directContactLinks: (newProductType === 'direct') ? directContactLinks : {}, 
 
+                        // (*** تعديل ***) حذف هذه الحقول لضمان عدم حفظها
                         courseLink: null,
                         professorId: null,
 
@@ -481,19 +482,13 @@
                 }
             });
             
-            // -----------------------------------------
-            // *** تهيئة المحرر بشكل صحيح بعد ظهور النافذة ***
-            // -----------------------------------------
+            // --- (إضافة محرر النصوص - كاملة) ---
             const fullToolbarOptions = [['bold', 'italic', 'underline', 'strike'],[{ 'list': 'ordered'}, { 'list': 'bullet' }],[{ 'align': [] }],[{ 'color': [] }, { 'background': [] }],['link'],['clean']];
             nameQuill = new Quill('#product-name-editor', { theme: 'snow', modules: { toolbar: [ ['bold', 'italic', 'underline'], [{ 'color': [] }] ] } });
             descriptionQuill = new Quill('#product-description-editor', { theme: 'snow', modules: { toolbar: fullToolbarOptions } });
-            
-            // تعبئة البيانات إذا كانت موجودة
-            if (product) { 
-                if(product.name) nameQuill.root.innerHTML = product.name; 
-                if(product.description) descriptionQuill.root.innerHTML = product.description; 
-            }
+            if (product) { if(product.name) nameQuill.root.innerHTML = product.name; if(product.description) descriptionQuill.root.innerHTML = product.description; }
 
+            // --- (إضافة مستمعات الأحداث الداخلية للنافذة - كاملة) ---
             getEl('product-category-select').addEventListener('change', (e) => populateSubcategories(e.target.value));
             getEl('product-images').addEventListener('change', (e) => {
                 const previewContainer = getEl('image-preview-container');
@@ -523,6 +518,7 @@
                 populateSubcategories(product.categoryId, product.subCategoryID);
             }
             
+            // (*** تعديل: ربط مستمع الأحداث لقائمة نوع المنتج ***)
             const productTypeSelect = getEl('product-type');
             const contactContainer = getEl('direct-contact-container');
             const shippingContainer = getEl('shipping-options-container').closest('.border-t'); 
@@ -531,14 +527,17 @@
             const toggleFields = () => {
                 const type = productTypeSelect.value;
                 contactContainer.classList.toggle('hidden', type !== 'direct');
+                
+                // إظهار حقول السعر والشحن دائماً لجميع الأنواع
                 shippingContainer.classList.toggle('hidden', false);
                 priceInput.classList.toggle('hidden', false); 
             };
             
             productTypeSelect.addEventListener('change', toggleFields);
-            toggleFields(); 
+            toggleFields(); // التشغيل أول مرة لإظهار/إخفاء الحقول عند التعديل
         }
 
+    // --- (دالة ربط الأحداث - كاملة) ---
     function attachProductActionListeners() {
         document.querySelectorAll('.edit-product-btn').forEach(btn => btn.onclick = () => {
             const productToEdit = productsCache.find(p => p.id === btn.dataset.id);
@@ -567,6 +566,7 @@
         });
     }
     
+    // --- (دوال المساعدة العامة - كاملة) ---
     function showModal(title, content, onConfirm, confirmText = 'حفظ', showCancel = true) {
         const modalContainer = getEl('modal-container');
         const confirmBtnHTML = `<button id="modal-confirm" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700">${confirmText}</button>`;

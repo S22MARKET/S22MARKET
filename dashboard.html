@@ -25,49 +25,6 @@
 </head>
 <body>
 
-<div id="login-page" class="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-    <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl space-y-6">
-        <div class="text-center">
-            <i class="fas fa-shield-alt text-6xl text-indigo-600 mb-4"></i>
-            <h2 class="text-3xl font-extrabold text-gray-900">لوحة تحكم S22 Market</h2>
-            <p class="mt-2 text-sm text-gray-600">
-                مخصصة للمدراء فقط.
-            </p>
-        </div>
-        <form id="login-form" class="space-y-6">
-            <div>
-                <label for="admin-email" class="sr-only">البريد الإلكتروني</label>
-                <input id="admin-email" name="email" type="email" autocomplete="email" required
-                       class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                       placeholder="البريد الإلكتروني">
-            </div>
-            <div class="relative">
-                <label for="admin-password" class="sr-only">كلمة المرور</label>
-                <input id="admin-password" name="password" type="password" autocomplete="current-password" required
-                       class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                       placeholder="كلمة المرور">
-            </div>
-            <p id="login-error" class="hidden text-sm text-red-600 text-center">
-                <i class="fas fa-exclamation-circle mr-1"></i>
-            </p>
-            <div>
-                <button type="submit" id="login-submit-btn"
-                        class="w-full flex justify-center py-3 px-4 border border-transparent text-lg font-bold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300">
-                    <i class="fas fa-sign-in-alt ml-2"></i> 
-                    <span id="login-submit-text">دخول</span>
-                    <div id="login-loader" class="loader !w-6 !h-6 !border-4 !border-t-indigo-300 hidden"></div>
-                </button>
-            </div>
-            <div class="text-center mt-4">
-                 <a href="index.html"
-                    class="font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
-                     <i class="fas fa-arrow-left ml-1"></i> العودة إلى المتجر
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div id="dashboard-page" class="hidden">
     <div class="relative min-h-screen md:flex">
         <div class="bg-gray-800 text-gray-100 flex justify-between md:hidden">
@@ -80,10 +37,14 @@
         <aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
             <div class="p-3 text-center border-b border-gray-700">
                 <h2 class="text-2xl font-bold">S22 Market</h2>
-                <p id="admin-welcome-name" class="text-sm text-indigo-300"></p>
+                <p id="admin-welcome-name" class="text-sm text-indigo-300">جاري التحميل...</p>
             </div>
             <nav class="flex-1 p-2 space-y-2">
                 <a href="dashboard.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chart-line fa-fw mr-3"></i> لوحة التحكم</a>
+
+                <a href="admin-layout.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chart-line fa-fw mr-3"></i> قوائم صفحة المتجر   </a>
+
+                
                 <a href="admin-sellers.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-users-cog fa-fw mr-3"></i> إدارة البائعين</a>
                 <a href="admin-reports.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-flag fa-fw mr-3 text-red-400"></i> الإبلاغات</a>
                 <a href="admin-products.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
@@ -94,6 +55,7 @@
                 <a href="admin-coupons.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-tags fa-fw mr-3"></i> الكوبونات</a>
                 <a href="admin-inquiries.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-envelope-open-text fa-fw mr-3"></i> الرسائل الواردة</a>
                 <a href="admin-applications.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
+                <a href="admin-layout.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-layer-group fa-fw mr-3"></i> واجهة المتجر</a>
                 <a href="admin-notepad.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
                 
                 <hr class="border-gray-700 my-2">
@@ -118,6 +80,7 @@
                 <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
             </div>
         </aside>
+        
         <main class="flex-1 p-4 md:p-8 overflow-y-auto">
             <div id="analytics-panel" class="dashboard-panel">
                  <div class="text-center py-20">
@@ -133,7 +96,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, onSnapshot, query, where, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -162,78 +125,36 @@
     let profitChart = null;
     let topProductsChart = null;
 
-    const loginPage = document.getElementById('login-page');
     const dashboardPage = document.getElementById('dashboard-page');
-    const loginForm = document.getElementById('login-form');
-    const loginError = document.getElementById('login-error');
     const logoutBtn = document.getElementById('logout-btn');
-    const loginSubmitBtn = document.getElementById('login-submit-btn');
-    const loginSubmitText = document.getElementById('login-submit-text');
-    const loginLoader = document.getElementById('login-loader');
-    
     const getEl = (id) => document.getElementById(id);
-    const getVal = (id) => getEl(id)?.value || '';
 
-    function setLoginButtonLoading(isLoading) {
-        loginSubmitBtn.disabled = isLoading;
-        if (isLoading) {
-            loginSubmitText.classList.add('hidden');
-            loginLoader.classList.remove('hidden');
-        } else {
-            loginSubmitText.classList.remove('hidden');
-            loginLoader.classList.add('hidden');
-        }
-    }
-
-    function checkAdminPermissions(user) {
+    // ============================================================
+    // نظام الحماية (Guard)
+    // ============================================================
+    onAuthStateChanged(auth, (user) => {
         if (user && ADMIN_EMAILS.includes(user.email)) {
-            loginPage.classList.add('hidden');
             dashboardPage.classList.remove('hidden');
             getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
             initializeDashboard();
         } else {
-            dashboardPage.classList.add('hidden');
-            loginPage.classList.remove('hidden');
-            if (user) {
-                loginError.textContent = 'الدخول مسموح للمدراء فقط. تم تسجيل خروجك.';
-                loginError.classList.remove('hidden');
-                signOut(auth);
-            }
-        }
-    }
-
-    onAuthStateChanged(auth, user => {
-        checkAdminPermissions(user);
-    });
-
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        setLoginButtonLoading(true);
-        const email = getVal('admin-email');
-        const password = getVal('admin-password');
-        loginError.classList.add('hidden');
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            if (!ADMIN_EMAILS.includes(userCredential.user.email)) {
-                loginError.textContent = 'هذا الحساب غير مصرح له بالدخول.';
-                loginError.classList.remove('hidden');
-                await signOut(auth);
-            }
-        } catch (error) {
-            loginError.textContent = 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
-            loginError.classList.remove('hidden');
-        } finally {
-            setLoginButtonLoading(false);
+            window.location.href = 'admin-login.html';
         }
     });
 
-    logoutBtn.addEventListener('click', async () => { await signOut(auth); });
+    logoutBtn.addEventListener('click', async () => { 
+        await signOut(auth); 
+        window.location.href = 'admin-login.html';
+    });
 
+    // قائمة الموبايل
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const sidebar = document.getElementById('sidebar');
-    mobileMenuBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('translate-x-full');
-    });
+    if(mobileMenuBtn){
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('translate-x-full');
+        });
+    }
     
     function setActiveTab() {
         const currentPage = window.location.pathname.split('/').pop();
@@ -252,10 +173,14 @@
         setActiveTab(); 
         
         loadAnalytics();
+        
+        // الاستماع لتحديثات المنتجات (للحسابات)
         onSnapshot(query(collection(db, "products")), (snapshot) => {
             productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             updateAnalytics();
         });
+        
+        // الاستماع لتحديثات الطلبات
         onSnapshot(query(collection(db, "orders")), (snapshot) => {
             ordersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             updateAnalytics();
@@ -285,7 +210,7 @@
                 </div>
                  <div class="bg-white p-6 rounded-xl shadow-md flex items-center col-span-1 sm:col-span-2 lg:col-span-4">
                     <i class="fas fa-boxes text-4xl text-purple-500 mr-4"></i>
-                    <div><p class="text-gray-500">إجمالي المنتجات</p><p id="total-products" class="text-2xl font-bold">0</p></div>
+                    <div><p class="text-gray-500">إجمالي المنتجات (النشطة)</p><p id="total-products" class="text-2xl font-bold">0</p></div>
                 </div>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
@@ -304,25 +229,27 @@
             </div>
             `;
     }
+
     function updateAnalytics() {
         if(!getEl('total-products')) return; 
         
-        // (*** تعديل ***) فلترة المنتجات لتشمل المنتجات العادية فقط
+        // 1. فلترة المنتجات: استبعاد الكورسات + استبعاد المحذوفة (sold_out لا يستبعد من الإحصاء لأنه منتج موجود)
         const marketProducts = productsCache.filter(p => p.productType !== 'course');
         
         const completedOrders = ordersCache.filter(o => o.status === 'completed');
-        const incompleteOrders = ordersCache.filter(o => o.status === 'new');
+        const incompleteOrders = ordersCache.filter(o => o.status === 'new' || o.status === 'pending'); // شملنا pending
         const totalProfit = completedOrders.reduce((sum, order) => sum + (order.profit || 0), 0);
         const completedOrdersCount = completedOrders.length;
         const incompleteOrdersCount = incompleteOrders.length;
         const avgProfit = completedOrdersCount > 0 ? totalProfit / completedOrdersCount : 0;
 
-        getEl('total-products').textContent = marketProducts.length; // (*** معدل ***)
+        getEl('total-products').textContent = marketProducts.length;
         getEl('total-profit').textContent = `${totalProfit.toLocaleString()} د.ج`;
         getEl('avg-profit').textContent = `${avgProfit.toFixed(0).toLocaleString()} د.ج`;
         getEl('completed-orders').textContent = completedOrdersCount;
         getEl('incomplete-orders').textContent = incompleteOrdersCount;
 
+        // إعداد البيانات للمخططات (Charts)
         const last7Days = {};
         const last7DaysProfit = {};
 
@@ -392,9 +319,12 @@
         const productProfits = {};
         completedOrders.forEach(order => {
              (order.items || []).forEach(item => {
+                // تنظيف الاسم لإزالة أي HTML قديم
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = item.name || 'منتج غير معروف';
                 const productName = tempDiv.textContent || tempDiv.innerText || "";
+                
+                // حساب ربح تقريبي لكل منتج في الطلب
                 const itemProfit = (order.profit || 0) / (order.items.length || 1);
                 if (productProfits[productName]) {
                     productProfits[productName] += itemProfit;

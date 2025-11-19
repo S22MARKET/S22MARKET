@@ -25,6 +25,16 @@
     body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-body); color: var(--text-primary); }
     html { scroll-behavior: smooth; }
 
+    /* شاشات التحميل */
+    .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+    .small-loader { border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    /* أنيميشن الظهور */
+    .fade-in-section { animation: fadeIn 0.8s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* القائمة الجانبية والطبقة الشفافة */
     .overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background-color: rgba(0,0,0,0.5); z-index: 1100;
@@ -39,6 +49,7 @@
     }
     .side-bar.active { right: 0; }
     
+    /* القائمة السفلية */
     .bottom-nav {
         position: fixed; bottom: 0; left: 0; right: 0;
         background-color: var(--bg-card); border-top: 1px solid var(--border-color);
@@ -49,8 +60,8 @@
     .nav-item i { font-size: 1.25rem; margin-bottom: 0.25rem; }
     .nav-item.active { color: var(--primary-color); }
 
-    .swiper-container { overflow: hidden; }
-    .swiper-scrollbar { display: none; }
+    /* تنسيقات Swiper والكروت */
+    .swiper-container { overflow: hidden; padding-bottom: 10px; }
     .swiper-slide { width: auto; }
     
     .carousel-card {
@@ -65,9 +76,7 @@
     .carousel-card-title {
         font-size: 0.875rem; font-weight: 700; line-height: 1.4;
         height: 2.45em; overflow: hidden; margin-bottom: 0.25rem;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
     }
     
     .offer-carousel-card {
@@ -79,38 +88,30 @@
     .offer-carousel-image { aspect-ratio: 16 / 9; background-size: cover; background-position: center; }
     .offer-carousel-title { 
         font-size: 1rem; font-weight: 700; margin: 0.75rem 0.75rem 0.5rem; 
-        height: 2.6em; line-height: 1.3;
-        overflow: hidden;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
+        height: 2.6em; line-height: 1.3; overflow: hidden;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
     }
     .offer-price { color: var(--primary-color); font-size: 1.25rem; font-weight: 800; margin: 0 0.75rem 0.75rem; }
     
+    /* التايمر */
     .countdown-timer-container {
-        background-color: rgba(239, 68, 68, 0.1);
-        border-top: 1px solid rgba(239, 68, 68, 0.2);
-        padding: 0.5rem 0.75rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        background-color: rgba(239, 68, 68, 0.1); border-top: 1px solid rgba(239, 68, 68, 0.2);
+        padding: 0.5rem 0.75rem; display: flex; justify-content: space-between; align-items: center;
     }
-    .countdown-label { font-size: 0.75rem; font-weight: 700; color: #b91c1c; }
     .countdown-timer {
         direction: ltr; font-family: monospace, 'Tajawal', sans-serif;
-        font-size: 1rem; font-weight: 700; color: #dc2626;
-        display: flex; gap: 0.25rem;
+        font-size: 1rem; font-weight: 700; color: #dc2626; display: flex; gap: 0.25rem;
     }
     .countdown-timer > div { display: flex; flex-direction: column; align-items: center; min-width: 1.5rem; }
     .countdown-timer span { font-size: 0.6rem; font-weight: 500; color: #b91c1c; }
 
+    /* الأيقونات والزر العائم */
     .category-icon-item { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--text-primary); font-weight: 600; font-size: 0.875rem; }
     .category-icon-circle { width: 64px; height: 64px; border-radius: 50%; background-color: var(--bg-card); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: all 0.2s ease; }
     .category-icon-item:hover .category-icon-circle { transform: scale(1.05); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     
     .fab {
-        position: fixed; bottom: 90px;
-        left: 20px; width: 60px; height: 60px;
+        position: fixed; bottom: 90px; left: 20px; width: 60px; height: 60px;
         background-color: var(--primary-color); color: white; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         font-size: 1.75rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
@@ -118,27 +119,26 @@
     }
     .fab:hover { transform: scale(1.05); background-color: var(--primary-hover); }
     
+    /* القائمة المنبثقة للمستخدم */
     #user-menu-dropdown.show { display: block; animation: slideInUp 0.2s ease-out; }
-    
-    .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-    .small-loader { border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; translateY(0); } }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes fadeOut { to { opacity: 0; transform: translateY(20px); } }
     
+    /* النوافذ المنبثقة (Modals) */
     .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 1000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s; padding: 1rem; backdrop-filter: blur(5px); }
-    .modal-content { background-color: var(--bg-card); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); width: 100%; max-width: 700px; max-height: 95vh; display: flex; flex-direction: column; overflow: hidden; animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative; border-radius: 1rem; }
+    .modal-content { background-color: var(--bg-card); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); width: 100%; max-width: 700px; max-height: 95vh; display: flex; flex-direction: column; overflow: hidden; position: relative; border-radius: 1rem; }
     
+    /* التوست (الإشعارات) */
     #toast-container { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 1001; width: calc(100% - 2rem); max-width: 400px; }
     .toast { padding: 1rem 1.5rem; border-radius: 0.75rem; color: white; background-color: #10b981; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 0.75rem; animation: slideInUp 0.5s, fadeOut 0.5s 4.5s forwards; }
     .toast.error { background-color: #ef4444; }
+    @keyframes fadeOut { to { opacity: 0; transform: translateY(20px); } }
 
 </style>
 </head>
 <body class="pb-24">
 
     <div class="overlay"></div>
+    
     <aside class="side-bar flex flex-col">
         <div class="p-4 text-left flex-shrink-0">
             <button id="close-btn" class="text-3xl text-gray-500 hover:text-red-500 transition-colors">&times;</button>
@@ -150,10 +150,7 @@
                     <span>إضافة منتج</span>
                 </a>
           
-                <a href="s22marketfood.html" 
-                   id="sidebar-orders-btn" 
-                   target="_blank"
-                   rel="noopener noreferrer"
+                <a href="s22marketfood.html" id="sidebar-orders-btn" target="_blank" rel="noopener noreferrer"
                    class="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-lg text-lg hover:bg-orange-600 transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg">
                    <i class="fas fa-utensils"></i>
                    <span>الطلبات والمأكولات</span>
@@ -179,14 +176,14 @@
 
     <div id="page-container">
         
-        <header class="main-header">
+        <header class="main-header bg-white shadow-sm sticky top-0 z-50">
             <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                 
                 <button id="search-btn" class="text-2xl text-gray-600 hover:text-blue-600">
                     <i class="fas fa-search"></i>
                 </button>
                 
-                <div id="logo-container" onclick="location.href=window.location.pathname" class="cursor-pointer">
+                <div id="logo-container" onclick="location.href='index.html'" class="cursor-pointer">
                     <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
                         S22<span class="text-blue-600">MARKET</span>
                     </h1>
@@ -197,25 +194,26 @@
                     
                     <a href="login.html" id="login-btn" class="hidden"></a>
                     <div id="user-menu" class="hidden">
-                        <button id="user-menu-button"></button>
+                        <button id="user-menu-button" class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-600 focus:outline-none">
+                            <i class="fas fa-user"></i>
+                        </button>
                         
                         <div id="user-menu-dropdown" class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
                             <div class="p-3 border-b">
                                 <p class="text-sm text-gray-500">مرحباً بك،</p>
                                 <p class="font-bold text-gray-800" id="user-menu-displayname">...</p>
+                                <span class="hidden" id="user-menu-name"></span>
                             </div>
-                            <a href="profile.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي ومحافطي</a>
-                            
+                            <a href="profile.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي</a>
                             <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">المتجر</div>
                             <a href="seller-dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
                             <a href="order_history.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
-                            <a href="loyalty_card.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء (الجواهر)</a>
-                            <a href="loyalty_tasks.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-tasks fa-fw ml-2 text-purple-400"></i> كسب الجواهر (المهام)</a>
-                            <a href="loyalty_rewards.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-gift fa-fw ml-2 text-yellow-400"></i> استبدال الجواهر</a>
-
+                            <a href="loyalty_card.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء</a>
+                            <a href="loyalty_tasks.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-tasks fa-fw ml-2 text-purple-400"></i> المهام</a>
+                            <a href="loyalty_rewards.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-gift fa-fw ml-2 text-yellow-400"></i> الجوائز</a>
                             <button id="logout-btn" class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
                         </div>
-                        </div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -225,30 +223,21 @@
             <section id="offers-carousel-section" class="hidden">
                  <h2 class="text-2xl font-extrabold text-gray-800 mb-4 border-r-4 border-red-500 pr-4">العروض الحصرية <i class="fas fa-fire text-red-500"></i></h2>
                 <div class="swiper swiper-container">
-                    <div id="offers-carousel-wrapper" class="swiper-wrapper">
-                        </div>
+                    <div id="offers-carousel-wrapper" class="swiper-wrapper"></div>
                 </div>
             </section>
             
             <section id="category-icons-section">
                 <div class="swiper swiper-container">
-                    <div id="category-icons-wrapper" class="swiper-wrapper">
-                        </div>
+                    <div id="category-icons-wrapper" class="swiper-wrapper"></div>
                 </div>
             </section>
 
-            <section id="courses-carousel-section" class="hidden"></section>
-            <section id="products-carousel-section" class="hidden">
-                <h2 class="text-2xl font-extrabold text-gray-800 mb-4 border-r-4 border-blue-500 pr-4">منتجات المتجر 🛍️</h2>
-                <div class="swiper swiper-container">
-                    <div id="products-carousel-wrapper" class="swiper-wrapper">
-                        </div>
+            <div id="dynamic-home-sections" class="space-y-12 min-h-[300px]">
+                <div class="text-center py-20">
+                    <div class="loader mx-auto"></div>
+                    <p class="mt-4 text-gray-600">جاري ترتيب المتجر...</p>
                 </div>
-            </section>
-            
-            <div id="store-loader" class="text-center py-20">
-                <div class="loader mx-auto"></div>
-                <p class="mt-4 text-gray-600">جاري تحميل المنصة...</p>
             </div>
             
         </main>
@@ -278,6 +267,7 @@
             <span>الدخول</span>
         </a>
     </footer>
+
     <div id="modal-container"></div>
     <div id="toast-container"></div>
 
@@ -300,7 +290,6 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    let productsCache = [];
     let offersCache = [];
     let categoriesCache = [];
     let cart = [];
@@ -309,9 +298,7 @@
     const elements = {
         modalContainer: document.getElementById('modal-container'),
         toastContainer: document.getElementById('toast-container'),
-        loader: document.getElementById('store-loader'),
         
-        // الهيدر
         menuBtn: document.getElementById('menu-btn'), 
         loginBtn: document.getElementById('login-btn'),
         userMenu: document.getElementById('user-menu'),
@@ -321,13 +308,11 @@
         userMenuDisplayName: document.getElementById('user-menu-displayname'),
         logoutBtn: document.getElementById('logout-btn'),
         
-        // شريط التنقل السفلي
         bottomCartBtn: document.getElementById('bottom-cart-btn'),
         cartBadgeBottom: document.getElementById('cart-badge-bottom'),
         bottomProfileBtn: document.getElementById('bottom-profile-btn'),
         bottomLoginBtn: document.getElementById('bottom-login-btn'),
         
-        // القائمة الجانبية
         sidebar: document.querySelector('.side-bar'),
         overlay: document.querySelector('.overlay'),
         closeSidebarBtn: document.getElementById('close-btn'),
@@ -336,12 +321,9 @@
         sidebarAddProductBtn: document.getElementById('sidebar-add-product-btn'),
         sidebarOrdersBtn: document.getElementById('sidebar-orders-btn'),
         
-        // المحتوى
         offersCarouselSection: document.getElementById('offers-carousel-section'),
         offersCarouselWrapper: document.getElementById('offers-carousel-wrapper'),
         categoryIconsWrapper: document.getElementById('category-icons-wrapper'),
-        productsCarouselSection: document.getElementById('products-carousel-section'),
-        productsCarouselWrapper: document.getElementById('products-carousel-wrapper'),
     };
     
     function showToast(message, isSuccess = true) {
@@ -351,7 +333,7 @@
         elements.toastContainer.appendChild(toast);
         setTimeout(() => toast.remove(), 5000);
     }
-    function showLoadingModal(text = 'جاري التحميل...') { /* ... */ }
+    
     function closeModal() { elements.modalContainer.innerHTML = ''; }
     
     function showInquiryModal(type) {
@@ -466,6 +448,7 @@
         } catch(e) { console.error("Could not fetch store settings:", e); }
     }
 
+    // دوال التوقيت (Timer)
     function updateCountdowns() {
         const countdownElements = document.querySelectorAll('.countdown-timer');
         countdownElements.forEach(el => {
@@ -483,6 +466,15 @@
                 `;
             }
         });
+    }
+    
+    function calculateTimeRemaining(endtime) {
+        const total = Date.parse(endtime) - Date.parse(new Date());
+        const seconds = Math.floor((total / 1000) % 60);
+        const minutes = Math.floor((total / 1000 / 60) % 60);
+        const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
+        const days = Math.floor(total / (1000 * 60 * 60 * 24));
+        return { total, days, hours, minutes, seconds };
     }
 
     async function fetchAndRenderOffers() {
@@ -591,48 +583,105 @@
         } catch (error) { console.error("Error fetching categories:", error); }
     }
 
-    // -----------------------------------------------------
-    // *** تصحيح هام: دالة جلب المنتجات لتعرض كل الأنواع ***
-    // -----------------------------------------------------
-    async function fetchAndRenderProducts() {
+    // ==================================================================
+    // *** الجزء الجديد: بناء الصفحة الرئيسية ديناميكياً من لوحة التحكم ***
+    // ==================================================================
+
+    function createSectionHTML(sectionId, title, colorClass = 'blue') {
+        return `
+            <section id="${sectionId}" class="fade-in-section">
+                <h2 class="text-2xl font-extrabold text-gray-800 mb-4 border-r-4 border-${colorClass}-500 pr-4 flex items-center justify-between">
+                    <span>${title}</span>
+                    <a href="classproductindex.html" class="text-sm font-normal text-indigo-600 hover:underline ml-2">عرض الكل <i class="fas fa-angle-left text-xs"></i></a>
+                </h2>
+                <div class="swiper swiper-container">
+                    <div class="swiper-wrapper" id="${sectionId}-wrapper"></div>
+                </div>
+            </section>
+        `;
+    }
+
+    async function fetchAndRenderDynamicHome() {
+        const container = document.getElementById('dynamic-home-sections');
+        
         try {
-            // إزالة الفلترة المعقدة من الاستعلام لتجنب مشاكل الفهرسة (Index)
-            // جلب كل المنتجات مرتبة حسب التاريخ
-            const q = query(
-                collection(db, "products"), 
-                orderBy("createdAt", "desc"), 
-                limit(50)
-            );
-            const snapshot = await getDocs(q);
-            productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            // 1. جلب هيكل الأقسام من Firestore
+            const sectionsSnapshot = await getDocs(query(collection(db, "home_sections"), orderBy("orderIndex")));
+            const sectionsConfig = sectionsSnapshot.docs.map(d => d.data());
 
-            // الفلترة تتم هنا في المتصفح:
-            // 1. استبعاد الدورات (courses)
-            // 2. عرض المنتجات العادية (regular) والمباشرة (direct) والمنتجات القديمة التي ليس لها نوع
-            const products = productsCache.filter(p => 
-                p.productType !== 'course' && 
-                p.availability !== 'sold_out'
-            );
+            // 2. جلب المنتجات (كمية كافية دفعة واحدة)
+            // نستثني الدورات (courses) هنا في الـ Front-end لتجنب مشاكل الفهارس
+            const productsQuery = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(100));
+            const productsSnapshot = await getDocs(productsQuery);
+            const allProducts = productsSnapshot.docs
+                .map(d => ({id: d.id, ...d.data()}))
+                .filter(p => p.productType !== 'course' && p.availability !== 'sold_out');
 
-             if (products.length > 0) {
-                elements.productsCarouselWrapper.innerHTML = '';
-                products.forEach(product => {
-                    elements.productsCarouselWrapper.appendChild(createProductCard(product));
-                });
-                elements.productsCarouselSection.classList.remove('hidden');
-                new Swiper('#products-carousel-section .swiper-container', {
-                    slidesPerView: 'auto',
-                    spaceBetween: 16,
-                    freeMode: true,
-                });
+            // 3. تنظيف الحاوية
+            container.innerHTML = '';
+
+            // 4. في حال لم يقم الأدمن بإضافة أي أقسام، نعرض قسماً افتراضياً
+            if (sectionsConfig.length === 0) {
+                container.innerHTML = createSectionHTML('default-recent', 'وصل حديثاً ✨', 'indigo');
+                const wrapper = document.getElementById('default-recent-wrapper');
+                allProducts.slice(0, 10).forEach(p => wrapper.appendChild(createProductCard(p)));
+                initSwiper('default-recent');
+                return;
             }
 
-        } catch (error) { 
-            console.error("Error fetching products:", error);
-            elements.loader.innerHTML = '<p class="text-red-500">فشل تحميل المنتجات.</p>';
+            // 5. بناء الأقسام بناءً على الإعدادات
+            sectionsConfig.forEach((section, index) => {
+                const sectionId = `section-${index}`;
+                // تدوير الألوان للعناوين
+                const color = ['blue', 'red', 'green', 'purple', 'orange'][index % 5]; 
+                
+                // إضافة هيكل HTML للقسم
+                container.insertAdjacentHTML('beforeend', createSectionHTML(sectionId, section.title, color));
+                const wrapper = document.getElementById(`${sectionId}-wrapper`);
+
+                // تصفية المنتجات حسب نوع القسم
+                let filteredProducts = [];
+
+                if (section.type === 'recent') {
+                    // أحدث 10 منتجات
+                    filteredProducts = allProducts.slice(0, 10);
+                } 
+                else if (section.type === 'category' && section.config?.categoryId) {
+                    // منتجات قسم معين
+                    filteredProducts = allProducts.filter(p => p.categoryId === section.config.categoryId);
+                }
+                else if (section.type === 'offers') {
+                    // يمكن تخصيص منطق العروض هنا (حالياً نعرض خليطاً)
+                    filteredProducts = allProducts.slice(5, 15); 
+                }
+
+                // إذا وجدت منتجات لهذا القسم، نضيفها
+                if (filteredProducts.length > 0) {
+                    filteredProducts.forEach(product => {
+                        wrapper.appendChild(createProductCard(product));
+                    });
+                    initSwiper(sectionId);
+                } else {
+                    // إخفاء القسم الفارغ
+                    document.getElementById(sectionId).style.display = 'none';
+                }
+            });
+
+        } catch (error) {
+            console.error("Error building home:", error);
+            container.innerHTML = `<p class="text-red-500 text-center py-10">عذراً، حدث خطأ في تحميل المنتجات.</p>`;
         }
     }
-    
+
+    function initSwiper(containerId) {
+        new Swiper(`#${containerId} .swiper-container`, {
+            slidesPerView: 'auto',
+            spaceBetween: 16,
+            freeMode: true,
+            grabCursor: true
+        });
+    }
+
     function createProductCard(product) {
         const card = document.createElement('div');
         card.className = 'swiper-slide carousel-card';
@@ -661,6 +710,7 @@
         return card;
     }
 
+    // --- دوال السلة ---
     function loadCartFromStorage() {
         cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
         updateCartIcon();
@@ -674,22 +724,22 @@
         elements.cartBadgeBottom.textContent = totalItems;
         elements.cartBadgeBottom.classList.toggle('hidden', totalItems === 0);
     }
-    function showCartModal() { window.location.href = 'cart.html'; }
+    function showCartModal() { window.location.href = 'cart.html'; } 
     
+    // --- دالة بدء التشغيل الرئيسية ---
     async function initializeStore() {
         loadCartFromStorage();
         elements.bottomCartBtn.onclick = showCartModal;
-        elements.loader.classList.remove('hidden');
-        
+
         await Promise.all([
             loadStoreSettings(),
             fetchAndRenderCategories(),
             fetchAndRenderOffers(),
-            fetchAndRenderProducts()
+            // الدالة الجديدة الديناميكية
+            fetchAndRenderDynamicHome() 
         ]);
         
-        elements.loader.classList.add('hidden');
-        
+        // إدارة القائمة الجانبية
         elements.menuBtn.onclick = () => {
             elements.sidebar.classList.add('active');
             elements.overlay.classList.add('active');
@@ -701,6 +751,7 @@
         elements.sidebarAddProductBtn.onclick = (e) => { e.preventDefault(); closeSidebar(); showRedirectModal({ title: "عرض منتج جديد", icon: "📦", message: "مرحباً بك، يبدو أن لديك منتج تريد عرضه يا زبوننا الكريم. نحن سنساعدك في البحث عنه كما سنساعدك في اقتنائه وبيعه على حد السواء.", targetUrl: e.currentTarget.href }); };
         elements.sidebarOrdersBtn.onclick = (e) => { e.preventDefault(); closeSidebar(); showRedirectModal({ title: "الطلبات والمأكولات", icon: "😋", message: "مرحباً بزائرنا الكريم، يبدو أنك جائع. لا تنسى، نحن نهتم بكل شيء عوضاً عنك. كما يمكنك أن تجد كوبونات لعدة مطاعم مستقبلاً.", targetUrl: e.currentTarget.href }); };
         
+        // إدارة قائمة المستخدم
         elements.userMenuButton.addEventListener('click', (e) => {
             e.stopPropagation();
             elements.userMenuDropdown.classList.toggle('show');
@@ -718,18 +769,15 @@
             if (user) {
                 elements.bottomProfileBtn.classList.remove('hidden');
                 elements.bottomLoginBtn.classList.add('hidden');
-                
                 elements.loginBtn.classList.add('hidden');
                 elements.loginBtn.classList.remove('sm:flex');
                 elements.userMenu.classList.remove('hidden');
                 const displayName = user.displayName || "زبوننا";
                 elements.userMenuName.textContent = displayName.split(' ')[0];
                 elements.userMenuDisplayName.textContent = displayName;
-                
             } else {
                 elements.bottomProfileBtn.classList.add('hidden');
                 elements.bottomLoginBtn.classList.remove('hidden');
-
                 elements.loginBtn.classList.remove('hidden');
                 elements.loginBtn.classList.add('sm:flex');
                 elements.userMenu.classList.add('hidden');
