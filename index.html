@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S22 Market - تحميل...</title>
-    <meta name="description" content="">
+    <title>S22 Market - الرئيسية</title>
+    <meta name="description" content="متجر S22 Market - أفضل المنتجات والعروض">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -340,15 +340,10 @@
         offersCarouselSection: document.getElementById('offers-carousel-section'),
         offersCarouselWrapper: document.getElementById('offers-carousel-wrapper'),
         categoryIconsWrapper: document.getElementById('category-icons-wrapper'),
-        // (*** تعديل: تم حذف عناصر البذلورات ***)
-        // coursesCarouselSection: document.getElementById('courses-carousel-section'),
-        // coursesCarouselWrapper: document.getElementById('courses-carousel-wrapper'),
         productsCarouselSection: document.getElementById('products-carousel-section'),
         productsCarouselWrapper: document.getElementById('products-carousel-wrapper'),
     };
     
-    // --- دوال المساعدة (Toast, Modals) ---
-    // (الكود هنا كما هو، لا حاجة لتكراره)
     function showToast(message, isSuccess = true) {
         const toast = document.createElement('div');
         toast.className = `toast ${isSuccess ? '' : 'error'}`;
@@ -359,7 +354,6 @@
     function showLoadingModal(text = 'جاري التحميل...') { /* ... */ }
     function closeModal() { elements.modalContainer.innerHTML = ''; }
     
-    // دوال القائمة الجانبية (Sidebar Modals)
     function showInquiryModal(type) {
         const title = type === 'complaint' ? 'تقديم شكوى أو رأي' : 'طلب منتج';
         const content = `
@@ -462,7 +456,6 @@
         document.body.style.overflow = 'auto';
     };
 
-    // --- دوال إعدادات المتجر ---
     async function loadStoreSettings() {
         try {
             const settingsDoc = await getDoc(doc(db, "settings", "storeConfig"));
@@ -473,7 +466,6 @@
         } catch(e) { console.error("Could not fetch store settings:", e); }
     }
 
-    // --- دوال المؤقت (Timer) ---
     function updateCountdowns() {
         const countdownElements = document.querySelectorAll('.countdown-timer');
         countdownElements.forEach(el => {
@@ -493,8 +485,6 @@
         });
     }
 
-    // --- دوال الأرفف (Carousels) ---
-    
     async function fetchAndRenderOffers() {
         try {
             const snapshot = await getDocs(query(collection(db, "offers"), orderBy("createdAt", "desc"), limit(5)));
@@ -563,8 +553,6 @@
                     <span>كل المنتجات</span>
                 </a>`;
             
-            // (*** تعديل: تم حذف أيقونة البذلورات من هنا ***)
-
             categoriesCache.forEach(cat => {
                 const activeSubcategories = cat.subcategories?.filter(s => s.active && s.id) || [];
                 
@@ -603,24 +591,29 @@
         } catch (error) { console.error("Error fetching categories:", error); }
     }
 
-    // (*** تعديل: دالة جلب المنتجات ***)
+    // -----------------------------------------------------
+    // *** تصحيح هام: دالة جلب المنتجات لتعرض كل الأنواع ***
+    // -----------------------------------------------------
     async function fetchAndRenderProducts() {
         try {
-            // (*** تعديل: جلب منتجات المتجر فقط ***)
+            // إزالة الفلترة المعقدة من الاستعلام لتجنب مشاكل الفهرسة (Index)
+            // جلب كل المنتجات مرتبة حسب التاريخ
             const q = query(
                 collection(db, "products"), 
-                where("productType", "!=", "course"), // <-- الفلتر الجديد
-                orderBy("productType"),
                 orderBy("createdAt", "desc"), 
-                limit(20)
+                limit(50)
             );
             const snapshot = await getDocs(q);
             productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-            // (*** تعديل: تم حذف منطق فلترة البذلورات ***)
+            // الفلترة تتم هنا في المتصفح:
+            // 1. استبعاد الدورات (courses)
+            // 2. عرض المنتجات العادية (regular) والمباشرة (direct) والمنتجات القديمة التي ليس لها نوع
+            const products = productsCache.filter(p => 
+                p.productType !== 'course' && 
+                p.availability !== 'sold_out'
+            );
 
-            // 2. فلترة منتجات المتجر
-            const products = productsCache.filter(p => (p.productType === 'regular' || p.productType === 'direct' || !p.productType) && p.availability !== 'sold_out');
              if (products.length > 0) {
                 elements.productsCarouselWrapper.innerHTML = '';
                 products.forEach(product => {
@@ -640,7 +633,6 @@
         }
     }
     
-    // (*** تعديل: كرت المنتج ***)
     function createProductCard(product) {
         const card = document.createElement('div');
         card.className = 'swiper-slide carousel-card';
@@ -650,7 +642,6 @@
         tempDiv.innerHTML = product.name;
         const productName = tempDiv.textContent || tempDiv.innerText || "";
         
-        // (*** تعديل: تم حذف منطق البذلورة ***)
         let cardLink = `PRESENTPRODUCT.html?product=${product.id}`;
         let priceHTML = `<p class="text-blue-600 font-bold mx-2 mb-2">${(product.price || 0).toLocaleString()} د.ج</p>`;
 
@@ -670,7 +661,6 @@
         return card;
     }
 
-    // --- دوال السلة ---
     function loadCartFromStorage() {
         cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
         updateCartIcon();
@@ -684,14 +674,11 @@
         elements.cartBadgeBottom.textContent = totalItems;
         elements.cartBadgeBottom.classList.toggle('hidden', totalItems === 0);
     }
-    function showCartModal() { window.location.href = 'cart.html'; } // (تعديل) توجيه مباشر للسلة
+    function showCartModal() { window.location.href = 'cart.html'; }
     
-    // --- دالة بدء التشغيل الرئيسية ---
     async function initializeStore() {
-        
         loadCartFromStorage();
         elements.bottomCartBtn.onclick = showCartModal;
-
         elements.loader.classList.remove('hidden');
         
         await Promise.all([
