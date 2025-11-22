@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مرحبا بكم في S22MARKET</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        /* --- General Styles & Variables --- */
+        :root {
+            --primary-bg: #0b1120; /* Darker Blue */
+            --secondary-bg: #1e293b; /* Lighter Blue */
+            --border-color: #334155;
+            --text-light: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-red: #ef4444;
+            --accent-gold: #f59e0b; /* لون ذهبي للمتجر */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* --- Animated Gradient Background --- */
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(-45deg, #0b1120, #1e293b, #0f172a, #334155);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-light);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* --- Page Container --- */
+        .page-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+            width: 100%;
+            opacity: 0; 
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* --- Header & Title --- */
+        header {
+            width: 100%;
+            max-width: 1200px;
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .welcome-title {
+            font-size: clamp(2.2rem, 5vw + 0.5rem, 3rem);
+            font-weight: 800;
+            margin-bottom: 2rem;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            animation: slideDown 0.8s ease-out forwards;
+        }
+        
+        .welcome-title .highlight {
+            color: var(--accent-gold);
+            text-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+        }
+
+        /* --- Main Action Buttons --- */
+        .action-buttons-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            animation: slideUp 0.8s 0.2s ease-out forwards;
+            opacity: 0;
+        }
+
+        .action-btn {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            padding: 14px 30px; 
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.1rem; 
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            position: relative;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .action-btn.btn-download {
+            background-color: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+
+        @media (hover: hover) {
+            .action-btn:not(.btn-download):hover {
+                background-color: var(--accent-blue);
+                border-color: var(--accent-blue);
+                transform: translateY(-5px);
+                box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+            }
+            .action-btn.btn-download:hover {
+                background-color: #0faa7e;
+                border-color: #0faa7e;
+                transform: translateY(-5px);
+                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+            }
+        }
+        
+        .action-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* --- Main Content Section (Video) --- */
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background-color: var(--secondary-bg);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s ease;
+            perspective: 1000px; 
+            animation: slideUp 0.8s 0.4s ease-out forwards;
+            opacity: 0;
+        }
+
+        @media (hover: hover) {
+            .card:hover {
+                transform: translateY(-10px) rotateX(2deg) rotateY(1deg);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            }
+        }
+        
+        /* --- Video Frame Card --- */
+        .video-frame-container {
+            width: 100%;
+            max-width: 600px; /* Max width on large screens */
+            aspect-ratio: 16 / 9;
+            overflow: hidden;
+            background-color: #000;
+            animation: slideUp 0.8s 0.4s ease-out forwards, pulseGlow 3s infinite ease-in-out 2s;
+        }
+        
+        @keyframes pulseGlow {
+            0% {
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 5px rgba(59, 130, 246, 0.3);
+            }
+            50% {
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(59, 130, 246, 0.6);
+            }
+            100% {
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 5px rgba(59, 130, 246, 0.3);
+            }
+        }
+        
+        .video-frame-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* ==================================
+           الأنماط الجديدة للفوتر
+        ==================================
+        */
+        footer {
+            width: 100%;
+            max-width: 1200px;
+            text-align: center;
+            margin-top: auto; /* يدفع الفوتر للأسفل */
+            padding: 2rem 1rem;
+            animation: slideUp 0.8s 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        .social-links {
+            display: flex;
+            flex-wrap: wrap; /* للسماح بالالتفاف على الشاشات الضيقة جداً */
+            justify-content: center;
+            align-items: center;
+            gap: 2rem; /* مسافة بين الأيقونات */
+        }
+
+        .social-icon {
+            font-size: 2.2rem; /* حجم الأيقونات (كبير وسهل النقر) */
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        @media (hover: hover) {
+            .social-icon:hover {
+                color: var(--text-light);
+                transform: translateY(-5px) scale(1.1);
+            }
+            
+            /* ألوان المنصات عند التمرير (لأجهزة الكمبيوتر) */
+            .social-icon.whatsapp:hover { color: #25D366; }
+            .social-icon.facebook:hover { color: #1877F2; }
+            .social-icon.instagram:hover { color: #E4405F; }
+            .social-icon.telegram:hover { color: #26A5E4; }
+            .social-icon.phone:hover { color: var(--accent-green); }
+        }
+        
+        .social-icon:active {
+            transform: scale(0.95); /* تأثير النقر (للهواتف) */
+        }
+
+
+        /* --- Animation Keyframes --- */
+        @keyframes slideDown {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* ==================================
+           تحسينات الاستجابة للشاشات
+        ==================================
+        */
+        @media (max-width: 992px) {
+            .main-content {
+                flex-direction: column;
+                align-items: center;
+                gap: 2rem;
+            }
+            .video-frame-container { 
+                width: 95%; 
+                max-width: 600px; /* حجم مناسب للأجهزة اللوحية */
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-container { padding: 1.5rem 1rem; }
+            .action-buttons-nav { gap: 10px; }
+            .action-btn { 
+                font-size: 1rem; 
+                padding: 12px 20px; 
+                width: 100%; /* يجعل كل زر يأخذ عرض كامل (يضعهم فوق بعض) */
+            } 
+            
+            .video-frame-container {
+                max-width: 100%; /* يجعل الفيديو يملأ العرض على الهواتف */
+            }
+
+            .social-links {
+                gap: 1.5rem; /* تقليل المسافة بين الأيقونات على الشاشات الصغيرة */
+            }
+
+            .social-icon {
+                font-size: 2rem; /* تصغير الأيقونات قليلاً على الهواتف */
+            }
+        }
+        
+
+    </style>
+</head>
+<body>
+
+    <div class="page-container">
+
+        <header>
+            <h1 class="welcome-title">
+                أهلاً بكم في <span class="highlight">S22MARKET</span> </h1>
+            
+            <nav class="action-buttons-nav">
+                <a href="index.html" class="action-btn">
+                    <i class="fas fa-shopping-bag"></i> تصفح المنتجات  الدخول للمتجر </a>
+                
+                <a href="S22MARKET_app_site.html" class="action-btn btn-download"> <i class="fab fa-android"></i> تحميل  او مشاركة التطبيق 
+                </a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+
+            <div class="video-frame-container card">
+                 <video autoplay loop playsinline muted controls>
+                    <source src="store_intro.mp4" type="video/mp4"> متصفحك لا يدعم عرض الفيديو.
+                </video>
+            </div>
+
+        </main>
+
+        
+        <footer>
+            <div class="social-links">
+                <a href="https://wa.me/213699443914" target="_blank" rel="noopener noreferrer" class="social-icon whatsapp" aria-label="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a href="https://www.facebook.com/profile.php?id=61563869504735&mibextid=ZbWKwL" target="_blank" rel="noopener noreferrer" class="social-icon facebook" aria-label="Facebook">
+                    <i class="fab fa-facebook"></i>
+                </a>
+                <a href="https://www.instagram.com/s22market2?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" class="social-icon instagram" aria-label="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://t.me/S22MARKET" target="_blank" rel="noopener noreferrer" class="social-icon telegram" aria-label="Telegram">
+                    <i class="fab fa-telegram"></i>
+                </a>
+                <a href="tel:+213699443914" class="social-icon phone" aria-label="Phone">
+                    <i class="fas fa-phone"></i>
+                </a>
+            </div>
+        </footer>
+       
+
+    </div> </body>
+</html>
+
+
+
