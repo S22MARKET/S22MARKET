@@ -573,349 +573,103 @@
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto py-6 sm:py-8 md:py-10 px-4 sm:px-6 lg:px-8 space-y-12">
+        <main class="max-w-7xl mx-auto py-3 sm:py-4 md:py-6 px-3 sm:px-4 lg:px-6 space-y-6 sm:space-y-8">
 
-            <!-- Hero Section (AliExpress Style) -->
-            <div class="grid grid-cols-12 gap-4 h-auto md:h-[400px]">
-
-                <!-- 1. Categories Sidebar (Desktop) -->
-                <div
-                    class="hidden md:block col-span-3 lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-y-auto custom-scrollbar p-2">
-                    <h3 class="font-bold text-gray-700 px-3 py-2 border-b text-sm mb-2">الأقسام</h3>
-                    <ul id="hero-categories-list" class="space-y-1">
-                        <!-- Loaded dynamically -->
-                        <li class="p-4 text-center text-gray-400 text-xs">
-                            <div class="loader mx-auto w-6 h-6 border-2"></div>
-                        </li>
-                    </ul>
+            <!-- 🔍 Enhanced Search Bar (Prominent & Clean) -->
+            <div
+                class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10">
+                <div class="max-w-3xl mx-auto text-center mb-6">
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2 leading-tight">
+                        اكتشف عالم S22 Market 🛍️
+                    </h1>
+                    <p class="text-sm sm:text-base text-white/90">ابحث عن ملايين المنتجات من آلاف البائعين</p>
                 </div>
 
-                <!-- 2. Main Slider -->
-                <div
-                    class="col-span-12 md:col-span-9 lg:col-span-7 relative bg-white rounded-2xl shadow-sm overflow-hidden group">
-                    <div class="swiper main-hero-swiper h-full w-full">
-                        <div class="swiper-wrapper" id="hero-slider-wrapper">
-                            <!-- Static Slide 1 (Food) -->
-                            <div class="swiper-slide relative cursor-pointer"
-                                onclick="location.href='s22marketfood.html'">
-                                <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=1000"
-                                    class="absolute inset-0 w-full h-full object-cover">
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-8">
-                                    <div class="text-white">
-                                        <div class="bg-orange-600 text-xs font-bold px-2 py-1 rounded w-fit mb-2">مطاعم
-                                            S22</div>
-                                        <h2 class="text-3xl font-extrabold mb-1">أشهى المأكولات</h2>
-                                        <p class="text-gray-200">اطلب الآن من أفضل المطاعم القريبة منك.</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Static Slide 2 (Electronics) -->
-                            <div class="swiper-slide relative">
-                                <img src="https://images.unsplash.com/photo-1498049860654-af1a5c5668ba?auto=format&fit=crop&q=80&w=1000"
-                                    class="absolute inset-0 w-full h-full object-cover">
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-8">
-                                    <div class="text-white">
-                                        <div class="bg-blue-600 text-xs font-bold px-2 py-1 rounded w-fit mb-2">عروض
-                                            خاصة</div>
-                                        <h2 class="text-3xl font-extrabold mb-1">إلكترونيات حديثة</h2>
-                                        <p class="text-gray-200">خصومات تصل إلى 40% على الهواتف.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="swiper-pagination"></div>
-                        <div class="swiper-button-next text-white hover:text-orange-500"></div>
-                        <div class="swiper-button-prev text-white hover:text-orange-500"></div>
-                    </div>
-                </div>
-
-                <!-- 3. User Widget (Desktop Large) -->
-                <div
-                    class="hidden lg:flex col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 flex-col p-4">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-xl overflow-hidden"
-                            id="hero-user-avatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div>
-                            <div class="text-sm text-gray-500">مرحباً بك في S22</div>
-                            <div class="font-bold text-gray-800 truncate max-w-[120px]" id="hero-user-name">ضيف</div>
-                        </div>
+                <div class="relative max-w-4xl mx-auto">
+                    <div class="relative">
+                        <input type="text" id="main-search-input" placeholder="ابحث عن منتجات، مطاعم، أو خدمات..."
+                            class="w-full px-6 py-4 sm:py-5 pr-14 rounded-2xl text-base sm:text-lg font-medium shadow-xl focus:outline-none focus:ring-4 focus:ring-yellow-400 transition-all">
+                        <button
+                            class="absolute left-3 top-1/2 -translate-y-1/2 bg-gradient-to-r from-orange-500 to-pink-500 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all">
+                            <i class="fas fa-search ml-2"></i>بحث
+                        </button>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2 mb-4" id="hero-auth-btns">
-                        <a href="login.html"
-                            class="bg-gray-900 text-white text-center py-2 rounded-lg text-sm font-bold hover:bg-gray-800 transition">دخول</a>
-                        <a href="login.html"
-                            class="bg-white border border-gray-200 text-gray-700 text-center py-2 rounded-lg text-sm font-bold hover:bg-gray-50 transition">تسجيل</a>
-                    </div>
-
-                    <div class="hidden grid-cols-2 gap-2 mb-4" id="hero-user-stats">
-                        <div class="bg-orange-50 p-2 rounded-lg text-center">
-                            <div class="text-xs text-orange-600 font-bold">الطلبات</div>
-                            <div class="font-extrabold text-gray-800">--</div>
-                        </div>
-                        <div class="bg-blue-50 p-2 rounded-lg text-center">
-                            <div class="text-xs text-blue-600 font-bold">النقاط</div>
-                            <div class="font-extrabold text-gray-800">--</div>
-                        </div>
-                    </div>
-
-                    <div class="mt-auto bg-gray-50 rounded-xl p-3">
-                        <div class="text-xs font-bold text-red-500 mb-2">🔥 عروض البداية</div>
-                        <div class="text-sm font-bold text-gray-700">سجل الآن واحصل على خصم 20% على أول طلب!</div>
+                    <!-- Quick Search Tags -->
+                    <div class="flex flex-wrap gap-2 justify-center mt-4">
+                        <a href="s22marketfood.html"
+                            class="px-4 py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm rounded-full font-semibold backdrop-blur-sm transition-all">
+                            🍕 مطاعم
+                        </a>
+                        <a href="auctions.html"
+                            class="px-4 py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm rounded-full font-semibold backdrop-blur-sm transition-all">
+                            🏆 مزادات
+                        </a>
+                        <a href="offers.html"
+                            class="px-4 py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm rounded-full font-semibold backdrop-blur-sm transition-all">
+                            🎉 عروض
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Service Grid (Quick Links) - Clean & Professional -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            <!-- 📂 Categories Horizontal Carousel (Clean Modern Design) -->
+            <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl sm:text-2xl font-black text-gray-800 flex items-center gap-2">
+                        <i class="fas fa-th-large text-indigo-600"></i>
+                        تصفح حسب الفئة
+                    </h2>
+                    <button class="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                        <span class="hidden sm:inline">عرض الكل</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                </div>
 
-                <!-- Food Court (Restaurant) -->
-                <a href="s22marketfood.html"
-                    class="flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-3 sm:p-4 rounded-xl transition-all shadow-sm hover:shadow-md">
-                    <div
-                        class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
-                        <i class="fas fa-utensils text-white text-xl sm:text-2xl"></i>
+                <div class="swiper categories-swiper">
+                    <div class="swiper-wrapper" id="categories-carousel">
+                        <!-- Categories loaded dynamically -->
+                        <div class="swiper-slide w-auto">
+                            <div class="flex items-center gap-2 text-gray-400 p-4">
+                                <div class="loader w-5 h-5 border-2"></div>
+                                <span class="text-sm">جاري التحميل...</span>
+                            </div>
+                        </div>
                     </div>
-                    <span class="text-xs sm:text-sm font-bold text-gray-800">المطاعم</span>
-                </a>
-
-                <!-- Auctions -->
-                <a href="auctions.html"
-                    class="flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-3 sm:p-4 rounded-xl transition-all shadow-sm hover:shadow-md">
-                    <div
-                        class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
-                        <i class="fas fa-gavel text-white text-xl sm:text-2xl"></i>
-                    </div>
-                    <span class="text-xs sm:text-sm font-bold text-gray-800">المزادات</span>
-                </a>
-
-                <!-- Special Offers -->
-                <a href="auctions.html"
-                    class="flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-3 sm:p-4 rounded-xl transition-all shadow-sm hover:shadow-md">
-                    <div
-                        class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
-                        <i class="fas fa-bolt text-white text-xl sm:text-2xl"></i>
-                    </div>
-                    <span class="text-xs sm:text-sm font-bold text-gray-800">عروض خاصة</span>
-                </a>
-
-                <!-- Categories (Mobile) / Wholesale (Desktop) -->
-                <a href="#categories-section"
-                    class="md:hidden flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-3 sm:p-4 rounded-xl transition-all shadow-sm hover:shadow-md">
-                    <div
-                        class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
-                        <i class="fas fa-list text-white text-xl sm:text-2xl"></i>
-                    </div>
-                    <span class="text-xs sm:text-sm font-bold text-gray-800">كل الفئات</span>
-                </a>
-
-                <a href="#"
-                    class="hidden md:flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-3 sm:p-4 rounded-xl transition-all shadow-sm hover:shadow-md">
-                    <div
-                        class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
-                        <i class="fas fa-boxes text-white text-xl sm:text-2xl"></i>
-                    </div>
-                    <span class="text-xs sm:text-sm font-bold text-gray-800">الجملة</span>
-                </a>
-
+                </div>
             </div>
 
-            <!-- Auctions Promotional Banner -->
-            <section
-                class="relative bg-gradient-to-r from-red-600 via-red-700 to-red-800 rounded-2xl shadow-xl overflow-hidden group cursor-pointer hover:shadow-2xl transition-all duration-300"
-                onclick="location.href='auctions.html'">
-                <!-- Background Pattern -->
-                <div class="absolute inset-0 opacity-10">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -mr-32 -mt-32"></div>
-                    <div class="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full -ml-24 -mb-24"></div>
-                </div>
 
-                <!-- Content -->
-                <div
-                    class="relative z-10 flex flex-col md:flex-row items-center justify-between p-6 md:p-8 lg:p-10 gap-6">
-                    <!-- Right Side - Text Content -->
-                    <div class="flex-1 text-white text-center md:text-right">
+            <!-- 🎁 Special Offers Banner (Large & Eye-Catching) -->
+            <div class="relative overflow-hidden rounded-2xl shadow-2xl cursor-pointer group"
+                onclick="location.href='offers.html'">
+                <div class="aspect-[21/9] sm:aspect-[3/1] md:aspect-[4/1]">
+                    <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=1200"
+                        class="w-full h-full object-cover" alt="عروض خاصة">
+                    <div class="absolute inset-0 bg-gradient-to-r from-purple-900/95 via-pink-800/80 to-transparent">
+                    </div>
+                </div>
+                <div class="absolute inset-0 flex items-center p-6 sm:p-8 md:p-12">
+                    <div class="text-white max-w-2xl">
                         <div
-                            class="inline-flex items-center gap-2 bg-yellow-400 text-red-900 px-3 py-1 rounded-full text-xs font-bold mb-3 animate-pulse">
-                            <i class="fas fa-fire"></i>
-                            <span>مزادات حية الآن</span>
+                            class="inline-block bg-yellow-400 text-purple-900 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold mb-3 sm:mb-4 animate-bounce">
+                            <i class="fas fa-percent mr-1"></i>عروض لفترة محدودة
                         </div>
-                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-3 leading-tight">
-                            زايد واربح! 🏆
+                        <h2 class="text-3xl sm:text-4xl md:text-5xl font-black mb-2 sm:mb-3 leading-tight">
+                            خصومات تصل لـ 70% 🎉
                         </h2>
-                        <p class="text-lg md:text-xl text-red-100 mb-4 max-w-2xl">
-                            اغتنم الفرصة للحصول على منتجات حصرية بأفضل الأسعار
-                        </p>
-                        <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
-                            <button
-                                class="bg-white text-red-600 px-6 py-3 rounded-xl font-bold text-lg shadow-lg hover:bg-yellow-400 hover:text-red-900 transition-all transform hover:scale-105 flex items-center gap-2">
-                                <i class="fas fa-gavel"></i>
-                                <span>شاهد المزادات</span>
-                                <i class="fas fa-arrow-left text-sm"></i>
-                            </button>
-                            <div class="flex items-center gap-2 text-white text-sm">
-                                <div class="flex -space-x-2">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-yellow-400 border-2 border-white flex items-center justify-center">
-                                        <i class="fas fa-user text-red-600 text-xs"></i>
-                                    </div>
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-yellow-400 border-2 border-white flex items-center justify-center">
-                                        <i class="fas fa-user text-red-600 text-xs"></i>
-                                    </div>
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-yellow-400 border-2 border-white flex items-center justify-center">
-                                        <i class="fas fa-user text-red-600 text-xs"></i>
-                                    </div>
-                                </div>
-                                <span class="font-semibold">+200 مزايد نشط</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Left Side - Visual Element -->
-                    <div class="relative hidden lg:block">
-                        <div class="relative">
-                            <!-- Giant Gavel Icon -->
-                            <div class="w-48 h-48 flex items-center justify-center">
-                                <i
-                                    class="fas fa-gavel text-white text-9xl opacity-90 transform group-hover:rotate-12 transition-transform duration-500"></i>
-                            </div>
-                            <!-- Floating Stats -->
-                            <div
-                                class="absolute -top-4 -right-4 bg-yellow-400 text-red-900 px-3 py-2 rounded-lg shadow-xl font-bold text-sm">
-                                <div class="text-xs opacity-75">مزادات نشطة</div>
-                                <div class="text-2xl">15+</div>
-                            </div>
-                            <div
-                                class="absolute -bottom-4 -left-4 bg-white text-red-600 px-3 py-2 rounded-lg shadow-xl font-bold text-sm">
-                                <div class="text-xs opacity-75">ينتهي قريباً</div>
-                                <div class="text-lg flex items-center gap-1">
-                                    <i class="fas fa-clock text-red-500"></i>
-                                    <span>2س 15د</span>
-                                </div>
-                            </div>
-                        </div>
+                        <p class="text-base sm:text-lg md:text-xl text-purple-100 mb-4 sm:mb-6">على آلاف المنتجات من
+                            جميع الفئات</p>
+                        <button
+                            class="bg-gradient-to-r from-yellow-400 to-orange-500 text-purple-900 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-black text-base sm:text-lg shadow-2xl transform group-hover:scale-110 transition-all">
+                            <i class="fas fa-tags ml-2"></i>تسوق الآن
+                        </button>
                     </div>
                 </div>
+            </div>
 
-                <!-- Bottom Ticker -->
-                <div class="relative z-10 bg-red-900 bg-opacity-50 border-t border-red-500 py-2 px-6">
-                    <div class="flex items-center justify-center gap-8 text-white text-sm">
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-shield-alt text-yellow-400"></i>
-                            <span>مزادات موثوقة</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-bolt text-yellow-400"></i>
-                            <span>عروض حصرية</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-trophy text-yellow-400"></i>
-                            <span>اربح الآن</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
-            <!-- Restaurant/Food Promotional Banner -->
-            <section
-                class="relative bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 rounded-2xl shadow-xl overflow-hidden group cursor-pointer hover:shadow-2xl transition-all duration-300"
-                onclick="location.href='s22marketfood.html'">
-                <!-- Background Pattern -->
-                <div class="absolute inset-0 opacity-10">
-                    <div class="absolute top-0 left-0 w-72 h-72 bg-white rounded-full -ml-36 -mt-36"></div>
-                    <div class="absolute bottom-0 right-0 w-56 h-56 bg-white rounded-full -mr-28 -mb-28"></div>
-                </div>
-
-                <!-- Content -->
-                <div
-                    class="relative z-10 flex flex-col md:flex-row-reverse items-center justify-between p-6 md:p-8 lg:p-10 gap-6">
-                    <!-- Left Side - Text Content -->
-                    <div class="flex-1 text-white text-center md:text-right">
-                        <div
-                            class="inline-flex items-center gap-2 bg-white text-orange-600 px-3 py-1 rounded-full text-xs font-bold mb-3 animate-pulse">
-                            <i class="fas fa-utensils"></i>
-                            <span>طازج ولذيذ</span>
-                        </div>
-                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-3 leading-tight">
-                            جائع؟ 🍕
-                        </h2>
-                        <p class="text-lg md:text-xl text-orange-100 mb-4 max-w-2xl">
-                            اطلب ألذ الوجبات من أفضل المطاعم والمقاهي بالتوصيل السريع
-                        </p>
-                        <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
-                            <button
-                                class="bg-white text-orange-600 px-6 py-3 rounded-xl font-bold text-lg shadow-lg hover:bg-yellow-300 hover:text-orange-700 transition-all transform hover:scale-105 flex items-center gap-2">
-                                <i class="fas fa-utensils"></i>
-                                <span>تصفح المطاعم</span>
-                                <i class="fas fa-arrow-left text-sm"></i>
-                            </button>
-                            <div class="flex items-center gap-3 text-white text-sm">
-                                <div class="flex items-center gap-1">
-                                    <i class="fas fa-star text-yellow-300"></i>
-                                    <i class="fas fa-star text-yellow-300"></i>
-                                    <i class="fas fa-star text-yellow-300"></i>
-                                    <i class="fas fa-star text-yellow-300"></i>
-                                    <i class="fas fa-star text-yellow-300"></i>
-                                </div>
-                                <span class="font-semibold">تقييم 5/5</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Side - Visual Element -->
-                    <div class="relative hidden lg:block">
-                        <div class="relative">
-                            <!-- Giant Food Icons -->
-                            <div class="w-48 h-48 flex items-center justify-center relative">
-                                <i
-                                    class="fas fa-pizza-slice text-white text-8xl opacity-90 absolute transform -rotate-12 group-hover:rotate-6 transition-transform duration-500"></i>
-                                <i
-                                    class="fas fa-hamburger text-yellow-300 text-7xl absolute transform translate-x-8 translate-y-8 rotate-12 group-hover:-rotate-6 transition-transform duration-500"></i>
-                            </div>
-                            <!-- Floating Stats -->
-                            <div
-                                class="absolute -top-4 -left-4 bg-white text-orange-600 px-3 py-2 rounded-lg shadow-xl font-bold text-sm">
-                                <div class="text-xs opacity-75">مطاعم متاحة</div>
-                                <div class="text-2xl">25+</div>
-                            </div>
-                            <div
-                                class="absolute -bottom-4 -right-4 bg-yellow-300 text-orange-700 px-3 py-2 rounded-lg shadow-xl font-bold text-sm">
-                                <div class="text-xs opacity-75">توصيل خلال</div>
-                                <div class="text-lg flex items-center gap-1">
-                                    <i class="fas fa-motorcycle"></i>
-                                    <span>30 دقيقة</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bottom Ticker -->
-                <div class="relative z-10 bg-orange-900 bg-opacity-50 border-t border-orange-400 py-2 px-6">
-                    <div class="flex items-center justify-center gap-8 text-white text-sm flex-wrap">
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-utensils text-yellow-300"></i>
-                            <span>طعام طازج</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-motorcycle text-yellow-300"></i>
-                            <span>توصيل سريع</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-percentage text-yellow-300"></i>
-                            <span>خصومات يومية</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Dynamic Home Sections -->
+            <!-- Dynamic Home Sections (Products will appear here) -->
             <div id="dynamic-home-sections" class="space-y-12 min-h-[300px]">
                 <!-- Sections will be loaded dynamically -->
             </div>

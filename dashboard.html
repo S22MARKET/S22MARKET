@@ -168,11 +168,153 @@
                 </div>
             </aside>
 
-            <main class="flex-1 p-4 md:p-8 overflow-y-auto">
-                <div id="analytics-panel" class="dashboard-panel">
-                    <div class="text-center py-20">
-                        <div class="loader mx-auto"></div>
-                        <p class="mt-4 text-gray-600">جاري تحميل الإحصائيات...</p>
+
+            <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-gray-100">
+                <!-- Header with Greeting -->
+                <div
+                    class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-2xl p-6 sm:p-8 mb-6 text-white">
+                    <h2 class="text-3xl sm:text-4xl font-black mb-2">مرحباً بك في لوحة التحكم 👋</h2>
+                    <p class="text-indigo-100 text-sm sm:text-base">إليك نظرة سريعة على أداء المتجر اليوم</p>
+                </div>
+
+                <!-- Overview Statistics Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+
+                    <!-- Total Users Card -->
+                    <div
+                        class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-all transform hover:scale-105">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-blue-100 p-3 rounded-xl">
+                                <i class="fas fa-users text-blue-600 text-2xl"></i>
+                            </div>
+                            <span
+                                class="text-xs font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">المستخدمين</span>
+                        </div>
+                        <h3 class="text-gray-600 text-sm font-semibold mb-1">إجمالي المستخدمين</h3>
+                        <p class="text-3xl font-black text-gray-800" id="total-users">0</p>
+                        <p class="text-xs text-gray-500 mt-2">مسجلين في المنصة</p>
+                    </div>
+
+                    <!-- Total Products Card -->
+                    <div
+                        class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-all transform hover:scale-105">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-green-100 p-3 rounded-xl">
+                                <i class="fas fa-box text-green-600 text-2xl"></i>
+                            </div>
+                            <span
+                                class="text-xs font-semibold text-green-600 bg-green-100 px-2 py-1 rounded-full">المنتجات</span>
+                        </div>
+                        <h3 class="text-gray-600 text-sm font-semibold mb-1">إجمالي المنتجات</h3>
+                        <p class="text-3xl font-black text-gray-800" id="total-products">0</p>
+                        <p class="text-xs text-gray-500 mt-2">منتج معروض</p>
+                    </div>
+
+                    <!-- Total Orders Card -->
+                    <div
+                        class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl transition-all transform hover:scale-105">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-purple-100 p-3 rounded-xl">
+                                <i class="fas fa-shopping-cart text-purple-600 text-2xl"></i>
+                            </div>
+                            <span
+                                class="text-xs font-semibold text-purple-600 bg-purple-100 px-2 py-1 rounded-full">الطلبات</span>
+                        </div>
+                        <h3 class="text-gray-600 text-sm font-semibold mb-1">إجمالي الطلبات</h3>
+                        <p class="text-3xl font-black text-gray-800" id="total-orders">0</p>
+                        <p class="text-xs text-gray-500 mt-2">طلب مكتمل</p>
+                    </div>
+
+                    <!-- Pending Approvals Card -->
+                    <div
+                        class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-xl transition-all transform hover:scale-105">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-orange-100 p-3 rounded-xl">
+                                <i class="fas fa-clock text-orange-600 text-2xl"></i>
+                            </div>
+                            <span
+                                class="text-xs font-semibold text-orange-600 bg-orange-100 px-2 py-1 rounded-full animate-pulse"
+                                id="pending-count-badge">0</span>
+                        </div>
+                        <h3 class="text-gray-600 text-sm font-semibold mb-1">معلق للموافقة</h3>
+                        <p class="text-3xl font-black text-gray-800" id="total-pending">0</p>
+                        <p class="text-xs text-gray-500 mt-2">بحاجة لمراجعة</p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Panel -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                    <h3 class="text-xl font-black text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="fas fa-bolt text-yellow-500"></i>
+                        إجراءات سريعة
+                    </h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <a href="admin-sellers.html"
+                            class="flex flex-col items-center gap-2 p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl hover:shadow-md transition-all hover:scale-105 cursor-pointer group">
+                            <div class="bg-blue-600 p-3 rounded-full group-hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-store text-white text-xl"></i>
+                            </div>
+                            <span class="text-sm font-bold text-gray-700 text-center">موافقة متاجر</span>
+                        </a>
+
+                        <a href="admin-product-requests.html"
+                            class="flex flex-col items-center gap-2 p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl hover:shadow-md transition-all hover:scale-105 cursor-pointer group">
+                            <div class="bg-green-600 p-3 rounded-full group-hover:bg-green-700 transition-colors">
+                                <i class="fas fa-box text-white text-xl"></i>
+                            </div>
+                            <span class="text-sm font-bold text-gray-700 text-center">مراجعة منتجات</span>
+                        </a>
+
+                        <a href="admin-offers.html"
+                            class="flex flex-col items-center gap-2 p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl hover:shadow-md transition-all hover:scale-105 cursor-pointer group">
+                            <div class="bg-purple-600 p-3 rounded-full group-hover:bg-purple-700 transition-colors">
+                                <i class="fas fa-tags text-white text-xl"></i>
+                            </div>
+                            <span class="text-sm font-bold text-gray-700 text-center">إنشاء عرض</span>
+                        </a>
+
+                        <a href="admin-inquiries.html"
+                            class="flex flex-col items-center gap-2 p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl hover:shadow-md transition-all hover:scale-105 cursor-pointer group">
+                            <div class="bg-orange-600 p-3 rounded-full group-hover:bg-orange-700 transition-colors">
+                                <i class="fas fa-comments text-white text-xl"></i>
+                            </div>
+                            <span class="text-sm font-bold text-gray-700 text-center">الاستفسارات</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Sales Chart Placeholder -->
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="text-lg font-black text-gray-800 mb-4 flex items-center gap-2">
+                            <i class="fas fa-chart-line text-indigo-600"></i>
+                            📈 نشاط المبيعات
+                        </h3>
+                        <canvas id="salesChart" style="max-height: 250px;"></canvas>
+                    </div>
+
+                    <!-- Categories Breakdown Placeholder -->
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="text-lg font-black text-gray-800 mb-4 flex items-center gap-2">
+                            <i class="fas fa-chart-pie text-purple-600"></i>
+                            📊 الفئات الأكثر مبيعاً
+                        </h3>
+                        <canvas id="categoriesChart" style="max-height: 250px;"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Feed -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="text-xl font-black text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="fas fa-history text-indigo-600"></i>
+                        آخر النشاطات
+                    </h3>
+                    <div id="recent-activity" class="space-y-3">
+                        <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                            <div class="loader w-8 h-8 border-2"></div>
+                            <span class="text-gray-500">جاري تحميل آخر النشاطات...</span>
+                        </div>
                     </div>
                 </div>
             </main>
