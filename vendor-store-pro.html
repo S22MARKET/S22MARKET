@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>S22 Market - تفاصيل المتجر</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; padding-bottom: 80px; }
+        .hero-pattern { background-color: #4f46e5; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .product-card { transition: all 0.2s; }
+        .product-card:active { transform: scale(0.97); }
+    </style>
+</head>
+<body>
+    
+    <div class="relative bg-white shadow-md pb-4">
+        <div class="h-32 hero-pattern w-full"></div>
+        <div class="px-4 -mt-12 flex flex-col items-center text-center">
+            <img id="vendor-logo" src="" class="w-24 h-24 rounded-full border-4 border-white shadow-lg bg-gray-200 object-cover">
+            
+            <h1 id="vendor-name" class="text-2xl font-extrabold text-gray-900 mt-2">جار التحميل...</h1>
+            <p id="vendor-desc" class="text-gray-500 text-sm mt-1 px-4 line-clamp-2"></p>
+            
+            <div class="flex gap-6 mt-4 text-sm font-semibold">
+                <div class="flex items-center gap-1 text-yellow-500">
+                    <i class="fas fa-star"></i> <span id="rating-val">0.0</span>
+                </div>
+                <div class="flex items-center gap-1 text-red-500">
+                    <i class="fas fa-heart"></i> <span id="likes-val">0</span>
+                </div>
+                <div class="flex items-center gap-1 text-green-600">
+                    <i class="fas fa-truck"></i> <span>توصيل متاح</span>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-5 w-full max-w-sm">
+                <a id="btn-call" href="#" class="flex-1 bg-gray-100 text-gray-800 py-2 rounded-lg font-bold hover:bg-gray-200 flex items-center justify-center gap-2">
+                    <i class="fas fa-phone"></i> اتصال
+                </a>
+                <a id="btn-share" onclick="shareStore()" class="flex-1 bg-indigo-50 text-indigo-700 py-2 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fas fa-share-alt"></i> مشاركة
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="sticky top-0 bg-white z-20 shadow-sm mt-2">
+        <div class="flex overflow-x-auto gap-2 p-3 scrollbar-hide" id="categories-scroll">
+            <button class="bg-indigo-600 text-white px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap shadow-sm">الكل</button>
+            <button class="bg-gray-100 text-gray-600 px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap">الأكثر طلباً</button>
+            <button class="bg-gray-100 text-gray-600 px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap">عروض</button>
+            </div>
+    </div>
+
+    <div class="max-w-2xl mx-auto p-4">
+        <div id="products-list" class="grid grid-cols-1 gap-4">
+            <div class="animate-pulse flex gap-4 bg-white p-3 rounded-xl">
+                <div class="bg-gray-200 w-24 h-24 rounded-lg"></div>
+                <div class="flex-1 space-y-2 py-1">
+                    <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="float-cart-btn" class="fixed bottom-6 left-4 right-4 bg-green-600 text-white p-4 rounded-xl shadow-2xl flex justify-between items-center transform translate-y-20 transition-transform duration-300 z-50 cursor-pointer hover:bg-green-700">
+        <div class="font-bold flex items-center gap-2">
+            <span class="bg-white text-green-600 w-6 h-6 rounded-full flex items-center justify-center text-xs" id="cart-count">0</span>
+            <span>عرض السلة</span>
+        </div>
+        <span class="font-bold" id="cart-total">0 د.ل</span>
+    </div>
+
+    <script type="module">
+        // (نفس إعدادات Firebase)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        const app = initializeApp({ /* إعداداتك */ 
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314"
+        });
+        const db = getFirestore(app);
+        
+        // جلب الـ ID من الرابط
+        const urlParams = new URLSearchParams(window.location.search);
+        const vendorId = urlParams.get('vendorId') || urlParams.get('id');
+
+        async function initPage() {
+            if(!vendorId) return;
+
+            // 1. جلب بيانات المطعم
+            const vendorRef = doc(db, 'vendors', vendorId);
+            const vendorSnap = await getDoc(vendorRef);
+            
+            if (vendorSnap.exists()) {
+                const data = vendorSnap.data();
+                document.getElementById('vendor-name').textContent = data.name;
+                document.getElementById('vendor-desc').textContent = data.description || 'أفضل المنتجات لدينا';
+                document.getElementById('vendor-logo').src = data.logo || 'https://via.placeholder.com/150';
+                document.getElementById('rating-val').textContent = data.rating || 'جديد';
+                document.getElementById('likes-val').textContent = data.likes || 0;
+                
+                if(data.phone) document.getElementById('btn-call').href = `tel:${data.phone}`;
+            }
+
+            // 2. جلب المنتجات
+            const q = query(collection(db, 'products'), where('vendorId', '==', vendorId), where('status', '==', 'approved'));
+            const productsSnap = await getDocs(q);
+            
+            const container = document.getElementById('products-list');
+            container.innerHTML = '';
+            
+            if(productsSnap.empty) {
+                container.innerHTML = '<div class="text-center text-gray-400 py-10">لا توجد منتجات حالياً</div>';
+                return;
+            }
+
+            productsSnap.forEach(doc => {
+                const p = doc.data();
+                container.innerHTML += `
+                    <div class="product-card bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex gap-3 h-32 relative overflow-hidden">
+                        <img src="${p.images?.[0] || 'https://via.placeholder.com/150'}" class="w-28 h-full rounded-lg object-cover bg-gray-100">
+                        <div class="flex-1 flex flex-col justify-between py-1">
+                            <div>
+                                <h3 class="font-bold text-gray-800 line-clamp-1">${p.name}</h3>
+                                <p class="text-xs text-gray-500 line-clamp-2 mt-1">${p.description || ''}</p>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <span class="font-bold text-indigo-600 text-lg">${p.price} د.ج</span>
+                                <button onclick="addToCart('${doc.id}')" class="bg-gray-100 hover:bg-indigo-600 hover:text-white text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center transition">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        // دالة المشاركة
+        window.shareStore = () => {
+            if (navigator.share) {
+                navigator.share({
+                    title: document.getElementById('vendor-name').textContent,
+                    text: 'تصفح هذا المتجر المميز على S22 Market',
+                    url: window.location.href,
+                });
+            } else {
+                alert('تم نسخ الرابط!');
+            }
+        };
+
+        initPage();
+    </script>
+</body>
+</html>

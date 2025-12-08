@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Market - موافقة المنتجات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6">
+        <h1 class="text-2xl font-bold">موافقة المنتجات</h1>
+        <p class="text-indigo-100 mt-1">مراجعة وموافقة منتجات البائعين</p>
+    </div>
+    
+    <div class="max-w-7xl mx-auto p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-xl p-6 shadow">
+                <p class="text-gray-600 text-sm">قيد الانتظار</p>
+                <p id="pending-count" class="text-3xl font-bold text-yellow-600">0</p>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow">
+                <p class="text-gray-600 text-sm">تمت الموافقة</p>
+                <p id="approved-count" class="text-3xl font-bold text-green-600">0</p>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow">
+                <p class="text-gray-600 text-sm">مرفوضة</p>
+                <p id="rejected-count" class="text-3xl font-bold text-red-600">0</p>
+            </div>
+        </div>
+        
+        <div id="pending-products"></div>
+    </div>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        const app = initializeApp({
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314"
+        });
+        
+        const db = getFirestore(app);
+        
+        const q = query(collection(db, 'products'), where('status', '==', 'pending'));
+        onSnapshot(q, (snapshot) => {
+            const pending = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
+            renderPending(pending);
+            document.getElementById('pending-count').textContent = pending.length;
+        });
+        
+        function renderPending(products) {
+            const container = document.getElementById('pending-products');
+            
+            if (products.length === 0) {
+                container.innerHTML = '<div class="bg-gray-50 p-8 rounded-lg text-center text-gray-500">لا توجد منتجات قيد الانتظار</div>';
+                return;
+            }
+            
+            container.innerHTML = products.map(p => `
+                <div class="bg-white rounded-xl p-6 shadow mb-4">
+                    <div class="flex gap-4 items-start flex-wrap md:flex-nowrap">
+                        <img src="${p.images?.[0] || 'https://via.placeholder.com/100'}" class="w-24 h-24 rounded-lg object-cover">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold mb-2">${p.name}</h3>
+                            <p class="text-gray-600 mb-2">${p.description || ''}</p>
+                            <div class="flex gap-4 text-sm text-gray-600">
+                                <span>السعر: ${p.price} د.ل</span>
+                                <span>البائع: ${p.vendorName || 'غير محدد'}</span>
+                                <span>التصنيف: ${p.category || 'عام'}</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="approveProduct('${p.id}')" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700">
+                                <i class="fas fa-check ml-2"></i> موافقة
+                            </button>
+                            <button onclick="rejectProduct('${p.id}')" class="bg-red-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-red-700">
+                                <i class="fas fa-times ml-2"></i> رفض
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        window.approveProduct = async function(productId) {
+            if (!confirm('هل تريد الموافقة على هذا المنتج؟')) return;
+            try {
+                await updateDoc(doc(db, 'products', productId), { status: 'approved' });
+                alert('تمت الموافقة بنجاح!');
+            } catch (error) {
+                alert('حدث خطأ');
+            }
+        };
+        
+        window.rejectProduct = async function(productId) {
+            const reason = prompt('سبب الرفض (اختياري):');
+            try {
+                await updateDoc(doc(db, 'products', productId), { 
+                    status: 'rejected',
+                    rejectionReason: reason || 'لا يستوفي المعايير'
+                });
+                alert('تم رفض المنتج');
+            } catch (error) {
+                alert('حدث خطأ');
+            }
+        };
+    </script>
+</body>
+</html>

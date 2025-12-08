@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>S22 Market - صفحة المتجر</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --bg-body: #f8fafc;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-body);
+        }
+
+        .vendor-cover {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .vendor-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid white;
+            position: absolute;
+            bottom: -50px;
+            right: 20px;
+            background-color: white;
+            object-fit: cover;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-card {
+            transition: transform 0.2s;
+        }
+
+        .product-card:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+
+<body class="pb-24">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
+        <button onclick="history.back()" class="text-gray-600 text-xl"><i class="fas fa-arrow-right"></i></button>
+        <h1 class="text-lg font-bold text-gray-800">S22 MARKET</h1>
+        <div class="w-8"></div> <!-- Spacer -->
+    </header>
+
+    <div id="loading" class="text-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+        <p class="mt-4 text-gray-500">جاري تحميل المتجر...</p>
+    </div>
+
+    <main id="vendor-content" class="hidden">
+        <!-- Vendor Info -->
+        <div class="vendor-cover bg-gray-300" id="vendor-cover">
+            <img id="vendor-logo" src="https://placehold.co/100" class="vendor-logo" alt="Logo">
+        </div>
+
+        <div class="mt-14 px-4 text-center sm:text-right sm:pr-32">
+            <h1 id="vendor-name" class="text-2xl font-bold text-gray-900">...</h1>
+            <p id="vendor-desc" class="text-gray-600 mt-1 text-sm">...</p>
+            <div class="flex items-center justify-center sm:justify-start gap-4 mt-3 text-sm text-gray-500">
+                <span id="vendor-rating"><i class="fas fa-star text-yellow-400"></i> 4.5</span>
+                <span><i class="fas fa-map-marker-alt"></i> <span id="vendor-location">الجزائر</span></span>
+            </div>
+        </div>
+
+        <hr class="my-6 border-gray-200">
+
+        <!-- Products Grid -->
+        <div class="px-4">
+            <h2 class="text-xl font-bold mb-4">المنتجات / الوجبات</h2>
+            <div id="products-grid" class="grid grid-cols-2 gap-4">
+                <!-- Products injected here -->
+            </div>
+        </div>
+    </main>
+
+    <div id="toast-container"></div>
+    <div id="modal-container"></div>
+
+    <script type="module">
+        import { db, doc, getDoc, collection, query, where, getDocs } from './js/firebase-config.js';
+        import { showToast } from './js/ui-utils.js';
+
+        async function loadVendor() {
+            const params = new URLSearchParams(window.location.search);
+            const vendorId = params.get('id');
+
+            if (!vendorId) {
+                document.body.innerHTML = '<p class="text-center py-20 text-red-500">رابط غير صالح (مفقود ID)</p>';
+                return;
+            }
+
+            try {
+                // 1. Get Vendor Profile
+                // Note: Assuming 'vendors' collection or looking up 'users' with role 'vendor'
+                // For now, let's assume a 'users' doc is the vendor profile source as per original schema
+                let vendorDoc = await getDoc(doc(db, "users", vendorId));
+                // If not in users, check "vendors" collection if you created one separately
+                if (!vendorDoc.exists()) {
+                    // Check specific vendors collection if implemented
+                    vendorDoc = await getDoc(doc(db, "vendors", vendorId));
+                }
+
+                if (!vendorDoc.exists()) {
+                    document.getElementById('loading').innerHTML = '<p class="text-red-500">المتجر غير موجود</p>';
+                    return;
+                }
+
+                const vendorData = vendorDoc.data();
+
+                // Render Vendor Info
+                document.getElementById('vendor-name').textContent = vendorData.displayName || vendorData.storeName || "متجر غير معروف";
+                document.getElementById('vendor-desc').textContent = vendorData.description || "لا يوجد وصف لهذا المتجر";
+                document.getElementById('vendor-location').textContent = vendorData.address || "الجزائر";
+
+                if (vendorData.coverUrl) document.getElementById('vendor-cover').style.backgroundImage = `url('${vendorData.coverUrl}')`;
+                if (vendorData.photoURL || vendorData.logoUrl) document.getElementById('vendor-logo').src = vendorData.photoURL || vendorData.logoUrl;
+
+                // 2. Get Vendor Products
+                const q = query(collection(db, "products"), where("vendorId", "==", vendorId));
+                const querySnapshot = await getDocs(q);
+
+                const grid = document.getElementById('products-grid');
+                grid.innerHTML = '';
+
+                if (querySnapshot.empty) {
+                    grid.innerHTML = '<p class="col-span-2 text-center text-gray-500 py-10">لا توجد منتجات حالياً.</p>';
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const p = doc.data();
+                    const card = document.createElement('a');
+                    card.href = `PRESENTPRODUCT.html?product=${doc.id}`;
+                    card.className = 'block bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 product-card';
+                    card.innerHTML = `
+                        <div class="h-40 bg-gray-200 bg-cover bg-center" style="background-image: url('${p.imageUrls?.[0] || 'https://placehold.co/300'}')"></div>
+                        <div class="p-3">
+                            <h3 class="font-bold text-gray-800 text-sm truncate">${p.name}</h3>
+                            <p class="text-primary-600 font-bold mt-1 text-sm">${(p.price || 0).toLocaleString()} د.ج</p>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('vendor-content').classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Error loading vendor:", error);
+                document.getElementById('loading').innerHTML = '<p class="text-red-500">حدث خطأ أثناء تحميل المتجر.</p>';
+            }
+        }
+
+        loadVendor();
+    </script>
+</body>
+
+</html>
