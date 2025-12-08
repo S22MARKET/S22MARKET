@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,21 +9,90 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; }
-        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        .small-loader { border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; translateY(0); } }
-        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f1f5f9;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4f46e5;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        .small-loader {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                translateY(0);
+            }
+        }
+
         #user-menu-dropdown.show {
             display: block;
             animation: slideInUp 0.2s ease-out;
         }
-        
-        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10001; }
-        .toast { background-color: #2d3748; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards; }
-        .toast.error { background-color: #c53030; }
-        @keyframes fadeOut { from { opacity: 1; } to: { opacity: 0; } }
+
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10001;
+        }
+
+        .toast {
+            background-color: #2d3748;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+        }
+
+        .toast.error {
+            background-color: #c53030;
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
 
         /* (جديد) ستايل بطاقات المحفظة */
         .wallet-card {
@@ -33,11 +103,13 @@
             border: 1px solid white;
             text-align: center;
         }
+
         .wallet-title {
             font-weight: 700;
             font-size: 1.125rem;
             color: #475569;
         }
+
         .wallet-balance {
             font-weight: 800;
             font-size: 2.5rem;
@@ -45,58 +117,113 @@
             margin-top: 0.5rem;
             margin-bottom: 0.5rem;
         }
-        
+
         /* (جديد) ستايل نافذة التحويل */
-        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 40; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
-        .modal-backdrop.active { opacity: 1; pointer-events: all; }
-        .modal-content { background-color: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 500px; z-index: 50; transform: scale(0.95); opacity: 0; transition: all 0.3s ease; }
-        .modal-backdrop.active .modal-content { transform: scale(1); opacity: 1; }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .modal-backdrop.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+            z-index: 50;
+            transform: scale(0.95);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .modal-backdrop.active .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
     </style>
 </head>
+
 <body>
 
     <header class="bg-white shadow-sm sticky top-0 z-30">
         <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-             <a href="index.html" class="flex items-center gap-3">
+            <a href="index.html" class="flex items-center gap-3">
                 <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
                     S22<span class="text-blue-600">MARKET</span>
                 </h1>
             </a>
-            
+
             <div id="header-actions" class="flex items-center gap-4 relative">
-                <a href="index.html" id="store-btn" class="relative text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 shadow-lg">
+                <a href="index.html" id="store-btn"
+                    class="relative text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 shadow-lg">
                     <i class="fas fa-store"></i>
                     <span>المتجر</span>
                 </a>
-                <a href="login.html" id="login-btn" class="hidden relative text-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-full transition-colors items-center gap-2 sm:flex">
+                <a href="login.html" id="login-btn"
+                    class="hidden relative text-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-full transition-colors items-center gap-2 sm:flex">
                     <i class="fas fa-sign-in-alt"></i>
                     <span>دخول / تسجيل</span>
                 </a>
-                
+
                 <div id="user-menu" class="hidden">
-                    <button id="user-menu-button" class="flex items-center gap-2 text-lg font-semibold text-gray-700 bg-green-100 hover:bg-green-200 px-5 py-2.5 rounded-full transition-colors">
+                    <button id="user-menu-button"
+                        class="flex items-center gap-2 text-lg font-semibold text-gray-700 bg-green-100 hover:bg-green-200 px-5 py-2.5 rounded-full transition-colors">
                         <i class="fas fa-user-check text-green-700"></i>
                         <span id="user-menu-name">...</span>
                         <i class="fas fa-chevron-down text-xs"></i>
                     </button>
-                    <div id="user-menu-dropdown" class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
+                    <div id="user-menu-dropdown"
+                        class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
                         <div class="p-3 border-b">
                             <p class="text-sm text-gray-500">مرحباً بك،</p>
                             <p class="font-bold text-gray-800" id="user-menu-displayname">...</p>
                         </div>
-                        <a href="profile.html" class="block px-4 py-3 text-gray-700 bg-gray-100 font-bold transition-colors"><i class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي ومحافطي</a>
-                        
+                        <a href="profile.html"
+                            class="block px-4 py-3 text-gray-700 bg-gray-100 font-bold transition-colors"><i
+                                class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي ومحافطي</a>
+
                         <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</div>
-                        <a href="dawarat_learning_dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-graduation-cap fa-fw ml-2 text-indigo-400"></i> بذلوراتي المسجلة</a>
-                        <a href="dawarat_loyalty_tasks.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-tasks fa-fw ml-2 text-purple-400"></i> كسب العملات (المهام)</a>
-                        <a href="dawarat_loyalty_rewards.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-gift fa-fw ml-2 text-yellow-400"></i> استبدال العملات</a>
+                        <a href="dawarat_learning_dashboard.html"
+                            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                class="fas fa-graduation-cap fa-fw ml-2 text-indigo-400"></i> بذلوراتي المسجلة</a>
+                        <a href="dawarat_loyalty_tasks.html"
+                            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                class="fas fa-tasks fa-fw ml-2 text-purple-400"></i> كسب العملات (المهام)</a>
+                        <a href="dawarat_loyalty_rewards.html"
+                            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                class="fas fa-gift fa-fw ml-2 text-yellow-400"></i> استبدال العملات</a>
 
                         <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">المتجر</div>
-                        <a href="seller-dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
-                        <a href="order_history.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
-                        <a href="loyalty_card.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء (الجواهر)</a>
+                        <a href="seller-dashboard.html"
+                            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
+                        <a href="order_history.html"
+                            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
+                        <a href="loyalty_card.html"
+                            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء (الجواهر)</a>
 
-                        <button id="logout-btn" class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
+                        <button id="logout-btn"
+                            class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i
+                                class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
                     </div>
                 </div>
             </div>
@@ -104,7 +231,7 @@
     </header>
 
     <main class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        
+
         <div id="auth-loader" class="text-center py-20">
             <div class="loader mx-auto"></div>
             <p class="mt-4 text-gray-600 text-lg">جاري جلب بيانات ملفك الشخصي...</p>
@@ -116,7 +243,33 @@
             </h1>
 
             <div class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-700 mb-4">المحافظ</h2>
+                <!-- Status Banner for Pending Requests -->
+                <div id="pending-request-banner"
+                    class="hidden bg-yellow-50 border-r-4 border-yellow-400 p-4 rounded-lg mb-6 flex items-start">
+                    <i class="fas fa-clock text-yellow-500 text-xl ml-3 mt-1"></i>
+                    <div>
+                        <h3 class="font-bold text-yellow-800">طلبك قيد المراجعة</h3>
+                        <p class="text-sm text-yellow-700 mt-1">لقد قمت بتقديم طلب لفتح متجر/مطعم. سيتم إشعارك فور
+                            الموافقة عليه من قبل الإدارة.</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-end mb-4">
+                    <h2 class="text-2xl font-bold text-gray-700">المحافظ</h2>
+
+                    <!-- Only show if NOT a vendor and NO pending request -->
+                    <button id="open-store-btn"
+                        class="hidden bg-gradient-to-l from-indigo-600 to-blue-600 text-white px-5 py-2 rounded-lg font-bold shadow hover:shadow-lg transition transform hover:-translate-y-1">
+                        <i class="fas fa-store ml-2"></i> افتح متجرك الآن
+                    </button>
+
+                    <!-- If Vendor -->
+                    <a id="go-to-dashboard-btn" href="seller-dashboard.html"
+                        class="hidden bg-green-600 text-white px-5 py-2 rounded-lg font-bold shadow hover:shadow-lg transition">
+                        <i class="fas fa-chart-line ml-2"></i> لوحة التحكم
+                    </a>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <div class="wallet-card md:col-span-1">
                         <div class="wallet-title">جواهر المتجر <i class="fas fa-gem text-blue-500"></i></div>
@@ -124,7 +277,8 @@
                         <div class="text-sm text-gray-500">تستخدم لشراء المنتجات من المتجر.</div>
                     </div>
                     <div class="text-center md:col-span-1">
-                        <button id="open-convert-modal-btn" class="bg-gray-700 text-white font-bold p-4 rounded-full shadow-lg hover:bg-gray-800 transform hover:scale-105 transition-transform">
+                        <button id="open-convert-modal-btn"
+                            class="bg-gray-700 text-white font-bold p-4 rounded-full shadow-lg hover:bg-gray-800 transform hover:scale-105 transition-transform">
                             <i class="fas fa-exchange-alt fa-fw"></i>
                         </button>
                         <p class="text-sm font-semibold text-gray-600 mt-2">تحويل العملات</p>
@@ -143,27 +297,36 @@
                     <form id="profile-form" class="space-y-4">
                         <div>
                             <label for="profile-name" class="block text-sm font-bold text-gray-700">الاسم الكامل</label>
-                            <input type="text" id="profile-name" class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg" required>
+                            <input type="text" id="profile-name"
+                                class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg" required>
                         </div>
                         <div>
-                            <label for="profile-phone" class="block text-sm font-bold text-gray-700">رقم الهاتف (لطلبات المتجر)</label>
-                            <input type="tel" id="profile-phone" dir="ltr" class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg" placeholder="05xxxxxxxx">
+                            <label for="profile-phone" class="block text-sm font-bold text-gray-700">رقم الهاتف (لطلبات
+                                المتجر)</label>
+                            <input type="tel" id="profile-phone" dir="ltr"
+                                class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg"
+                                placeholder="05xxxxxxxx">
                         </div>
                         <div>
-                            <label for="profile-email" class="block text-sm font-bold text-gray-700">البريد الإلكتروني</label>
-                            <input type="email" id="profile-email" class="mt-1 block w-full p-3 bg-gray-200 border border-gray-300 rounded-lg text-gray-500" disabled>
+                            <label for="profile-email" class="block text-sm font-bold text-gray-700">البريد
+                                الإلكتروني</label>
+                            <input type="email" id="profile-email"
+                                class="mt-1 block w-full p-3 bg-gray-200 border border-gray-300 rounded-lg text-gray-500"
+                                disabled>
                         </div>
-                        <button id="save-profile-btn" type="submit" class="w-full flex justify-center items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105 disabled:bg-indigo-400">
+                        <button id="save-profile-btn" type="submit"
+                            class="w-full flex justify-center items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105 disabled:bg-indigo-400">
                             <span class="button-text">حفظ التعديلات</span>
                             <div class="small-loader button-loader hidden"></div>
                         </button>
                     </form>
                 </div>
-                
+
                 <div class="bg-white p-6 rounded-xl shadow-md">
                     <h2 class="text-2xl font-bold text-gray-700 mb-6 border-b pb-3">كود الدعوة الخاص بك</h2>
-                    <p class="text-gray-600">شارك هذا الكود مع أصدقائك. عند تسجيلهم به، ستحصل على **<span id="referral-bonus-amount">...</span> عملة 🪙** (بعد اعتمادهم من الإدارة).</p>
-                    
+                    <p class="text-gray-600">شارك هذا الكود مع أصدقائك. عند تسجيلهم به، ستحصل على **<span
+                            id="referral-bonus-amount">...</span> عملة 🪙** (بعد اعتمادهم من الإدارة).</p>
+
                     <div id="referral-loader" class="text-center py-10">
                         <div class="loader mx-auto !w-10 !h-10"></div>
                         <p class="mt-2 text-gray-500">جاري إنشاء كود الدعوة...</p>
@@ -172,9 +335,11 @@
                     <div id="referral-code-container" class="hidden mt-6 text-center">
                         <p class="text-lg font-bold text-gray-500">الكود الخاص بك هو:</p>
                         <div class="my-3 p-4 bg-indigo-50 border-2 border-dashed border-indigo-300 rounded-lg">
-                            <span id="referral-code" class="text-4xl font-extrabold text-indigo-600 tracking-widest"></span>
+                            <span id="referral-code"
+                                class="text-4xl font-extrabold text-indigo-600 tracking-widest"></span>
                         </div>
-                        <button id="copy-referral-code-btn" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg transition-colors">
+                        <button id="copy-referral-code-btn"
+                            class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg transition-colors">
                             <i class="fas fa-copy mr-2"></i> <span>نسخ الكود</span>
                         </button>
                     </div>
@@ -182,26 +347,28 @@
             </div>
         </div>
     </main>
-    
+
     <div id="convert-modal" class="modal-backdrop">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4 border-b pb-3">
                 <h3 class="text-xl font-bold">تحويل العملات</h3>
                 <button id="close-convert-modal-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button>
             </div>
-            
+
             <form id="convert-form">
                 <div class="space-y-4">
                     <div>
                         <label class="font-semibold">تحويل من:</label>
-                        <select id="convert-from" class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg">
+                        <select id="convert-from"
+                            class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg">
                             <option value="jewels">جواهر المتجر 💎</option>
                             <option value="coins">عملات الأكاديمية 🪙</option>
                         </select>
                     </div>
                     <div>
                         <label for="convert-amount" class="font-semibold">المبلغ المراد تحويله:</label>
-                        <input type="number" id="convert-amount" class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg" placeholder="0">
+                        <input type="number" id="convert-amount"
+                            class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg" placeholder="0">
                     </div>
                     <div class="text-center p-4 bg-indigo-50 rounded-lg">
                         <p class="text-gray-600">ستحصل على:</p>
@@ -210,7 +377,8 @@
                     </div>
                 </div>
                 <div class="flex justify-end gap-4 mt-6 border-t pt-4">
-                    <button id="convert-confirm-btn" type="submit" class="w-full flex justify-center items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105 disabled:bg-green-400">
+                    <button id="convert-confirm-btn" type="submit"
+                        class="w-full flex justify-center items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105 disabled:bg-green-400">
                         <span class="button-text">تأكيد التحويل</span>
                         <div class="small-loader button-loader hidden"></div>
                     </button>
@@ -241,7 +409,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, writeBatch, increment, runTransaction, collection, query, where, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
+
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
             authDomain: "s22market-4e3e6.firebaseapp.com",
@@ -267,10 +435,10 @@
 
         const authLoader = document.getElementById('auth-loader');
         const profileContent = document.getElementById('profile-content');
-        
+
         const profileForm = document.getElementById('profile-form');
         const saveProfileBtn = document.getElementById('save-profile-btn');
-        
+
         const referralLoader = document.getElementById('referral-loader');
         const referralContainer = document.getElementById('referral-code-container');
         const referralCodeEl = document.getElementById('referral-code');
@@ -279,7 +447,7 @@
 
         const jewelsBalanceEl = document.getElementById('jewels-balance');
         const coinsBalanceEl = document.getElementById('coins-balance');
-        
+
         const convertModal = document.getElementById('convert-modal');
         const openConvertModalBtn = document.getElementById('open-convert-modal-btn');
         const closeConvertModalBtn = document.getElementById('close-convert-modal-btn');
@@ -318,69 +486,87 @@
                 if (loader) loader.classList.add('hidden');
             }
         }
-        
+
         // --- (دالة تحميل بيانات البروفايل - معدلة بالكامل) ---
         async function loadProfileData(user) {
             try {
                 // جلب الإعدادات
                 const settingsPromises = [
-                    getDoc(doc(db, "settings", "storeConfig")), 
-                    getDoc(doc(db, "settings", "dawarat_loyalty_config")) 
+                    getDoc(doc(db, "settings", "storeConfig")),
+                    getDoc(doc(db, "settings", "dawarat_loyalty_config"))
                 ];
                 const [storeConfigSnap, dawaratSettingsSnap] = await Promise.all(settingsPromises);
-                
+
                 if (storeConfigSnap.exists()) {
                     exchangeRates = storeConfigSnap.data().exchangeRates || {};
                 }
-                
+
                 if (dawaratSettingsSnap.exists()) {
                     dawaratSettings = dawaratSettingsSnap.data();
                     referralBonusAmountEl.textContent = dawaratSettings.referralBonus || 0;
                 } else {
                     referralBonusAmountEl.textContent = 0;
                 }
-                
+
                 // جلب بيانات المستخدم
                 const userDocRef = doc(db, 'users', user.uid);
                 const userDocSnap = await getDoc(userDocRef);
 
                 if (userDocSnap.exists()) {
                     currentUserData = userDocSnap.data();
-                    
-                    document.getElementById('profile-name').value = user.displayName || '';
-                    document.getElementById('profile-email').value = user.email || '';
+
                     document.getElementById('profile-phone').value = currentUserData.phone || '';
 
                     jewelsBalanceEl.textContent = (currentUserData.loyaltyPoints || 0).toLocaleString();
                     coinsBalanceEl.textContent = (currentUserData.dawarat_coins || 0).toLocaleString();
 
-                    // === (هذا هو الكود الجديد لحل المشكلة) ===
+                    // === Store Request Logic ===
+                    const startStoreBtn = document.getElementById('open-store-btn');
+                    const dashboardBtn = document.getElementById('go-to-dashboard-btn');
+                    const pendingBanner = document.getElementById('pending-request-banner');
+
+                    if (startStoreBtn) startStoreBtn.classList.add('hidden');
+                    if (dashboardBtn) dashboardBtn.classList.add('hidden');
+                    if (pendingBanner) pendingBanner.classList.add('hidden');
+
+                    if (user.uid && (currentUserData.role === 'vendor' || currentUserData.role === 'restaurant')) {
+                        if (dashboardBtn) dashboardBtn.classList.remove('hidden');
+                    } else if (currentUserData.storeRequest && currentUserData.storeRequest.status === 'pending') {
+                        if (pendingBanner) pendingBanner.classList.remove('hidden');
+                    } else {
+                        if (startStoreBtn) {
+                            startStoreBtn.classList.remove('hidden');
+                            startStoreBtn.onclick = () => showStoreModal();
+                        }
+                    }
+
+                    // Check URL params again inside async load
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('action') === 'open_store' && !currentUserData.role && (!currentUserData.storeRequest || currentUserData.storeRequest.status !== 'pending')) {
+                        showStoreModal();
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }
+
+                    // === Referral Code Logic ===
                     if (currentUserData.referralCode) {
-                        // 1. إذا كان الكود موجوداً، اعرضه
                         referralCodeEl.textContent = currentUserData.referralCode;
                     } else {
-                        // 2. إذا كان الكود null (حساب قديم أو جديد)، قم بإنشائه وتحديثه
                         const newCode = user.uid.substring(0, 8).toUpperCase();
                         try {
-                            // (هذا التحديث سيعمل لأن firestore.rules تسمح به الآن)
                             await updateDoc(userDocRef, { referralCode: newCode });
                             referralCodeEl.textContent = newCode;
                         } catch (updateError) {
-                            console.error("Failed to update referral code: ", updateError);
-                            referralCodeEl.textContent = newCode; 
-                            referralCodeEl.classList.add('text-red-500'); 
-                            showToast('تم إنشاء كودك، ولكن فشل حفظه. (خطأ في القواعد)', 'error');
+                            // Ignore silent rule error
+                            referralCodeEl.textContent = newCode;
                         }
                     }
                     referralLoader.classList.add('hidden');
                     referralContainer.classList.remove('hidden');
-                    // === (نهاية الكود الجديد) ===
-                    
+
                 } else {
-                    // (هذا هو الخطأ الذي رأيته)
                     throw new Error("لم يتم العثور على بيانات المستخدم.");
                 }
-                
+
                 authLoader.classList.add('hidden');
                 profileContent.classList.remove('hidden');
 
@@ -388,6 +574,75 @@
                 console.error("Error loading profile data: ", error);
                 authLoader.innerHTML = `<p class="text-red-500 text-center">حدث خطأ أثناء جلب بياناتك: ${error.message}</p>`;
             }
+        }
+
+        // Modal Logic
+        function showStoreModal() {
+            const modalHTML = `
+            <div class="modal-backdrop" id="store-request-modal">
+                <div class="modal-content animate-fade-in-up">
+                    <div class="flex justify-between items-center mb-4 border-b pb-3">
+                        <h3 class="text-xl font-bold text-indigo-700">طلب فتح متجر / مطعم</h3>
+                        <button onclick="document.getElementById('store-request-modal').remove()" class="text-gray-400 hover:text-red-500 text-2xl">&times;</button>
+                    </div>
+                    <form id="store-request-form">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block font-semibold mb-1">اسم المتجر / المطعم</label>
+                                <input type="text" id="req-store-name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="مثال: مطعم السعادة" required>
+                            </div>
+                            <div>
+                                <label class="block font-semibold mb-1">نوع النشاط</label>
+                                <select id="req-store-type" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                    <option value="vendor">متجر إلكتروني (بيع منتجات)</option>
+                                    <option value="restaurant">مطعم / كافيه (طعام ومشروبات)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-semibold mb-1">وصف مختصر</label>
+                                <textarea id="req-store-desc" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500" rows="3" placeholder="ماذا تبيع؟"></textarea>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex justify-end gap-3">
+                            <button type="button" onclick="document.getElementById('store-request-modal').remove()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">إلغاء</button>
+                            <button type="submit" id="submit-request-btn" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold shadow-lg">إرسال الطلب</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            document.getElementById('store-request-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('submit-request-btn');
+                const name = document.getElementById('req-store-name').value;
+                const type = document.getElementById('req-store-type').value;
+                const desc = document.getElementById('req-store-desc').value;
+
+                btn.disabled = true;
+                btn.textContent = 'جاري الإرسال...';
+
+                try {
+                    await updateDoc(doc(db, "users", currentUser.uid), {
+                        storeRequest: {
+                            status: 'pending',
+                            storeName: name,
+                            storeType: type,
+                            description: desc,
+                            requestedAt: Timestamp.now()
+                        }
+                    });
+                    document.getElementById('store-request-modal').remove();
+                    showToast('تم إرسال طلبك بنجاح! ستتم مراجعته قريباً.', 'success');
+                    setTimeout(() => window.location.reload(), 2000); // Reload to show banner
+                } catch (err) {
+                    console.error(err);
+                    showToast('حدث خطأ أثناء إرسال الطلب.', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'إرسال الطلب';
+                }
+            });
         }
 
         // --- (معالج حفظ البروفايل) ---
@@ -436,7 +691,7 @@
 
         // --- (منطق نافذة التحويل) ---
         openConvertModalBtn.addEventListener('click', () => {
-            updateConversionRate(); 
+            updateConversionRate();
             convertModal.classList.add('active');
         });
         closeConvertModalBtn.addEventListener('click', () => convertModal.classList.remove('active'));
@@ -449,7 +704,7 @@
             const amount = getNum('convert-amount');
             const rate_J_to_C = (exchangeRates.jewels_to_coins || 0) / 100;
             const rate_C_to_J = (exchangeRates.coins_to_jewels || 0) / 100;
-            
+
             if (fromCurrency === 'jewels') {
                 result = amount * rate_J_to_C;
                 toCurrencyText = "عملة 🪙";
@@ -459,7 +714,7 @@
                 toCurrencyText = "جوهرة 💎";
                 rateText = `السعر: 100 عملة 🪙 = ${exchangeRates.coins_to_jewels || 0} جوهرة 💎`;
             }
-            
+
             convertResultEl.textContent = `${result.toFixed(2)} ${toCurrencyText}`;
             convertRateDisplayEl.textContent = rateText;
         }
@@ -479,7 +734,7 @@
             const rate_C_to_J = (exchangeRates.coins_to_jewels || 0) / 100;
 
             let jewelsToRemove = 0, coinsToGet = 0, coinsToRemove = 0, jewelsToGet = 0;
-            
+
             if (fromCurrency === 'jewels') {
                 jewelsToRemove = amount;
                 coinsToGet = amount * rate_J_to_C;
@@ -487,7 +742,7 @@
                     showToast('ليس لديك رصيد جواهر 💎 كافٍ.', 'error');
                     toggleButtonState(convertConfirmBtn, false); return;
                 }
-            } else { 
+            } else {
                 coinsToRemove = amount;
                 jewelsToGet = amount * rate_C_to_J;
                 if (coinsToRemove > currentCoins) {
@@ -533,14 +788,14 @@
                 loginBtn.classList.add('hidden');
                 loginBtn.classList.remove('sm:flex');
                 userMenu.classList.remove('hidden');
-                
+
                 const displayName = user.displayName || "عميلنا";
                 userMenuName.textContent = displayName.split(' ')[0];
                 userMenuDisplayName.textContent = displayName;
 
                 loadProfileData(user);
             } else {
-                window.location.href = 'login.html'; 
+                window.location.href = 'login.html';
             }
         });
 
@@ -557,7 +812,7 @@
         logoutBtn.addEventListener('click', () => {
             signOut(auth).catch((error) => console.error('Logout Error', error));
         });
-</script>
+    </script>
 </body>
-</html>
 
+</html>

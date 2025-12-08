@@ -304,6 +304,9 @@
                     <button class="dashboard-tab" data-target="messages-panel">
                         <i class="fas fa-envelope-open-text ml-2"></i> الرسائل
                     </button>
+                    <button class="dashboard-tab" data-target="settings-panel">
+                        <i class="fas fa-cog ml-2"></i> إعدادات المتجر
+                    </button>
                 </nav>
             </div>
 
@@ -392,6 +395,75 @@
                         <p class="mt-4 text-xl font-semibold text-gray-500">لا توجد رسائل واردة بعد.</p>
                     </div>
                 </div>
+            </div>
+
+            <!-- New Store Settings Panel -->
+            <div id="settings-panel" class="dashboard-panel bg-white p-6 rounded-b-lg shadow-sm hidden">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">إعدادات (المطعم / المتجر)</h2>
+
+                <form id="store-settings-form" class="space-y-6 max-w-2xl">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2">اسم المتجر/المطعم</label>
+                            <input type="text" id="store-name"
+                                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                placeholder="مثال: مطعم البيتزا اللذيذة">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2">نوع النشاط</label>
+                            <select id="store-type"
+                                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" disabled>
+                                <option value="vendor">متجر عام</option>
+                                <option value="restaurant">مطعم</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">يتم تحديده من قبل الإدارة</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-2">وصف المتجر (يظهر للعملاء)</label>
+                        <textarea id="store-desc" rows="3"
+                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                            placeholder="نقدم لكم أشهى المأكولات..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2">رابط صورة الغلاف (Cover URL)</label>
+                            <input type="url" id="store-cover"
+                                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                placeholder="https://...">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2">رابط الشعار (Logo URL)</label>
+                            <input type="url" id="store-logo"
+                                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                placeholder="https://...">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2">سعر التوصيل الافتراضي</label>
+                            <input type="number" id="store-delivery"
+                                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="200">
+                        </div>
+                        <div class="flex items-center gap-4 mt-8">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" id="store-open" class="form-checkbox h-6 w-6 text-green-600">
+                                <span class="mr-2 text-gray-700 font-bold">المتجر مفتوح الآن</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t">
+                        <button type="submit" id="save-settings-btn"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                            حفظ الإعدادات
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </main>
@@ -802,6 +874,53 @@
             return row;
         }
 
+        // --- Store Settings Logic ---
+        async function loadStoreSettings() {
+            if (!currentUser) return;
+            try {
+                const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    if (document.getElementById('store-name')) document.getElementById('store-name').value = data.storeName || data.displayName || '';
+                    if (document.getElementById('store-type')) document.getElementById('store-type').value = data.role === 'restaurant' ? 'restaurant' : 'vendor';
+                    if (document.getElementById('store-desc')) document.getElementById('store-desc').value = data.description || '';
+                    if (document.getElementById('store-cover')) document.getElementById('store-cover').value = data.coverUrl || '';
+                    if (document.getElementById('store-logo')) document.getElementById('store-logo').value = data.logoUrl || data.photoURL || '';
+                    if (document.getElementById('store-delivery')) document.getElementById('store-delivery').value = data.deliveryFee || '';
+                    if (document.getElementById('store-open')) document.getElementById('store-open').checked = data.isOpen !== false;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        const settingsForm = document.getElementById('store-settings-form');
+        if (settingsForm) {
+            settingsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('save-settings-btn');
+                btn.disabled = true;
+                btn.textContent = 'جاري الحفظ...';
+
+                try {
+                    const updateData = {
+                        storeName: document.getElementById('store-name').value,
+                        description: document.getElementById('store-desc').value,
+                        coverUrl: document.getElementById('store-cover').value,
+                        logoUrl: document.getElementById('store-logo').value,
+                        deliveryFee: parseFloat(document.getElementById('store-delivery').value),
+                        isOpen: document.getElementById('store-open').checked
+                    };
+
+                    await updateDoc(doc(db, "users", currentUser.uid), updateData);
+                    alert('تم حفظ إعدادات المتجر بنجاح!');
+                } catch (err) {
+                    console.error(err);
+                    alert('حدث خطأ أثناء الحفظ.');
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'حفظ الإعدادات';
+                }
+            });
+        }
 
         // --- منطق المصادقة والتحكم بالصفحة ---
         onAuthStateChanged(auth, (user) => {
@@ -815,10 +934,14 @@
 
                 // Load initial data
                 loadCategories();
+                loadStoreSettings(); // Load settings
                 loadSellerProducts(user).then(() => {
                     authLoader.classList.add('hidden');
                     sellerContent.classList.remove('hidden');
                 });
+
+                // Load messages/orders if tabs are clicked (or pre-load if needed)
+                // Tabs logic handles this via onclick
 
             } else {
                 window.location.href = 'login.html';

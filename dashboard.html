@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,187 +10,287 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
-        .hidden { display: none; }
-        .dashboard-tab:hover { background-color: #4338ca; }
-        .dashboard-tab.active-tab { background-color: #4f46e5; color: white; font-weight: bold; }
-        .dashboard-panel { animation: fadeIn 0.5s; }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .dashboard-tab:hover {
+            background-color: #4338ca;
+        }
+
+        .dashboard-tab.active-tab {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: bold;
+        }
+
+        .dashboard-panel {
+            animation: fadeIn 0.5s;
+        }
+
         .loader {
-            border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5;
-            border-radius: 50%; width: 50px; height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4f46e5;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
+
 <body>
 
-<div id="dashboard-page" class="hidden">
-    <div class="relative min-h-screen md:flex">
-        <div class="bg-gray-800 text-gray-100 flex justify-between md:hidden">
-            <a href="dashboard.html" class="block p-4 text-white font-bold">S22 Market</a>
-            <button id="mobile-menu-btn" class="p-4 focus:outline-none focus:bg-gray-700">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-
-        <aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
-            <div class="p-3 text-center border-b border-gray-700">
-                <h2 class="text-2xl font-bold">S22 Market</h2>
-                <p id="admin-welcome-name" class="text-sm text-indigo-300">جاري التحميل...</p>
+    <div id="dashboard-page" class="hidden">
+        <div class="relative min-h-screen md:flex">
+            <div class="bg-gray-800 text-gray-100 flex justify-between md:hidden">
+                <a href="dashboard.html" class="block p-4 text-white font-bold">S22 Market</a>
+                <button id="mobile-menu-btn" class="p-4 focus:outline-none focus:bg-gray-700">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
-            <nav class="flex-1 p-2 space-y-2">
-                <a href="dashboard.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chart-line fa-fw mr-3"></i> لوحة التحكم</a>
 
-                <a href="admin-layout.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chart-line fa-fw mr-3"></i> قوائم صفحة المتجر   </a>
-
-                
-                <a href="admin-sellers.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-users-cog fa-fw mr-3"></i> إدارة البائعين</a>
-                <a href="admin-reports.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-flag fa-fw mr-3 text-red-400"></i> الإبلاغات</a>
-                <a href="admin-products.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
-                <a href="admin-offers.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-star fa-fw mr-3"></i> العروض</a>
-                <a href="admin-product-requests.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-user-plus fa-fw mr-3"></i> طلبات الزوار</a>
-                <a href="admin-categories.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
-                <a href="admin-orders.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
-                <a href="admin-coupons.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-tags fa-fw mr-3"></i> الكوبونات</a>
-                <a href="admin-inquiries.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-envelope-open-text fa-fw mr-3"></i> الرسائل الواردة</a>
-                <a href="admin-applications.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
-                <a href="admin-layout.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-layer-group fa-fw mr-3"></i> واجهة المتجر</a>
-                <a href="admin-notepad.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
-                
-                <hr class="border-gray-700 my-2">
-                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">نظام الولاء (المتجر)</h6>
-                <a href="admin-loyalty-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-gem fa-fw mr-3 text-yellow-400"></i> إعدادات الجواهر 💎</a>
-                <a href="admin-loyalty-approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات المهام</a>
-                <a href="admin-referrals-pending.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
-                <hr class="border-gray-700 my-2">
-
-                <a href="admin-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
-                
-                <hr class="border-gray-700 my-2">
-                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</h6>
-                <a href="dawarat_admin_manager.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700" target="_blank">
-                    <i class="fas fa-graduation-cap fa-fw mr-3 text-gray-400"></i>
-                    <span>إدارة البذلورات</span>
-                    <i class="fas fa-external-link-alt fa-xs ml-auto"></i>
-                </a>
-
-            </nav>
-            <div class="p-4 border-t border-gray-700">
-                <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
-            </div>
-        </aside>
-        
-        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
-            <div id="analytics-panel" class="dashboard-panel">
-                 <div class="text-center py-20">
-                    <div class="loader mx-auto"></div>
-                    <p class="mt-4 text-gray-600">جاري تحميل الإحصائيات...</p>
+            <aside id="sidebar"
+                class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
+                <div class="p-3 text-center border-b border-gray-700">
+                    <h2 class="text-2xl font-bold">S22 Market</h2>
+                    <p id="admin-welcome-name" class="text-sm text-indigo-300">جاري التحميل...</p>
                 </div>
-            </div>
-        </main>
+                <nav class="flex-1 p-2 space-y-2">
+                    <a href="dashboard.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-chart-line fa-fw mr-3"></i> لوحة التحكم</a>
+
+                    <a href="admin-layout.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-chart-line fa-fw mr-3"></i> قوائم صفحة المتجر </a>
+
+
+                    <a href="admin-sellers.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700 relative">
+                        <i class="fas fa-users-cog fa-fw mr-3"></i> إدارة البائعين
+                        <span id="sellers-badge"
+                            class="hidden absolute left-4 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+                    </a>
+                    <a href="admin-reports.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-flag fa-fw mr-3 text-red-400"></i> الإبلاغات</a>
+                    <a href="admin-products.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
+                    <a href="admin-offers.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-star fa-fw mr-3"></i> العروض</a>
+                    <a href="admin-product-requests.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-user-plus fa-fw mr-3"></i> طلبات الزوار</a>
+                    <a href="admin-categories.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
+                    <a href="admin-orders.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
+                    <a href="admin-coupons.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-tags fa-fw mr-3"></i> الكوبونات</a>
+                    <a href="admin-inquiries.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-envelope-open-text fa-fw mr-3"></i> الرسائل الواردة</a>
+                    <a href="admin-applications.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
+                    <a href="admin-layout.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-layer-group fa-fw mr-3"></i> واجهة المتجر</a>
+                    <a href="admin-notepad.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
+
+                    <hr class="border-gray-700 my-2">
+                    <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">نظام الولاء (المتجر)</h6>
+                    <a href="admin-loyalty-settings.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-gem fa-fw mr-3 text-yellow-400"></i> إعدادات الجواهر 💎</a>
+                    <a href="admin-loyalty-approvals.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات المهام</a>
+                    <a href="admin-referrals-pending.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
+                    <hr class="border-gray-700 my-2">
+
+                    <a href="admin-settings.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
+
+                    <hr class="border-gray-700 my-2">
+                    <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</h6>
+                    <a href="dawarat_admin_manager.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"
+                        target="_blank">
+                        <i class="fas fa-graduation-cap fa-fw mr-3 text-gray-400"></i>
+                        <span>إدارة البذلورات</span>
+                        <i class="fas fa-external-link-alt fa-xs ml-auto"></i>
+                    </a>
+
+                </nav>
+                <div class="p-4 border-t border-gray-700">
+                    <button id="logout-btn"
+                        class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i
+                            class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
+                </div>
+            </aside>
+
+            <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+                <div id="analytics-panel" class="dashboard-panel">
+                    <div class="text-center py-20">
+                        <div class="loader mx-auto"></div>
+                        <p class="mt-4 text-gray-600">جاري تحميل الإحصائيات...</p>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
-</div>
 
-<div id="modal-container"></div>
+    <div id="modal-container"></div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, query, where, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, query, where, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
-        authDomain: "s22market-4e3e6.firebaseapp.com",
-        projectId: "s22market-4e3e6",
-        storageBucket: "s22market-4e3e6.appspot.com",
-        messagingSenderId: "119186699901",
-        appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
-        measurementId: "G-MWYNCVP4WQ"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    const ADMIN_EMAILS = [
-        's22market@gmail.com',
-        'yacinee474474@gmail.com',
-        'nourmt01@gmail.com'
-    ];
+        const ADMIN_EMAILS = [
+            's22market@gmail.com',
+            'yacinee474474@gmail.com',
+            'nourmt01@gmail.com'
+        ];
 
-    let productsCache = [];
-    let ordersCache = [];
-    let myChart = null;
-    let profitChart = null;
-    let topProductsChart = null;
+        let productsCache = [];
+        let ordersCache = [];
+        let myChart = null;
+        let profitChart = null;
+        let topProductsChart = null;
 
-    const dashboardPage = document.getElementById('dashboard-page');
-    const logoutBtn = document.getElementById('logout-btn');
-    const getEl = (id) => document.getElementById(id);
+        const dashboardPage = document.getElementById('dashboard-page');
+        const logoutBtn = document.getElementById('logout-btn');
+        const getEl = (id) => document.getElementById(id);
 
-    // ============================================================
-    // نظام الحماية (Guard)
-    // ============================================================
-    onAuthStateChanged(auth, (user) => {
-        if (user && ADMIN_EMAILS.includes(user.email)) {
-            dashboardPage.classList.remove('hidden');
-            getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
-            initializeDashboard();
-        } else {
-            window.location.href = 'admin-login.html';
-        }
-    });
-
-    logoutBtn.addEventListener('click', async () => { 
-        await signOut(auth); 
-        window.location.href = 'admin-login.html';
-    });
-
-    // قائمة الموبايل
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const sidebar = document.getElementById('sidebar');
-    if(mobileMenuBtn){
-        mobileMenuBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('translate-x-full');
-        });
-    }
-    
-    function setActiveTab() {
-        const currentPage = window.location.pathname.split('/').pop();
-        const tabs = document.querySelectorAll('.dashboard-tab');
-        tabs.forEach(tab => {
-            const tabHref = tab.getAttribute('href').split('/').pop();
-            if (tabHref === currentPage || (currentPage === '' && tabHref === 'dashboard.html') || (currentPage === 'dashboard.html' && tabHref === 'dashboard.html')) {
-                tab.classList.add('active-tab');
+        // ============================================================
+        // نظام الحماية (Guard)
+        // ============================================================
+        onAuthStateChanged(auth, (user) => {
+            if (user && ADMIN_EMAILS.includes(user.email)) {
+                dashboardPage.classList.remove('hidden');
+                getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
+                initializeDashboard();
             } else {
-                tab.classList.remove('active-tab');
+                window.location.href = 'admin-login.html';
             }
         });
-    }
-    
-    function initializeDashboard() {
-        setActiveTab(); 
-        
-        loadAnalytics();
-        
-        // الاستماع لتحديثات المنتجات (للحسابات)
-        onSnapshot(query(collection(db, "products")), (snapshot) => {
-            productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            updateAnalytics();
+
+        logoutBtn.addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'admin-login.html';
         });
-        
-        // الاستماع لتحديثات الطلبات
-        onSnapshot(query(collection(db, "orders")), (snapshot) => {
-            ordersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            updateAnalytics();
-        });
-    }
-    
-    function loadAnalytics() {
-        const panel = document.getElementById('analytics-panel');
-        panel.innerHTML = `
+
+        // قائمة الموبايل
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('translate-x-full');
+            });
+        }
+
+        function setActiveTab() {
+            const currentPage = window.location.pathname.split('/').pop();
+            const tabs = document.querySelectorAll('.dashboard-tab');
+            tabs.forEach(tab => {
+                const tabHref = tab.getAttribute('href').split('/').pop();
+                if (tabHref === currentPage || (currentPage === '' && tabHref === 'dashboard.html') || (currentPage === 'dashboard.html' && tabHref === 'dashboard.html')) {
+                    tab.classList.add('active-tab');
+                } else {
+                    tab.classList.remove('active-tab');
+                }
+            });
+        }
+
+        function initializeDashboard() {
+            setActiveTab();
+
+            loadAnalytics();
+
+            // الاستماع لتحديثات المنتجات (للحسابات)
+            onSnapshot(query(collection(db, "products")), (snapshot) => {
+                productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateAnalytics();
+            });
+
+            // الاستماع لتحديثات الطلبات
+            onSnapshot(query(collection(db, "orders")), (snapshot) => {
+                ordersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateAnalytics();
+            });
+
+            // الاستماع لطلبات المتاجر المعلقة (إشعار فوري)
+            onSnapshot(query(collection(db, "users"), where("storeRequest.status", "==", "pending")), (snapshot) => {
+                const count = snapshot.size;
+                const badge = document.getElementById('sellers-badge');
+                if (badge) {
+                    if (count > 0) {
+                        badge.textContent = count;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        function loadAnalytics() {
+            const panel = document.getElementById('analytics-panel');
+            panel.innerHTML = `
             <h1 class="text-3xl font-bold text-gray-800 mb-6">لوحة التحكم الرئيسية (المتجر)</h1>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
@@ -228,134 +329,135 @@
                 <canvas id="topProductsChart"></canvas>
             </div>
             `;
-    }
-
-    function updateAnalytics() {
-        if(!getEl('total-products')) return; 
-        
-        // 1. فلترة المنتجات: استبعاد الكورسات + استبعاد المحذوفة (sold_out لا يستبعد من الإحصاء لأنه منتج موجود)
-        const marketProducts = productsCache.filter(p => p.productType !== 'course');
-        
-        const completedOrders = ordersCache.filter(o => o.status === 'completed');
-        const incompleteOrders = ordersCache.filter(o => o.status === 'new' || o.status === 'pending'); // شملنا pending
-        const totalProfit = completedOrders.reduce((sum, order) => sum + (order.profit || 0), 0);
-        const completedOrdersCount = completedOrders.length;
-        const incompleteOrdersCount = incompleteOrders.length;
-        const avgProfit = completedOrdersCount > 0 ? totalProfit / completedOrdersCount : 0;
-
-        getEl('total-products').textContent = marketProducts.length;
-        getEl('total-profit').textContent = `${totalProfit.toLocaleString()} د.ج`;
-        getEl('avg-profit').textContent = `${avgProfit.toFixed(0).toLocaleString()} د.ج`;
-        getEl('completed-orders').textContent = completedOrdersCount;
-        getEl('incomplete-orders').textContent = incompleteOrdersCount;
-
-        // إعداد البيانات للمخططات (Charts)
-        const last7Days = {};
-        const last7DaysProfit = {};
-
-        for(let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const key = d.toISOString().split('T')[0];
-            last7Days[key] = 0;
-            last7DaysProfit[key] = 0;
         }
 
-        completedOrders.forEach(order => {
-            if (order.createdAt?.toDate) {
-                const orderDate = order.createdAt.toDate().toISOString().split('T')[0];
-                if (last7Days.hasOwnProperty(orderDate)) {
-                    last7Days[orderDate]++;
-                    last7DaysProfit[orderDate] += (order.profit || 0);
-                }
+        function updateAnalytics() {
+            if (!getEl('total-products')) return;
+
+            // 1. فلترة المنتجات: استبعاد الكورسات + استبعاد المحذوفة (sold_out لا يستبعد من الإحصاء لأنه منتج موجود)
+            const marketProducts = productsCache.filter(p => p.productType !== 'course');
+
+            const completedOrders = ordersCache.filter(o => o.status === 'completed');
+            const incompleteOrders = ordersCache.filter(o => o.status === 'new' || o.status === 'pending'); // شملنا pending
+            const totalProfit = completedOrders.reduce((sum, order) => sum + (order.profit || 0), 0);
+            const completedOrdersCount = completedOrders.length;
+            const incompleteOrdersCount = incompleteOrders.length;
+            const avgProfit = completedOrdersCount > 0 ? totalProfit / completedOrdersCount : 0;
+
+            getEl('total-products').textContent = marketProducts.length;
+            getEl('total-profit').textContent = `${totalProfit.toLocaleString()} د.ج`;
+            getEl('avg-profit').textContent = `${avgProfit.toFixed(0).toLocaleString()} د.ج`;
+            getEl('completed-orders').textContent = completedOrdersCount;
+            getEl('incomplete-orders').textContent = incompleteOrdersCount;
+
+            // إعداد البيانات للمخططات (Charts)
+            const last7Days = {};
+            const last7DaysProfit = {};
+
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const key = d.toISOString().split('T')[0];
+                last7Days[key] = 0;
+                last7DaysProfit[key] = 0;
             }
-        });
 
-        const chartLabels = Object.keys(last7Days).map(date => new Date(date).toLocaleDateString('ar-EG', { weekday: 'short', day: 'numeric'}));
-        
-        const ordersChartData = Object.values(last7Days);
-        const ordersCtx = getEl('ordersChart')?.getContext('2d');
-        if (ordersCtx) {
-            if (myChart) myChart.destroy();
-            myChart = new Chart(ordersCtx, {
-                type: 'bar',
-                data: {
-                    labels: chartLabels,
-                    datasets: [{
-                        label: 'عدد الطلبات',
-                        data: ordersChartData,
-                        backgroundColor: 'rgba(79, 70, 229, 0.8)',
-                        borderColor: 'rgba(79, 70, 229, 1)',
-                        borderWidth: 1,
-                        borderRadius: 5
-                    }]
-                },
-                options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } }
-            });
-        }
-
-        const profitChartData = Object.values(last7DaysProfit);
-        const profitCtx = getEl('profitChart')?.getContext('2d');
-        if (profitCtx) {
-            if (profitChart) profitChart.destroy();
-            profitChart = new Chart(profitCtx, {
-                type: 'line',
-                data: {
-                    labels: chartLabels,
-                    datasets: [{
-                        label: 'الأرباح (د.ج)',
-                        data: profitChartData,
-                        backgroundColor: 'rgba(22, 163, 74, 0.2)',
-                        borderColor: 'rgba(22, 163, 74, 1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: { responsive: true, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
-            });
-        }
-
-        const productProfits = {};
-        completedOrders.forEach(order => {
-             (order.items || []).forEach(item => {
-                // تنظيف الاسم لإزالة أي HTML قديم
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = item.name || 'منتج غير معروف';
-                const productName = tempDiv.textContent || tempDiv.innerText || "";
-                
-                // حساب ربح تقريبي لكل منتج في الطلب
-                const itemProfit = (order.profit || 0) / (order.items.length || 1);
-                if (productProfits[productName]) {
-                    productProfits[productName] += itemProfit;
-                } else {
-                    productProfits[productName] = itemProfit;
+            completedOrders.forEach(order => {
+                if (order.createdAt?.toDate) {
+                    const orderDate = order.createdAt.toDate().toISOString().split('T')[0];
+                    if (last7Days.hasOwnProperty(orderDate)) {
+                        last7Days[orderDate]++;
+                        last7DaysProfit[orderDate] += (order.profit || 0);
+                    }
                 }
-             });
-        });
-        const sortedProducts = Object.entries(productProfits).sort(([, a], [, b]) => b - a).slice(0, 7);
-        const topProductsLabels = sortedProducts.map(p => p[0]);
-        const topProductsData = sortedProducts.map(p => p[1]);
-        const topProductsCtx = getEl('topProductsChart')?.getContext('2d');
-        if (topProductsCtx) {
-            if (topProductsChart) topProductsChart.destroy();
-            topProductsChart = new Chart(topProductsCtx, {
-                type: 'bar',
-                data: {
-                    labels: topProductsLabels,
-                    datasets: [{
-                        label: 'إجمالي الربح',
-                        data: topProductsData,
-                        backgroundColor: 'rgba(153, 102, 255, 0.8)',
-                        borderColor: 'rgba(153, 102, 255, 1)',
-                        borderWidth: 1,
-                        borderRadius: 5
-                    }]
-                },
-                options: { responsive: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'إجمالي الربح (د.ج)' } } }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(context) { return `الربح: ${context.parsed.y.toLocaleString()} د.ج`; } } } } }
             });
+
+            const chartLabels = Object.keys(last7Days).map(date => new Date(date).toLocaleDateString('ar-EG', { weekday: 'short', day: 'numeric' }));
+
+            const ordersChartData = Object.values(last7Days);
+            const ordersCtx = getEl('ordersChart')?.getContext('2d');
+            if (ordersCtx) {
+                if (myChart) myChart.destroy();
+                myChart = new Chart(ordersCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            label: 'عدد الطلبات',
+                            data: ordersChartData,
+                            backgroundColor: 'rgba(79, 70, 229, 0.8)',
+                            borderColor: 'rgba(79, 70, 229, 1)',
+                            borderWidth: 1,
+                            borderRadius: 5
+                        }]
+                    },
+                    options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } }
+                });
+            }
+
+            const profitChartData = Object.values(last7DaysProfit);
+            const profitCtx = getEl('profitChart')?.getContext('2d');
+            if (profitCtx) {
+                if (profitChart) profitChart.destroy();
+                profitChart = new Chart(profitCtx, {
+                    type: 'line',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            label: 'الأرباح (د.ج)',
+                            data: profitChartData,
+                            backgroundColor: 'rgba(22, 163, 74, 0.2)',
+                            borderColor: 'rgba(22, 163, 74, 1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: { responsive: true, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+                });
+            }
+
+            const productProfits = {};
+            completedOrders.forEach(order => {
+                (order.items || []).forEach(item => {
+                    // تنظيف الاسم لإزالة أي HTML قديم
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = item.name || 'منتج غير معروف';
+                    const productName = tempDiv.textContent || tempDiv.innerText || "";
+
+                    // حساب ربح تقريبي لكل منتج في الطلب
+                    const itemProfit = (order.profit || 0) / (order.items.length || 1);
+                    if (productProfits[productName]) {
+                        productProfits[productName] += itemProfit;
+                    } else {
+                        productProfits[productName] = itemProfit;
+                    }
+                });
+            });
+            const sortedProducts = Object.entries(productProfits).sort(([, a], [, b]) => b - a).slice(0, 7);
+            const topProductsLabels = sortedProducts.map(p => p[0]);
+            const topProductsData = sortedProducts.map(p => p[1]);
+            const topProductsCtx = getEl('topProductsChart')?.getContext('2d');
+            if (topProductsCtx) {
+                if (topProductsChart) topProductsChart.destroy();
+                topProductsChart = new Chart(topProductsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: topProductsLabels,
+                        datasets: [{
+                            label: 'إجمالي الربح',
+                            data: topProductsData,
+                            backgroundColor: 'rgba(153, 102, 255, 0.8)',
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            borderWidth: 1,
+                            borderRadius: 5
+                        }]
+                    },
+                    options: { responsive: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'إجمالي الربح (د.ج)' } } }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (context) { return `الربح: ${context.parsed.y.toLocaleString()} د.ج`; } } } } }
+                });
+            }
         }
-    }
-</script>
+    </script>
 </body>
+
 </html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Business - شركاء النجاح</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .hero-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?auto=format&fit=crop&q=80&w=1600');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(79, 70, 229, 0.1);
+            color: #4f46e5;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            background: #4f46e5;
+            color: white;
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Professional Header -->
+    <header class="absolute top-0 w-full z-50 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-extrabold text-white tracking-wide">
+                S22 <span class="text-indigo-400">BUSINESS</span>
+            </a>
+            <div class="hidden md:flex gap-8 text-gray-200 font-medium">
+                <a href="#features" class="hover:text-white transition">المميزات</a>
+                <a href="#solutions" class="hover:text-white transition">الحلول</a>
+                <a href="#testimonials" class="hover:text-white transition">قصص النجاح</a>
+            </div>
+            <div>
+                <a href="login.html?type=business"
+                    class="bg-white text-indigo-900 px-6 py-2 rounded-full font-bold hover:bg-indigo-50 transition shadow-lg">
+                    تسجيل الدخول
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-bg h-screen flex items-center justify-center text-center text-white px-4">
+        <div class="max-w-4xl space-y-8 animate-fade-in-up">
+            <h1 class="text-5xl md:text-7xl font-extrabold leading-tight">
+                أطلق تجارتك نحو العالمية <br> مع <span class="text-indigo-400">S22 Market</span>
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto">
+                منصة متكاملة للمتاجر، المطاعم، والمهنيين. نوفر لك الأدوات الاحترافية لإدارة أعمالك وزيادة مبيعاتك.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center pt-8">
+                <a href="profile.html?action=open_store"
+                    class="bg-indigo-600 px-8 py-4 rounded-full text-lg font-bold hover:bg-indigo-700 transition transform hover:scale-105 shadow-xl shadow-indigo-900/50">
+                    ابدأ مشروعك الآن
+                </a>
+                <a href="#features"
+                    class="bg-transparent border-2 border-white px-8 py-4 rounded-full text-lg font-bold hover:bg-white hover:text-gray-900 transition flex items-center justify-center gap-2">
+                    <i class="fas fa-play-circle"></i> كيف نعمل؟
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section id="features" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-indigo-600 font-bold tracking-widest uppercase text-sm mb-2">لماذا نحن؟</h2>
+                <h3 class="text-4xl font-extrabold text-gray-900">أدوات صنعت للنمو</h3>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-10">
+                <!-- Feature 1 -->
+                <div
+                    class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-xl transition relative group">
+                    <div class="feature-icon"><i class="fas fa-store"></i></div>
+                    <h4 class="text-xl font-bold mb-3">متجر إلكتروني متكامل</h4>
+                    <p class="text-gray-600 leading-relaxed">احصل على صفحة خاصة بمتجرك بتصميم عصري، مع إمكانية تخصيص
+                        الهوية البصرية وإدارة المنتجات بسهولة.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div
+                    class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-xl transition relative group">
+                    <div class="feature-icon"><i class="fas fa-utensils"></i></div>
+                    <h4 class="text-xl font-bold mb-3">نظام خاص للمطاعم</h4>
+                    <p class="text-gray-600 leading-relaxed">قوائم طعام تفاعلية، إدارة الطلبات المباشرة، وتتبع التوصيل.
+                        حل مثالي للمطاعم والمقاهي.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div
+                    class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-xl transition relative group">
+                    <div class="feature-icon"><i class="fas fa-chart-pie"></i></div>
+                    <h4 class="text-xl font-bold mb-3">تحليلات وإحصائيات</h4>
+                    <p class="text-gray-600 leading-relaxed">تابِع مبيعاتك، زوار متجرك، وأداء منتجاتك من خلال لوحة تحكم
+                        بيانية شاملة تساعدك في اتخاذ القرارات.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="bg-gray-900 text-white py-20 relative overflow-hidden">
+        <div class="max-w-4xl mx-auto text-center relative z-10 px-4">
+            <h2 class="text-4xl font-bold mb-6">هل أنت جاهز للإنطلاق؟ 🚀</h2>
+            <p class="text-xl text-gray-400 mb-10">انضم لأكثر من 500+ تاجر ومطعم يثقون في S22 Market لتنمية أعمالهم.</p>
+            <a href="profile.html?action=open_store"
+                class="inline-block bg-white text-gray-900 px-10 py-5 rounded-full font-extrabold text-xl hover:bg-indigo-50 transition shadow-2xl">
+                افتح متجرك مجاناً
+            </a>
+        </div>
+        <!-- Decorative Glow -->
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600 rounded-full blur-[120px] opacity-20">
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-50 pt-10 pb-6 border-t">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-gray-500">© 2025 S22 Market Business. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('bg-gray-900', 'shadow-md');
+            } else {
+                nav.classList.remove('bg-gray-900', 'shadow-md');
+            }
+        });
+    </script>
+</body>
+
+</html>
