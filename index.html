@@ -939,14 +939,19 @@
 
             } catch (error) {
                 console.error("Dynamic home error:", error);
-                container.innerHTML = `<p class="text-red-500 text-center py-10">عذراً، حدث خطأ في تحميل المنتجات.</p>`;
+                let errorMsg = "عذراً، حدث خطأ في تحميل المنتجات.";
+                if (error && error.message && error.message.includes("index")) errorMsg += "<br><br><b>السبب:</b> يتطلب هذا الاستعلام فهرساً (Index). يرجى فتح 'Console' والضغط على الرابط لإنشائه.";
+                else if (error && error.code === "permission-denied") errorMsg += "<br><br><b>السبب:</b> لا تملك صلاحية القراءة. تأكد من تحديث 'Firestore Rules'.";
+                else errorMsg += `<br><br><b>التفاصيل:</b> ${error ? error.message : 'غير معروف'}`;
+
+                container.innerHTML = `<div class="text-center py-10 text-red-500 bg-red-50 rounded-lg mx-4">
+                    <p class="font-bold text-lg">${errorMsg}</p>
+                    <button onclick="location.reload()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition">إعادة المحاولة</button>
+                </div>`;
             }
         }
 
-        // --- Init ---
-
         async function initializeStore() {
-            // 1. Attach UI Event Listeners IMMEDIATELY (Before fetching data)
             // Sidebar Events
             if (elements.menuBtn) {
                 elements.menuBtn.onclick = () => {
