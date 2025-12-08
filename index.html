@@ -516,44 +516,239 @@
 
         <main class="max-w-7xl mx-auto py-6 sm:py-8 md:py-10 px-4 sm:px-6 lg:px-8 space-y-12">
 
-            <section id="offers-carousel-section" class="hidden">
-                <h2 class="text-2xl font-extrabold text-gray-800 mb-4 border-r-4 border-red-500 pr-4">العروض الحصرية <i
-                        class="fas fa-fire text-red-500"></i></h2>
-                <div class="swiper swiper-container">
-                    <div id="offers-carousel-wrapper" class="swiper-wrapper"></div>
+            <!-- Hero Section (AliExpress Style) -->
+            <div class="grid grid-cols-12 gap-4 h-auto md:h-[400px]">
+
+                <!-- 1. Categories Sidebar (Desktop) -->
+                <div
+                    class="hidden md:block col-span-3 lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-y-auto custom-scrollbar p-2">
+                    <h3 class="font-bold text-gray-700 px-3 py-2 border-b text-sm mb-2">الأقسام</h3>
+                    <ul id="hero-categories-list" class="space-y-1">
+                        <!-- Loaded dynamically -->
+                        <li class="p-4 text-center text-gray-400 text-xs">
+                            <div class="loader mx-auto w-6 h-6 border-2"></div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 2. Main Slider -->
+                <div
+                    class="col-span-12 md:col-span-9 lg:col-span-7 relative bg-white rounded-2xl shadow-sm overflow-hidden group">
+                    <div class="swiper main-hero-swiper h-full w-full">
+                        <div class="swiper-wrapper" id="hero-slider-wrapper">
+                            <!-- Static Slide 1 (Food) -->
+                            <div class="swiper-slide relative cursor-pointer"
+                                onclick="location.href='s22marketfood.html'">
+                                <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=1000"
+                                    class="absolute inset-0 w-full h-full object-cover">
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-8">
+                                    <div class="text-white">
+                                        <div class="bg-orange-600 text-xs font-bold px-2 py-1 rounded w-fit mb-2">مطاعم
+                                            S22</div>
+                                        <h2 class="text-3xl font-extrabold mb-1">أشهى المأكولات</h2>
+                                        <p class="text-gray-200">اطلب الآن من أفضل المطاعم القريبة منك.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Static Slide 2 (Electronics) -->
+                            <div class="swiper-slide relative">
+                                <img src="https://images.unsplash.com/photo-1498049860654-af1a5c5668ba?auto=format&fit=crop&q=80&w=1000"
+                                    class="absolute inset-0 w-full h-full object-cover">
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-8">
+                                    <div class="text-white">
+                                        <div class="bg-blue-600 text-xs font-bold px-2 py-1 rounded w-fit mb-2">عروض
+                                            خاصة</div>
+                                        <h2 class="text-3xl font-extrabold mb-1">إلكترونيات حديثة</h2>
+                                        <p class="text-gray-200">خصومات تصل إلى 40% على الهواتف.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-pagination"></div>
+                        <div class="swiper-button-next text-white hover:text-orange-500"></div>
+                        <div class="swiper-button-prev text-white hover:text-orange-500"></div>
+                    </div>
+                </div>
+
+                <!-- 3. User Widget (Desktop Large) -->
+                <div
+                    class="hidden lg:flex col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 flex-col p-4">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-xl overflow-hidden"
+                            id="hero-user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-500">مرحباً بك في S22</div>
+                            <div class="font-bold text-gray-800 truncate max-w-[120px]" id="hero-user-name">ضيف</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 mb-4" id="hero-auth-btns">
+                        <a href="login.html"
+                            class="bg-gray-900 text-white text-center py-2 rounded-lg text-sm font-bold hover:bg-gray-800 transition">دخول</a>
+                        <a href="login.html"
+                            class="bg-white border border-gray-200 text-gray-700 text-center py-2 rounded-lg text-sm font-bold hover:bg-gray-50 transition">تسجيل</a>
+                    </div>
+
+                    <div class="hidden grid-cols-2 gap-2 mb-4" id="hero-user-stats">
+                        <div class="bg-orange-50 p-2 rounded-lg text-center">
+                            <div class="text-xs text-orange-600 font-bold">الطلبات</div>
+                            <div class="font-extrabold text-gray-800">--</div>
+                        </div>
+                        <div class="bg-blue-50 p-2 rounded-lg text-center">
+                            <div class="text-xs text-blue-600 font-bold">النقاط</div>
+                            <div class="font-extrabold text-gray-800">--</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto bg-gray-50 rounded-xl p-3">
+                        <div class="text-xs font-bold text-red-500 mb-2">🔥 عروض البداية</div>
+                        <div class="text-sm font-bold text-gray-700">سجل الآن واحصل على خصم 20% على أول طلب!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Grid (Quick Links) -->
+            <div class="grid grid-cols-4 md:grid-cols-8 gap-3 sm:gap-4">
+
+                <!-- Food Court (Restaurant) -->
+                <a href="s22marketfood.html"
+                    class="flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-2 rounded-xl transition-all">
+                    <div
+                        class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-orange-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-utensils text-orange-600 text-xl sm:text-2xl"></i>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold text-gray-700">المطاعم</span>
+                </a>
+
+                <!-- Auctions (New!) -->
+                <a href="auctions.html"
+                    class="flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-2 rounded-xl transition-all">
+                    <div
+                        class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-red-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-gavel text-red-600 text-xl sm:text-2xl"></i>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold text-gray-700">المزادات</span>
+                </a>
+
+                <!-- Flash Deals -->
+                <a href="#flash-deals"
+                    class="flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-2 rounded-xl transition-all">
+                    <div
+                        class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-yellow-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-bolt text-yellow-600 text-xl sm:text-2xl"></i>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold text-gray-700">عروض فلاش</span>
+                </a>
+
+                <!-- Bulk / Wholesale -->
+                <a href="#"
+                    class="flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-2 rounded-xl transition-all">
+                    <div
+                        class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-blue-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-boxes text-blue-600 text-xl sm:text-2xl"></i>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold text-gray-700">الجملة</span>
+                </a>
+
+                <!-- Categories (Mobile Only, or Extra) -->
+                <a href="#categories-section"
+                    class="flex md:hidden flex-col items-center gap-2 group cursor-pointer hover:bg-white p-2 rounded-xl transition-all">
+                    <div
+                        class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-list text-gray-600 text-xl sm:text-2xl"></i>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold text-gray-700">كل الفئات</span>
+                </a>
+
+                <!-- Placeholders for design balance -->
+                <div class="hidden md:flex flex-col items-center gap-2 opacity-50">
+                    <div class="w-14 h-14 bg-gray-100 rounded-full"></div>
+                </div>
+                <div class="hidden md:flex flex-col items-center gap-2 opacity-50">
+                    <div class="w-14 h-14 bg-gray-100 rounded-full"></div>
+                </div>
+                <div class="hidden md:flex flex-col items-center gap-2 opacity-50">
+                    <div class="w-14 h-14 bg-gray-100 rounded-full"></div>
+                </div>
+                <div class="hidden md:flex flex-col items-center gap-2 opacity-50">
+                    <div class="w-14 h-14 bg-gray-100 rounded-full"></div>
+                </div>
+
+            </div>
+
+            <!-- Flash Deals Strip (Horizontal) -->
+            <section id="flash-deals" class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-xl font-extrabold italic text-gray-800">Flash<span
+                                class="text-red-600">Deals</span></h2>
+                        <div class="flex items-center gap-1 bg-gray-800 text-white px-2 py-1 rounded text-xs font-mono"
+                            id="flash-timer">
+                            <span>02</span>:<span>45</span>:<span>12</span>
+                        </div>
+                    </div>
+                    <a href="#" class="text-sm font-bold text-gray-500 hover:text-red-500">عرض الكل <i
+                            class="fas fa-chevron-left text-xs"></i></a>
+                </div>
+
+                <!-- Swiper for Deals -->
+                <div class="swiper flash-deals-swiper overflow-visible">
+                    <div class="swiper-wrapper" id="flash-deals-wrapper">
+                        <!-- Placeholders populated by JS -->
+                        <div class="swiper-slide w-32 md:w-40 ml-2">
+                            <div
+                                class="bg-gray-50 rounded-lg p-2 h-full flex flex-col cursor-pointer hover:shadow-md transition">
+                                <div class="aspect-square bg-gray-200 rounded-md mb-2 relative overflow-hidden">
+                                    <span
+                                        class="absolute top-0 left-0 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br">-40%</span>
+                                </div>
+                                <div class="font-bold text-red-600 text-lg">900دج</div>
+                                <div class="text-xs line-through text-gray-400">1500دج</div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide w-32 md:w-40 ml-2">
+                            <div
+                                class="bg-gray-50 rounded-lg p-2 h-full flex flex-col cursor-pointer hover:shadow-md transition">
+                                <div class="aspect-square bg-gray-200 rounded-md mb-2 relative overflow-hidden">
+                                    <span
+                                        class="absolute top-0 left-0 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br">-25%</span>
+                                </div>
+                                <div class="font-bold text-red-600 text-lg">2500دج</div>
+                                <div class="text-xs line-through text-gray-400">3200دج</div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide w-32 md:w-40 ml-2">
+                            <div
+                                class="bg-gray-50 rounded-lg p-2 h-full flex flex-col cursor-pointer hover:shadow-md transition">
+                                <div class="aspect-square bg-gray-200 rounded-md mb-2 relative overflow-hidden">
+                                    <span
+                                        class="absolute top-0 left-0 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br">-50%</span>
+                                </div>
+                                <div class="font-bold text-red-600 text-lg">450دج</div>
+                                <div class="text-xs line-through text-gray-400">900دج</div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide w-32 md:w-40 ml-2">
+                            <div
+                                class="bg-gray-50 rounded-lg p-2 h-full flex flex-col cursor-pointer hover:shadow-md transition">
+                                <div class="aspect-square bg-gray-200 rounded-md mb-2 relative overflow-hidden">
+                                    <span
+                                        class="absolute top-0 left-0 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br">-15%</span>
+                                </div>
+                                <div class="font-bold text-red-600 text-lg">12000دج</div>
+                                <div class="text-xs line-through text-gray-400">14000دج</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
-            <section id="category-icons-section">
-                <div class="swiper swiper-container">
-                    <div id="category-icons-wrapper" class="swiper-wrapper"></div>
-                </div>
-            </section>
 
-    </div>
-    </section>
-
-    <!-- Food Court Banner -->
-    <section id="food-court-banner"
-        class="rounded-2xl overflow-hidden shadow-lg relative h-48 sm:h-64 flex items-center justify-center group cursor-pointer"
-        onclick="window.location.href='s22marketfood.html'">
-        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-            style="background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=1000');">
-        </div>
-        <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
-        <div class="relative z-10 text-right w-full px-8">
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">S22 <span
-                    class="text-orange-500">FOOD</span></h2>
-            <p class="text-gray-200 text-lg sm:text-xl font-medium mb-6 max-w-md">اكتشف أشهى المأكولات من أفضل المطاعم.
-                اطلب الآن!</p>
-            <button
-                class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-full font-bold transition flex items-center gap-2 w-fit">
-                <i class="fas fa-utensils"></i> تصفح المطاعم
-            </button>
-        </div>
-    </section>
-
-    <div id="dynamic-home-sections" class="space-y-12 min-h-[300px]">
+            <div id="dynamic-home-sections" class="space-y-12 min-h-[300px]">
 
         </main>
     </div>
@@ -606,6 +801,10 @@
         <a href="s22marketfood.html" class="nav-item text-orange-500">
             <i class="fas fa-utensils"></i>
             <span>المطاعم</span>
+        </a>
+        <a href="auctions.html" class="nav-item text-red-600">
+            <i class="fas fa-gavel"></i>
+            <span>المزادات</span>
         </a>
         <a href="cart.html" id="bottom-cart-btn" class="nav-item relative">
             <i class="fas fa-shopping-cart"></i>
@@ -865,47 +1064,73 @@
                 const snapshot = await getDocs(query(collection(db, "categories"), orderBy("orderIndex")));
                 categoriesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                let categoriesIconsHTML = '';
-                let categoriesSidebarHTML = `<div class="p-2 space-y-1">`;
+                // 1. Sidebar Categories (Desktop)
+                let sidebarListHTML = '';
+                const heroList = document.getElementById('hero-categories-list');
 
-                categoriesIconsHTML += `
-                <a href="classproductindex.html" class="swiper-slide category-icon-item">
-                    <div class="category-icon-circle"><i class="fas fa-store text-2xl text-gray-500"></i></div>
-                    <span>كل المنتجات</span>
-                </a>`;
+                // 2. Mobile Swiper Categories
+                let mobileSwiperHTML = '';
+                const mobileWrapper = document.getElementById('category-icons-wrapper');
 
                 categoriesCache.forEach(cat => {
                     const activeSubcategories = cat.subcategories?.filter(s => s.active && s.id) || [];
-                    categoriesIconsHTML += `
-                <a href="classproductindex.html?category=${cat.id}" class="swiper-slide category-icon-item">
-                    <div class="category-icon-circle"><i class="fas fa-tags text-2xl text-blue-500"></i></div>
-                    <span>${cat.name}</span>
-                </a>`;
 
-                    categoriesSidebarHTML += `
+                    // Desktop Sidebar Item
+                    sidebarListHTML += `
+                    <li class="group/item relative">
+                        <a href="classproductindex.html?category=${cat.id}" class="flex items-center justify-between p-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors">
+                            <span class="font-medium truncate">${cat.name}</span>
+                            ${activeSubcategories.length > 0 ? '<i class="fas fa-chevron-left text-xs text-gray-400"></i>' : ''}
+                        </a>
+                        ${activeSubcategories.length > 0 ? `
+                        <div class="hidden group-hover/item:block absolute top-0 right-full w-48 bg-white shadow-xl rounded-lg border border-gray-100 p-2 z-50 mr-1">
+                            ${activeSubcategories.map(sub => `
+                                <a href="classproductindex.html?subcategory=${sub.id}" class="block p-2 text-sm hover:bg-gray-50 text-gray-600 rounded transition">${sub.name}</a>
+                            `).join('')}
+                        </div>` : ''}
+                    </li>`;
+
+                    // Mobile Swiper Item
+                    mobileSwiperHTML += `
+                    <a href="classproductindex.html?category=${cat.id}" class="swiper-slide category-icon-item">
+                        <div class="category-icon-circle"><i class="fas fa-box text-2xl text-blue-500"></i></div>
+                        <span>${cat.name}</span>
+                    </a>`;
+                });
+
+                if (heroList) heroList.innerHTML = sidebarListHTML;
+                if (mobileWrapper) {
+                    mobileWrapper.innerHTML = `
+                        <a href="classproductindex.html" class="swiper-slide category-icon-item">
+                            <div class="category-icon-circle"><i class="fas fa-th-large text-2xl text-gray-500"></i></div>
+                            <span>الكل</span>
+                        </a>
+                        ${mobileSwiperHTML}
+                        `;
+                }
+
+                // Initialize Mobile Categories Swiper
+                if (mobileWrapper) {
+                    new Swiper('#category-icons-section .swiper-container', {
+                        slidesPerView: 'auto',
+                        spaceBetween: 10,
+                        freeMode: true,
+                    });
+                }
+
+                // Initialize SideBar (Old Mobile Sidebar - Keep for compatibility)
+                let oldSidebarHTML = `<div class="p-2 space-y-1">`;
+                categoriesCache.forEach(cat => {
+                    const activeSubcategories = cat.subcategories?.filter(s => s.active && s.id) || [];
+                    oldSidebarHTML += `
                     <div>
                         <a href="classproductindex.html?category=${cat.id}" class="flex items-center justify-between gap-4 p-3 text-lg font-semibold rounded-lg category-filter-btn hover:bg-gray-100">
-                            <div class="flex items-center gap-4"><i class="fas fa-tags w-8 text-center text-gray-400"></i> <span>${cat.name}</span></div>
-                            ${activeSubcategories.length > 0 ? `<i class="fas fa-chevron-down text-sm text-gray-400"></i>` : ''}
-                        </a>`;
-                    if (activeSubcategories.length > 0) {
-                        categoriesSidebarHTML += `<div class="pr-8 mt-1 space-y-1 hidden">`;
-                        activeSubcategories.forEach(sub => {
-                            categoriesSidebarHTML += `<a href="classproductindex.html?subcategory=${sub.id}" class="block p-2 rounded-md hover:bg-gray-100 text-gray-600 font-medium">${sub.name}</a>`;
-                        });
-                        categoriesSidebarHTML += `</div>`;
-                    }
-                    categoriesSidebarHTML += `</div>`;
+                            <div class="flex items-center gap-4"><i class="fas fa-tag w-8 text-center text-gray-400"></i> <span>${cat.name}</span></div>
+                        </a>
+                        </div>`;
                 });
-                categoriesSidebarHTML += `</div>`;
-
-                elements.categoryIconsWrapper.innerHTML = categoriesIconsHTML;
-                new Swiper('#category-icons-section .swiper-container', {
-                    slidesPerView: 'auto',
-                    spaceBetween: 16,
-                    freeMode: true,
-                });
-                elements.sidebarCategoriesContainer.innerHTML = categoriesSidebarHTML;
+                oldSidebarHTML += `</div>`;
+                if (elements.sidebarCategoriesContainer) elements.sidebarCategoriesContainer.innerHTML = oldSidebarHTML;
 
             } catch (error) { console.error("Categories error:", error); }
         }
@@ -1074,14 +1299,11 @@
                 });
             }
 
-            if (elements.bottomCartBtn) elements.bottomCartBtn.onclick = () => window.location.href = 'cart.html';
-
             // 2. Load Local Data
             loadCart();
             updateCartUI();
 
-            // 3. Start Async Data Fetching (Non-blocking for UI)
-            // We trigger them but allow the UI to remain responsive
+            // 3. Start Async Data Fetching
             try {
                 await Promise.all([
                     loadStoreSettings(),
@@ -1091,13 +1313,6 @@
                 ]);
             } catch (error) {
                 console.error("Initialization error:", error);
-                // Ensure loader is removed even if error occurs
-                if (elements.dynamicHomeSections) {
-                    elements.dynamicHomeSections.innerHTML = `<div class="text-center py-10 text-red-500">
-                    <p>حدث خطأ أثناء تحميل المتجر.</p>
-                    <button onclick="location.reload()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded">إعادة المحاولة</button>
-                </div>`;
-                }
             }
 
             // Auth Logic

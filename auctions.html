@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S22 Market - المزادات</title>
+    <title>S22 Auctions - مزادات</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -13,114 +13,261 @@
             font-family: 'Tajawal', sans-serif;
             background-color: #f8fafc;
         }
+
+        .auction-card {
+            transition: all 0.3s ease;
+        }
+
+        .auction-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ef4444;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .countdown-badge {
+            font-variant-numeric: tabular-nums;
+        }
     </style>
 </head>
 
 <body class="pb-20">
 
-    <header class="bg-white shadow-sm sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
-        <a href="index.html" class="text-gray-600 text-xl"><i class="fas fa-home"></i></a>
-        <h1 class="text-lg font-bold text-gray-800">المزادات الحالية <i class="fas fa-gavel text-primary-600"></i></h1>
-        <div class="w-8"></div>
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2 text-gray-600 hover:text-red-600">
+                <i class="fas fa-arrow-right"></i> <span class="hidden sm:inline">العودة للمتجر</span>
+            </a>
+            <h1 class="text-2xl font-extrabold text-gray-800 flex items-center gap-2">
+                <i class="fas fa-gavel text-red-600"></i>
+                S22<span class="text-red-600">AUCTIONS</span>
+            </h1>
+            <div class="w-20 flex justify-end">
+                <div id="user-status"
+                    class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
     </header>
 
-    <main class="max-w-3xl mx-auto p-4 space-y-4" id="auctions-container">
-        <div class="text-center py-10">
-            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mx-auto"></div>
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+
+        <!-- Welcome Section -->
+        <div
+            class="bg-gradient-to-r from-red-600 to-red-800 rounded-2xl p-6 md:p-10 mb-10 text-white shadow-lg relative overflow-hidden">
+            <div class="relative z-10">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">زايد واربح! 🏆</h2>
+                <p class="text-lg md:text-xl opacity-90 mb-6">اغتنم الفرصة واحصل على منتجات حصرية بأفضل الأسعار.</p>
+                <div
+                    class="inline-flex bg-white text-red-600 px-4 py-2 rounded-full font-bold shadow-md items-center gap-2">
+                    <i class="fas fa-fire"></i> مزادات نشطة الآن
+                </div>
+            </div>
+            <!-- Decorative Pattern -->
+            <i class="fas fa-gavel absolute -bottom-4 -left-4 text-9xl text-red-900 opacity-30 transform rotate-12"></i>
+            <i
+                class="fas fa-stopwatch absolute top-4 -right-4 text-8xl text-red-900 opacity-30 transform -rotate-12"></i>
         </div>
+
+        <!-- Filters -->
+        <div class="flex gap-4 overflow-x-auto pb-4 mb-6 scrollbar-hide">
+            <button
+                class="bg-gray-800 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap shadow-md">الكل</button>
+            <button
+                class="bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50">إلكترونيات
+                📱</button>
+            <button
+                class="bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50">تحف
+                🏺</button>
+            <button
+                class="bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50">سيارات
+                🚗</button>
+        </div>
+
+        <!-- Auctions Grid -->
+        <h3 class="text-2xl font-bold text-gray-800 mb-6 border-r-4 border-red-500 pr-3">المزادات الجارية</h3>
+
+        <div id="loading-indicator" class="text-center py-20">
+            <div class="loader mx-auto"></div>
+            <p class="mt-4 text-gray-500">جاري تحميل المزادات...</p>
+        </div>
+
+        <div id="auctions-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+            <!-- Cards will be injected here -->
+        </div>
+
+        <div id="no-auctions-msg" class="hidden text-center py-20 bg-white rounded-xl shadow-sm">
+            <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-bold text-gray-600">لا توجد مزادات نشطة حالياً</h3>
+            <p class="text-gray-500">ترقبوا المزيد قريباً!</p>
+        </div>
+
     </main>
 
     <script type="module">
-        import { db, collection, query, where, getDocs, orderBy } from './js/firebase-config.js';
+        // Reuse global config logic by importing from existing modular files
+        // We use relative paths assuming this file is in root
+        import { app, db, auth } from './js/firebase-config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        const auctionsGrid = document.getElementById('auctions-grid');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const noAuctionsMsg = document.getElementById('no-auctions-msg');
+        const userStatus = document.getElementById('user-status');
+
+        // 1. Auth Check
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userStatus.innerHTML = `<img src="${user.photoURL || 'https://placehold.co/100'}" class="w-full h-full rounded-full object-cover">`;
+            }
+            loadAuctions();
+        });
+
+        // 2. Load Auctions
         async function loadAuctions() {
-            const container = document.getElementById('auctions-container');
             try {
-                // Query active auctions
-                const q = query(
-                    collection(db, "auctions"),
-                    where("status", "==", "active"),
-                    orderBy("endTime", "asc")
-                );
+                // Query both 'products' (type=auction) AND legacy 'auctions' collection to cover all bases
+                // Strategy: Try 'products' first.
 
-                const snapshot = await getDocs(q);
-                container.innerHTML = '';
+                let auctions = [];
+                let errorDetails = "";
 
-                if (snapshot.empty) {
-                    container.innerHTML = `
-                        <div class="text-center py-20 text-gray-500">
-                            <i class="fas fa-gavel text-4xl mb-3 text-gray-300"></i>
-                            <p>لا توجد مزادات نشطة حالياً.</p>
-                        </div>`;
+                // Try Products Collection
+                try {
+                    const qProduct = query(
+                        collection(db, "products"),
+                        where("productType", "==", "auction"),
+                        orderBy("createdAt", "desc")
+                    );
+                    const snapP = await getDocs(qProduct);
+                    snapP.forEach(doc => auctions.push({ id: doc.id, ...doc.data(), source: 'products' }));
+                } catch (e) {
+                    console.warn("Product query failed (likely index):", e);
+                    errorDetails += e.message;
+                }
+
+                // If empty, Try Legacy 'auctions' Collection
+                if (auctions.length === 0) {
+                    try {
+                        const qLegacy = query(collection(db, "auctions"), where("status", "==", "active"));
+                        const snapL = await getDocs(qLegacy);
+                        snapL.forEach(doc => auctions.push({ id: doc.id, ...doc.data(), source: 'auctions' }));
+                    } catch (e) { console.warn("Legacy query failed:", e); }
+                }
+
+                loadingIndicator.classList.add('hidden');
+
+                if (auctions.length === 0) {
+                    noAuctionsMsg.classList.remove('hidden');
+                    // If error occurred and no results, show hint
+                    if (errorDetails.includes("index")) {
+                        auctionsGrid.classList.remove('hidden');
+                        auctionsGrid.innerHTML = `<div class="p-4 bg-yellow-100 text-yellow-800 rounded">ملاحظة: مطلوب إنشاء فهرس (Index) لعرض المزادات. التفاصيل في الكونسول.</div>`;
+                    }
                     return;
                 }
 
-                snapshot.forEach(doc => {
-                    const auction = doc.data();
-                    const now = new Date();
-                    const endTime = auction.endTime?.toDate ? auction.endTime.toDate() : new Date(auction.endTime);
-                    const remainingTime = endTime - now;
+                auctionsGrid.classList.remove('hidden');
+                auctionsGrid.innerHTML = '';
 
-                    if (remainingTime <= 0) return; // Skip expired ones that might still be marked active
-
-                    const card = document.createElement('div');
-                    card.className = "bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden";
-                    card.innerHTML = `
-                        <div class="relative h-48 bg-gray-200 bg-cover bg-center" style="background-image: url('${auction.imageUrl || 'https://placehold.co/600x300'}')">
-                            <div class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">مباشر</div>
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-bold text-lg text-gray-800 mb-1">${auction.title}</h3>
-                            <p class="text-gray-500 text-sm mb-4 line-clamp-2">${auction.description || ''}</p>
-                            
-                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg mb-4">
-                                <div>
-                                    <span class="text-xs text-gray-500 block">السعر الحالي</span>
-                                    <span class="text-xl font-bold text-indigo-600">${(auction.currentPrice || auction.startPrice || 0).toLocaleString()} د.ج</span>
-                                </div>
-                                <div class="text-left">
-                                    <span class="text-xs text-gray-500 block">ينتهي في</span>
-                                    <span class="text-sm font-bold text-red-500 countdown" data-end="${endTime.toISOString()}">جاري الحساب...</span>
-                                </div>
-                            </div>
-
-                            <a href="auction-details.html?id=${doc.id}" class="block w-full text-center bg-indigo-600 text-white font-bold py-2 rounded-lg hover:bg-indigo-700 transition-colors">
-                                شارك في المزاد
-                            </a>
-                        </div>
-                    `;
-                    container.appendChild(card);
+                auctions.forEach(data => {
+                    const card = createAuctionCard(data.id, data);
+                    auctionsGrid.appendChild(card);
                 });
 
-                startCountdown();
+                setInterval(updateTimers, 1000);
 
             } catch (error) {
                 console.error("Error loading auctions:", error);
-                container.innerHTML = '<p class="text-center text-red-500 py-10">حدث خطأ أثناء تحميل المزادات.</p>';
+                loadingIndicator.innerHTML = `<p class="text-red-500">حدث خطأ.<br><span class="text-xs text-gray-400">${error.message}</span></p>`;
             }
         }
 
-        function startCountdown() {
-            setInterval(() => {
-                document.querySelectorAll('.countdown').forEach(el => {
-                    const end = new Date(el.dataset.end);
-                    const now = new Date();
-                    const diff = end - now;
+        function createAuctionCard(id, data) {
+            const div = document.createElement('div');
+            div.className = 'bg-white rounded-xl shadow-sm overflow-hidden auction-card border border-gray-100 group flex flex-col';
 
-                    if (diff <= 0) {
-                        el.textContent = "انتهى المزاد";
-                        el.className = "text-sm font-bold text-gray-400";
-                    } else {
-                        const h = Math.floor(diff / (1000 * 60 * 60));
-                        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                        const s = Math.floor((diff % (1000 * 60)) / 1000);
-                        el.textContent = `${h}س ${m}د ${s}ث`;
-                    }
-                });
-            }, 1000);
+            const image = (data.imageUrls && data.imageUrls.length) ? data.imageUrls[0] : (data.imageUrl || 'https://placehold.co/400x300');
+            const name = data.name || data.title || 'مزاد مميز';
+            const startPrice = data.price || data.startPrice || 0;
+            const currentBid = data.currentBid || startPrice;
+
+            // Handle different date formats (legacy vs new)
+            let endDate;
+            if (data.auctionEndTime && data.auctionEndTime.toDate) endDate = data.auctionEndTime.toDate();
+            else if (data.endTime && data.endTime.toDate) endDate = data.endTime.toDate();
+            else if (data.endTime) endDate = new Date(data.endTime);
+            else endDate = new Date(Date.now() + 86400000);
+
+            div.innerHTML = `
+                <div class="h-48 bg-gray-200 relative overflow-hidden">
+                    <img src="${image}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <div class="absolute top-2 right-2 bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold shadow-md animate-pulse">
+                        <i class="fas fa-circle text-[8px] mr-1"></i> مباشر
+                    </div>
+                </div>
+                <div class="p-4 flex flex-col flex-grow">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2 truncate">${name}</h3>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="bg-gray-50 p-2 rounded-lg text-center">
+                            <div class="text-xs text-gray-500">السعر الحالي</div>
+                            <div class="font-bold text-blue-600 text-lg">${currentBid.toLocaleString()} د.ج</div>
+                        </div>
+                         <div class="bg-red-50 p-2 rounded-lg text-center">
+                            <div class="text-xs text-red-500">ينتهي خلال</div>
+                            <div class="font-bold text-red-700 text-sm countdown-badge" data-end="${endDate.toISOString()}">--:--:--</div>
+                        </div>
+                    </div>
+
+                    <a href="PRESENTPRODUCT.html?product=${id}" class="mt-auto w-full bg-gray-900 hover:bg-black text-white py-3 rounded-lg font-bold text-center transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-gavel"></i> شارك في المزاد
+                    </a>
+                </div>
+            `;
+            return div;
         }
 
-        loadAuctions();
+        function updateTimers() {
+            document.querySelectorAll('.countdown-badge').forEach(el => {
+                const end = new Date(el.dataset.end);
+                const now = new Date();
+                const diff = end - now;
+
+                if (diff <= 0) {
+                    el.textContent = "انتهى";
+                    el.classList.add('text-gray-500');
+                    el.classList.remove('text-red-700');
+                } else {
+                    const h = Math.floor(diff / (1000 * 60 * 60));
+                    const m = Math.floor((diff / (1000 * 60)) % 60);
+                    const s = Math.floor((diff / 1000) % 60);
+                    el.textContent = `${h}س ${m}د ${s}ث`;
+                }
+            });
+        }
+
     </script>
 </body>
 
