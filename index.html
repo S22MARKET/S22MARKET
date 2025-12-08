@@ -199,6 +199,7 @@
             margin-bottom: 0.25rem;
             display: -webkit-box;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
         }
 
@@ -229,6 +230,7 @@
             overflow: hidden;
             display: -webkit-box;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
         }
 
@@ -405,6 +407,63 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+        }
+
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Mobile Specifc Improvements */
+        @media (max-width: 768px) {
+            .main-header {
+                padding: 0.75rem 1rem;
+            }
+
+            .service-grid-item {
+                padding: 0.75rem;
+            }
+
+            /* Improve banner text readability on mobile */
+            .banner-title {
+                font-size: 2rem !important;
+                line-height: 1.2;
+            }
+
+            .banner-description {
+                font-size: 1rem !important;
+            }
+        }
+
+        /* Smooth fade-in animation for sections */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-slide-in {
+            animation: slideInUp 0.6s ease-out forwards;
         }
     </style>
 </head>
@@ -611,144 +670,255 @@
                 </div>
             </div>
 
-            <!-- Service Grid (Quick Links) -->
-            <div class="grid grid-cols-4 md:grid-cols-8 gap-3 sm:gap-4">
+            <!-- Service Grid (Quick Links) - Clean & Professional -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
 
                 <!-- Food Court (Restaurant) -->
                 <a href="s22marketfood.html"
-                    class="flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-2 rounded-xl transition-all">
+                    class="flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-3 sm:p-4 rounded-xl transition-all shadow-sm hover:shadow-md">
                     <div
-                        class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-orange-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <i class="fas fa-utensils text-orange-600 text-xl sm:text-2xl"></i>
+                        class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
+                        <i class="fas fa-utensils text-white text-xl sm:text-2xl"></i>
                     </div>
-                    <span class="text-xs sm:text-sm font-bold text-gray-700">المطاعم</span>
+                    <span class="text-xs sm:text-sm font-bold text-gray-800">المطاعم</span>
                 </a>
 
-                <!-- Auctions (New!) -->
+                <!-- Auctions -->
                 <a href="auctions.html"
-                    class="flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-2 rounded-xl transition-all">
+                    class="flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-3 sm:p-4 rounded-xl transition-all shadow-sm hover:shadow-md">
                     <div
-                        class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-red-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <i class="fas fa-gavel text-red-600 text-xl sm:text-2xl"></i>
+                        class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
+                        <i class="fas fa-gavel text-white text-xl sm:text-2xl"></i>
                     </div>
-                    <span class="text-xs sm:text-sm font-bold text-gray-700">المزادات</span>
+                    <span class="text-xs sm:text-sm font-bold text-gray-800">المزادات</span>
                 </a>
 
-                <!-- Flash Deals -->
-                <a href="#flash-deals"
-                    class="flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-2 rounded-xl transition-all">
+                <!-- Special Offers -->
+                <a href="auctions.html"
+                    class="flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-3 sm:p-4 rounded-xl transition-all shadow-sm hover:shadow-md">
                     <div
-                        class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-yellow-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <i class="fas fa-bolt text-yellow-600 text-xl sm:text-2xl"></i>
+                        class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
+                        <i class="fas fa-bolt text-white text-xl sm:text-2xl"></i>
                     </div>
-                    <span class="text-xs sm:text-sm font-bold text-gray-700">عروض فلاش</span>
+                    <span class="text-xs sm:text-sm font-bold text-gray-800">عروض خاصة</span>
                 </a>
 
-                <!-- Bulk / Wholesale -->
-                <a href="#"
-                    class="flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-2 rounded-xl transition-all">
-                    <div
-                        class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-blue-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <i class="fas fa-boxes text-blue-600 text-xl sm:text-2xl"></i>
-                    </div>
-                    <span class="text-xs sm:text-sm font-bold text-gray-700">الجملة</span>
-                </a>
-
-                <!-- Categories (Mobile Only, or Extra) -->
+                <!-- Categories (Mobile) / Wholesale (Desktop) -->
                 <a href="#categories-section"
-                    class="flex md:hidden flex-col items-center gap-2 group cursor-pointer hover:bg-white p-2 rounded-xl transition-all">
+                    class="md:hidden flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-3 sm:p-4 rounded-xl transition-all shadow-sm hover:shadow-md">
                     <div
-                        class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <i class="fas fa-list text-gray-600 text-xl sm:text-2xl"></i>
+                        class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
+                        <i class="fas fa-list text-white text-xl sm:text-2xl"></i>
                     </div>
-                    <span class="text-xs sm:text-sm font-bold text-gray-700">كل الفئات</span>
+                    <span class="text-xs sm:text-sm font-bold text-gray-800">كل الفئات</span>
                 </a>
 
-                <!-- Placeholders for design balance -->
-                <div class="hidden md:flex flex-col items-center gap-2 opacity-50">
-                    <div class="w-14 h-14 bg-gray-100 rounded-full"></div>
-                </div>
-                <div class="hidden md:flex flex-col items-center gap-2 opacity-50">
-                    <div class="w-14 h-14 bg-gray-100 rounded-full"></div>
-                </div>
-                <div class="hidden md:flex flex-col items-center gap-2 opacity-50">
-                    <div class="w-14 h-14 bg-gray-100 rounded-full"></div>
-                </div>
-                <div class="hidden md:flex flex-col items-center gap-2 opacity-50">
-                    <div class="w-14 h-14 bg-gray-100 rounded-full"></div>
-                </div>
+                <a href="#"
+                    class="hidden md:flex flex-col items-center gap-2 group cursor-pointer hover:bg-white p-3 sm:p-4 rounded-xl transition-all shadow-sm hover:shadow-md">
+                    <div
+                        class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
+                        <i class="fas fa-boxes text-white text-xl sm:text-2xl"></i>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold text-gray-800">الجملة</span>
+                </a>
 
             </div>
 
-            <!-- Flash Deals Strip (Horizontal) -->
-            <section id="flash-deals" class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-hidden">
-                <div class="flex justify-between items-center mb-4">
-                    <div class="flex items-center gap-3">
-                        <h2 class="text-xl font-extrabold italic text-gray-800">Flash<span
-                                class="text-red-600">Deals</span></h2>
-                        <div class="flex items-center gap-1 bg-gray-800 text-white px-2 py-1 rounded text-xs font-mono"
-                            id="flash-timer">
-                            <span>02</span>:<span>45</span>:<span>12</span>
-                        </div>
-                    </div>
-                    <a href="#" class="text-sm font-bold text-gray-500 hover:text-red-500">عرض الكل <i
-                            class="fas fa-chevron-left text-xs"></i></a>
+            <!-- Auctions Promotional Banner -->
+            <section
+                class="relative bg-gradient-to-r from-red-600 via-red-700 to-red-800 rounded-2xl shadow-xl overflow-hidden group cursor-pointer hover:shadow-2xl transition-all duration-300"
+                onclick="location.href='auctions.html'">
+                <!-- Background Pattern -->
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -mr-32 -mt-32"></div>
+                    <div class="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full -ml-24 -mb-24"></div>
                 </div>
 
-                <!-- Swiper for Deals -->
-                <div class="swiper flash-deals-swiper overflow-visible">
-                    <div class="swiper-wrapper" id="flash-deals-wrapper">
-                        <!-- Placeholders populated by JS -->
-                        <div class="swiper-slide w-32 md:w-40 ml-2">
-                            <div
-                                class="bg-gray-50 rounded-lg p-2 h-full flex flex-col cursor-pointer hover:shadow-md transition">
-                                <div class="aspect-square bg-gray-200 rounded-md mb-2 relative overflow-hidden">
-                                    <span
-                                        class="absolute top-0 left-0 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br">-40%</span>
+                <!-- Content -->
+                <div
+                    class="relative z-10 flex flex-col md:flex-row items-center justify-between p-6 md:p-8 lg:p-10 gap-6">
+                    <!-- Right Side - Text Content -->
+                    <div class="flex-1 text-white text-center md:text-right">
+                        <div
+                            class="inline-flex items-center gap-2 bg-yellow-400 text-red-900 px-3 py-1 rounded-full text-xs font-bold mb-3 animate-pulse">
+                            <i class="fas fa-fire"></i>
+                            <span>مزادات حية الآن</span>
+                        </div>
+                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-3 leading-tight">
+                            زايد واربح! 🏆
+                        </h2>
+                        <p class="text-lg md:text-xl text-red-100 mb-4 max-w-2xl">
+                            اغتنم الفرصة للحصول على منتجات حصرية بأفضل الأسعار
+                        </p>
+                        <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
+                            <button
+                                class="bg-white text-red-600 px-6 py-3 rounded-xl font-bold text-lg shadow-lg hover:bg-yellow-400 hover:text-red-900 transition-all transform hover:scale-105 flex items-center gap-2">
+                                <i class="fas fa-gavel"></i>
+                                <span>شاهد المزادات</span>
+                                <i class="fas fa-arrow-left text-sm"></i>
+                            </button>
+                            <div class="flex items-center gap-2 text-white text-sm">
+                                <div class="flex -space-x-2">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-yellow-400 border-2 border-white flex items-center justify-center">
+                                        <i class="fas fa-user text-red-600 text-xs"></i>
+                                    </div>
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-yellow-400 border-2 border-white flex items-center justify-center">
+                                        <i class="fas fa-user text-red-600 text-xs"></i>
+                                    </div>
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-yellow-400 border-2 border-white flex items-center justify-center">
+                                        <i class="fas fa-user text-red-600 text-xs"></i>
+                                    </div>
                                 </div>
-                                <div class="font-bold text-red-600 text-lg">900دج</div>
-                                <div class="text-xs line-through text-gray-400">1500دج</div>
+                                <span class="font-semibold">+200 مزايد نشط</span>
                             </div>
                         </div>
-                        <div class="swiper-slide w-32 md:w-40 ml-2">
+                    </div>
+
+                    <!-- Left Side - Visual Element -->
+                    <div class="relative hidden lg:block">
+                        <div class="relative">
+                            <!-- Giant Gavel Icon -->
+                            <div class="w-48 h-48 flex items-center justify-center">
+                                <i
+                                    class="fas fa-gavel text-white text-9xl opacity-90 transform group-hover:rotate-12 transition-transform duration-500"></i>
+                            </div>
+                            <!-- Floating Stats -->
                             <div
-                                class="bg-gray-50 rounded-lg p-2 h-full flex flex-col cursor-pointer hover:shadow-md transition">
-                                <div class="aspect-square bg-gray-200 rounded-md mb-2 relative overflow-hidden">
-                                    <span
-                                        class="absolute top-0 left-0 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br">-25%</span>
+                                class="absolute -top-4 -right-4 bg-yellow-400 text-red-900 px-3 py-2 rounded-lg shadow-xl font-bold text-sm">
+                                <div class="text-xs opacity-75">مزادات نشطة</div>
+                                <div class="text-2xl">15+</div>
+                            </div>
+                            <div
+                                class="absolute -bottom-4 -left-4 bg-white text-red-600 px-3 py-2 rounded-lg shadow-xl font-bold text-sm">
+                                <div class="text-xs opacity-75">ينتهي قريباً</div>
+                                <div class="text-lg flex items-center gap-1">
+                                    <i class="fas fa-clock text-red-500"></i>
+                                    <span>2س 15د</span>
                                 </div>
-                                <div class="font-bold text-red-600 text-lg">2500دج</div>
-                                <div class="text-xs line-through text-gray-400">3200دج</div>
                             </div>
                         </div>
-                        <div class="swiper-slide w-32 md:w-40 ml-2">
-                            <div
-                                class="bg-gray-50 rounded-lg p-2 h-full flex flex-col cursor-pointer hover:shadow-md transition">
-                                <div class="aspect-square bg-gray-200 rounded-md mb-2 relative overflow-hidden">
-                                    <span
-                                        class="absolute top-0 left-0 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br">-50%</span>
-                                </div>
-                                <div class="font-bold text-red-600 text-lg">450دج</div>
-                                <div class="text-xs line-through text-gray-400">900دج</div>
-                            </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Ticker -->
+                <div class="relative z-10 bg-red-900 bg-opacity-50 border-t border-red-500 py-2 px-6">
+                    <div class="flex items-center justify-center gap-8 text-white text-sm">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-shield-alt text-yellow-400"></i>
+                            <span>مزادات موثوقة</span>
                         </div>
-                        <div class="swiper-slide w-32 md:w-40 ml-2">
-                            <div
-                                class="bg-gray-50 rounded-lg p-2 h-full flex flex-col cursor-pointer hover:shadow-md transition">
-                                <div class="aspect-square bg-gray-200 rounded-md mb-2 relative overflow-hidden">
-                                    <span
-                                        class="absolute top-0 left-0 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br">-15%</span>
-                                </div>
-                                <div class="font-bold text-red-600 text-lg">12000دج</div>
-                                <div class="text-xs line-through text-gray-400">14000دج</div>
-                            </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-bolt text-yellow-400"></i>
+                            <span>عروض حصرية</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-trophy text-yellow-400"></i>
+                            <span>اربح الآن</span>
                         </div>
                     </div>
                 </div>
             </section>
 
+            <!-- Restaurant/Food Promotional Banner -->
+            <section
+                class="relative bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 rounded-2xl shadow-xl overflow-hidden group cursor-pointer hover:shadow-2xl transition-all duration-300"
+                onclick="location.href='s22marketfood.html'">
+                <!-- Background Pattern -->
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute top-0 left-0 w-72 h-72 bg-white rounded-full -ml-36 -mt-36"></div>
+                    <div class="absolute bottom-0 right-0 w-56 h-56 bg-white rounded-full -mr-28 -mb-28"></div>
+                </div>
 
+                <!-- Content -->
+                <div
+                    class="relative z-10 flex flex-col md:flex-row-reverse items-center justify-between p-6 md:p-8 lg:p-10 gap-6">
+                    <!-- Left Side - Text Content -->
+                    <div class="flex-1 text-white text-center md:text-right">
+                        <div
+                            class="inline-flex items-center gap-2 bg-white text-orange-600 px-3 py-1 rounded-full text-xs font-bold mb-3 animate-pulse">
+                            <i class="fas fa-utensils"></i>
+                            <span>طازج ولذيذ</span>
+                        </div>
+                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-3 leading-tight">
+                            جائع؟ 🍕
+                        </h2>
+                        <p class="text-lg md:text-xl text-orange-100 mb-4 max-w-2xl">
+                            اطلب ألذ الوجبات من أفضل المطاعم والمقاهي بالتوصيل السريع
+                        </p>
+                        <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
+                            <button
+                                class="bg-white text-orange-600 px-6 py-3 rounded-xl font-bold text-lg shadow-lg hover:bg-yellow-300 hover:text-orange-700 transition-all transform hover:scale-105 flex items-center gap-2">
+                                <i class="fas fa-utensils"></i>
+                                <span>تصفح المطاعم</span>
+                                <i class="fas fa-arrow-left text-sm"></i>
+                            </button>
+                            <div class="flex items-center gap-3 text-white text-sm">
+                                <div class="flex items-center gap-1">
+                                    <i class="fas fa-star text-yellow-300"></i>
+                                    <i class="fas fa-star text-yellow-300"></i>
+                                    <i class="fas fa-star text-yellow-300"></i>
+                                    <i class="fas fa-star text-yellow-300"></i>
+                                    <i class="fas fa-star text-yellow-300"></i>
+                                </div>
+                                <span class="font-semibold">تقييم 5/5</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side - Visual Element -->
+                    <div class="relative hidden lg:block">
+                        <div class="relative">
+                            <!-- Giant Food Icons -->
+                            <div class="w-48 h-48 flex items-center justify-center relative">
+                                <i
+                                    class="fas fa-pizza-slice text-white text-8xl opacity-90 absolute transform -rotate-12 group-hover:rotate-6 transition-transform duration-500"></i>
+                                <i
+                                    class="fas fa-hamburger text-yellow-300 text-7xl absolute transform translate-x-8 translate-y-8 rotate-12 group-hover:-rotate-6 transition-transform duration-500"></i>
+                            </div>
+                            <!-- Floating Stats -->
+                            <div
+                                class="absolute -top-4 -left-4 bg-white text-orange-600 px-3 py-2 rounded-lg shadow-xl font-bold text-sm">
+                                <div class="text-xs opacity-75">مطاعم متاحة</div>
+                                <div class="text-2xl">25+</div>
+                            </div>
+                            <div
+                                class="absolute -bottom-4 -right-4 bg-yellow-300 text-orange-700 px-3 py-2 rounded-lg shadow-xl font-bold text-sm">
+                                <div class="text-xs opacity-75">توصيل خلال</div>
+                                <div class="text-lg flex items-center gap-1">
+                                    <i class="fas fa-motorcycle"></i>
+                                    <span>30 دقيقة</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Ticker -->
+                <div class="relative z-10 bg-orange-900 bg-opacity-50 border-t border-orange-400 py-2 px-6">
+                    <div class="flex items-center justify-center gap-8 text-white text-sm flex-wrap">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-utensils text-yellow-300"></i>
+                            <span>طعام طازج</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-motorcycle text-yellow-300"></i>
+                            <span>توصيل سريع</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-percentage text-yellow-300"></i>
+                            <span>خصومات يومية</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dynamic Home Sections -->
             <div id="dynamic-home-sections" class="space-y-12 min-h-[300px]">
+                <!-- Sections will be loaded dynamically -->
+            </div>
 
         </main>
     </div>
