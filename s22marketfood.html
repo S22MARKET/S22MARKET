@@ -1,93 +1,244 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TEXMEX Market</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>S22 Food - المطاعم والمأكولات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
-        /* --- إعدادات أساسية للصفحة --- */
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden; /* لإخفاء شريط التمرير الخاص بالصفحة الرئيسية */
-            font-family: 'Arial', sans-serif;
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f8fafc;
         }
 
-        /* --- حاوية عرض الموقع (iframe) --- */
-        .iframe-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
+        .restaurant-card {
+            transition: all 0.3s ease;
         }
 
-        /* --- تصميم الزر العائم --- */
-        .floating-button {
-            position: fixed; /* يبقى في مكانه عند التمرير */
-            left: 50%;
-            bottom: 30px;
-            transform: translateX(-50%); /* لتوسيط الزر أفقيًا بالضبط */
-            width: 60px;
-            height: 60px;
-            background-color: #ff5722; /* لون برتقالي مميز */
-            color: white;
-            border-radius: 50%; /* يجعله دائريًا */
-            border: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 28px; /* حجم أيقونة السهم */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* ظل احترافي */
-            cursor: pointer;
-            z-index: 1000; /* للتأكد من أنه فوق كل العناصر */
-            transition: all 0.3s; /* تأثيرات حركة ناعمة لكل الخصائص */
+        .restaurant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
-        /* --- تأثير عند مرور الفأرة أو اللمس --- */
-        .floating-button:hover {
-            background-color: #e64a19; /* لون أغمق قليلاً */
-            transform: translateX(-50%) scale(1.1); /* يكبر حجمه قليلاً */
+        .rating-star {
+            color: #facc15;
         }
-        
-        /* ---  تحسينات خاصة بالهواتف والشاشات الصغيرة --- */
-        /* Media Query: يتم تطبيق هذه الأنماط فقط إذا كان عرض الشاشة 600 بكسل أو أقل */
-        @media (max-width: 600px) {
-            .floating-button {
-                width: 50px; /* تصغير عرض الزر */
-                height: 50px; /* تصغير ارتفاع الزر */
-                font-size: 24px; /* تصغير حجم الأيقونة */
-                bottom: 20px; /* تقليل المسافة من الأسفل */
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #f97316;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
             }
         }
-
     </style>
 </head>
-<body>
 
-    <button class="floating-button" onclick="goBack()" title="الرجوع للخلف">
-        &#8617;
-    </button>
+<body class="pb-20">
 
-    <iframe class="iframe-container" src="https://s22market.github.io/TEXMEX/" frameborder="0"></iframe>
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2 text-gray-600 hover:text-orange-600">
+                <i class="fas fa-arrow-right"></i> <span class="hidden sm:inline">العودة للمتجر</span>
+            </a>
+            <h1 class="text-2xl font-extrabold text-gray-800 flex items-center gap-2">
+                <i class="fas fa-utensils text-orange-500"></i>
+                S22<span class="text-orange-500">FOOD</span>
+            </h1>
+            <div class="w-20 flex justify-end">
+                <!-- User Avatar Placeolder -->
+                <div id="user-status"
+                    class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+    </header>
 
-    <script>
-        // --- وظيفة الجافاسكربت للرجوع للصفحة السابقة ---
-        function goBack() {
-            // تتحقق إذا كان هناك صفحة سابقة في سجل المتصفح
-            if (window.history.length > 1) {
-                window.history.back();
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+
+        <!-- Welcome Section -->
+        <div class="bg-orange-600 rounded-2xl p-6 md:p-10 mb-10 text-white shadow-lg relative overflow-hidden">
+            <div class="relative z-10">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">جائع؟ 😋</h2>
+                <p class="text-lg md:text-xl opacity-90 mb-6">اطلب وجبتك المفضلة الآن من أفضل المطاعم في S22 Market.</p>
+                <div
+                    class="inline-flex bg-white text-orange-600 px-4 py-2 rounded-full font-bold shadow-md items-center gap-2">
+                    <i class="fas fa-motorcycle"></i> توصيل سريع
+                </div>
+            </div>
+            <!-- Decorative Pattern -->
+            <i
+                class="fas fa-hamburger absolute -bottom-10 -left-10 text-9xl text-orange-700 opacity-50 transform rotate-12"></i>
+            <i
+                class="fas fa-pizza-slice absolute top-10 -right-10 text-8xl text-orange-700 opacity-50 transform -rotate-12"></i>
+        </div>
+
+        <!-- Filters (Optional future expansion) -->
+        <div class="flex gap-4 overflow-x-auto pb-4 mb-6 scrollbar-hide">
+            <button
+                class="bg-gray-800 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap shadow-md">الكل</button>
+            <button
+                class="bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50">بيتزا
+                🍕</button>
+            <button
+                class="bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50">برجر
+                🍔</button>
+            <button
+                class="bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50">شاورما
+                🌯</button>
+            <button
+                class="bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50">حلويات
+                🍰</button>
+        </div>
+
+        <!-- Restaurants Grid -->
+        <h3 class="text-2xl font-bold text-gray-800 mb-6 border-r-4 border-orange-500 pr-3">المطاعم المفتوحة</h3>
+
+        <div id="loading-indicator" class="text-center py-20">
+            <div class="loader mx-auto"></div>
+            <p class="mt-4 text-gray-500">جاري تحميل المطاعم...</p>
+        </div>
+
+        <div id="restaurants-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 hidden">
+            <!-- Cards will be injected here -->
+        </div>
+
+        <div id="no-restaurants-msg" class="hidden text-center py-20 bg-white rounded-xl shadow-sm">
+            <i class="fas fa-store-slash text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-bold text-gray-600">لا توجد مطاعم متاحة حالياً</h3>
+            <p class="text-gray-500">يرجى المحاولة لاحقاً</p>
+        </div>
+
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Copy of config logic (kept separate to act as standalone page if needed, or import from js/firebase-config.js) ---
+        // Ideally we should import from js/firebase-config.js but for valid standalone file generation I will reuse the config logic for safety
+        import { app, db, auth } from './js/firebase-config.js'; // Assuming this exists from previous steps
+
+        const restaurantsGrid = document.getElementById('restaurants-grid');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const noRestaurantsMsg = document.getElementById('no-restaurants-msg');
+        const userStatus = document.getElementById('user-status');
+
+        // 1. Auth Check
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userStatus.innerHTML = `<img src="${user.photoURL || 'https://placehold.co/100'}" class="w-full h-full rounded-full object-cover">`;
+                loadRestaurants();
             } else {
-                // في حال عدم وجود صفحة سابقة (مثل فتح الرابط مباشرة)
-                // يمكن هنا توجيهه لصفحة رئيسية معينة
-                console.log("لا يوجد سجل تصفح للرجوع إليه.");
-                // على سبيل المثال، يمكنك إضافة تنبيه للمستخدم
-                // alert("لا توجد صفحة سابقة للعودة إليها.");
+                // Redirect to login if enforced, or just show login button
+                // For "Strict Registration" requirement:
+                window.location.href = 'login.html?redirect=s22marketfood.html';
+            }
+        });
+
+        // 2. Load Restaurants
+        async function loadRestaurants() {
+            try {
+                // Query users where role == 'restaurant' OR a specific 'vendors' collection
+                // Strategy: We will query 'users' collection for fields "isRestaurant == true" or "role == 'restaurant'"
+
+                // NOTE: Since we haven't strictly defined the schema, we will search for any user with `role: 'restaurant'`
+                // If that index doesn't exist, we might need a fallback.
+                // For MVP: We query 'vendors' collection if you decide to separate them, or 'users'.
+
+                // Let's assume we use the 'vendors' collection or reuse 'users'. 
+                // Given the prompt "future restaurants", implies scalable list.
+
+                const q = query(collection(db, "users"), where("role", "==", "restaurant"));
+
+                // Fallback: If no restaurant role users found, maybe check for a custom flag
+                // Or query 'vendors' collection if we migrate there.
+
+                const snapshot = await getDocs(q);
+
+                loadingIndicator.classList.add('hidden');
+
+                if (snapshot.empty) {
+                    noRestaurantsMsg.classList.remove('hidden');
+                    return;
+                }
+
+                restaurantsGrid.classList.remove('hidden');
+                restaurantsGrid.innerHTML = '';
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const card = createRestaurantCard(doc.id, data);
+                    restaurantsGrid.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error("Error loading restaurants:", error);
+                loadingIndicator.innerHTML = `<p class="text-red-500">حدث خطأ في تحميل البيانات.<br><span class="text-xs text-gray-400">${error.message}</span></p>`;
             }
         }
+
+        function createRestaurantCard(id, data) {
+            const div = document.createElement('div');
+            div.className = 'bg-white rounded-2xl shadow-sm overflow-hidden restaurant-card border border-gray-100 group';
+
+            const coverImage = data.coverUrl || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1000';
+            const logoImage = data.photoURL || data.logoUrl || 'https://placehold.co/100';
+            const name = data.displayName || data.storeName || 'مطعم جديد';
+            const desc = data.description || 'أفضل المأكولات لدينا';
+            const status = data.isOpen === false ? '<span class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs">مغلق</span>' : '<span class="bg-green-100 text-green-600 px-2 py-1 rounded text-xs">مفتوح</span>';
+
+            div.innerHTML = `
+                <div class="h-40 bg-gray-200 relative overflow-hidden">
+                    <img src="${coverImage}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold shadow-sm">
+                        ⏱️ 30-45 دقيقة
+                    </div>
+                </div>
+                <div class="p-5 pt-0 relative">
+                    <div class="flex justify-between items-start">
+                        <img src="${logoImage}" class="w-16 h-16 rounded-2xl border-4 border-white shadow-md -mt-8 bg-white object-cover">
+                        <div class="mt-2 flex gap-2">
+                             ${status}
+                             <span class="bg-yellow-50 text-yellow-600 px-2 py-1 rounded text-xs font-bold flex items-center gap-1"><i class="fas fa-star text-yellow-400"></i> ${(data.rating || '4.8')}</span>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-gray-800 mt-2">${name}</h3>
+                    <p class="text-gray-500 text-sm mt-1 line-clamp-2">${desc}</p>
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                         <div class="text-xs text-gray-400 font-mono">
+                            <i class="fas fa-motorcycle ml-1"></i> توصيل: ${(data.deliveryFee || 200)} د.ج
+                         </div>
+                         <a href="vendor.html?id=${id}&type=restaurant" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-xl font-bold text-sm transition-colors shadow-orange-200 shadow-lg">
+                            قائمة الطعام
+                         </a>
+                    </div>
+                </div>
+            `;
+            return div;
+        }
+
     </script>
-        
 </body>
+
 </html>

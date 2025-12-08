@@ -133,7 +133,7 @@
                 if (vendorData.photoURL || vendorData.logoUrl) document.getElementById('vendor-logo').src = vendorData.photoURL || vendorData.logoUrl;
 
                 // 2. Get Vendor Products
-                const q = query(collection(db, "products"), where("vendorId", "==", vendorId));
+                const q = query(collection(db, "products"), where("sellerId", "==", vendorId));
                 const querySnapshot = await getDocs(q);
 
                 const grid = document.getElementById('products-grid');
