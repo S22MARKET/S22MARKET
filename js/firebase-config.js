@@ -1,19 +1,25 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, getDoc, addDoc, query, orderBy, serverTimestamp, where, limit, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
-    authDomain: "s22market-4e3e6.firebaseapp.com",
-    projectId: "s22market-4e3e6",
-    storageBucket: "s22market-4e3e6.appspot.com",
-    messagingSenderId: "119186699901",
-    appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
-    measurementId: "G-MWYNCVP4WQ"
+// Firebase Configuration
+export const firebaseConfig = {
+    apiKey: "AIzaSyDonGBKsvWjcXYcEYXWUeLxtFwcYTJFDMA",
+    authDomain: "admi-c9f65.firebaseapp.com",
+    projectId: "admi-c9f65",
+    storageBucket: "admi-c9f65.firebasestorage.app",
+    messagingSenderId: "708784939336",
+    appId: "1:708784939336:web:cfd94d3bd2cb6fa396137d",
+    measurementId: "G-Z617ZDGNVP"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 
-export { app, db, auth, collection, getDocs, doc, getDoc, addDoc, query, orderBy, serverTimestamp, where, limit, updateDoc, onSnapshot, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile };
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const rtdb = getDatabase(app);
+const analytics = getAnalytics(app);
+
+console.log("Firebase Initialized with Analytics");
