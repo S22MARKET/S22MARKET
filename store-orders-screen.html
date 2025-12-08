@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Kitchen - شاشة المطبخ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-bg: #111827;
+            --primary-bg: #1f2937;
+            --secondary-bg: #374151;
+            --border-color: #4b5563;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent-color: #f97316;
+            --highlight-color: rgba(249, 115, 22, 0.3);
+        }
+
+        body.light-mode {
+            --dark-bg: #f3f4f6;
+            --primary-bg: #ffffff;
+            --secondary-bg: #e5e7eb;
+            --border-color: #d1d5db;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --highlight-color: rgba(249, 115, 22, 0.1);
+        }
+
+        body,
+        .filter-btn,
+        .responsive-table tr,
+        .responsive-table td {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        header,
+        aside#sidebar {
+            transition: background-color 0.3s ease;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .panel {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .refresh-spin {
+            animation: spin 0.7s ease-in-out;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .new-order-highlight {
+            animation: highlight-fade 5s ease-out;
+        }
+
+        @keyframes highlight-fade {
+            0% {
+                background-color: var(--highlight-color);
+            }
+
+            100% {
+                background-color: transparent;
+            }
+        }
+
+        .selected-order {
+            background-color: var(--secondary-bg) !important;
+            outline: 2px solid var(--accent-color);
+        }
+
+        .modal-content {
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .responsive-table thead {
+                display: none;
+            }
+
+            .responsive-table tr {
+                display: block;
+                background-color: var(--primary-bg);
+                border: 1px solid var(--border-color);
+                border-radius: 0.75rem;
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .responsive-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.8rem 0.2rem;
+                border-bottom: 1px solid var(--secondary-bg);
+                font-size: 0.95rem;
+            }
+
+            .responsive-table td:last-child {
+                border-bottom: none;
+            }
+
+            .responsive-table td::before {
+                content: attr(data-label);
+                font-weight: 700;
+                color: var(--text-primary);
+                margin-left: 0.5rem;
+            }
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--secondary-bg);
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
+        }
+
+        .time-badge {
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .time-badge.new {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .time-badge.medium {
+            background-color: #f59e0b;
+            color: white;
+        }
+
+        .time-badge.old {
+            background-color: #ef4444;
+            color: white;
+            animation: blink 1.2s infinite ease-in-out;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .spinner-dark {
+            width: 48px;
+            height: 48px;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #f97316;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        #sidebar {
+            transition: transform 0.3s ease-in-out, background-color 0.3s ease;
+        }
+
+        #sidebar-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        body.light-mode header {
+            background-color: var(--primary-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        body.light-mode header h1,
+        body.light-mode #connection-text,
+        body.light-mode #menu-toggle-btn {
+            color: var(--text-primary);
+        }
+
+        body.light-mode aside#sidebar {
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            border-right: 1px solid var(--border-color);
+        }
+
+        body.light-mode aside#sidebar h2,
+        body.light-mode aside#sidebar span,
+        body.light-mode aside#sidebar #menu-close-btn {
+            color: var(--text-primary);
+        }
+
+        body.light-mode aside#sidebar nav a,
+        body.light-mode aside#sidebar nav button {
+            color: var(--text-primary);
+        }
+
+        body.light-mode aside#sidebar nav a:hover,
+        body.light-mode aside#sidebar nav button:hover {
+            background-color: #f3f4f6;
+        }
+
+        body.light-mode .overflow-x-auto {
+            background-color: var(--primary-bg);
+        }
+
+        body.light-mode thead {
+            background-color: #f9fafb;
+            color: var(--text-secondary);
+        }
+
+        body.light-mode .responsive-table tr {
+            background-color: var(--primary-bg);
+            border-color: var(--border-color);
+        }
+
+        body.light-mode .responsive-table td {
+            border-color: var(--secondary-bg);
+        }
+
+        body.light-mode .responsive-table tr:hover {
+            background-color: #f9fafb;
+        }
+
+        body.light-mode .responsive-table tr.bg-gray-800 {
+            background-color: #fef3c7;
+        }
+
+        body.light-mode .selected-order {
+            background-color: #feefea !important;
+            outline-color: var(--accent-color);
+        }
+
+        body.light-mode #order-status-filters {
+            background-color: var(--primary-bg);
+        }
+
+        body.light-mode .filter-btn {
+            background-color: var(--secondary-bg);
+            color: var(--text-primary);
+        }
+
+        body.light-mode .filter-btn.active {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        body.light-mode #sound-activation-modal .modal-content,
+        body.light-mode #new-order-modal .modal-content {
+            background-color: #ffffff;
+            color: var(--text-primary);
+        }
+
+        body.light-mode #modal-order-details {
+            background-color: #f9fafb;
+            border: 1px solid var(--border-color);
+        }
+
+        body.light-mode #modal-order-details .text-gray-400 {
+            color: #6b7280;
+        }
+
+        body.light-mode #modal-order-details .text-white {
+            color: #1f2937;
+        }
+
+        body.light-mode #modal-order-details .text-gray-200 {
+            color: #374151;
+        }
+
+        body.light-mode .spinner-dark {
+            border-top-color: #f97316;
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="relative">
+
+    <div id="auth-loader"
+        class="fixed inset-0 bg-gray-900 z-[10001] flex flex-col items-center justify-center text-white">
+        <div class="spinner-dark mb-4"></div>
+        <p>جاري التحقق من الصلاحيات...</p>
+    </div>
+
+    <div id="sound-activation-modal"
+        class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[10000]">
+        <div
+            class="modal-content bg-gray-800 rounded-2xl shadow-2xl p-8 text-center max-w-lg w-full border-t-4 border-orange-500">
+            <i class="fas fa-volume-up text-6xl text-orange-400 mb-5"></i>
+            <h2 class="text-3xl font-extrabold text-white mb-4">تفعيل الإشعارات الصوتية</h2>
+            <p class="text-gray-300 mb-8">لضمان عدم تفويت أي طلب جديد، يرجى تفعيل الصوت.</p>
+            <button id="activate-sound-btn"
+                class="bg-green-600 hover:bg-green-700 text-white font-bold text-xl py-3 px-10 rounded-lg transition-transform transform hover:scale-105">نعم،
+                قم بالتفعيل</button>
+        </div>
+    </div>
+
+    <div id="new-order-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[9999]">
+        <div
+            class="modal-content bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 text-center max-w-lg w-full border-t-4 border-orange-500">
+            <i class="fas fa-bell text-5xl md:text-6xl text-orange-400 animate-bounce mb-5"></i>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-4">طلب جديــــــــد!</h2>
+            <div id="modal-order-details" class="bg-gray-900 p-4 rounded-lg mb-8 text-right space-y-2"></div>
+            <button id="modal-confirm-btn"
+                class="bg-orange-600 hover:bg-orange-700 text-white font-bold text-lg md:text-xl py-3 px-10 rounded-lg transition-transform transform hover:scale-105">تأكيــــــــد</button>
+        </div>
+    </div>
+
+    <header class="bg-gray-900 shadow-md p-4 flex justify-between items-center sticky top-0 z-30">
+        <div class="flex items-center gap-4">
+            <h1 class="text-xl font-bold font-mono" id="kitchen-title">S22 <span class="text-orange-500">Kitchen</span>
+            </h1>
+            <div class="flex items-center gap-2" title="حالة الاتصال بالخادم">
+                <span id="connection-status" class="h-3 w-3 bg-green-500 rounded-full animate-pulse"></span>
+                <span id="connection-text" class="text-xs text-gray-400">متصل</span>
+            </div>
+        </div>
+
+        <button id="menu-toggle-btn" class="text-gray-300 hover:text-white transition-colors text-xl p-2"><i
+                class="fas fa-bars"></i></button>
+    </header>
+
+    <aside id="sidebar"
+        class="fixed top-0 right-0 h-screen w-72 bg-gray-900 shadow-xl z-50 p-6 flex flex-col transform translate-x-full">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-lg font-bold">القائمة</h2>
+            <button id="menu-close-btn" class="text-gray-400 hover:text-white text-2xl"><i
+                    class="fas fa-times"></i></button>
+        </div>
+
+        <nav class="flex flex-col gap-3">
+            <a href="seller-dashboard.html" title="الذهاب للوحة التحكم"
+                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                <i class="fas fa-tachometer-alt text-lg w-6 text-center text-orange-400"></i>
+                <span class="text-base font-semibold">لوحة تحكم المتجر</span>
+            </a>
+
+            <button id="mute-btn" title="كتم صوت الإشعارات"
+                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                <i id="mute-icon" class="fas fa-volume-up text-lg w-6 text-center"></i>
+                <span class="text-base font-semibold">الصوت</span>
+            </button>
+
+            <button id="theme-toggle-btn" title="تغيير الوضع"
+                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                <i id="theme-icon" class="fas fa-sun text-lg w-6 text-center text-yellow-400"></i>
+                <span id="theme-text" class="text-base font-semibold">وضع نهاري</span>
+            </button>
+
+            <button id="refresh-btn" title="تحديث الصفحة كلياً" onclick="location.reload(true);"
+                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                <i class="fas fa-rotate-right text-lg w-6 text-center"></i>
+                <span class="text-base font-semibold">تحديث الصفحة</span>
+            </button>
+        </nav>
+    </aside>
+
+    <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/60 z-40"></div>
+
+    <main class="flex-1 p-3 md:p-6 lg:p-8">
+        <div id="orders-panel" class="panel"></div>
+    </main>
+
+    <audio id="notification-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3"
+        preload="auto"></audio>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy, where, updateDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { firebaseConfig } from './js/firebase-config.js'; // Use shared config
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let ordersCache = [];
+        let newlyAddedOrderIds = new Set();
+        let isInitialOrdersLoad = true;
+        let currentOrderStatusFilter = 'new';
+        let newOrderCount = 0;
+        let originalTitle = document.title;
+        let titleInterval = null;
+
+        const authLoader = document.getElementById('auth-loader');
+        const kitchenTitle = document.getElementById('kitchen-title');
+
+        // Audio Manager
+        const audioManager = {
+            element: document.getElementById('notification-sound'),
+            isMuted: false,
+            canPlay: false,
+
+            unlock() { this.canPlay = true; },
+            play() { if (!this.isMuted && this.canPlay) this.element.play().catch(e => console.error(e)); },
+            toggleMute() {
+                this.isMuted = !this.isMuted;
+                const icon = document.getElementById('mute-icon');
+                icon.className = this.isMuted ? 'fas fa-volume-mute text-red-500 text-lg w-6 text-center' : 'fas fa-volume-up text-lg w-6 text-center';
+            }
+        };
+
+        // --- AUTH & INIT ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Verify user is a seller/restaurant
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    if (userData.role === 'restaurant' || userData.role === 'vendor') {
+                        currentUser = user;
+                        kitchenTitle.innerHTML = `${userData.storeName || 'My Store'} <span class="text-orange-500">Kitchen</span>`;
+                        authLoader.classList.add('hidden');
+                        initializeKitchenApp();
+                    } else {
+                        alert('ليس لديك صلاحية للدخول لهذه الصفحة.');
+                        window.location.href = 'index.html';
+                    }
+                }
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // --- CORE LOGIC ---
+        function setupSoundActivation() {
+            const soundModal = document.getElementById('sound-activation-modal');
+            const activateBtn = document.getElementById('activate-sound-btn');
+
+            if (localStorage.getItem('soundActivated') === 'true') {
+                audioManager.unlock();
+                return;
+            }
+            soundModal.classList.remove('hidden');
+            activateBtn.onclick = () => {
+                audioManager.unlock();
+                audioManager.play(); // Play once to unlock logic
+                localStorage.setItem('soundActivated', 'true');
+                soundModal.classList.add('hidden');
+            };
+        }
+
+        const newOrderModal = document.getElementById('new-order-modal');
+        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+        const modalOrderDetails = document.getElementById('modal-order-details');
+
+        modalConfirmBtn.onclick = () => {
+            newOrderModal.classList.add('hidden');
+            newOrderCount = 0;
+            document.title = originalTitle;
+            clearInterval(titleInterval);
+        };
+
+        function flashTitle() {
+            document.title = document.title === originalTitle ? `(${newOrderCount}) طلب جديد!` : originalTitle;
+        }
+
+        function showNewOrderAlert(order) {
+            newOrderCount++;
+            if (!titleInterval) titleInterval = setInterval(flashTitle, 1000);
+
+            const itemsHtml = (order.items || []).map(item => `
+                <div class="py-1 border-b border-gray-700 last:border-0">
+                    <span class="font-bold text-white text-lg">${item.quantity} x</span>
+                    <span class="text-gray-200 text-lg">${item.name}</span>
+                    ${(item.selectedAddons || []).map(a => `<div class="text-xs text-gray-400 mr-7">+ ${a.name}</div>`).join('')}
+                    ${item.cookingInstructions ? `<div class="text-xs text-red-400 mr-7">⚠️ ${item.cookingInstructions}</div>` : ''}
+                </div>`).join('');
+
+            modalOrderDetails.innerHTML = `
+                <div class="flex justify-between items-center text-lg"><span class="text-gray-400">العميل:</span><span class="font-bold text-white">${order.customerName || 'ضيف'}</span></div>
+                <div class="flex justify-between items-center text-lg mb-3"><span class="text-gray-400">الهاتف:</span><span class="font-bold text-cyan-400" dir="ltr">${order.customerContact || '---'}</span></div>
+                <div class="bg-gray-800 p-3 rounded mb-3 max-h-40 overflow-y-auto">${itemsHtml}</div>
+                <div class="flex justify-between items-center text-2xl mt-4"><span class="text-gray-400">الإجمالي:</span><span class="font-extrabold text-orange-400">${(order.totalPrice || 0).toLocaleString()} د.ج</span></div>
+            `;
+            newOrderModal.classList.remove('hidden');
+            audioManager.play();
+        }
+
+        // --- SIDEBAR & THEME ---
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+
+        function toggleMenu() {
+            sidebar.classList.toggle('translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+        document.getElementById('menu-toggle-btn').onclick = toggleMenu;
+        document.getElementById('menu-close-btn').onclick = toggleMenu;
+        overlay.onclick = toggleMenu;
+
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                document.body.classList.add('light-mode');
+                themeIcon.className = 'fas fa-moon text-lg w-6 text-center text-indigo-400';
+                themeText.textContent = 'وضع ليلي';
+            } else {
+                document.body.classList.remove('light-mode');
+                themeIcon.className = 'fas fa-sun text-lg w-6 text-center text-yellow-400';
+                themeText.textContent = 'وضع نهاري';
+            }
+        }
+        themeToggleBtn.onclick = () => {
+            const newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+            localStorage.setItem('kitchenTheme', newTheme);
+            applyTheme(newTheme);
+            toggleMenu();
+        };
+
+        function initializeKitchenApp() {
+            document.getElementById('mute-btn').onclick = () => { audioManager.toggleMute(); toggleMenu(); };
+            applyTheme(localStorage.getItem('kitchenTheme') || 'dark');
+            setupSoundActivation();
+            loadOrders();
+        }
+
+        function loadOrders() {
+            const panel = document.getElementById('orders-panel');
+            panel.innerHTML = `
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                    <h1 class="text-3xl font-bold">الطلبات الواردة</h1>
+                    <div class="flex items-center gap-2 p-1 bg-gray-800 rounded-lg flex-wrap justify-center font-bold" id="order-status-filters">
+                        <button class="filter-btn active" data-status="new">جديد</button>
+                        <button class="filter-btn" data-status="preparing">قيد التحضير</button>
+                        <button class="filter-btn" data-status="completed">مكتمل</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto bg-gray-900 rounded-xl shadow-lg">
+                    <table class="w-full min-w-full text-right responsive-table">
+                        <thead class="bg-gray-800 text-gray-300">
+                            <tr><th class="p-4">العميل</th><th class="p-4">الوقت</th><th class="p-4 w-1/3">الطلبية</th><th class="p-4">الحالة</th><th class="p-4">طباعة</th></tr>
+                        </thead>
+                        <tbody id="orders-table-body"><tr><td colspan="5" class="p-16 text-center"><div class="spinner-dark mx-auto"></div></td></tr></tbody>
+                    </table>
+                </div>`;
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    document.querySelector('.filter-btn.active').classList.remove('active');
+                    e.currentTarget.classList.add('active');
+                    currentOrderStatusFilter = e.currentTarget.dataset.status;
+                    renderOrdersTable();
+                };
+            });
+
+            // QUERY: Seller's Orders Only
+            const q = query(collection(db, "orders"), where("sellerId", "==", currentUser.uid), orderBy("createdAt", "desc"));
+
+            onSnapshot(q, (snapshot) => {
+                document.getElementById('connection-status').classList.remove('bg-red-500');
+                document.getElementById('connection-status').classList.add('bg-green-500');
+
+                if (!isInitialOrdersLoad) {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === "added") {
+                            showNewOrderAlert(change.doc.data());
+                            newlyAddedOrderIds.add(change.doc.id);
+                        }
+                    });
+                }
+                isInitialOrdersLoad = false;
+                ordersCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderOrdersTable();
+            });
+        }
+
+        function renderOrdersTable() {
+            const tableBody = document.getElementById('orders-table-body');
+            const filtered = ordersCache.filter(o => o.status === currentOrderStatusFilter);
+
+            if (filtered.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">لا توجد طلبات.</td></tr>`;
+                return;
+            }
+
+            tableBody.innerHTML = filtered.map(order => {
+                const isNew = newlyAddedOrderIds.has(order.id) ? 'new-order-highlight' : '';
+
+                // Smart Time Badge Logic
+                let timeBadgeHtml = '<span class="time-badge bg-gray-700">--:--</span>';
+                if (order.createdAt?.toDate) {
+                    const created = order.createdAt.toDate();
+                    const now = new Date();
+                    const diffMs = now - created;
+                    const diffMins = Math.floor(diffMs / 60000);
+
+                    let badgeClass = 'new'; // Green
+                    if (diffMins > 10) badgeClass = 'medium'; // Yellow
+                    if (diffMins > 20) badgeClass = 'old'; // Red
+
+                    timeBadgeHtml = `<div class="flex flex-col items-center">
+                        <span class="time-badge ${badgeClass}">${diffMins} دقيقة</span>
+                        <span class="text-xs text-gray-400 mt-1">${created.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>`;
+                }
+
+                const itemsList = (order.items || []).map(i =>
+                    `<div><span class="font-bold text-orange-400">${i.quantity}x</span> ${i.name}</div>`
+                ).join('');
+
+                return `
+                <tr class="border-b border-gray-800 hover:bg-gray-800 transition-colors ${isNew}" id="order-${order.id}">
+                    <td data-label="العميل" class="p-4">
+                        <div class="font-bold">${order.customerName || 'ضيف'}</div>
+                        <div class="text-sm text-cyan-400" dir="ltr">${order.customerContact || ''}</div>
+                    </td>
+                    <td data-label="الوقت" class="p-4 text-center">${timeBadgeHtml}</td>
+                    <td data-label="الطلبية" class="p-4 text-sm font-medium">${itemsList}</td>
+                    <td data-label="الحالة" class="p-4">
+                        <select class="p-2 rounded bg-gray-700 text-white border-0 w-full focus:ring-2 focus:ring-orange-500" onchange="updateStatus('${order.id}', this.value)">
+                            <option value="new" ${order.status === 'new' ? 'selected' : ''}>جديد</option>
+                            <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>قيد التحضير</option>
+                            <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>مكتمل</option>
+                            <option value="canceled" ${order.status === 'canceled' ? 'selected' : ''}>ملغي</option>
+                        </select>
+                    </td>
+                    <td data-label="طباعة" class="p-4 text-center">
+                         <button onclick="printOrder('${order.id}')" class="text-gray-400 hover:text-white transition-transform hover:scale-110"><i class="fas fa-print fa-2x"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        window.updateStatus = async (id, status) => {
+            await updateDoc(doc(db, "orders", id), { status });
+        };
+
+        window.printOrder = (id) => {
+            const order = ordersCache.find(o => o.id === id);
+            if (!order) return;
+
+            const printWindow = window.open('', '_blank');
+            const itemsHtml = (order.items || []).map(item => {
+                let addons = (item.selectedAddons || []).map(a => `<li class="addon-item">+ ${a.name}</li>`).join('');
+                if (addons) addons = `<ul class="addons-list">${addons}</ul>`;
+                let instructions = item.cookingInstructions ? `<div class="instructions">⚠️ ${item.cookingInstructions}</div>` : '';
+
+                return `<tr class="item-row">
+                            <td class="quantity">${item.quantity}x</td>
+                            <td class="item-details">
+                                <div class="item-name">${item.name}</div>
+                                ${addons}
+                                ${instructions}
+                            </td>
+                        </tr>`;
+            }).join('');
+
+            const date = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleString('ar-EG') : '---';
+
+            printWindow.document.write(`
+                <html><head><title>Kitchen Order #${order.id.substring(0, 5)}</title>
+                <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800&display=swap" rel="stylesheet">
+                <style>
+                    body { 
+                        font-family: 'Tajawal', sans-serif; 
+                        direction: rtl; 
+                        margin: 0; 
+                        padding: 5px;
+                        width: 80mm; 
+                        color: #000;
+                        font-weight: bold;
+                    }
+                    .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 5px; margin-bottom: 10px; }
+                    .header h1 { margin: 0; font-size: 20px; }
+                    .header h2 { margin: 5px 0; font-size: 30px; background: #000; color: #fff; border-radius: 5px; }
+                    
+                    .info { font-size: 16px; margin-bottom: 10px; border-bottom: 1px solid #000; padding-bottom: 5px; }
+                    
+                    table { width: 100%; border-collapse: collapse; font-size: 18px; }
+                    td { vertical-align: top; padding: 5px 0; border-bottom: 1px dashed #ccc; }
+                    .quantity { width: 40px; font-size: 24px; }
+                    
+                    .addons-list { list-style: none; padding-right: 10px; margin: 2px 0; font-size: 14px; font-weight: normal; }
+                    .instructions { background: #000; color: #fff; padding: 2px 5px; font-size: 14px; margin-top: 2px; border-radius: 3px; display: inline-block;}
+                </style>
+                </head><body>
+                    <div class="header">
+                        <h1>${document.getElementById('kitchen-title').innerText}</h1>
+                        <h2>#${order.id.substring(0, 5)}</h2>
+                        <p>${date}</p>
+                    </div>
+                    
+                    <div class="info">
+                        <div><b>${order.customerName || 'ضيف'}</b></div>
+                    </div>
+
+                    <table>
+                        <tbody>${itemsHtml}</tbody>
+                    </table>
+
+                    <script>
+                        window.onload = function() { window.print(); window.close(); }
+                    <\/script>
+                </body></html>
+            `);
+            printWindow.document.close();
+        };
+
+    </script>
+</body>
+
+</html>

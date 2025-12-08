@@ -347,16 +347,46 @@
         }
 
         async function renderSellersAndRequests(allUsers) {
-            // Separate Requests vs Active Sellers
-            const requests = allUsers.filter(u => u.storeRequest && u.storeRequest.status === 'pending');
-            const sellers = allUsers.filter(u => u.role === 'vendor' || u.role === 'restaurant');
+            // Separate Lists
+            const newRequests = allUsers.filter(u => u.storeRequest && u.storeRequest.status === 'pending');
+            const closureRequests = allUsers.filter(u => u.storeRequest && u.storeRequest.closureStatus === 'pending');
+            const activeSellers = allUsers.filter(u => (u.role === 'vendor' || u.role === 'restaurant') && (!u.storeRequest?.closureStatus || u.storeRequest.closureStatus !== 'pending'));
 
             const tableBody = getEl('sellers-table-body');
             tableBody.innerHTML = '';
 
-            // 1. Render Requests First (High Priority)
-            requests.forEach(user => {
+            // 1. CLOSURE REQUESTS (Critical Priority)
+            closureRequests.forEach(user => {
+                const row = tableBody.insertRow();
+                row.className = 'bg-red-50 border-b border-red-200';
+                row.innerHTML = `
+                <td class="p-4 border-l border-red-200">
+                    <span class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded">طلب إغلاق</span>
+                    <div class="font-bold mt-1">${user.displayName}</div>
+                    <div class="text-xs text-gray-500">${user.storeName}</div>
+                </td>
+                <td colspan="4" class="p-4 text-gray-700">
+                    يرغب هذا البائع في إغلاق متجره نهائياً.
+                    <br><span class="text-xs text-gray-500">تاريخ الطلب: ${user.storeRequest.closureRequestedAt?.toDate().toLocaleDateString('ar-EG') || '---'}</span>
+                </td>
+                <td class="p-4 text-left">
+                    <button onclick="approveClosure('${user.id}')" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm ml-2">تأكيد الإغلاق</button>
+                    <button onclick="rejectClosure('${user.id}')" class="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 text-sm">إلغاء</button>
+                </td>
+                `;
+            });
+
+            // 2. NEW STORE REQUESTS
+            newRequests.forEach(user => {
                 const req = user.storeRequest;
+                const links = req.links || {};
+                const linksHtml = [
+                    links.facebook ? `<a href="${links.facebook}" target="_blank" class="text-blue-600 ml-2"><i class="fab fa-facebook"></i></a>` : '',
+                    links.instagram ? `<a href="${links.instagram}" target="_blank" class="text-pink-600 ml-2"><i class="fab fa-instagram"></i></a>` : '',
+                    links.telegram ? `<a href="${links.telegram}" target="_blank" class="text-blue-400 ml-2"><i class="fab fa-telegram"></i></a>` : '',
+                    links.phone ? `<a href="tel:${links.phone}" class="text-green-600 ml-2"><i class="fas fa-phone"></i></a>` : ''
+                ].join('');
+
                 const row = tableBody.insertRow();
                 row.className = 'bg-yellow-50 border-b border-yellow-200';
                 row.innerHTML = `
@@ -369,7 +399,12 @@
                     <div class="font-bold text-indigo-700">${req.storeName}</div>
                     <div class="text-xs text-gray-500">النوع: ${req.storeType === 'restaurant' ? 'مطعم 🍔' : 'متجر 🛍️'}</div>
                 </td>
-                <td colspan="3" class="p-4 text-sm text-gray-600 max-w-xs truncate">${req.description || 'لا يوجد وصف'}</td>
+                <td class="p-4">
+                    <div class="text-sm text-gray-600 max-w-xs break-words">${req.description || 'لا يوجد وصف'}</div>
+                    <div class="flex items-center mt-2 text-lg">${linksHtml}</div>
+                </td>
+                <td class="p-4 text-center">---</td>
+                <td class="p-4 text-center">---</td>
                 <td class="p-4 text-left">
                     <button onclick="approveSeller('${user.id}', '${req.storeType}', '${req.storeName}')" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm ml-2">قبول</button>
                     <button onclick="rejectSeller('${user.id}')" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">رفض</button>
@@ -377,12 +412,8 @@
             `;
             });
 
-            // 2. Render Active Sellers
-            // We need product stats, so we might need to fetch products once or listen to them too.
-            // For performance, let's just show basic info or do a one-time fetch for counts if needed.
-            // For now, simpler display to keep it "Real-time" fast.
-
-            sellers.forEach(user => {
+            // 3. Active Sellers
+            activeSellers.forEach(user => {
                 const row = tableBody.insertRow();
                 row.className = 'border-b hover:bg-gray-50';
                 row.innerHTML = `
@@ -411,10 +442,34 @@
              `;
             });
 
-            if (requests.length === 0 && sellers.length === 0) {
+            if (newRequests.length === 0 && closureRequests.length === 0 && activeSellers.length === 0) {
                 tableBody.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-gray-500">لا يوجد بيانات لعرضها</td></tr>`;
             }
         }
+
+        // --- Closure Actions ---
+        window.approveClosure = async (uid) => {
+            if (confirm('هل أنت متأكد من إغلاق هذا المتجر؟ سيتم تحويل المستخدم إلى مستخدم عادي.')) {
+                try {
+                    await updateDoc(doc(db, "users", uid), {
+                        role: "user",
+                        storeName: null,
+                        storeRequest: null,
+                        isOpen: false
+                    });
+                    alert("تم إغلاق المتجر بنجاح.");
+                } catch (e) { console.error(e); alert("حدث خطأ."); }
+            }
+        };
+
+        window.rejectClosure = async (uid) => {
+            try {
+                await updateDoc(doc(db, "users", uid), {
+                    "storeRequest.closureStatus": "rejected"
+                });
+                alert("تم إلغاء طلب الإغلاق.");
+            } catch (e) { console.error(e); alert("حدث خطأ."); }
+        };
 
         // --- Actions ---
         window.approveSeller = async (uid, type, storeName) => {
