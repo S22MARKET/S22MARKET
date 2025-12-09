@@ -52,6 +52,25 @@
             }
         }
 
+        /* Skeleton & Animations */
+        .skeleton {
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -398,6 +417,34 @@
             });
         }
 
+        // Helper to animate numbers
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+
+                // Format with K/M if large, or commas
+                // For this dashboard, simple commas are preferred
+                obj.textContent = value.toLocaleString();
+                if (obj.id === 'total-profit' || obj.id === 'avg-profit') {
+                    obj.textContent += ' د.ج';
+                }
+
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    // Ensure final value text is exact
+                    obj.textContent = end.toLocaleString();
+                    if (obj.id === 'total-profit' || obj.id === 'avg-profit') {
+                        obj.textContent += ' د.ج';
+                    }
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
         function initializeDashboard() {
             setActiveTab();
 
@@ -437,23 +484,23 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
                     <i class="fas fa-hand-holding-usd text-4xl text-green-500 mr-4"></i>
-                    <div><p class="text-gray-500">إجمالي الأرباح</p><p id="total-profit" class="text-2xl font-bold">0 د.ج</p></div>
+                    <div><p class="text-gray-500">إجمالي الأرباح</p><p id="total-profit" class="text-2xl font-bold"><span class="skeleton w-24 h-8"></span></p></div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
                     <i class="fas fa-divide text-4xl text-yellow-500 mr-4"></i>
-                    <div><p class="text-gray-500">متوسط الربح / طلب</p><p id="avg-profit" class="text-2xl font-bold">0 د.ج</p></div>
+                    <div><p class="text-gray-500">متوسط الربح / طلب</p><p id="avg-profit" class="text-2xl font-bold"><span class="skeleton w-20 h-8"></span></p></div>
                 </div>
                  <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
                     <i class="fas fa-check-circle text-4xl text-blue-500 mr-4"></i>
-                    <div><p class="text-gray-500">الطلبات المكتملة</p><p id="completed-orders" class="text-2xl font-bold">0</p></div>
+                    <div><p class="text-gray-500">الطلبات المكتملة</p><p id="completed-orders" class="text-2xl font-bold"><span class="skeleton w-16 h-8"></span></p></div>
                 </div>
                  <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
                     <i class="fas fa-spinner text-4xl text-orange-500 mr-4"></i>
-                    <div><p class="text-gray-500">الطلبات غير المكتملة</p><p id="incomplete-orders" class="text-2xl font-bold">0</p></div>
+                    <div><p class="text-gray-500">الطلبات غير المكتملة</p><p id="incomplete-orders" class="text-2xl font-bold"><span class="skeleton w-16 h-8"></span></p></div>
                 </div>
                  <div class="bg-white p-6 rounded-xl shadow-md flex items-center col-span-1 sm:col-span-2 lg:col-span-4">
                     <i class="fas fa-boxes text-4xl text-purple-500 mr-4"></i>
-                    <div><p class="text-gray-500">إجمالي المنتجات (النشطة)</p><p id="total-products" class="text-2xl font-bold">0</p></div>
+                    <div><p class="text-gray-500">إجمالي المنتجات (النشطة)</p><p id="total-products" class="text-2xl font-bold"><span class="skeleton w-16 h-8"></span></p></div>
                 </div>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
@@ -486,11 +533,12 @@
             const incompleteOrdersCount = incompleteOrders.length;
             const avgProfit = completedOrdersCount > 0 ? totalProfit / completedOrdersCount : 0;
 
-            getEl('total-products').textContent = marketProducts.length;
-            getEl('total-profit').textContent = `${totalProfit.toLocaleString()} د.ج`;
-            getEl('avg-profit').textContent = `${avgProfit.toFixed(0).toLocaleString()} د.ج`;
-            getEl('completed-orders').textContent = completedOrdersCount;
-            getEl('incomplete-orders').textContent = incompleteOrdersCount;
+            // Animate values
+            animateValue(getEl('total-products'), 0, marketProducts.length, 1000);
+            animateValue(getEl('total-profit'), 0, totalProfit, 1500);
+            animateValue(getEl('avg-profit'), 0, parseInt(avgProfit.toFixed(0)), 1200);
+            animateValue(getEl('completed-orders'), 0, completedOrdersCount, 800);
+            animateValue(getEl('incomplete-orders'), 0, incompleteOrdersCount, 800);
 
             // إعداد البيانات للمخططات (Charts)
             const last7Days = {};

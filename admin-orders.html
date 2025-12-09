@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,183 +9,346 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
-        .hidden { display: none; }
-        .dashboard-tab:hover { background-color: #4338ca; }
-        .dashboard-tab.active-tab { background-color: #4f46e5; color: white; font-weight: bold; }
-        .dashboard-panel { animation: fadeIn 0.5s; }
-        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 40; display: flex; align-items: center; justify-content: center; }
-        .modal-content { background-color: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 700px; z-index: 50; max-height: 90vh; overflow-y: auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .dashboard-tab:hover {
+            background-color: #4338ca;
+        }
+
+        .dashboard-tab.active-tab {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: bold;
+        }
+
+        .dashboard-panel {
+            animation: fadeIn 0.5s;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4f46e5;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 700px;
+            z-index: 50;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Skeleton & Animation */
+        .skeleton {
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .fade-in-up {
+            opacity: 0;
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* (ستايل خاص بجدول الطلبات) */
         @media (max-width: 768px) {
-            .responsive-table thead { display: none; }
+            .responsive-table thead {
+                display: none;
+            }
+
             .responsive-table tr {
-                display: block; border: 1px solid #e5e7eb; border-radius: 0.5rem;
-                padding: 1rem; margin-bottom: 1rem; background-color: white;
+                display: block;
+                border: 1px solid #e5e7eb;
+                border-radius: 0.5rem;
+                padding: 1rem;
+                margin-bottom: 1rem;
+                background-color: white;
                 box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
             }
-             .responsive-table td {
-                display: flex; justify-content: space-between; align-items: center;
-                padding: 0.75rem 0; border-bottom: 1px solid #f3f4f6;
+
+            .responsive-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 0;
+                border-bottom: 1px solid #f3f4f6;
             }
-            .responsive-table td:last-child { border-bottom: none; }
+
+            .responsive-table td:last-child {
+                border-bottom: none;
+            }
+
             .responsive-table td::before {
-                content: attr(data-label); font-weight: 600;
-                margin-left: 0.5rem; color: #4b5563;
+                content: attr(data-label);
+                font-weight: 600;
+                margin-left: 0.5rem;
+                color: #4b5563;
             }
-             .responsive-table .actions-cell { justify-content: flex-end; gap: 1rem; }
-             .responsive-table .actions-cell::before { content: ""; flex-grow: 1; }
-             .responsive-table .order-status-select, .responsive-table .profit-input, .responsive-table .doneBy-input, .responsive-table .suppliers-textarea {
-                width: auto; flex-grow: 1; max-width: 180px; text-align: left;
-             }
+
+            .responsive-table .actions-cell {
+                justify-content: flex-end;
+                gap: 1rem;
+            }
+
+            .responsive-table .actions-cell::before {
+                content: "";
+                flex-grow: 1;
+            }
+
+            .responsive-table .order-status-select,
+            .responsive-table .profit-input,
+            .responsive-table .doneBy-input,
+            .responsive-table .suppliers-textarea {
+                width: auto;
+                flex-grow: 1;
+                max-width: 180px;
+                text-align: left;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<div id="login-page" class="hidden min-h-screen flex items-center justify-center bg-gray-100 p-4">
-    <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl space-y-6">
-        <h2 class="text-3xl font-extrabold text-center text-gray-900">يرجى تسجيل الدخول</h2>
-        <p class="text-center text-red-500">تم تسجيل خروجك. يرجى العودة إلى <a href="dashboard.html" class="font-bold underline">صفحة الدخول الرئيسية</a>.</p>
+    <div id="login-page" class="hidden min-h-screen flex items-center justify-center bg-gray-100 p-4">
+        <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl space-y-6">
+            <h2 class="text-3xl font-extrabold text-center text-gray-900">يرجى تسجيل الدخول</h2>
+            <p class="text-center text-red-500">تم تسجيل خروجك. يرجى العودة إلى <a href="dashboard.html"
+                    class="font-bold underline">صفحة الدخول الرئيسية</a>.</p>
+        </div>
     </div>
-</div>
 
-<div id="dashboard-page" class="hidden">
-    <div class="relative min-h-screen md:flex">
+    <div id="dashboard-page" class="hidden">
+        <div class="relative min-h-screen md:flex">
 
-        <aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
-            <div class="p-3 text-center border-b border-gray-700">
-                <h2 class="text-2xl font-bold">S22 Market</h2>
-                <p id="admin-welcome-name" class="text-sm text-indigo-300"></p>
-            </div>
-            <nav class="flex-1 p-2 space-y-2">
-                <a href="dashboard.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chart-line fa-fw mr-3"></i> لوحة التحكم</a>
-                <a href="admin-sellers.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-users-cog fa-fw mr-3"></i> إدارة البائعين</a>
-                <a href="admin-reports.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-flag fa-fw mr-3 text-red-400"></i> الإبلاغات</a>
-                <a href="admin-products.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
-                <a href="admin-offers.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-star fa-fw mr-3"></i> العروض</a>
-                <a href="admin-product-requests.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-user-plus fa-fw mr-3"></i> طلبات الزوار</a>
-                <a href="admin-categories.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
-                <a href="admin-orders.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
-                <a href="admin-coupons.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-tags fa-fw mr-3"></i> الكوبونات</a>
-                <a href="admin-inquiries.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-envelope-open-text fa-fw mr-3"></i> الرسائل الواردة</a>
-                <a href="admin-applications.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
-                <a href="admin-notepad.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
-                
-                <hr class="border-gray-700 my-2">
-                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">نظام الولاء (المتجر)</h6>
-                <a href="admin-loyalty-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-gem fa-fw mr-3 text-yellow-400"></i> إعدادات الجواهر 💎</a>
-                <a href="admin-loyalty-approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات المهام</a>
-                <a href="admin-referrals-pending.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
-                <hr class="border-gray-700 my-2">
-
-                <a href="admin-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
-                
-                <hr class="border-gray-700 my-2">
-                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</h6>
-                <a href="dawarat_admin_manager.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700" target="_blank">
-                    <i class="fas fa-graduation-cap fa-fw mr-3 text-gray-400"></i>
-                    <span>إدارة البذلورات</span>
-                    <i class="fas fa-external-link-alt fa-xs ml-auto"></i>
-                </a>
-
-            </nav>
-            <div class="p-4 border-t border-gray-700">
-                <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
-            </div>
-        </aside>
-        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
-            <div id="orders-panel" class="dashboard-panel">
-                <div class="text-center py-20">
-                    <div class="loader mx-auto"></div>
-                    <p class="mt-4 text-gray-600">جاري تحميل الطلبات...</p>
+            <aside id="sidebar"
+                class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
+                <div class="p-3 text-center border-b border-gray-700">
+                    <h2 class="text-2xl font-bold">S22 Market</h2>
+                    <p id="admin-welcome-name" class="text-sm text-indigo-300"></p>
                 </div>
-            </div>
-        </main>
+                <nav class="flex-1 p-2 space-y-2">
+                    <a href="dashboard.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-chart-line fa-fw mr-3"></i> لوحة التحكم</a>
+                    <a href="admin-sellers.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-users-cog fa-fw mr-3"></i> إدارة البائعين</a>
+                    <a href="admin-reports.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-flag fa-fw mr-3 text-red-400"></i> الإبلاغات</a>
+                    <a href="admin-products.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
+                    <a href="admin-offers.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-star fa-fw mr-3"></i> العروض</a>
+                    <a href="admin-product-requests.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-user-plus fa-fw mr-3"></i> طلبات الزوار</a>
+                    <a href="admin-categories.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
+                    <a href="admin-orders.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
+                    <a href="admin-coupons.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-tags fa-fw mr-3"></i> الكوبونات</a>
+                    <a href="admin-inquiries.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-envelope-open-text fa-fw mr-3"></i> الرسائل الواردة</a>
+                    <a href="admin-applications.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
+                    <a href="admin-notepad.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
+
+                    <hr class="border-gray-700 my-2">
+                    <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">نظام الولاء (المتجر)</h6>
+                    <a href="admin-loyalty-settings.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-gem fa-fw mr-3 text-yellow-400"></i> إعدادات الجواهر 💎</a>
+                    <a href="admin-loyalty-approvals.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات المهام</a>
+                    <a href="admin-referrals-pending.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
+                    <hr class="border-gray-700 my-2">
+
+                    <a href="admin-settings.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
+
+                    <hr class="border-gray-700 my-2">
+                    <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</h6>
+                    <a href="dawarat_admin_manager.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"
+                        target="_blank">
+                        <i class="fas fa-graduation-cap fa-fw mr-3 text-gray-400"></i>
+                        <span>إدارة البذلورات</span>
+                        <i class="fas fa-external-link-alt fa-xs ml-auto"></i>
+                    </a>
+
+                </nav>
+                <div class="p-4 border-t border-gray-700">
+                    <button id="logout-btn"
+                        class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i
+                            class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
+                </div>
+            </aside>
+            <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+                <div id="orders-panel" class="dashboard-panel">
+                    <div class="text-center py-20">
+                        <div class="loader mx-auto"></div>
+                        <p class="mt-4 text-gray-600">جاري تحميل الطلبات...</p>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
-</div>
 
-<div id="modal-container"></div>
+    <div id="modal-container"></div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
-        authDomain: "s22market-4e3e6.firebaseapp.com",
-        projectId: "s22market-4e3e6",
-        storageBucket: "s22market-4e3e6.appspot.com",
-        messagingSenderId: "119186699901",
-        appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
-        measurementId: "G-MWYNCVP4WQ"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    const ADMIN_EMAILS = [
-        's22market@gmail.com',
-        'yacinee474474@gmail.com',
-        'nourmt01@gmail.com'
-    ];
-    
-    let productsCache = [];
-    let ordersCache = [];
+        const ADMIN_EMAILS = [
+            's22market@gmail.com',
+            'yacinee474474@gmail.com',
+            'nourmt01@gmail.com'
+        ];
 
-    const loginPage = document.getElementById('login-page');
-    const dashboardPage = document.getElementById('dashboard-page');
-    const logoutBtn = document.getElementById('logout-btn');
-    const getEl = (id) => document.getElementById(id);
+        let productsCache = [];
+        let ordersCache = [];
 
-    // (دوال المصادقة والقائمة الجانبية - مكررة في كل صفحة للتحكم)
-    function checkAdminPermissions(user) {
-        if (user && ADMIN_EMAILS.includes(user.email)) {
-            loginPage.classList.add('hidden');
-            dashboardPage.classList.remove('hidden');
-            getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
-            initializeDashboard();
-        } else {
-            dashboardPage.classList.add('hidden');
-            loginPage.classList.remove('hidden');
-            if (user) signOut(auth);
-        }
-    }
-    onAuthStateChanged(auth, user => { checkAdminPermissions(user); });
-    logoutBtn.addEventListener('click', async () => { await signOut(auth); });
+        const loginPage = document.getElementById('login-page');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const logoutBtn = document.getElementById('logout-btn');
+        const getEl = (id) => document.getElementById(id);
 
-    function setActiveTab() {
-        const currentPage = window.location.pathname.split('/').pop();
-        const tabs = document.querySelectorAll('.dashboard-tab');
-        tabs.forEach(tab => {
-            const tabHref = tab.getAttribute('href').split('/').pop();
-            if (tabHref === currentPage) {
-                tab.classList.add('active-tab');
+        // (دوال المصادقة والقائمة الجانبية - مكررة في كل صفحة للتحكم)
+        function checkAdminPermissions(user) {
+            if (user && ADMIN_EMAILS.includes(user.email)) {
+                loginPage.classList.add('hidden');
+                dashboardPage.classList.remove('hidden');
+                getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
+                initializeDashboard();
             } else {
-                tab.classList.remove('active-tab');
+                dashboardPage.classList.add('hidden');
+                loginPage.classList.remove('hidden');
+                if (user) signOut(auth);
             }
-        });
-    }
+        }
+        onAuthStateChanged(auth, user => { checkAdminPermissions(user); });
+        logoutBtn.addEventListener('click', async () => { await signOut(auth); });
 
-    // (الدالة الرئيسية لهذه الصفحة)
-    async function initializeDashboard() {
-        setActiveTab();
-        // (نحتاج المنتجات أولاً لحساب الربح الافتراضي)
-        const productsSnapshot = await getDocs(collection(db, "products"));
-        productsCache = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        loadOrders(); // (ثم نحمل الطلبات)
-    }
+        function setActiveTab() {
+            const currentPage = window.location.pathname.split('/').pop();
+            const tabs = document.querySelectorAll('.dashboard-tab');
+            tabs.forEach(tab => {
+                const tabHref = tab.getAttribute('href').split('/').pop();
+                if (tabHref === currentPage) {
+                    tab.classList.add('active-tab');
+                } else {
+                    tab.classList.remove('active-tab');
+                }
+            });
+        }
 
-    // --- (جميع الدوال المنسوخة من الملف القديم والمخصصة للطلبات) ---
-    
-    function loadOrders() {
-        const panel = getEl('orders-panel');
-        panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">الطلبات الواردة</h1>
+        // (الدالة الرئيسية لهذه الصفحة)
+        async function initializeDashboard() {
+            setActiveTab();
+            // (نحتاج المنتجات أولاً لحساب الربح الافتراضي)
+            const productsSnapshot = await getDocs(collection(db, "products"));
+            productsCache = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            loadOrders(); // (ثم نحمل الطلبات)
+        }
+
+        // --- (جميع الدوال المنسوخة من الملف القديم والمخصصة للطلبات) ---
+
+        function loadOrders() {
+            const panel = getEl('orders-panel');
+            panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">الطلبات الواردة</h1>
                    <div class="overflow-x-auto bg-white rounded-xl shadow-md">
                      <table class="w-full text-right responsive-table">
                        <thead class="bg-gray-100">
@@ -198,37 +362,55 @@
                        </thead>
                        <tbody id="orders-table-body"></tbody>
                      </table>
-                   </div>`;
-        const tableBody = getEl('orders-table-body');
-        
-        onSnapshot(query(collection(db, "orders"), orderBy("createdAt", "desc")), (snapshot) => {
-            ordersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            tableBody.innerHTML = snapshot.empty ? `<tr><td colspan="13" class="p-8 text-center text-gray-500">لا توجد طلبات حاليًا.</td></tr>` : '';
+                    </div>
+                    <div id="orders-loading-skeleton" class="space-y-3 mt-4">
+                        ${Array(5).fill(0).map(() => `
+                            <div class="bg-white p-4 rounded-md shadow-sm flex items-center justify-between">
+                                <div class="skeleton w-32 h-6"></div>
+                                <div class="skeleton w-24 h-6 hidden md:block"></div>
+                                <div class="skeleton w-20 h-6 hidden md:block"></div>
+                                <div class="skeleton w-16 h-6"></div>
+                            </div>
+                        `).join('')}
+                    </div>`;
+            const tableBody = getEl('orders-table-body');
+            const skeleton = getEl('orders-loading-skeleton');
+            const tableContainer = panel.querySelector('.overflow-x-auto');
+            tableContainer.classList.add('hidden'); // Hide table initially
 
-            ordersCache.forEach(order => {
-                const date = order.createdAt?.toDate().toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' }) || 'N/A';
-                const statusColor = order.status === 'completed' ? 'bg-green-100 text-green-800' : (order.status === 'canceled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800');
-                const rowColor = order.status === 'completed' ? 'bg-green-50/50' : (order.status === 'canceled' ? 'bg-red-50/50' : 'bg-white');
-                const product = productsCache.find(p => p.id === (order.items && order.items[0] ? order.items[0].id : null));
-                
-                let defaultProfit = ''; let defaultSupplierInfo = '';
-                if (product) {
-                    if (order.profit === undefined || order.profit === null) {
-                        const orderQuantity = (order.items || []).reduce((sum, item) => sum + item.quantity, 0);
-                        if (product.profitType === 'percentage' && product.price && product.profitValue) defaultProfit = ((product.price * product.profitValue) / 100) * orderQuantity;
-                        else if (product.profitType === 'fixed' && product.profitValue) defaultProfit = product.profitValue * orderQuantity;
+            onSnapshot(query(collection(db, "orders"), orderBy("createdAt", "desc")), (snapshot) => {
+                ordersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                skeleton.classList.add('hidden');
+                tableContainer.classList.remove('hidden');
+
+                tableBody.innerHTML = snapshot.empty ? `<tr><td colspan="13" class="p-8 text-center text-gray-500">لا توجد طلبات حاليًا.</td></tr>` : '';
+
+                ordersCache.forEach(order => {
+                    const date = order.createdAt?.toDate().toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' }) || 'N/A';
+                    const statusColor = order.status === 'completed' ? 'bg-green-100 text-green-800' : (order.status === 'canceled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800');
+                    const rowColor = order.status === 'completed' ? 'bg-green-50/50' : (order.status === 'canceled' ? 'bg-red-50/50' : 'bg-white');
+                    const product = productsCache.find(p => p.id === (order.items && order.items[0] ? order.items[0].id : null));
+
+                    let defaultProfit = ''; let defaultSupplierInfo = '';
+                    if (product) {
+                        if (order.profit === undefined || order.profit === null) {
+                            const orderQuantity = (order.items || []).reduce((sum, item) => sum + item.quantity, 0);
+                            if (product.profitType === 'percentage' && product.price && product.profitValue) defaultProfit = ((product.price * product.profitValue) / 100) * orderQuantity;
+                            else if (product.profitType === 'fixed' && product.profitValue) defaultProfit = product.profitValue * orderQuantity;
+                        }
+                        if (!order.suppliers) defaultSupplierInfo = [product.supplier, product.supplierContact].filter(Boolean).join(' - ');
                     }
-                    if (!order.suppliers) defaultSupplierInfo = [product.supplier, product.supplierContact].filter(Boolean).join(' - ');
-                }
 
-                let deliveryDisplay = order.deliveryPreference === 'Home' ? '<span class="text-blue-600 font-semibold"><i class="fas fa-home mr-1"></i> للمنزل</span>' : (order.deliveryPreference === 'Office' ? '<span class="text-purple-600 font-semibold"><i class="fas fa-building mr-1"></i> للمكتب</span>' : '---');
-                const itemsHtml = (order.items || []).map(item => `<div>${item.quantity} x ${item.name}</div>`).join('');
-                
-                const totalPriceDisplay = order.shippingCost ? `${order.totalPrice.toLocaleString()} د.ج (شامل توصيل ${order.shippingCost.toLocaleString()} د.ج)` : `${(order.totalPrice || 0).toLocaleString()} د.ج`;
+                    let deliveryDisplay = order.deliveryPreference === 'Home' ? '<span class="text-blue-600 font-semibold"><i class="fas fa-home mr-1"></i> للمنزل</span>' : (order.deliveryPreference === 'Office' ? '<span class="text-purple-600 font-semibold"><i class="fas fa-building mr-1"></i> للمكتب</span>' : '---');
+                    const itemsHtml = (order.items || []).map(item => `<div>${item.quantity} x ${item.name}</div>`).join('');
 
-                const row = tableBody.insertRow();
-                row.className = `border-b ${rowColor} transition-colors`;
-                row.innerHTML = `
+                    const totalPriceDisplay = order.shippingCost ? `${order.totalPrice.toLocaleString()} د.ج (شامل توصيل ${order.shippingCost.toLocaleString()} د.ج)` : `${(order.totalPrice || 0).toLocaleString()} د.ج`;
+
+                    const row = tableBody.insertRow();
+                    row.className = `border-b ${rowColor} transition-colors fade-in-up`;
+                    row.style.animationDelay = `${index * 0.05}s`;
+                    row.innerHTML = `
                     <td data-label="العميل" class="p-3 font-semibold">${order.customerName}</td><td data-label="الهاتف" class="p-3 font-mono" dir="ltr"><a href="tel:${order.customerContact}" class="hover:underline">${order.customerContact}</a></td>
                     <td data-label="الموقع" class="p-3 text-sm font-medium">${order.customerLocation || '---'}</td><td data-label="نوع التوصيل" class="p-3 text-sm">${deliveryDisplay}</td>
                     <td data-label="المنتجات" class="p-3 text-sm">${itemsHtml}</td><td data-label="المبلغ" class="p-3 font-mono">${totalPriceDisplay}</td>
@@ -239,61 +421,61 @@
                     <td data-label="الموردون" class="p-3"><textarea rows="4" class="suppliers-textarea w-full p-2 border rounded transition-colors" placeholder="اكتب هنا..." maxlength="500" data-id="${order.id}">${order.suppliers ?? defaultSupplierInfo}</textarea></td>
                     <td data-label="التاريخ" class="p-3 font-mono text-sm">${date}</td>
                     <td data-label="إجراءات" class="p-3 actions-cell"><button class="copy-order-btn text-blue-500 hover:text-blue-700 mr-2" data-id="${order.id}" title="نسخ معلومات الطلب للمورد"><i class="fas fa-copy fa-lg"></i></button><button class="delete-order-btn text-red-500 hover:text-red-700" data-id="${order.id}"><i class="fas fa-trash fa-lg"></i></button></td>`;
-            });
-            attachOrderActionListeners();
-        });
-    }
-    
-    function attachOrderActionListeners() {
-        document.querySelectorAll('.order-status-select').forEach(select => select.onchange = async (e) => await updateDoc(doc(db, "orders", e.target.dataset.id), { status: e.target.value }));
-        const addDebouncedListener = (selector, fieldName, isNumeric = false) => {
-            document.querySelectorAll(selector).forEach(input => {
-                let debounceTimer;
-                input.onkeyup = (e) => {
-                    clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(async () => {
-                        const id = e.target.dataset.id;
-                        let value = e.target.value;
-                        if (isNumeric) value = parseFloat(value) || 0;
-                        try { await updateDoc(doc(db, "orders", id), { [fieldName]: value }); e.target.classList.add('border-green-400'); setTimeout(() => e.target.classList.remove('border-green-400'), 2000); }
-                        catch (error) { e.target.classList.add('border-red-400'); }
-                    }, 1000);
-                };
-            });
-        };
-        addDebouncedListener('.profit-input', 'profit', true); addDebouncedListener('.doneBy-input', 'doneBy'); addDebouncedListener('.suppliers-textarea', 'suppliers');
-        document.querySelectorAll('.copy-order-btn').forEach(btn => btn.onclick = (e) => {
-            const order = ordersCache.find(o => o.id === e.currentTarget.dataset.id); if (!order) return;
-            const itemsText = (order.items || []).map(item => `   - ${item.quantity} x ${item.name}`).join('\n');
-            const deliveryPreferenceText = order.deliveryPreference === 'Home' ? 'المنزل' : (order.deliveryPreference === 'Office' ? 'المكتب' : 'غير محدد');
-            const finalPriceText = order.shippingCost ? `${order.totalPrice.toLocaleString()} د.ج (شامل التوصيل)` : `${order.totalPrice.toLocaleString()} د.ج`;
-            const messageToCopy = `السلام عليكم ورحمة الله تعالى وبركاته\n\n📋 **معلومات الطلبية** 📋\n\n👤 **اسم العميل:** ${order.customerName}\n📞 **رقم الهاتف:** ${order.customerContact}\n📦 **المنتج:**\n${itemsText}\n📍 **العنوان:** ${order.customerLocation}\n🚚 **التوصيل إلى:** ${deliveryPreferenceText}\n💰 **السعر الإجمالي:** ${finalPriceText}`.trim();
-            navigator.clipboard.writeText(messageToCopy).then(() => {
-                const originalIcon = e.currentTarget.innerHTML;
-                e.currentTarget.innerHTML = '<i class="fas fa-check text-green-500 fa-lg"></i>';
-                setTimeout(() => { e.currentTarget.innerHTML = originalIcon; }, 2500);
-            });
-        });
-        document.querySelectorAll('.delete-order-btn').forEach(btn => {
-            btn.onclick = () => {
-                 showDeleteConfirmationModal(async () => {
-                    try {
-                        await deleteDoc(doc(db, "orders", btn.dataset.id));
-                        closeModal();
-                    } catch(error) {
-                        showModal('خطأ',`فشل حذف الطلب: ${error.message}`, closeModal, 'موافق', false);
-                    }
                 });
-            }
-        });
-    }
+                attachOrderActionListeners();
+            });
+        }
 
-    // --- (دوال المساعدة العامة) ---
-    function showModal(title, content, onConfirm, confirmText = 'حفظ', showCancel = true) {
-        const modalContainer = getEl('modal-container');
-        const confirmBtnHTML = `<button id="modal-confirm" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700">${confirmText}</button>`;
-        const cancelBtnHTML = showCancel ? `<button id="modal-cancel" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button>` : '';
-        modalContainer.innerHTML = `
+        function attachOrderActionListeners() {
+            document.querySelectorAll('.order-status-select').forEach(select => select.onchange = async (e) => await updateDoc(doc(db, "orders", e.target.dataset.id), { status: e.target.value }));
+            const addDebouncedListener = (selector, fieldName, isNumeric = false) => {
+                document.querySelectorAll(selector).forEach(input => {
+                    let debounceTimer;
+                    input.onkeyup = (e) => {
+                        clearTimeout(debounceTimer);
+                        debounceTimer = setTimeout(async () => {
+                            const id = e.target.dataset.id;
+                            let value = e.target.value;
+                            if (isNumeric) value = parseFloat(value) || 0;
+                            try { await updateDoc(doc(db, "orders", id), { [fieldName]: value }); e.target.classList.add('border-green-400'); setTimeout(() => e.target.classList.remove('border-green-400'), 2000); }
+                            catch (error) { e.target.classList.add('border-red-400'); }
+                        }, 1000);
+                    };
+                });
+            };
+            addDebouncedListener('.profit-input', 'profit', true); addDebouncedListener('.doneBy-input', 'doneBy'); addDebouncedListener('.suppliers-textarea', 'suppliers');
+            document.querySelectorAll('.copy-order-btn').forEach(btn => btn.onclick = (e) => {
+                const order = ordersCache.find(o => o.id === e.currentTarget.dataset.id); if (!order) return;
+                const itemsText = (order.items || []).map(item => `   - ${item.quantity} x ${item.name}`).join('\n');
+                const deliveryPreferenceText = order.deliveryPreference === 'Home' ? 'المنزل' : (order.deliveryPreference === 'Office' ? 'المكتب' : 'غير محدد');
+                const finalPriceText = order.shippingCost ? `${order.totalPrice.toLocaleString()} د.ج (شامل التوصيل)` : `${order.totalPrice.toLocaleString()} د.ج`;
+                const messageToCopy = `السلام عليكم ورحمة الله تعالى وبركاته\n\n📋 **معلومات الطلبية** 📋\n\n👤 **اسم العميل:** ${order.customerName}\n📞 **رقم الهاتف:** ${order.customerContact}\n📦 **المنتج:**\n${itemsText}\n📍 **العنوان:** ${order.customerLocation}\n🚚 **التوصيل إلى:** ${deliveryPreferenceText}\n💰 **السعر الإجمالي:** ${finalPriceText}`.trim();
+                navigator.clipboard.writeText(messageToCopy).then(() => {
+                    const originalIcon = e.currentTarget.innerHTML;
+                    e.currentTarget.innerHTML = '<i class="fas fa-check text-green-500 fa-lg"></i>';
+                    setTimeout(() => { e.currentTarget.innerHTML = originalIcon; }, 2500);
+                });
+            });
+            document.querySelectorAll('.delete-order-btn').forEach(btn => {
+                btn.onclick = () => {
+                    showDeleteConfirmationModal(async () => {
+                        try {
+                            await deleteDoc(doc(db, "orders", btn.dataset.id));
+                            closeModal();
+                        } catch (error) {
+                            showModal('خطأ', `فشل حذف الطلب: ${error.message}`, closeModal, 'موافق', false);
+                        }
+                    });
+                }
+            });
+        }
+
+        // --- (دوال المساعدة العامة) ---
+        function showModal(title, content, onConfirm, confirmText = 'حفظ', showCancel = true) {
+            const modalContainer = getEl('modal-container');
+            const confirmBtnHTML = `<button id="modal-confirm" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700">${confirmText}</button>`;
+            const cancelBtnHTML = showCancel ? `<button id="modal-cancel" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button>` : '';
+            modalContainer.innerHTML = `
             <div class="modal-backdrop" id="modal-backdrop">
                 <div class="modal-content">
                     <div class="flex justify-between items-center mb-4 border-b pb-3">
@@ -307,23 +489,24 @@
                     </div>
                 </div>
             </div>`;
-        if (showCancel) getEl('modal-cancel').onclick = closeModal;
-        getEl('modal-close-btn').onclick = closeModal;
-        getEl('modal-backdrop').onclick = (e) => { if (e.target.id === 'modal-backdrop') closeModal(); };
-        if (onConfirm) getEl('modal-confirm').onclick = onConfirm;
-    }
-    function showDeleteConfirmationModal(onConfirm) {
-        showModal('تأكيد الحذف', 
-                  '<p class="text-lg">هل أنت متأكد من رغبتك في الحذف؟ لا يمكن التراجع عن هذا الإجراء.</p>', 
-                  onConfirm, 
-                  'نعم، قم بالحذف');
-        getEl('modal-confirm').classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
-        getEl('modal-confirm').classList.add('bg-red-600', 'hover:bg-red-700');
-    }
-    function closeModal() {
-        getEl('modal-container').innerHTML = '';
-    }
+            if (showCancel) getEl('modal-cancel').onclick = closeModal;
+            getEl('modal-close-btn').onclick = closeModal;
+            getEl('modal-backdrop').onclick = (e) => { if (e.target.id === 'modal-backdrop') closeModal(); };
+            if (onConfirm) getEl('modal-confirm').onclick = onConfirm;
+        }
+        function showDeleteConfirmationModal(onConfirm) {
+            showModal('تأكيد الحذف',
+                '<p class="text-lg">هل أنت متأكد من رغبتك في الحذف؟ لا يمكن التراجع عن هذا الإجراء.</p>',
+                onConfirm,
+                'نعم، قم بالحذف');
+            getEl('modal-confirm').classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+            getEl('modal-confirm').classList.add('bg-red-600', 'hover:bg-red-700');
+        }
+        function closeModal() {
+            getEl('modal-container').innerHTML = '';
+        }
 
-</script>
+    </script>
 </body>
+
 </html>

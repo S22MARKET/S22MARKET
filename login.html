@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,35 +11,141 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
-        .loader { border: 4px solid rgba(255, 255, 255, 0.3); border-top: 4px solid #ffffff; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .tab-button.active { border-color: #4f46e5; color: #4f46e5; background-color: #eef2ff; }
-        .input-icon { position: absolute; inset-y: 0; right: 0; display: flex; align-items: center; padding-right: 0.75rem; pointer-events: none; }
-        .password-toggle { position: absolute; inset-y: 0; left: 0; display: flex; align-items: center; padding-left: 0.75rem; cursor: pointer; color: #9ca3af; }
-        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; translateY(0); } }
-        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10001; }
-        .toast { background-color: #2f855a; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards; }
-        .toast.error { background-color: #c53030; }
-        @keyframes fadeOut { from { opacity: 1; } to: { opacity: 0; } }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .tab-button.active {
+            border-color: #4f46e5;
+            color: #4f46e5;
+            background-color: rgba(238, 242, 255, 0.5);
+        }
+
+        .input-icon {
+            position: absolute;
+            inset-y: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            padding-right: 0.75rem;
+            pointer-events: none;
+        }
+
+        .password-toggle {
+            position: absolute;
+            inset-y: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            padding-left: 0.75rem;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Glassmorphism Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .fade-in-up {
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10001;
+        }
+
+        .toast {
+            background-color: #2f855a;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+        }
+
+        .toast.error {
+            background-color: #c53030;
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
     </style>
 </head>
+
 <body>
 
-    <header class="bg-white shadow-sm">
-        <div class="max-w-md mx-auto py-4 px-4 sm:px-6 lg:px-8 text-center">
-            <a href="index.html" class="text-3xl font-extrabold text-gray-800">
-                S22<span class="text-indigo-600">Market</span>
+    <header class="w-full py-6">
+        <div class="max-w-md mx-auto text-center fade-in-up">
+            <a href="index.html"
+                class="text-4xl font-black text-white drop-shadow-lg block transform hover:scale-105 transition-transform duration-300">
+                S22<span class="text-yellow-300">Market</span>
             </a>
         </div>
     </header>
 
-    <div id="app-container" class="container mx-auto p-4 sm:p-6 md:p-8">
-        <div id="auth-view">
-            <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden mt-8">
+    <div id="app-container" class="container mx-auto p-4 sm:p-6 md:p-8 flex items-center justify-center -mt-10">
+        <div id="auth-view" class="w-full max-w-md fade-in-up" style="animation-delay: 0.2s;">
+            <div
+                class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden mt-8 border border-white/20">
                 <div class="flex border-b border-gray-200">
-                    <button id="login-tab-button" class="tab-button active w-1/2 p-4 font-semibold text-center text-gray-500 bg-transparent border-b-2 border-transparent focus:outline-none transition-colors">تسجيل الدخول</button>
-                    <button id="register-tab-button" class="tab-button w-1/2 p-4 font-semibold text-center text-gray-500 bg-transparent border-b-2 border-transparent focus:outline-none transition-colors">إنشاء حساب</button>
+                    <button id="login-tab-button"
+                        class="tab-button active w-1/2 p-4 font-semibold text-center text-gray-500 bg-transparent border-b-2 border-transparent focus:outline-none transition-colors">تسجيل
+                        الدخول</button>
+                    <button id="register-tab-button"
+                        class="tab-button w-1/2 p-4 font-semibold text-center text-gray-500 bg-transparent border-b-2 border-transparent focus:outline-none transition-colors">إنشاء
+                        حساب</button>
                 </div>
                 <div class="p-8">
                     <div id="login-view">
@@ -46,18 +153,43 @@
                         <p class="text-center text-gray-500 mb-8">سجل دخولك لمتابعة طلباتك ونقاطك.</p>
                         <form id="login-form" class="space-y-5">
                             <div class="relative">
-                                <span class="input-icon"><svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" /><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" /></svg></span>
-                                <input type="email" id="login-email" placeholder="البريد الإلكتروني" class="w-full px-4 py-3 pr-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900" required>
+                                <span class="input-icon"><svg class="h-5 w-5 text-gray-400"
+                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path
+                                            d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                    </svg></span>
+                                <input type="email" id="login-email" placeholder="البريد الإلكتروني"
+                                    class="w-full px-4 py-3 pr-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                                    required>
                             </div>
                             <div class="relative">
-                               <span class="input-icon"><svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 0118 8zm-6-4a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd" /></svg></span>
-                               <input type="password" id="login-password" placeholder="كلمة المرور" class="w-full px-4 py-3 pr-10 pl-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900" required>
-                               <button type="button" class="password-toggle" data-target="login-password">
-                                    <svg class="h-5 w-5" id="eye-open-login" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                    <svg class="h-5 w-5 hidden" id="eye-closed-login" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243l-4.243-4.243" /></svg>
+                                <span class="input-icon"><svg class="h-5 w-5 text-gray-400"
+                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 0118 8zm-6-4a1 1 0 100 2 1 1 0 000-2z"
+                                            clip-rule="evenodd" />
+                                    </svg></span>
+                                <input type="password" id="login-password" placeholder="كلمة المرور"
+                                    class="w-full px-4 py-3 pr-10 pl-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                                    required>
+                                <button type="button" class="password-toggle" data-target="login-password">
+                                    <svg class="h-5 w-5" id="eye-open-login" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <svg class="h-5 w-5 hidden" id="eye-closed-login" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243l-4.243-4.243" />
+                                    </svg>
                                 </button>
                             </div>
-                            <button type="submit" id="login-submit-button" class="w-full flex justify-center items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105 disabled:bg-indigo-400">
+                            <button type="submit" id="login-submit-button"
+                                class="w-full flex justify-center items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105 disabled:bg-indigo-400">
                                 <span class="button-text">تسجيل الدخول</span>
                                 <div class="loader button-loader hidden"></div>
                             </button>
@@ -68,29 +200,65 @@
                         <h2 class="text-3xl font-bold text-center text-gray-900 mb-2">إنشاء حساب جديد</h2>
                         <p class="text-center text-gray-500 mb-8">املأ البيانات التالية للانضمام.</p>
                         <form id="register-form" class="space-y-5">
-                             <div class="relative">
-                               <span class="input-icon"><svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg></span>
-                               <input type="text" id="register-name" placeholder="الاسم الكامل" class="w-full px-4 py-3 pr-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900" required>
+                            <div class="relative">
+                                <span class="input-icon"><svg class="h-5 w-5 text-gray-400"
+                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                            clip-rule="evenodd" />
+                                    </svg></span>
+                                <input type="text" id="register-name" placeholder="الاسم الكامل"
+                                    class="w-full px-4 py-3 pr-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                                    required>
                             </div>
                             <div class="relative">
-                                <span class="input-icon"><svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" /><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" /></svg></span>
-                                <input type="email" id="register-email" placeholder="البريد الإلكتروني" class="w-full px-4 py-3 pr-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900" required>
+                                <span class="input-icon"><svg class="h-5 w-5 text-gray-400"
+                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path
+                                            d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                    </svg></span>
+                                <input type="email" id="register-email" placeholder="البريد الإلكتروني"
+                                    class="w-full px-4 py-3 pr-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                                    required>
                             </div>
-                            
+
                             <div class="relative">
-                               <span class="input-icon"><svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 0118 8zm-6-4a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd" /></svg></span>
-                               <input type="password" id="register-password" placeholder="كلمة المرور (6 أحرف على الأقل)" class="w-full px-4 py-3 pr-10 pl-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900" required>
-                               <button type="button" class="password-toggle" data-target="register-password">
-                                    <svg class="h-5 w-5" id="eye-open-register" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                    <svg class="h-5 w-5 hidden" id="eye-closed-register" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243l-4.243-4.243" /></svg>
+                                <span class="input-icon"><svg class="h-5 w-5 text-gray-400"
+                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 0118 8zm-6-4a1 1 0 100 2 1 1 0 000-2z"
+                                            clip-rule="evenodd" />
+                                    </svg></span>
+                                <input type="password" id="register-password"
+                                    placeholder="كلمة المرور (6 أحرف على الأقل)"
+                                    class="w-full px-4 py-3 pr-10 pl-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                                    required>
+                                <button type="button" class="password-toggle" data-target="register-password">
+                                    <svg class="h-5 w-5" id="eye-open-register" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <svg class="h-5 w-5 hidden" id="eye-closed-register"
+                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243l-4.243-4.243" />
+                                    </svg>
                                 </button>
                             </div>
-                            
+
                             <div class="relative">
-                               <span class="input-icon"><i class="fas fa-gift text-gray-400"></i></span>
-                               <input type="text" id="register-referral-code" placeholder="كود الدعوة (اختياري)" class="w-full px-4 py-3 pr-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 uppercase" style="text-transform: uppercase;">
+                                <span class="input-icon"><i class="fas fa-gift text-gray-400"></i></span>
+                                <input type="text" id="register-referral-code" placeholder="كود الدعوة (اختياري)"
+                                    class="w-full px-4 py-3 pr-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 uppercase"
+                                    style="text-transform: uppercase;">
                             </div>
-                            <button type="submit" id="register-submit-button" class="w-full flex justify-center items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105 disabled:bg-indigo-400">
+                            <button type="submit" id="register-submit-button"
+                                class="w-full flex justify-center items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105 disabled:bg-indigo-400">
                                 <span class="button-text">إنشاء الحساب</span>
                                 <div class="loader button-loader hidden"></div>
                             </button>
@@ -102,204 +270,205 @@
         <div id="toast-container"></div>
     </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, Timestamp, getDoc, updateDoc, writeBatch, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, Timestamp, getDoc, updateDoc, writeBatch, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
-        authDomain: "s22market-4e3e6.firebaseapp.com",
-        projectId: "s22market-4e3e6",
-        storageBucket: "s22market-4e3e6.appspot.com",
-        messagingSenderId: "119186699901",
-        appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
-        measurementId: "G-MWYNCVP4WQ"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    const loginView = document.getElementById('login-view');
-    const registerView = document.getElementById('register-view');
-    const loginTabButton = document.getElementById('login-tab-button');
-    const registerTabButton = document.getElementById('register-tab-button');
-    const registerForm = document.getElementById('register-form');
-    const loginForm = document.getElementById('login-form'); 
-    const toastContainer = document.getElementById('toast-container');
+        const loginView = document.getElementById('login-view');
+        const registerView = document.getElementById('register-view');
+        const loginTabButton = document.getElementById('login-tab-button');
+        const registerTabButton = document.getElementById('register-tab-button');
+        const registerForm = document.getElementById('register-form');
+        const loginForm = document.getElementById('login-form');
+        const toastContainer = document.getElementById('toast-container');
 
-    function handleSuccessfulAuth() {
-        const redirectUrl = localStorage.getItem('redirectToAfterLogin');
-        if (redirectUrl) {
-            localStorage.removeItem('redirectToAfterLogin');
-            window.location.href = redirectUrl;
-        } else {
-            // *** تعديل: توجيه المستخدم إلى ملفه الشخصي بعد التسجيل/الدخول
-            window.location.href = 'profile.html'; 
-        }
-    }
-
-    const showToast = (message, type = 'error', duration = 4000) => {
-        if (!toastContainer) return;
-        const toast = document.createElement('div');
-        toast.className = `toast ${type === 'error' ? 'error' : ''}`;
-        const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
-        toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
-        toastContainer.appendChild(toast);
-        setTimeout(() => toast.remove(), duration);
-    };
-    
-    function toggleButtonState(button, isLoading) {
-        const text = button.querySelector('.button-text');
-        const loader = button.querySelector('.button-loader');
-        if (isLoading) {
-            button.disabled = true;
-            if (text) text.classList.add('hidden');
-            if (loader) loader.classList.remove('hidden');
-        } else {
-            button.disabled = false;
-            if (text) text.classList.remove('hidden');
-            if (loader) loader.classList.add('hidden');
-        }
-    }
-
-    function setupPasswordToggle(button) {
-        const targetInput = document.getElementById(button.dataset.target);
-        const eyeOpen = button.querySelector('[id^="eye-open"]');
-        const eyeClosed = button.querySelector('[id^="eye-closed"]');
-        if (!targetInput) return;
-        button.addEventListener('click', () => {
-            if (targetInput.type === 'password') {
-                targetInput.type = 'text';
-                eyeOpen.classList.add('hidden');
-                eyeClosed.classList.remove('hidden');
+        function handleSuccessfulAuth() {
+            const redirectUrl = localStorage.getItem('redirectToAfterLogin');
+            if (redirectUrl) {
+                localStorage.removeItem('redirectToAfterLogin');
+                window.location.href = redirectUrl;
             } else {
-                targetInput.type = 'password';
-                eyeOpen.classList.remove('hidden');
-                eyeClosed.classList.add('hidden');
+                // *** تعديل: توجيه المستخدم إلى ملفه الشخصي بعد التسجيل/الدخول
+                window.location.href = 'profile.html';
             }
+        }
+
+        const showToast = (message, type = 'error', duration = 4000) => {
+            if (!toastContainer) return;
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+            toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), duration);
+        };
+
+        function toggleButtonState(button, isLoading) {
+            const text = button.querySelector('.button-text');
+            const loader = button.querySelector('.button-loader');
+            if (isLoading) {
+                button.disabled = true;
+                if (text) text.classList.add('hidden');
+                if (loader) loader.classList.remove('hidden');
+            } else {
+                button.disabled = false;
+                if (text) text.classList.remove('hidden');
+                if (loader) loader.classList.add('hidden');
+            }
+        }
+
+        function setupPasswordToggle(button) {
+            const targetInput = document.getElementById(button.dataset.target);
+            const eyeOpen = button.querySelector('[id^="eye-open"]');
+            const eyeClosed = button.querySelector('[id^="eye-closed"]');
+            if (!targetInput) return;
+            button.addEventListener('click', () => {
+                if (targetInput.type === 'password') {
+                    targetInput.type = 'text';
+                    eyeOpen.classList.add('hidden');
+                    eyeClosed.classList.remove('hidden');
+                } else {
+                    targetInput.type = 'password';
+                    eyeOpen.classList.remove('hidden');
+                    eyeClosed.classList.add('hidden');
+                }
+            });
+        }
+        document.querySelectorAll('.password-toggle').forEach(setupPasswordToggle);
+
+        loginTabButton.addEventListener('click', () => {
+            loginView.classList.remove('hidden');
+            registerView.classList.add('hidden');
+            loginTabButton.classList.add('active');
+            registerTabButton.classList.remove('active');
         });
-    }
-    document.querySelectorAll('.password-toggle').forEach(setupPasswordToggle);
 
-    loginTabButton.addEventListener('click', () => {
-        loginView.classList.remove('hidden');
-        registerView.classList.add('hidden');
-        loginTabButton.classList.add('active');
-        registerTabButton.classList.remove('active');
-    });
+        registerTabButton.addEventListener('click', () => {
+            loginView.classList.add('hidden');
+            registerView.classList.remove('hidden');
+            loginTabButton.classList.remove('active');
+            registerTabButton.classList.add('active');
+        });
 
-    registerTabButton.addEventListener('click', () => {
-        loginView.classList.add('hidden');
-        registerView.classList.remove('hidden');
-        loginTabButton.classList.remove('active');
-        registerTabButton.classList.add('active');
-    });
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitButton = document.getElementById('login-submit-button');
+                toggleButtonState(submitButton, true);
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
 
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    handleSuccessfulAuth();
+                } catch (error) {
+                    showToast('البريد الإلكتروني أو كلمة المرور غير صحيحة.', 'error');
+                } finally {
+                    toggleButtonState(submitButton, false);
+                }
+            });
+        }
+
+        // --- (*** بداية الكود المعدل والمُصحح ***) ---
+        registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const submitButton = document.getElementById('login-submit-button');
+            const submitButton = document.getElementById('register-submit-button');
             toggleButtonState(submitButton, true);
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+
+            const name = document.getElementById('register-name').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const referralCodeInput = document.getElementById('register-referral-code');
+            const referralCode = referralCodeInput.value.trim().toUpperCase() || null;
+
+            if (!name || !email || password.length < 6) {
+                showToast('يرجى ملء جميع الحقول والتأكد من أن كلمة المرور لا تقل عن 6 أحرف.', 'error');
+                toggleButtonState(submitButton, false);
+                return;
+            }
+
+            let referrerId = null; // (جديد) متغير لحفظ ID صاحب الدعوة
 
             try {
-                await signInWithEmailAndPassword(auth, email, password);
+                // 1. (جديد) التحقق من كود الدعوة أولاً
+                if (referralCode) {
+                    const usersRef = collection(db, "users");
+                    const q = query(usersRef, where("referralCode", "==", referralCode), limit(1));
+                    const querySnapshot = await getDocs(q);
+
+                    if (querySnapshot.empty) {
+                        showToast('كود الدعوة الذي أدخلته غير صحيح. سيتم إنشاء حسابك بدونه.', 'error');
+                    } else {
+                        // تم العثور على صاحب الدعوة
+                        const referrerDoc = querySnapshot.docs[0];
+                        referrerId = referrerDoc.id; // (هام) احفظ الـ ID الخاص به
+                        console.log(`Referrer found: ${referrerId}`);
+                    }
+                }
+
+                // 2. إنشاء حساب المصادقة (Auth)
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const newUser = userCredential.user;
+
+                // 3. تحديث ملف المصادقة (Auth Profile)
+                await updateProfile(newUser, { displayName: name });
+
+                // 4. إنشاء مستند المستخدم في Firestore
+                const batch = writeBatch(db);
+                const userDocRef = doc(db, 'users', newUser.uid);
+
+                batch.set(userDocRef, {
+                    uid: newUser.uid,
+                    displayName: name,
+                    email: newUser.email,
+                    phone: null,
+                    registrationDate: Timestamp.now(),
+                    lastLogin: Timestamp.now(),
+
+                    loyaltyPoints: 0, // محفظة المتجر
+                    dawarat_coins: 0, // محفظة الأكاديمية
+
+                    referralCode: null, // سيتم إنشاؤه لاحقاً عند زيارة البروفايل
+
+                    // (هام) حفظ ID صاحب الدعوة بدلاً من الكود
+                    referredBy: referrerId,
+                    // تحديد أن المكافأة لم تُمنح بعد
+                    referralProcessed: referrerId ? false : null
+                });
+
+                await batch.commit();
+
+                showToast('تم إنشاء حسابك بنجاح! يتم توجيهك الآن...', 'success', 3000);
                 handleSuccessfulAuth();
+
             } catch (error) {
-                showToast('البريد الإلكتروني أو كلمة المرور غير صحيحة.', 'error');
+                console.error("Registration Error:", error.code, error.message);
+                if (error.code === 'auth/email-already-in-use') {
+                    showToast('هذا البريد الإلكتروني مسجل بالفعل. يمكنك تسجيل الدخول.', 'error');
+                } else {
+                    showToast(`خطأ في التسجيل: ${error.message}`, 'error');
+                }
             } finally {
                 toggleButtonState(submitButton, false);
             }
         });
-    }
-
-    // --- (*** بداية الكود المعدل والمُصحح ***) ---
-    registerForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const submitButton = document.getElementById('register-submit-button');
-        toggleButtonState(submitButton, true);
-
-        const name = document.getElementById('register-name').value.trim();
-        const email = document.getElementById('register-email').value.trim();
-        const password = document.getElementById('register-password').value;
-        const referralCodeInput = document.getElementById('register-referral-code');
-        const referralCode = referralCodeInput.value.trim().toUpperCase() || null; 
-
-        if (!name || !email || password.length < 6) {
-            showToast('يرجى ملء جميع الحقول والتأكد من أن كلمة المرور لا تقل عن 6 أحرف.', 'error');
-            toggleButtonState(submitButton, false);
-            return;
-        }
-
-        let referrerId = null; // (جديد) متغير لحفظ ID صاحب الدعوة
-
-        try {
-            // 1. (جديد) التحقق من كود الدعوة أولاً
-            if (referralCode) {
-                const usersRef = collection(db, "users");
-                const q = query(usersRef, where("referralCode", "==", referralCode), limit(1));
-                const querySnapshot = await getDocs(q);
-                
-                if (querySnapshot.empty) {
-                    showToast('كود الدعوة الذي أدخلته غير صحيح. سيتم إنشاء حسابك بدونه.', 'error');
-                } else {
-                    // تم العثور على صاحب الدعوة
-                    const referrerDoc = querySnapshot.docs[0];
-                    referrerId = referrerDoc.id; // (هام) احفظ الـ ID الخاص به
-                    console.log(`Referrer found: ${referrerId}`);
-                }
-            }
-
-            // 2. إنشاء حساب المصادقة (Auth)
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const newUser = userCredential.user;
-
-            // 3. تحديث ملف المصادقة (Auth Profile)
-            await updateProfile(newUser, { displayName: name });
-            
-            // 4. إنشاء مستند المستخدم في Firestore
-            const batch = writeBatch(db);
-            const userDocRef = doc(db, 'users', newUser.uid);
-            
-            batch.set(userDocRef, {
-                uid: newUser.uid,
-                displayName: name,
-                email: newUser.email, 
-                phone: null, 
-                registrationDate: Timestamp.now(),
-                lastLogin: Timestamp.now(),
-                
-                loyaltyPoints: 0, // محفظة المتجر
-                dawarat_coins: 0, // محفظة الأكاديمية
-                
-                referralCode: null, // سيتم إنشاؤه لاحقاً عند زيارة البروفايل
-                
-                // (هام) حفظ ID صاحب الدعوة بدلاً من الكود
-                referredBy: referrerId, 
-                // تحديد أن المكافأة لم تُمنح بعد
-                referralProcessed: referrerId ? false : null 
-            });
-            
-            await batch.commit();
-
-            showToast('تم إنشاء حسابك بنجاح! يتم توجيهك الآن...', 'success', 3000);
-            handleSuccessfulAuth(); 
-
-        } catch (error) {
-            console.error("Registration Error:", error.code, error.message);
-            if (error.code === 'auth/email-already-in-use') {
-                showToast('هذا البريد الإلكتروني مسجل بالفعل. يمكنك تسجيل الدخول.', 'error');
-            } else {
-                showToast(`خطأ في التسجيل: ${error.message}`, 'error');
-            }
-        } finally {
-            toggleButtonState(submitButton, false);
-        }
-    });
-    // --- (*** نهاية الكود المعدل والمُصحح ***) ---
-</script>
+        // --- (*** نهاية الكود المعدل والمُصحح ***) ---
+    </script>
 </body>
+
 </html>

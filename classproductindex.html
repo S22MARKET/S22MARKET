@@ -443,7 +443,15 @@
 
         function getFilterFromURL() {
             const params = new URLSearchParams(window.location.search);
-            if (params.has('category')) {
+            const searchTerm = params.get('search');
+
+            if (searchTerm) {
+                elements.searchInput.value = searchTerm;
+                elements.pageTitle.textContent = `نتائج البحث عن: "${searchTerm}"`;
+                currentFilter = { type: 'search', id: searchTerm };
+                // Also update breadcrumbs for search context
+                elements.breadcrumbs.innerHTML = `<a href="index.html">الرئيسية</a> <span>/</span> بحث: ${searchTerm}`;
+            } else if (params.has('category')) {
                 currentFilter = { type: 'category', id: params.get('category') };
             } else if (params.has('subcategory')) {
                 currentFilter = { type: 'subcategory', id: params.get('subcategory') };
@@ -605,8 +613,22 @@
             // 2. Fetch Products
             await fetchProducts();
 
+            // Re-apply client-side search filtering if 'search' param exists (since fetchProducts loads potentially unrelated data if just searching locally)
+            // Note: If we had server-side search (Algolia/Elastic), we'd do it in fetchProducts. 
+            // Here we rely on fetching "all" (or category based) then filtering.
+            // However, fetchProducts checks currentFilter.type. If 'search', we fetch 'all' then filter.
+
             // Event Listeners
-            elements.searchInput.addEventListener('input', () => renderProducts(currentProducts));
+            elements.searchInput.addEventListener('input', () => {
+                // Update URL state optionally? No, let's keep it simple.
+                // Just render.
+                renderProducts(currentProducts);
+            });
+
+            // Enter key on search input triggers re-render (already covered by input event, but useful for form submission behavior prevention)
+            elements.searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') e.preventDefault();
+            });
 
             // elements.priceFilter removed
             elements.searchInput.addEventListener('input', () => renderProducts(currentProducts));

@@ -63,6 +63,37 @@
             }
         }
 
+        /* Skeleton Animation */
+        .skeleton {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* أنيميشن الظهور */
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* أنيميشن الظهور */
         .fade-in-section {
             animation: fadeIn 0.8s ease-in-out;
@@ -494,9 +525,23 @@
             <div class="px-6 py-2">
                 <h3 class="text-lg font-bold text-gray-800 border-b pb-2">الأقسام</h3>
             </div>
-            <div id="sidebar-categories-container" class="py-2">
-                <div class="text-center p-4">
-                    <div class="loader mx-auto"></div>
+            <div id="sidebar-categories-container" class="py-2 space-y-3 px-4">
+                <!-- Skeletons for Categories -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full skeleton bg-gray-200"></div>
+                    <div class="h-4 w-32 rounded skeleton bg-gray-200"></div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full skeleton bg-gray-200"></div>
+                    <div class="h-4 w-24 rounded skeleton bg-gray-200"></div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full skeleton bg-gray-200"></div>
+                    <div class="h-4 w-28 rounded skeleton bg-gray-200"></div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full skeleton bg-gray-200"></div>
+                    <div class="h-4 w-32 rounded skeleton bg-gray-200"></div>
                 </div>
             </div>
         </nav>
@@ -577,7 +622,7 @@
 
             <!-- 🔍 Enhanced Search Bar (Prominent & Clean) -->
             <div
-                class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10">
+                class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10 fade-in-up">
                 <div class="max-w-3xl mx-auto text-center mb-6">
                     <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2 leading-tight">
                         اكتشف عالم S22 Market 🛍️
@@ -589,7 +634,7 @@
                     <div class="relative">
                         <input type="text" id="main-search-input" placeholder="ابحث عن منتجات، مطاعم، أو خدمات..."
                             class="w-full px-6 py-4 sm:py-5 pr-14 rounded-2xl text-base sm:text-lg font-medium shadow-xl focus:outline-none focus:ring-4 focus:ring-yellow-400 transition-all">
-                        <button
+                        <button id="main-search-btn"
                             class="absolute left-3 top-1/2 -translate-y-1/2 bg-gradient-to-r from-orange-500 to-pink-500 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all">
                             <i class="fas fa-search ml-2"></i>بحث
                         </button>
@@ -1158,6 +1203,33 @@
         }
 
         async function initializeStore() {
+            // Search Logic
+            const mainSearchInput = document.getElementById('main-search-input');
+            const mainSearchBtn = document.getElementById('main-search-btn');
+
+            const performSearch = () => {
+                const query = mainSearchInput.value.trim();
+                if (query) {
+                    window.location.href = `classproductindex.html?search=${encodeURIComponent(query)}`;
+                }
+            };
+
+            if (mainSearchBtn) mainSearchBtn.onclick = performSearch;
+            if (mainSearchInput) {
+                mainSearchInput.onkeypress = (e) => {
+                    if (e.key === 'Enter') performSearch();
+                };
+            }
+
+            // Header Search (Icon) logic - Optional: Focusing the main input or redirecting
+            const headerSearchBtn = document.getElementById('search-btn');
+            if (headerSearchBtn) {
+                headerSearchBtn.onclick = () => {
+                    mainSearchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    mainSearchInput.focus();
+                }
+            }
+
             // Sidebar Events
             if (elements.menuBtn) {
                 elements.menuBtn.onclick = () => {
