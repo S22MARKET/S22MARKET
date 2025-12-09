@@ -73,6 +73,34 @@
             }
         }
 
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 0.5rem;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* Stats Card Animation */
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
         #user-menu-dropdown.show {
             display: block;
             animation: slideInUp 0.2s ease-out;
@@ -294,8 +322,11 @@
             </h1>
 
             <div class="border-b border-gray-200 bg-white rounded-t-lg shadow-sm">
-                <nav class="flex -mb-px" aria-label="Tabs">
-                    <button class="dashboard-tab active" data-target="products-panel">
+                <nav class="flex -mb-px overflow-x-auto" aria-label="Tabs">
+                    <button class="dashboard-tab active" data-target="overview-panel">
+                        <i class="fas fa-chart-pie ml-2"></i> نظرة عامة
+                    </button>
+                    <button class="dashboard-tab" data-target="products-panel">
                         <i class="fas fa-boxes ml-2"></i> منتجاتي
                     </button>
                     <button class="dashboard-tab" data-target="orders-panel">
@@ -314,7 +345,89 @@
             </div>
 
 
-            <div id="products-panel" class="dashboard-panel bg-white p-6 rounded-b-lg shadow-sm">
+            <!-- Overview Panel -->
+            <div id="overview-panel" class="dashboard-panel bg-white p-6 rounded-b-lg shadow-sm">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Stats Cards -->
+                    <div class="stat-card bg-indigo-50 p-6 rounded-xl border border-indigo-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-indigo-600 font-bold text-sm">إجمالي المبيعات</p>
+                                <h3 class="text-3xl font-extrabold text-indigo-900 mt-2" id="stat-total-sales">0 د.ج
+                                </h3>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg shadow-sm text-indigo-600">
+                                <i class="fas fa-wallet text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card bg-green-50 p-6 rounded-xl border border-green-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-green-600 font-bold text-sm">الطلبات المكتملة</p>
+                                <h3 class="text-3xl font-extrabold text-green-900 mt-2" id="stat-orders-count">0</h3>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg shadow-sm text-green-600">
+                                <i class="fas fa-check-circle text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card bg-orange-50 p-6 rounded-xl border border-orange-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-orange-600 font-bold text-sm">الطلبات الجديدة</p>
+                                <h3 class="text-3xl font-extrabold text-orange-900 mt-2" id="stat-new-orders">0</h3>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg shadow-sm text-orange-600">
+                                <i class="fas fa-bell text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card bg-blue-50 p-6 rounded-xl border border-blue-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-blue-600 font-bold text-sm">إجمالي المنتجات</p>
+                                <h3 class="text-3xl font-extrabold text-blue-900 mt-2" id="stat-products-count">0</h3>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg shadow-sm text-blue-600">
+                                <i class="fas fa-box text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Quick Actions -->
+                    <div class="bg-white border rounded-xl p-6">
+                        <h3 class="font-bold text-gray-800 mb-4">إجراءات سريعة</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button
+                                onclick="document.querySelector('[data-target=\'products-panel\']').click(); setTimeout(()=>document.getElementById('add-product-btn').click(), 100);"
+                                class="p-4 bg-gray-50 hover:bg-gray-100 rounded-lg text-center transition">
+                                <i class="fas fa-plus text-2xl text-green-500 mb-2"></i>
+                                <p class="font-bold text-sm">إضافة منتج</p>
+                            </button>
+                            <button onclick="document.querySelector('[data-target=\'settings-panel\']').click()"
+                                class="p-4 bg-gray-50 hover:bg-gray-100 rounded-lg text-center transition">
+                                <i class="fas fa-cog text-2xl text-gray-500 mb-2"></i>
+                                <p class="font-bold text-sm">الإعدادات</p>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Recent Tips -->
+                    <div
+                        class="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl p-6 text-white relative overflow-hidden">
+                        <div class="relative z-10">
+                            <h3 class="font-bold text-xl mb-2">💡 نصيحة لزيادة مبيعاتك</h3>
+                            <p class="text-indigo-100 leading-relaxed">قم بتحديث صور منتجاتك بانتظام وشارك رابط متجرك
+                                على منصات التواصل الاجتماعي لزيادة الظهور.</p>
+                        </div>
+                        <i class="fas fa-lightbulb absolute -bottom-4 -left-4 text-9xl text-white opacity-10"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="products-panel" class="dashboard-panel bg-white p-6 rounded-b-lg shadow-sm hidden">
                 <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
                     <h2 class="text-2xl font-bold text-gray-800">
                         إدارة منتجاتك
@@ -344,9 +457,21 @@
                 </div>
 
                 <div id="orders-list-container" class="overflow-x-auto">
-                    <div class="text-center py-20" id="orders-loader">
-                        <div class="loader mx-auto"></div>
-                        <p class="mt-4 text-gray-500">جاري جلب الطلبات...</p>
+                    <div class="space-y-4 py-4" id="orders-loader">
+                        <div class="bg-gray-50 border rounded-lg p-4 flex justify-between items-center">
+                            <div class="space-y-2 w-1/3">
+                                <div class="h-4 bg-gray-200 rounded skeleton w-3/4"></div>
+                                <div class="h-4 bg-gray-200 rounded skeleton w-1/2"></div>
+                            </div>
+                            <div class="h-8 bg-gray-200 rounded skeleton w-20"></div>
+                        </div>
+                        <div class="bg-gray-50 border rounded-lg p-4 flex justify-between items-center">
+                            <div class="space-y-2 w-1/3">
+                                <div class="h-4 bg-gray-200 rounded skeleton w-3/4"></div>
+                                <div class="h-4 bg-gray-200 rounded skeleton w-1/2"></div>
+                            </div>
+                            <div class="h-8 bg-gray-200 rounded skeleton w-20"></div>
+                        </div>
                     </div>
                     <table class="w-full text-right responsive-table hidden" id="orders-table">
                         <thead class="bg-gray-100">
@@ -442,7 +567,7 @@
                 </div>
             </div>
 
-            <!-- New Store Settings Panel -->
+            <!-- Store Settings Panel -->
             <div id="settings-panel" class="dashboard-panel bg-white p-6 rounded-b-lg shadow-sm hidden">
                 <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
                     <h2 class="text-2xl font-bold text-gray-800">
@@ -461,12 +586,24 @@
                         <h3 class="font-bold text-lg mb-4 text-indigo-700">المعلومات الأساسية</h3>
                         <div class="space-y-4">
                             <div>
+                                <label class="block font-semibold mb-1">نوع النشاط</label>
+                                <select id="set-store-type" class="w-full p-2 border rounded bg-gray-100" disabled>
+                                    <option value="vendor">متجر عام</option>
+                                    <option value="restaurant">مطعم</option>
+                                </select>
+                            </div>
+                            <div>
                                 <label class="block font-semibold mb-1">اسم المتجر</label>
                                 <input type="text" id="set-store-name" class="w-full p-2 border rounded" required>
                             </div>
                             <div>
                                 <label class="block font-semibold mb-1">وصف المتجر</label>
                                 <textarea id="set-store-desc" class="w-full p-2 border rounded" rows="3"></textarea>
+                            </div>
+                            <div>
+                                <label class="block font-semibold mb-1">سعر التوصيل الافتراضي (د.ج)</label>
+                                <input type="number" id="set-store-delivery" class="w-full p-2 border rounded"
+                                    placeholder="200">
                             </div>
                             <div>
                                 <label class="block font-semibold mb-1">رابط الشعار (Logo URL)</label>
@@ -515,7 +652,7 @@
                             <div class="flex items-center justify-between bg-white p-3 rounded border">
                                 <div>
                                     <span class="font-bold block">فتح / إغلاق المتجر</span>
-                                    <span class="text-xs text-gray-500">عند الإغلاق، لن يظهر زر الشراء.</span>
+                                    <span class="text-xs text-gray-500">عند الإغلاق، لن يظهر زر الشراء للعملاء.</span>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="set-is-open" class="sr-only peer">
@@ -528,11 +665,11 @@
                             <div class="flex gap-2">
                                 <button type="button" onclick="copyStoreLink()"
                                     class="flex-1 bg-blue-100 text-blue-700 py-2 rounded hover:bg-blue-200 font-bold">
-                                    <i class="fas fa-link ml-1"></i> نسخ رابط المتجر
+                                    <i class="fas fa-link ml-1"></i> نسخ الرابط
                                 </button>
                                 <button type="button" onclick="requestClosure()"
                                     class="flex-1 bg-red-100 text-red-700 py-2 rounded hover:bg-red-200 font-bold">
-                                    <i class="fas fa-door-closed ml-1"></i> طلب إغلاق نهائي
+                                    <i class="fas fa-door-closed ml-1"></i> إغلاق نهائي
                                 </button>
                             </div>
                         </div>
@@ -546,73 +683,175 @@
                     </div>
                 </form>
             </div>
-            <div id="settings-panel" class="dashboard-panel bg-white p-6 rounded-b-lg shadow-sm hidden">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">إعدادات (المطعم / المتجر)</h2>
+            <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    إعدادات المتجر
+                </h2>
+                <a href="store-orders-screen.html" target="_blank"
+                    class="bg-gray-800 hover:bg-black text-white px-6 py-2 rounded-lg shadow-lg font-bold flex items-center gap-2 transition-transform transform hover:scale-105">
+                    <i class="fas fa-desktop"></i>
+                    شاشة المطبخ (KDS)
+                </a>
+            </div>
 
-                <form id="store-settings-form" class="space-y-6 max-w-2xl">
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form id="store-settings-form" class="space-y-6 max-w-2xl mx-auto">
+                <!-- Basic Info -->
+                <div class="bg-gray-50 p-4 rounded-lg border">
+                    <h3 class="font-bold text-lg mb-4 text-indigo-700">المعلومات الأساسية</h3>
+                    <div class="space-y-4">
                         <div>
-                            <label class="block text-gray-700 font-bold mb-2">اسم المتجر/المطعم</label>
-                            <input type="text" id="store-name"
-                                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                                placeholder="مثال: مطعم البيتزا اللذيذة">
+                            <label class="block font-semibold mb-1">اسم المتجر</label>
+                            <input type="text" id="set-store-name" class="w-full p-2 border rounded" required>
                         </div>
                         <div>
-                            <label class="block text-gray-700 font-bold mb-2">نوع النشاط</label>
-                            <select id="store-type"
-                                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" disabled>
-                                <option value="vendor">متجر عام</option>
-                                <option value="restaurant">مطعم</option>
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1">يتم تحديده من قبل الإدارة</p>
+                            <label class="block font-semibold mb-1">وصف المتجر</label>
+                            <textarea id="set-store-desc" class="w-full p-2 border rounded" rows="3"></textarea>
                         </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-gray-700 font-bold mb-2">وصف المتجر (يظهر للعملاء)</label>
-                        <textarea id="store-desc" rows="3"
-                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                            placeholder="نقدم لكم أشهى المأكولات..."></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-gray-700 font-bold mb-2">رابط صورة الغلاف (Cover URL)</label>
-                            <input type="url" id="store-cover"
-                                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                            <label class="block font-semibold mb-1">رابط الشعار (Logo URL)</label>
+                            <input type="url" id="set-logo-url" class="w-full p-2 border rounded"
                                 placeholder="https://...">
                         </div>
                         <div>
-                            <label class="block text-gray-700 font-bold mb-2">رابط الشعار (Logo URL)</label>
-                            <input type="url" id="store-logo"
-                                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                            <label class="block font-semibold mb-1">رابط الغلاف (Cover URL)</label>
+                            <input type="url" id="set-cover-url" class="w-full p-2 border rounded"
                                 placeholder="https://...">
                         </div>
                     </div>
+                </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-gray-700 font-bold mb-2">سعر التوصيل الافتراضي</label>
-                            <input type="number" id="store-delivery"
-                                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="200">
+                <!-- Social Links -->
+                <div class="bg-gray-50 p-4 rounded-lg border">
+                    <h3 class="font-bold text-lg mb-4 text-indigo-700">روابط التواصل</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2">
+                            <i class="fab fa-facebook text-blue-600 w-6 text-center text-xl"></i>
+                            <input type="url" id="set-fb" class="w-full p-2 border rounded text-sm"
+                                placeholder="Facebook URL">
                         </div>
-                        <div class="flex items-center gap-4 mt-8">
-                            <label class="flex items-center cursor-pointer">
-                                <input type="checkbox" id="store-open" class="form-checkbox h-6 w-6 text-green-600">
-                                <span class="mr-2 text-gray-700 font-bold">المتجر مفتوح الآن</span>
+                        <div class="flex items-center gap-2">
+                            <i class="fab fa-instagram text-pink-600 w-6 text-center text-xl"></i>
+                            <input type="url" id="set-insta" class="w-full p-2 border rounded text-sm"
+                                placeholder="Instagram URL">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fab fa-telegram text-blue-400 w-6 text-center text-xl"></i>
+                            <input type="url" id="set-telegram" class="w-full p-2 border rounded text-sm"
+                                placeholder="Telegram URL">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-phone text-green-600 w-6 text-center text-xl"></i>
+                            <input type="tel" id="set-phone" class="w-full p-2 border rounded text-sm"
+                                placeholder="رقم هاتف المتجر">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Store Actions -->
+                <div class="bg-gray-50 p-4 rounded-lg border">
+                    <h3 class="font-bold text-lg mb-4 text-indigo-700">إجراءات أخرى</h3>
+                    <div class="flex flex-col gap-3">
+                        <div class="flex items-center justify-between bg-white p-3 rounded border">
+                            <div>
+                                <span class="font-bold block">فتح / إغلاق المتجر</span>
+                                <span class="text-xs text-gray-500">عند الإغلاق، لن يظهر زر الشراء.</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="set-is-open" class="sr-only peer">
+                                <div
+                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600">
+                                </div>
                             </label>
                         </div>
-                    </div>
 
-                    <div class="pt-4 border-t">
-                        <button type="submit" id="save-settings-btn"
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-transform transform hover:scale-105">
-                            حفظ الإعدادات
-                        </button>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="copyStoreLink()"
+                                class="flex-1 bg-blue-100 text-blue-700 py-2 rounded hover:bg-blue-200 font-bold">
+                                <i class="fas fa-link ml-1"></i> نسخ رابط المتجر
+                            </button>
+                            <button type="button" onclick="requestClosure()"
+                                class="flex-1 bg-red-100 text-red-700 py-2 rounded hover:bg-red-200 font-bold">
+                                <i class="fas fa-door-closed ml-1"></i> طلب إغلاق نهائي
+                            </button>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+
+                <div class="flex justify-end pt-4">
+                    <button type="submit" id="save-settings-btn"
+                        class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 font-bold shadow-lg transform transition hover:scale-105">
+                        حفظ التغييرات
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div id="settings-panel" class="dashboard-panel bg-white p-6 rounded-b-lg shadow-sm hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">إعدادات (المطعم / المتجر)</h2>
+
+            <form id="store-settings-form" class="space-y-6 max-w-2xl">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-2">اسم المتجر/المطعم</label>
+                        <input type="text" id="store-name"
+                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                            placeholder="مثال: مطعم البيتزا اللذيذة">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-2">نوع النشاط</label>
+                        <select id="store-type" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                            disabled>
+                            <option value="vendor">متجر عام</option>
+                            <option value="restaurant">مطعم</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">يتم تحديده من قبل الإدارة</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">وصف المتجر (يظهر للعملاء)</label>
+                    <textarea id="store-desc" rows="3"
+                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="نقدم لكم أشهى المأكولات..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-2">رابط صورة الغلاف (Cover URL)</label>
+                        <input type="url" id="store-cover"
+                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                            placeholder="https://...">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-2">رابط الشعار (Logo URL)</label>
+                        <input type="url" id="store-logo"
+                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                            placeholder="https://...">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-2">سعر التوصيل الافتراضي</label>
+                        <input type="number" id="store-delivery"
+                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="200">
+                    </div>
+                    <div class="flex items-center gap-4 mt-8">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" id="store-open" class="form-checkbox h-6 w-6 text-green-600">
+                            <span class="mr-2 text-gray-700 font-bold">المتجر مفتوح الآن</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t">
+                    <button type="submit" id="save-settings-btn"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                        حفظ الإعدادات
+                    </button>
+                </div>
+            </form>
+        </div>
         </div>
     </main>
 
@@ -636,6 +875,22 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // Animated Counter Function
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start).toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    obj.innerHTML = end.toLocaleString(); // Ensure final value
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
 
         let currentUser = null;
         let sellerProductsCache = [];
@@ -687,6 +942,10 @@
                     panel.classList.toggle('hidden', panel.id !== targetPanelId);
                 });
 
+                if (targetPanelId === 'overview-panel' && !tab.dataset.loaded) {
+                    loadOverviewData();
+                    tab.dataset.loaded = 'true';
+                }
                 if (targetPanelId === 'orders-panel' && !tab.dataset.loaded) {
                     loadSellerOrders();
                     tab.dataset.loaded = 'true';
@@ -701,6 +960,39 @@
                 }
             });
         });
+
+        async function loadOverviewData() {
+            // Fetch basic stats
+            try {
+                // Products Count
+                const productsSnap = await getDocs(query(collection(db, "products"), where("sellerId", "==", currentUser.uid)));
+                const productsCount = productsSnap.size;
+                animateValue(document.getElementById('stat-products-count'), 0, productsCount, 1500);
+
+                // Orders Stats
+                const ordersSnap = await getDocs(query(collection(db, "orders"), where("sellerId", "==", currentUser.uid)));
+                let totalSales = 0;
+                let completedCount = 0;
+                let newCount = 0;
+
+                ordersSnap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.status === 'completed') {
+                        completedCount++;
+                        totalSales += (data.totalPrice || 0);
+                    } else if (data.status === 'new') {
+                        newCount++;
+                    }
+                });
+
+                document.getElementById('stat-total-sales').textContent = totalSales.toLocaleString() + ' د.ج'; // No animation for text+currency yet
+                animateValue(document.getElementById('stat-orders-count'), 0, completedCount, 1500);
+                animateValue(document.getElementById('stat-new-orders'), 0, newCount, 1500);
+
+            } catch (e) {
+                console.error("Error loading overview:", e);
+            }
+        }
 
         // === (CRM: سجل العملاء) ===
         async function loadCustomerLog() {
@@ -1174,144 +1466,151 @@
             } catch (e) { console.error(e); }
         }
 
+
+        // --- منطق المصادقة والتحكم بالصفحة ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loginBtn.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+                const displayName = user.displayName || "التاجر";
+                userMenuName.textContent = displayName.split(' ')[0];
+                userMenuDisplayName.textContent = displayName;
+
+                sellerContent.classList.remove('hidden');
+                authLoader.classList.add('hidden');
+
+                loadSellerProducts(user);
+                loadCategories();
+
+                // Initial load based on active tab
+                const activeTab = document.querySelector('.dashboard-tab.active');
+                if (activeTab && activeTab.dataset.target === 'overview-panel') {
+                    loadOverviewData();
+                    activeTab.dataset.loaded = 'true';
+                }
+
+                loadStoreSettings(); // Pre-load settings
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // --- معالجات القائمة وتسجيل الخروج ---
+        userMenuButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userMenuDropdown.classList.toggle('show');
+        });
+        document.addEventListener('click', () => {
+            if (userMenuDropdown.classList.contains('show')) {
+                userMenuDropdown.classList.remove('show');
+            }
+        });
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).catch((error) => console.error('Logout Error', error));
+        });
+
+        addProductBtn.addEventListener('click', () => {
+            showProductModal(null);
+        });
+
+
+        // === (إعدادات المتجر) ===
+        // 1. Load Settings
+        async function loadStoreSettings() {
+            try {
+                const docSnap = await getDoc(doc(db, "users", currentUser.uid));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const req = data.storeRequest || {};
+                    const links = req.links || {};
+
+                    document.getElementById('set-store-type').value = data.role === 'restaurant' ? 'restaurant' : 'vendor';
+                    document.getElementById('set-store-name').value = data.storeName || req.storeName || '';
+                    document.getElementById('set-store-desc').value = data.description || req.description || '';
+                    document.getElementById('set-store-delivery').value = data.deliveryFee || '';
+                    document.getElementById('set-logo-url').value = data.logoUrl || req.logoUrl || '';
+                    document.getElementById('set-cover-url').value = data.coverUrl || req.coverUrl || '';
+
+                    document.getElementById('set-fb').value = links.facebook || '';
+                    document.getElementById('set-insta').value = links.instagram || '';
+                    document.getElementById('set-telegram').value = links.telegram || '';
+                    document.getElementById('set-phone').value = links.phone || '';
+
+                    document.getElementById('set-is-open').checked = data.isOpen !== false; // Default Open
+                }
+            } catch (e) {
+                console.error("Error loading settings:", e);
+            }
+        }
+
+
+        // 2. Save Settings
         const settingsForm = document.getElementById('store-settings-form');
         if (settingsForm) {
+            settingsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('save-settings-btn');
+                btn.textContent = 'جاري الحفظ...';
+                btn.disabled = true;
 
+                const updates = {
+                    storeName: document.getElementById('set-store-name').value,
+                    "storeRequest.description": document.getElementById('set-store-desc').value,
+                    "storeRequest.logoUrl": document.getElementById('set-logo-url').value,
+                    "storeRequest.coverUrl": document.getElementById('set-cover-url').value,
+                    description: document.getElementById('set-store-desc').value,
+                    logoUrl: document.getElementById('set-logo-url').value,
+                    coverUrl: document.getElementById('set-cover-url').value,
+                    deliveryFee: parseFloat(document.getElementById('set-store-delivery').value) || 0,
+                    "storeRequest.links": {
+                        facebook: document.getElementById('set-fb').value,
+                        instagram: document.getElementById('set-insta').value,
+                        telegram: document.getElementById('set-telegram').value,
+                        phone: document.getElementById('set-phone').value
+                    },
+                    isOpen: document.getElementById('set-is-open').checked
+                };
 
-            // --- منطق المصادقة والتحكم بالصفحة ---
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    currentUser = user;
-                    loginBtn.classList.add('hidden');
-                    userMenu.classList.remove('hidden');
-                    const displayName = user.displayName || "بائع جديد";
-                    userMenuName.textContent = displayName.split(' ')[0];
-                    userMenuDisplayName.textContent = displayName;
-
-                    // Load initial data
-                    loadCategories();
-                    loadStoreSettings(); // Load settings
-                    loadSellerProducts(user).then(() => {
-                        authLoader.classList.add('hidden');
-                        sellerContent.classList.remove('hidden');
-                    });
-
-                    // Load messages/orders if tabs are clicked (or pre-load if needed)
-                    // Tabs logic handles this via onclick
-
-                } else {
-                    window.location.href = 'login.html';
-                }
-            });
-
-            // --- معالجات القائمة وتسجيل الخروج ---
-            userMenuButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                userMenuDropdown.classList.toggle('show');
-            });
-            document.addEventListener('click', () => {
-                if (userMenuDropdown.classList.contains('show')) {
-                    userMenuDropdown.classList.remove('show');
-                }
-            });
-            logoutBtn.addEventListener('click', () => {
-                signOut(auth).catch((error) => console.error('Logout Error', error));
-            });
-
-            addProductBtn.addEventListener('click', () => {
-                showProductModal(null);
-            });
-
-
-            // === (إعدادات المتجر) ===
-            // 1. Load Settings
-            async function loadStoreSettings() {
                 try {
-                    const docSnap = await getDoc(doc(db, "users", currentUser.uid));
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        const req = data.storeRequest || {};
-                        const links = req.links || {};
-
-                        document.getElementById('set-store-name').value = data.storeName || req.storeName || '';
-                        document.getElementById('set-store-desc').value = req.description || '';
-                        document.getElementById('set-logo-url').value = req.logoUrl || '';
-                        document.getElementById('set-cover-url').value = req.coverUrl || '';
-
-                        document.getElementById('set-fb').value = links.facebook || '';
-                        document.getElementById('set-insta').value = links.instagram || '';
-                        document.getElementById('set-telegram').value = links.telegram || '';
-                        document.getElementById('set-phone').value = links.phone || '';
-
-                        document.getElementById('set-is-open').checked = data.isOpen !== false; // Default Open
-                    }
-                } catch (e) {
-                    console.error("Error loading settings:", e);
+                    await updateDoc(doc(db, "users", currentUser.uid), updates);
+                    showToast("تم حفظ الإعدادات بنجاح!", "success");
+                } catch (error) {
+                    console.error("Save failed:", error);
+                    showToast("حدث خطأ أثناء الحفظ.", "error");
+                } finally {
+                    btn.textContent = 'حفظ التغييرات';
+                    btn.disabled = false;
                 }
+            });
+        }
+
+        // 3. Actions
+        window.copyStoreLink = () => {
+            const link = `${window.location.origin}/vendor.html?id=${currentUser.uid}`;
+            navigator.clipboard.writeText(link).then(() => showToast("تم نسخ الرابط!", "success"));
+        };
+
+        window.requestClosure = async () => {
+            if (confirm("هل أنت متأكد من طلب إغلاق المتجر نهائياً؟ سيتم مراجعة طلبك من قبل المشرف.")) {
+                try {
+                    await updateDoc(doc(db, "users", currentUser.uid), {
+                        "storeRequest.closureStatus": "pending",
+                        "storeRequest.closureRequestedAt": Timestamp.now()
+                    });
+                    showToast("تم إرسال طلب الإغلاق.", "success");
+                } catch (e) { console.error(e); showToast("فشل إرسال الطلب.", "error"); }
             }
+        };
 
-            // 2. Save Settings
-            const settingsForm = document.getElementById('store-settings-form');
-            if (settingsForm) {
-                settingsForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const btn = document.getElementById('save-settings-btn');
-                    btn.textContent = 'جاري الحفظ...';
-                    btn.disabled = true;
+        window.printOrder = (order) => {
+            const printWindow = window.open('', '_blank');
+            const itemsHtml = (order.items || []).map(item => {
+                let addons = (item.selectedAddons || []).map(a => `<li class="addon-item">+ ${a.name}</li>`).join('');
+                if (addons) addons = `<ul class="addons-list">${addons}</ul>`;
+                let instructions = item.cookingInstructions ? `<div class="instructions">ملاحظة: ${item.cookingInstructions}</div>` : '';
 
-                    const updates = {
-                        storeName: document.getElementById('set-store-name').value,
-                        "storeRequest.description": document.getElementById('set-store-desc').value,
-                        "storeRequest.logoUrl": document.getElementById('set-logo-url').value,
-                        "storeRequest.coverUrl": document.getElementById('set-cover-url').value,
-                        "storeRequest.links": {
-                            facebook: document.getElementById('set-fb').value,
-                            instagram: document.getElementById('set-insta').value,
-                            telegram: document.getElementById('set-telegram').value,
-                            phone: document.getElementById('set-phone').value
-                        },
-                        isOpen: document.getElementById('set-is-open').checked
-                    };
-
-                    try {
-                        await updateDoc(doc(db, "users", currentUser.uid), updates);
-                        showToast("تم حفظ الإعدادات بنجاح!", "success");
-                    } catch (error) {
-                        console.error("Save failed:", error);
-                        showToast("حدث خطأ أثناء الحفظ.", "error");
-                    } finally {
-                        btn.textContent = 'حفظ التغييرات';
-                        btn.disabled = false;
-                    }
-                });
-            }
-
-            // 3. Actions
-            window.copyStoreLink = () => {
-                const link = `${window.location.origin}/vendor.html?id=${currentUser.uid}`;
-                navigator.clipboard.writeText(link).then(() => showToast("تم نسخ الرابط!", "success"));
-            };
-
-            window.requestClosure = async () => {
-                if (confirm("هل أنت متأكد من طلب إغلاق المتجر نهائياً؟ سيتم مراجعة طلبك من قبل المشرف.")) {
-                    try {
-                        await updateDoc(doc(db, "users", currentUser.uid), {
-                            "storeRequest.closureStatus": "pending",
-                            "storeRequest.closureRequestedAt": Timestamp.now()
-                        });
-                        showToast("تم إرسال طلب الإغلاق.", "success");
-                    } catch (e) { console.error(e); showToast("فشل إرسال الطلب.", "error"); }
-                }
-            };
-
-            window.printOrder = (order) => {
-                const printWindow = window.open('', '_blank');
-                const itemsHtml = (order.items || []).map(item => {
-                    let addons = (item.selectedAddons || []).map(a => `<li class="addon-item">+ ${a.name}</li>`).join('');
-                    if (addons) addons = `<ul class="addons-list">${addons}</ul>`;
-                    let instructions = item.cookingInstructions ? `<div class="instructions">ملاحظة: ${item.cookingInstructions}</div>` : '';
-
-                    return `<tr class="item-row">
+                return `<tr class="item-row">
                                 <td class="quantity">${item.quantity}x</td>
                                 <td class="item-details">
                                     <div class="item-name">${item.name}</div>
@@ -1320,12 +1619,12 @@
                                 </td>
                                 <td class="price">${(item.price * item.quantity).toLocaleString()}</td>
                             </tr>`;
-                }).join('');
+            }).join('');
 
-                const total = (order.totalPrice || 0).toLocaleString();
-                const date = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleString('ar-EG') : '---';
+            const total = (order.totalPrice || 0).toLocaleString();
+            const date = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleString('ar-EG') : '---';
 
-                printWindow.document.write(`
+            printWindow.document.write(`
                     <html><head><title>Order #${order.id.substring(0, 5)}</title>
                     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
                     <style>
@@ -1394,11 +1693,11 @@
                         <\/script>
                     </body></html>
                 `);
-                printWindow.document.close();
-            };
+            printWindow.document.close();
+        };
 
-            // Initialize Tab
-            document.querySelector('[data-target="settings-panel"]')?.addEventListener('click', loadStoreSettings);
+        // Initialize Tab
+        document.querySelector('[data-target="settings-panel"]')?.addEventListener('click', loadStoreSettings);
     </script>
 </body>
 

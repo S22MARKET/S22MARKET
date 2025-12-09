@@ -44,6 +44,36 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
@@ -129,34 +159,32 @@
         </div>
 
         <!-- Filters (Optional future expansion) -->
-        <div class="flex gap-4 overflow-x-auto pb-4 mb-6 scrollbar-hide">
-            <button
-                class="bg-gray-800 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap shadow-md">الكل</button>
-            <button
-                class="bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50">بيتزا
+        <!-- Filters -->
+        <div class="flex gap-4 overflow-x-auto pb-4 mb-6 scrollbar-hide" id="food-filters">
+            <button data-filter="all"
+                class="filter-btn bg-gray-800 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap shadow-md transition-all">الكل</button>
+            <button data-filter="pizza"
+                class="filter-btn bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50 transition-all">بيتزا
                 🍕</button>
-            <button
-                class="bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50">برجر
+            <button data-filter="burger"
+                class="filter-btn bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50 transition-all">برجر
                 🍔</button>
-            <button
-                class="bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50">شاورما
+            <button data-filter="shawarma"
+                class="filter-btn bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50 transition-all">شاورما
                 🌯</button>
-            <button
-                class="bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50">حلويات
+            <button data-filter="sweets"
+                class="filter-btn bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50 transition-all">حلويات
                 🍰</button>
         </div>
 
         <!-- Restaurants Grid -->
         <h3 class="text-2xl font-bold text-gray-800 mb-6 border-r-4 border-orange-500 pr-3">المطاعم المفتوحة</h3>
 
-        <div id="loading-indicator" class="text-center py-20">
-            <div class="loader mx-auto"></div>
-            <p class="mt-4 text-gray-500">جاري تحميل المطاعم...</p>
+        <div id="restaurants-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Skeletons injected by JS first -->
         </div>
 
-        <div id="restaurants-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 hidden">
-            <!-- Cards will be injected here -->
-        </div>
+        <!-- (Grid container is above now) -->
 
         <div id="no-restaurants-msg" class="hidden text-center py-20 bg-white rounded-2xl shadow-lg">
             <div class="mb-6">
@@ -190,9 +218,30 @@
         import { app, db, auth } from './js/firebase-config.js'; // Assuming this exists from previous steps
 
         const restaurantsGrid = document.getElementById('restaurants-grid');
-        const loadingIndicator = document.getElementById('loading-indicator');
         const noRestaurantsMsg = document.getElementById('no-restaurants-msg');
         const userStatus = document.getElementById('user-status');
+        const searchInput = document.getElementById('restaurant-search');
+        const filterBtns = document.getElementById('food-filters');
+
+        let allRestaurants = [];
+        let currentFilter = 'all';
+
+        function showSkeletons() {
+            restaurantsGrid.innerHTML = Array(6).fill(0).map(() => `
+                <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 h-80">
+                    <div class="h-40 w-full skeleton"></div>
+                    <div class="p-5 space-y-3">
+                         <div class="flex justify-between">
+                            <div class="h-16 w-16 rounded-2xl skeleton -mt-10 border-4 border-white"></div>
+                            <div class="h-5 w-20 skeleton rounded"></div>
+                        </div>
+                        <div class="h-6 w-3/4 skeleton rounded"></div>
+                        <div class="h-4 w-1/2 skeleton rounded"></div>
+                    </div>
+                </div>
+            `).join('');
+            restaurantsGrid.classList.remove('hidden');
+        }
 
         // 1. Auth Check
         onAuthStateChanged(auth, (user) => {
@@ -221,32 +270,87 @@
 
                 const q = query(collection(db, "users"), where("role", "==", "restaurant"));
 
-                // Fallback: If no restaurant role users found, maybe check for a custom flag
-                // Or query 'vendors' collection if we migrate there.
+                showSkeletons();
 
                 const snapshot = await getDocs(q);
 
-                loadingIndicator.classList.add('hidden');
+                // Simulate delay for skeleton effect (optional, remove for prod)
+                // await new Promise(r => setTimeout(r, 800));
 
                 if (snapshot.empty) {
+                    restaurantsGrid.innerHTML = '';
                     noRestaurantsMsg.classList.remove('hidden');
+                    document.getElementById('restaurant-count').textContent = '0';
                     return;
                 }
 
-                restaurantsGrid.classList.remove('hidden');
-                restaurantsGrid.innerHTML = '';
-
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const card = createRestaurantCard(doc.id, data);
-                    restaurantsGrid.appendChild(card);
-                });
+                allRestaurants = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                document.getElementById('restaurant-count').textContent = allRestaurants.length;
+                renderRestaurants(allRestaurants);
 
             } catch (error) {
                 console.error("Error loading restaurants:", error);
-                loadingIndicator.innerHTML = `<p class="text-red-500">حدث خطأ في تحميل البيانات.<br><span class="text-xs text-gray-400">${error.message}</span></p>`;
+                restaurantsGrid.innerHTML = `<p class="col-span-full text-center text-red-500">حدث خطأ في تحميل البيانات.</p>`;
             }
         }
+
+        function renderRestaurants(list) {
+            restaurantsGrid.innerHTML = '';
+
+            // Filter logic
+            let filtered = list;
+            if (currentFilter !== 'all') {
+                // Simple keyword match in description or name or a 'tags' array
+                const term = currentFilter.toLowerCase();
+                filtered = list.filter(r =>
+                    (r.displayName && r.displayName.toLowerCase().includes(term)) ||
+                    (r.description && r.description.toLowerCase().includes(term)) ||
+                    (r.tags && r.tags.includes(term))
+                );
+            }
+
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            if (searchTerm) {
+                filtered = filtered.filter(r =>
+                    (r.displayName && r.displayName.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            if (filtered.length === 0) {
+                restaurantsGrid.classList.add('hidden');
+                noRestaurantsMsg.classList.remove('hidden');
+                return;
+            } else {
+                restaurantsGrid.classList.remove('hidden');
+                noRestaurantsMsg.classList.add('hidden');
+            }
+
+            filtered.forEach((data, index) => {
+                const card = createRestaurantCard(data.id, data);
+                // Staggered Animation
+                card.style.animationDelay = `${index * 100}ms`;
+                card.classList.add('fade-in-up');
+                restaurantsGrid.appendChild(card);
+            });
+        }
+
+        // Event Listeners
+        searchInput.addEventListener('input', () => renderRestaurants(allRestaurants));
+
+        filterBtns.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                // Update active state
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.remove('bg-gray-800', 'text-white');
+                    b.classList.add('bg-white', 'text-gray-600');
+                });
+                e.target.classList.remove('bg-white', 'text-gray-600');
+                e.target.classList.add('bg-gray-800', 'text-white');
+
+                currentFilter = e.target.dataset.filter;
+                renderRestaurants(allRestaurants);
+            }
+        });
 
         function createRestaurantCard(id, data) {
             const div = document.createElement('div');
