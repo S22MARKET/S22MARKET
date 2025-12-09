@@ -322,40 +322,59 @@
 
         // --- (الكود الخاص بإدارة البائعين) ---
 
-        // Global Listeners to avoid memory leaks if we spa
-        let usersUnsubscribe = null;
+        // State Management
+        let state = {
+            pendingRequests: [],
+            closureRequests: [],
+            activeSellers: []
+        };
 
-        function initializeDashboard() {
-            setActiveTab();
-            // Start Realtime Listener
-            if (usersUnsubscribe) usersUnsubscribe();
+        // Unsubscribe functions
+        let unsubPending = null;
+        let unsubClosure = null;
+        let unsubSellers = null;
 
-            const q = query(collection(db, "users"), orderBy("registrationDate", "desc"));
+        function loadSellers() {
             const loader = getEl('sellers-loader');
             const table = getEl('sellers-table');
-            const tableBody = getEl('sellers-table-body');
 
-            usersUnsubscribe = onSnapshot(q, (snapshot) => {
-                const allUsers = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderSellersAndRequests(allUsers);
+            // 1. Pending Store Requests
+            const qPending = query(collection(db, "users"), where("storeRequest.status", "==", "pending"));
+            if (unsubPending) unsubPending();
+            unsubPending = onSnapshot(qPending, (snapshot) => {
+                state.pendingRequests = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderAll();
                 loader.classList.add('hidden');
                 table.classList.remove('hidden');
-            }, (error) => {
-                console.error(error);
-                loader.innerHTML = `<p class="text-red-500">حدث خطأ في الاتصال: ${error.message}</p>`;
+            });
+
+            // 2. Pending Closure Requests
+            const qClosure = query(collection(db, "users"), where("storeRequest.closureStatus", "==", "pending"));
+            if (unsubClosure) unsubClosure();
+            unsubClosure = onSnapshot(qClosure, (snapshot) => {
+                state.closureRequests = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderAll();
+            });
+
+            // 3. Active Sellers (Limit to 50 for now to avoid overload, or use pagination in future)
+            const qSellers = query(collection(db, "users"), where("role", "in", ["vendor", "restaurant"]));
+            if (unsubSellers) unsubSellers();
+            unsubSellers = onSnapshot(qSellers, (snapshot) => {
+                // Filter out those that are already in pending closure (to avoid duplication if logic overlaps)
+                // Actually they are distinct queries, but a user could be a vendor AND have a pending closure request.
+                // We'll handle display priority in render.
+                state.activeSellers = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderAll();
             });
         }
 
-        async function renderSellersAndRequests(allUsers) {
-            // Separate Lists
-            const newRequests = allUsers.filter(u => u.storeRequest && u.storeRequest.status === 'pending');
-            const closureRequests = allUsers.filter(u => u.storeRequest && u.storeRequest.closureStatus === 'pending');
-            const activeSellers = allUsers.filter(u => (u.role === 'vendor' || u.role === 'restaurant') && (!u.storeRequest?.closureStatus || u.storeRequest.closureStatus !== 'pending'));
-
+        function renderAll() {
             const tableBody = getEl('sellers-table-body');
             tableBody.innerHTML = '';
 
-            // 1. CLOSURE REQUESTS (Critical Priority)
+            const { pendingRequests, closureRequests, activeSellers } = state;
+
+            // Prioritize Closure Requests
             closureRequests.forEach(user => {
                 const row = tableBody.insertRow();
                 row.className = 'bg-red-50 border-b border-red-200';
@@ -376,8 +395,8 @@
                 `;
             });
 
-            // 2. NEW STORE REQUESTS
-            newRequests.forEach(user => {
+            // Store Requests
+            pendingRequests.forEach(user => {
                 const req = user.storeRequest;
                 const links = req.links || {};
                 const linksHtml = [
@@ -412,8 +431,13 @@
             `;
             });
 
-            // 3. Active Sellers
+            // Active Sellers
+            // Avoid duplicating users who are in closure requests list
+            const displayedClosureIds = new Set(closureRequests.map(u => u.id));
+
             activeSellers.forEach(user => {
+                if (displayedClosureIds.has(user.id)) return; // Already shown in closure section
+
                 const row = tableBody.insertRow();
                 row.className = 'border-b hover:bg-gray-50';
                 row.innerHTML = `
@@ -425,7 +449,7 @@
                     ${user.storeName || '---'}
                     <span class="block text-xs text-gray-400">${user.role === 'restaurant' ? 'مطعم' : 'متجر'}</span>
                 </td>
-                <td class="p-4 text-center">---</td> <!-- Counts need heavy query, skipped for speed -->
+                <td class="p-4 text-center">---</td>
                 <td class="p-4 text-center">---</td>
                 <td data-label="الحد الأقصى" class="p-4">
                     <input type="number" 
@@ -442,7 +466,7 @@
              `;
             });
 
-            if (newRequests.length === 0 && closureRequests.length === 0 && activeSellers.length === 0) {
+            if (pendingRequests.length === 0 && closureRequests.length === 0 && activeSellers.length === 0) {
                 tableBody.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-gray-500">لا يوجد بيانات لعرضها</td></tr>`;
             }
         }
@@ -486,12 +510,20 @@
         };
 
         window.rejectSeller = async (uid) => {
-            if (!confirm('رفض الطلب؟')) return;
+            // New logic: Ask for reason
+            const reason = prompt("الرجاء إدخال سبب الرفض (سيظهر للمستخدم):");
+            if (reason === null) return; // Cancelled
+
+            const reasonText = reason.trim() || "لم يتم ذكر سبب محدد.";
+
             try {
                 await updateDoc(doc(db, "users", uid), {
-                    'storeRequest.status': 'rejected'
+                    'storeRequest.status': 'rejected',
+                    'storeRequest.rejectionReason': reasonText,
+                    'storeRequest.rejectedAt': Timestamp.now()
                 });
-            } catch (e) { console.error(e); }
+                alert('تم رفض الطلب.');
+            } catch (e) { console.error(e); alert("خطأ: " + e.message); }
         };
 
         window.updateUserLimit = async (input) => {

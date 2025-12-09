@@ -50,7 +50,7 @@
 
             to {
                 opacity: 1;
-                translateY(0);
+                transform: translateY(0);
             }
         }
 
@@ -254,14 +254,83 @@
                     </div>
                 </div>
 
+                <!-- Status Banner for Rejected Requests -->
+                <div id="rejected-request-banner"
+                    class="hidden bg-red-50 border-r-4 border-red-500 p-4 rounded-lg mb-6 flex items-start">
+                    <i class="fas fa-times-circle text-red-500 text-xl ml-3 mt-1"></i>
+                    <div>
+                        <h3 class="font-bold text-red-800">عذراً، تم رفض طلبك</h3>
+                        <p class="text-sm text-red-700 mt-1">
+                            للأسف، لم تتم الموافقة على طلب فتح المتجر.
+                            <br>
+                            <span class="font-bold">السبب:</span> <span id="rejection-reason-text">...</span>
+                        </p>
+                        <button id="dismiss-rejection-btn"
+                            class="text-red-600 text-sm font-bold mt-2 hover:underline">المحاولة مرة أخرى</button>
+                    </div>
+                </div>
+
+                <!-- Premium "Open Store" Hero Section -->
+                <div id="open-store-hero" class="hidden mb-8">
+                    <div
+                        class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl shadow-2xl p-6 sm:p-8 text-white overflow-hidden relative">
+                        <!-- Background Pattern -->
+                        <div class="absolute inset-0 opacity-10">
+                            <div class="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -mr-32 -mt-32"></div>
+                            <div class="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full -ml-24 -mb-24"></div>
+                        </div>
+
+                        <div class="relative z-10 text-center">
+                            <div class="mb-4">
+                                <i class="fas fa-store text-5xl sm:text-6xl opacity-90 animate-pulse"></i>
+                            </div>
+                            <h2 class="text-2xl sm:text-3xl md:text-4xl font-black mb-3 leading-tight">
+                                🚀 ابدأ رحلتك في عالم التجارة الإلكترونية
+                            </h2>
+                            <p class="text-base sm:text-lg text-indigo-100 mb-6 max-w-2xl mx-auto">
+                                انضم لآلاف التجار الناجحين واصنع مستقبلك المالي معنا
+                            </p>
+
+                            <!-- Benefits Grid -->
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 max-w-4xl mx-auto">
+                                <div
+                                    class="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 hover:bg-white/20 transition-all">
+                                    <div class="text-2xl sm:text-3xl mb-2">💰</div>
+                                    <div class="text-xs sm:text-sm font-bold">بدون رسوم افتتاح</div>
+                                </div>
+                                <div
+                                    class="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 hover:bg-white/20 transition-all">
+                                    <div class="text-2xl sm:text-3xl mb-2">📊</div>
+                                    <div class="text-xs sm:text-sm font-bold">ل وحة تحكم احترافية</div>
+                                </div>
+                                <div
+                                    class="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 hover:bg-white/20 transition-all">
+                                    <div class="text-2xl sm:text-3xl mb-2">🎯</div>
+                                    <div class="text-xs sm:text-sm font-bold">وصول لآلاف العملاء</div>
+                                </div>
+                                <div
+                                    class="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 hover:bg-white/20 transition-all">
+                                    <div class="text-2xl sm:text-3xl mb-2">💬</div>
+                                    <div class="text-xs sm:text-sm font-bold">دعم فني 24/7</div>
+                                </div>
+                            </div>
+
+                            <button id="open-store-btn"
+                                class="bg-white text-indigo-600 px-8 py-4 rounded-xl font-black text-base sm:text-lg shadow-2xl hover:shadow-xl transform hover:scale-105 transition-all inline-flex items-center gap-2">
+                                <i class="fas fa-rocket"></i>
+                                <span>⭐ افتح متجرك الآن مجاناً</span>
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+
+                            <p class="text-xs sm:text-sm text-indigo-200 mt-4">
+                                ✓ التسجيل سريع ومجاني • ✓ ابدأ البيع فوراً
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="flex justify-between items-end mb-4">
                     <h2 class="text-2xl font-bold text-gray-700">المحافظ</h2>
-
-                    <!-- Only show if NOT a vendor and NO pending request -->
-                    <button id="open-store-btn"
-                        class="hidden bg-gradient-to-l from-indigo-600 to-blue-600 text-white px-5 py-2 rounded-lg font-bold shadow hover:shadow-lg transition transform hover:-translate-y-1">
-                        <i class="fas fa-store ml-2"></i> افتح متجرك الآن
-                    </button>
 
                     <!-- If Vendor -->
                     <a id="go-to-dashboard-btn" href="seller-dashboard.html"
@@ -522,21 +591,44 @@
 
                     // === Store Request Logic ===
                     const startStoreBtn = document.getElementById('open-store-btn');
+                    const storeHero = document.getElementById('open-store-hero');
                     const dashboardBtn = document.getElementById('go-to-dashboard-btn');
                     const pendingBanner = document.getElementById('pending-request-banner');
+                    const rejectedBanner = document.getElementById('rejected-request-banner');
+                    const rejectionReasonText = document.getElementById('rejection-reason-text');
+                    const dismissRejectionBtn = document.getElementById('dismiss-rejection-btn');
 
-                    if (startStoreBtn) startStoreBtn.classList.add('hidden');
+                    if (storeHero) storeHero.classList.add('hidden');
                     if (dashboardBtn) dashboardBtn.classList.add('hidden');
                     if (pendingBanner) pendingBanner.classList.add('hidden');
+                    if (rejectedBanner) rejectedBanner.classList.add('hidden');
 
                     if (user.uid && (currentUserData.role === 'vendor' || currentUserData.role === 'restaurant')) {
                         if (dashboardBtn) dashboardBtn.classList.remove('hidden');
                     } else if (currentUserData.storeRequest && currentUserData.storeRequest.status === 'pending') {
                         if (pendingBanner) pendingBanner.classList.remove('hidden');
+                    } else if (currentUserData.storeRequest && currentUserData.storeRequest.status === 'rejected') {
+                        if (rejectedBanner) {
+                            rejectedBanner.classList.remove('hidden');
+                            if (rejectionReasonText) rejectionReasonText.textContent = currentUserData.storeRequest.rejectionReason || "لم يتم ذكر سبب.";
+
+                            if (dismissRejectionBtn) {
+                                dismissRejectionBtn.onclick = async () => {
+                                    // Clear only the status locally so they can request again immediately?
+                                    // Better: Update firestore to clear status or just hide banner locally and show form?
+                                    // Let's just show the form immediately.
+                                    rejectedBanner.classList.add('hidden');
+                                    storeHero.classList.remove('hidden');
+                                    if (startStoreBtn) startStoreBtn.onclick = () => showStoreModal();
+                                };
+                            }
+                        }
                     } else {
-                        if (startStoreBtn) {
-                            startStoreBtn.classList.remove('hidden');
-                            startStoreBtn.onclick = () => showStoreModal();
+                        if (storeHero) {
+                            storeHero.classList.remove('hidden');
+                            if (startStoreBtn) {
+                                startStoreBtn.onclick = () => showStoreModal();
+                            }
                         }
                     }
 

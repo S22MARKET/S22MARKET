@@ -3,215 +3,1271 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق المشرفين - Intigraphy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>S22 Market - الرئيسية</title>
+    <meta name="description" content="متجر S22 Market - أفضل المنتجات والعروض">
 
-    <!-- Fonts: Tajawal & Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap"
-        rel="stylesheet">
-
-    <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Tajawal', 'Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            500: '#0ea5e9', // Sky 500
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            900: '#0c4a6e',
-                        },
-                        dark: {
-                            bg: '#111827',
-                            card: '#1f2937',
-                            text: '#f3f4f6'
-                        }
-                    },
-                    boxShadow: {
-                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
-                        'card': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
-                    }
-                }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* شاشات التحميل */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        .small-loader {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
             }
         }
-    </script>
 
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        /* أنيميشن الظهور */
+        .fade-in-section {
+            animation: fadeIn 0.8s ease-in-out;
+        }
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* القائمة الجانبية والطبقة الشفافة */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .side-bar {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 32rem;
+            max-width: 90%;
+            height: 100vh;
+            background-color: var(--bg-card);
+            border-left: 1px solid var(--border-color);
+            z-index: 1200;
+            transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .side-bar.active {
+            right: 0;
+        }
+
+        /* القائمة السفلية */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--bg-card);
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-around;
+            padding: 0.5rem 0;
+            z-index: 900;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+            text-decoration: none;
+            flex-grow: 1;
+            padding: 0.25rem 0;
+        }
+
+        .nav-item i {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        /* تنسيقات Swiper والكروت */
+        .swiper-container {
+            overflow: hidden;
+            padding-bottom: 10px;
+        }
+
+        .swiper-slide {
+            width: auto;
+        }
+
+        .carousel-card {
+            width: 42vw;
+            min-width: 150px;
+            max-width: 170px;
+            background-color: var(--bg-card);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .carousel-card-image {
+            aspect-ratio: 1 / 1;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .carousel-card-content {
+            padding: 0.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .carousel-card-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            line-height: 1.4;
+            height: 2.45em;
+            overflow: hidden;
+            margin-bottom: 0.25rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .offer-carousel-card {
+            width: 80vw;
+            min-width: 260px;
+            max-width: 300px;
+            background-color: var(--bg-card);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .offer-carousel-image {
+            aspect-ratio: 16 / 9;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .offer-carousel-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0.75rem 0.75rem 0.5rem;
+            height: 2.6em;
+            line-height: 1.3;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .offer-price {
+            color: var(--primary-color);
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin: 0 0.75rem 0.75rem;
+        }
+
+        /* التايمر */
+        .countdown-timer-container {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-top: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 0.5rem 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .countdown-timer {
+            direction: ltr;
+            font-family: monospace, 'Tajawal', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #dc2626;
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .countdown-timer>div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 1.5rem;
+        }
+
+        .countdown-timer span {
+            font-size: 0.6rem;
+            font-weight: 500;
+            color: #b91c1c;
+        }
+
+        /* الأيقونات والزر العائم */
+        .category-icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .category-icon-circle {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .category-icon-item:hover .category-icon-circle {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 800;
+            transition: transform 0.2s;
+        }
+
+        .fab:hover {
+            transform: scale(1.05);
+            background-color: var(--primary-hover);
+        }
+
+        /* القائمة المنبثقة للمستخدم */
+        #user-menu-dropdown.show {
+            display: block;
+            animation: slideInUp 0.2s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* النوافذ المنبثقة (Modals) */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+            padding: 1rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            width: 100%;
+            max-width: 700px;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            border-radius: 1rem;
+        }
+
+        /* التوست (الإشعارات) */
+        #toast-container {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1001;
+            width: calc(100% - 2rem);
+            max-width: 400px;
+        }
+
+        .toast {
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            color: white;
+            background-color: #10b981;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideInUp 0.5s, fadeOut 0.5s 4.5s forwards;
+        }
+
+        .toast.error {
+            background-color: #ef4444;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Mobile Specifc Improvements */
+        @media (max-width: 768px) {
+            .main-header {
+                padding: 0.75rem 1rem;
+            }
+
+            .service-grid-item {
+                padding: 0.75rem;
+            }
+
+            /* Improve banner text readability on mobile */
+            .banner-title {
+                font-size: 2rem !important;
+                line-height: 1.2;
+            }
+
+            .banner-description {
+                font-size: 1rem !important;
+            }
+        }
+
+        /* Smooth fade-in animation for sections */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-slide-in {
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+    </style>
 </head>
 
-<body
-    class="bg-gray-50 text-gray-800 antialiased font-sans transition-colors duration-300 dark:bg-dark-bg dark:text-gray-100">
+<body class="pb-24">
 
-    <!-- App Container -->
-    <div id="app" class="relative min-h-screen flex flex-col">
+    <div class="overlay"></div>
 
-        <!-- Sticky Header -->
-        <header
-            class="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 dark:bg-dark-card/90 dark:border-gray-700 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
-                    <!-- Left: Menu & Logo -->
-                    <div class="flex items-center gap-4">
-                        <button id="menu-btn"
-                            class="p-2 -ml-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 focus:outline-none transition-colors">
-                            <i class="fas fa-bars text-xl"></i>
+    <aside class="side-bar flex flex-col">
+        <div class="p-4 text-left flex-shrink-0">
+            <button id="close-btn" class="text-3xl text-gray-500 hover:text-red-500 transition-colors">&times;</button>
+        </div>
+        <nav class="flex-grow overflow-y-auto">
+            <div class="p-4 space-y-4">
+                <a href="add-product-request.html" id="sidebar-add-product-btn"
+                    class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg hover:bg-blue-700 transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>إضافة منتج</span>
+                </a>
+
+                <a href="s22marketfood.html" id="sidebar-orders-btn" target="_blank" rel="noopener noreferrer"
+                    class="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-lg text-lg hover:bg-orange-600 transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg">
+                    <i class="fas fa-utensils"></i>
+                    <span>الطلبات والمأكولات</span>
+                </a>
+            </div>
+
+            <div class="px-6 py-2">
+                <h3 class="text-lg font-bold text-gray-800 border-b pb-2">الأقسام</h3>
+            </div>
+            <div id="sidebar-categories-container" class="py-2">
+                <div class="text-center p-4">
+                    <div class="loader mx-auto"></div>
+                </div>
+            </div>
+        </nav>
+        <div class="mt-auto p-4 border-t border-gray-200 space-y-3">
+            <a href="#" id="sidebar-complaint-btn"
+                class="w-full text-center text-gray-700 bg-gray-100 hover:bg-gray-200 flex items-center justify-center gap-2 border border-gray-200 font-semibold py-3 px-4 rounded-lg">
+                <i class="fas fa-flag"></i> <span>شكوى/رأي</span>
+            </a>
+            <a href="dashboard.html" id="admin-login-btn"
+                class="w-full text-center text-gray-700 bg-gray-100 hover:bg-gray-200 flex items-center justify-center gap-2 border border-gray-200 font-semibold py-3 px-4 rounded-lg">
+                <i class="fas fa-user-shield"></i> <span>خاص بالمشرفين</span>
+            </a>
+        </div>
+    </aside>
+
+    <div id="page-container">
+
+        <header class="main-header bg-white shadow-sm sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+
+                <button id="search-btn" class="text-2xl text-gray-600 hover:text-blue-600">
+                    <i class="fas fa-search"></i>
+                </button>
+
+                <div id="logo-container" onclick="location.href='index.html'" class="cursor-pointer">
+                    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+                        S22<span class="text-blue-600">MARKET</span>
+                    </h1>
+                </div>
+
+                <div id="header-actions" class="flex items-center gap-3 relative">
+                    <button id="menu-btn" class="text-2xl text-gray-600 hover:text-blue-600"><i
+                            class="fas fa-bars"></i></button>
+
+                    <a href="login.html" id="login-btn" class="hidden"></a>
+                    <div id="user-menu" class="hidden">
+                        <button id="user-menu-button"
+                            class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-600 focus:outline-none">
+                            <i class="fas fa-user"></i>
                         </button>
-                        <a href="#" class="flex items-center gap-2">
-                            <div
-                                class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center text-white font-bold text-lg shadow-soft">
-                                <i class="fas fa-shield-alt"></i>
+
+                        <div id="user-menu-dropdown"
+                            class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
+                            <div class="p-3 border-b">
+                                <p class="text-sm text-gray-500">مرحباً بك،</p>
+                                <p class="font-bold text-gray-800" id="user-menu-displayname">...</p>
+                                <span class="hidden" id="user-menu-name"></span>
                             </div>
-                            <span class="font-bold text-lg tracking-tight text-gray-900 dark:text-white">المشرفين</span>
-                        </a>
-                    </div>
-
-                    <!-- Right: Actions -->
-                    <div class="flex items-center gap-3">
-                        <button id="theme-toggle"
-                            class="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors">
-                            <i class="fas fa-moon"></i>
-                        </button>
-                        <div class="relative">
-                            <img src="https://ui-avatars.com/api/?name=User&background=0ea5e9&color=fff" alt="Profile"
-                                class="h-9 w-9 rounded-full ring-2 ring-white dark:ring-gray-700 cursor-pointer shadow-sm">
-                            <span
-                                class="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-400 ring-2 ring-white dark:ring-gray-800"></span>
+                            <a href="profile.html"
+                                class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                    class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي</a>
+                            <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">المتجر</div>
+                            <a href="seller-dashboard.html"
+                                class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                    class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
+                            <a href="order_history.html"
+                                class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                    class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
+                            <a href="loyalty_card.html"
+                                class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                    class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء</a>
+                            <a href="loyalty_tasks.html"
+                                class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                    class="fas fa-tasks fa-fw ml-2 text-purple-400"></i> المهام</a>
+                            <a href="loyalty_rewards.html"
+                                class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                    class="fas fa-gift fa-fw ml-2 text-yellow-400"></i> الجوائز</a>
+                            <button id="logout-btn"
+                                class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i
+                                    class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Main Layout -->
-        <div class="flex flex-1 overflow-hidden">
+        <main class="max-w-7xl mx-auto py-3 sm:py-4 md:py-6 px-3 sm:px-4 lg:px-6 space-y-6 sm:space-y-8">
 
-            <!-- Sidebar (Hidden by default on mobile) -->
-            <aside id="sidebar"
-                class="fixed inset-y-0 right-0 z-50 w-64 bg-white dark:bg-dark-card border-l border-gray-100 dark:border-gray-700 transform translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:border-l-0 lg:border-r shadow-2xl lg:shadow-none">
-                <div class="h-full flex flex-col">
-                    <div
-                        class="h-16 flex items-center justify-between px-6 border-b border-gray-100 dark:border-gray-700 lg:hidden">
-                        <span class="font-bold text-lg">القائمة</span>
-                        <button id="close-sidebar" class="text-gray-500"><i class="fas fa-times"></i></button>
+            <!-- 🔍 Enhanced Search Bar (Prominent & Clean) -->
+            <div
+                class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10">
+                <div class="max-w-3xl mx-auto text-center mb-6">
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2 leading-tight">
+                        اكتشف عالم S22 Market 🛍️
+                    </h1>
+                    <p class="text-sm sm:text-base text-white/90">ابحث عن ملايين المنتجات من آلاف البائعين</p>
+                </div>
+
+                <div class="relative max-w-4xl mx-auto">
+                    <div class="relative">
+                        <input type="text" id="main-search-input" placeholder="ابحث عن منتجات، مطاعم، أو خدمات..."
+                            class="w-full px-6 py-4 sm:py-5 pr-14 rounded-2xl text-base sm:text-lg font-medium shadow-xl focus:outline-none focus:ring-4 focus:ring-yellow-400 transition-all">
+                        <button
+                            class="absolute left-3 top-1/2 -translate-y-1/2 bg-gradient-to-r from-orange-500 to-pink-500 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all">
+                            <i class="fas fa-search ml-2"></i>بحث
+                        </button>
                     </div>
 
-                    <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
-                        <!-- Navigation Links will be injected here or hardcoded -->
-                        <a href="#home"
-                            class="nav-link flex items-center gap-3 px-4 py-3 text-brand-600 bg-brand-50 dark:bg-gray-800 dark:text-brand-400 rounded-xl transition-all shadow-sm font-medium">
-                            <i class="fas fa-home w-6 text-center"></i>
-                            <span>الرئيسية</span>
+                    <!-- Quick Search Tags -->
+                    <div class="flex flex-wrap gap-2 justify-center mt-4">
+                        <a href="s22marketfood.html"
+                            class="px-4 py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm rounded-full font-semibold backdrop-blur-sm transition-all">
+                            🍕 مطاعم
                         </a>
-                        <a href="#submit"
-                            class="nav-link flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white rounded-xl transition-all font-medium">
-                            <i class="fas fa-cloud-upload-alt w-6 text-center"></i>
-                            <span>إرسال إثبات</span>
+                        <a href="auctions.html"
+                            class="px-4 py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm rounded-full font-semibold backdrop-blur-sm transition-all">
+                            🏆 مزادات
                         </a>
-                        <div class="my-4 border-t border-gray-100 dark:border-gray-700"></div>
-                        <a href="#chat"
-                            class="nav-link flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white rounded-xl transition-all font-medium">
-                            <i class="fas fa-comments w-6 text-center"></i>
-                            <span>المحادثة اليومية</span>
-                        </a>
-                        <a href="#challenge"
-                            class="nav-link flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white rounded-xl transition-all font-medium">
-                            <i class="fas fa-trophy w-6 text-center"></i>
-                            <span>التحدي الأسبوعي</span>
-                        </a>
-                        <a href="#members"
-                            class="nav-link flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white rounded-xl transition-all font-medium">
-                            <i class="fas fa-users w-6 text-center"></i>
-                            <span>الأعضاء</span>
-                        </a>
-                        <div class="my-4 border-t border-gray-100 dark:border-gray-700"></div>
-                        <a href="#admin"
-                            class="nav-link flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white rounded-xl transition-all font-medium">
-                            <i class="fas fa-shield-alt w-6 text-center"></i>
-                            <span>لوحة التحكم</span>
-                        </a>
-                    </nav>
-
-                    <div class="p-4 border-t border-gray-100 dark:border-gray-700">
-                        <a href="#profile"
-                            class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
-                            <i class="fas fa-user-circle w-6 text-center"></i>
-                            <span>الملف الشخصي</span>
+                        <a href="offers.html"
+                            class="px-4 py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm rounded-full font-semibold backdrop-blur-sm transition-all">
+                            🎉 عروض
                         </a>
                     </div>
                 </div>
-            </aside>
+            </div>
 
-            <!-- Overlay for mobile sidebar -->
-            <div id="sidebar-overlay"
-                class="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 hidden lg:hidden glass-overlay"></div>
+            <!-- 📂 Categories Horizontal Carousel (Clean Modern Design) -->
+            <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl sm:text-2xl font-black text-gray-800 flex items-center gap-2">
+                        <i class="fas fa-th-large text-indigo-600"></i>
+                        تصفح حسب الفئة
+                    </h2>
+                    <button class="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                        <span class="hidden sm:inline">عرض الكل</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                </div>
 
-            <!-- Main Content -->
-            <main id="main-content"
-                class="flex-1 overflow-y-auto bg-gray-50 dark:bg-dark-bg p-4 sm:p-6 lg:p-8 relative">
-                <!-- Dynamic Content Will Be Loaded Here -->
-                <div id="page-container" class="max-w-3xl mx-auto space-y-6">
-                    <!-- Example Placeholder: Weekly Progress -->
-                    <div
-                        class="bg-gradient-to-br from-brand-600 to-brand-700 rounded-2xl p-6 text-white shadow-card relative overflow-hidden">
-                        <div class="relative z-10">
-                            <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <h2 class="text-xl font-bold mb-1">التحدي الأسبوعي</h2>
-                                    <p class="text-brand-100 text-sm">تبقى 3 أيام على النهاية</p>
-                                </div>
-                                <div class="bg-white/20 p-2 rounded-lg backdrop-blur-md">
-                                    <i class="fas fa-fire text-yellow-300 text-xl"></i>
-                                </div>
+                <div class="swiper categories-swiper">
+                    <div class="swiper-wrapper" id="categories-carousel">
+                        <!-- Categories loaded dynamically -->
+                        <div class="swiper-slide w-auto">
+                            <div class="flex items-center gap-2 text-gray-400 p-4">
+                                <div class="loader w-5 h-5 border-2"></div>
+                                <span class="text-sm">جاري التحميل...</span>
                             </div>
-                            <div class="mb-2 flex justify-between text-sm font-medium">
-                                <span>13 / 20 منشور</span>
-                                <span>65%</span>
-                            </div>
-                            <div class="w-full bg-black/20 rounded-full h-3 backdrop-blur-sm">
-                                <div class="bg-white h-3 rounded-full transition-all duration-1000" style="width: 65%">
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Decor -->
-                        <div
-                            class="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2">
-                        </div>
-                        <div
-                            class="absolute bottom-0 right-0 w-48 h-48 bg-brand-500/20 rounded-full blur-3xl translate-x-1/3 translate-y-1/3">
-                        </div>
-                    </div>
-
-                    <!-- Content Area -->
-                    <div
-                        class="bg-white dark:bg-dark-card rounded-2xl shadow-soft p-6 min-h-[400px] flex items-center justify-center text-gray-400">
-                        <div class="text-center">
-                            <i class="fas fa-spinner fa-spin text-3xl mb-3"></i>
-                            <p>جاري تحميل البيانات...</p>
                         </div>
                     </div>
                 </div>
-            </main>
+            </div>
 
-        </div>
+
+            <!-- 🎁 Special Offers Banner (Large & Eye-Catching) -->
+            <div class="relative overflow-hidden rounded-2xl shadow-2xl cursor-pointer group"
+                onclick="location.href='offers.html'">
+                <div class="aspect-[21/9] sm:aspect-[3/1] md:aspect-[4/1]">
+                    <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=1200"
+                        class="w-full h-full object-cover" alt="عروض خاصة">
+                    <div class="absolute inset-0 bg-gradient-to-r from-purple-900/95 via-pink-800/80 to-transparent">
+                    </div>
+                </div>
+                <div class="absolute inset-0 flex items-center p-6 sm:p-8 md:p-12">
+                    <div class="text-white max-w-2xl">
+                        <div
+                            class="inline-block bg-yellow-400 text-purple-900 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold mb-3 sm:mb-4 animate-bounce">
+                            <i class="fas fa-percent mr-1"></i>عروض لفترة محدودة
+                        </div>
+                        <h2 class="text-3xl sm:text-4xl md:text-5xl font-black mb-2 sm:mb-3 leading-tight">
+                            خصومات تصل لـ 70% 🎉
+                        </h2>
+                        <p class="text-base sm:text-lg md:text-xl text-purple-100 mb-4 sm:mb-6">على آلاف المنتجات من
+                            جميع الفئات</p>
+                        <button
+                            class="bg-gradient-to-r from-yellow-400 to-orange-500 text-purple-900 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-black text-base sm:text-lg shadow-2xl transform group-hover:scale-110 transition-all">
+                            <i class="fas fa-tags ml-2"></i>تسوق الآن
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Dynamic Home Sections (Products will appear here) -->
+            <div id="dynamic-home-sections" class="space-y-12 min-h-[300px]">
+                <!-- Sections will be loaded dynamically -->
+            </div>
+
+        </main>
     </div>
 
-    <!-- Scripts -->
-    <script type="module" src="js/app.js"></script>
+    <a href="add-product-request.html" class="fab" title="إضافة منتج">
+        <i class="fas fa-plus"></i>
+    </a>
+
+    <footer class="bg-gray-800 text-gray-300 py-10 mb-16 hidden md:block">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-white text-xl font-bold mb-4">S22 Market</h3>
+                <p class="text-sm leading-relaxed">منصتك الأولى للتسوق الإلكتروني. نجمع لك أفضل المنتجات من متاجر موثوقة
+                    ومطاعم مميزة.</p>
+            </div>
+            <div>
+                <h3 class="text-white font-bold mb-4">روابط سريعة</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="index.html" class="hover:text-white transition">الرئيسية</a></li>
+                    <li><a href="s22marketfood.html" class="hover:text-white transition">المطاعم</a></li>
+                    <li><a href="business.html" class="hover:text-white transition text-indigo-400 font-bold">انضم
+                            كتاجر</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-white font-bold mb-4">دعم العملاء</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="profile.html" class="hover:text-white transition">حسابي</a></li>
+                    <li><a href="cart.html" class="hover:text-white transition">سلة الشراء</a></li>
+                    <li><a href="#" class="hover:text-white transition">الشروط والأحكام</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-white font-bold mb-4">تواصل معنا</h3>
+                <div class="flex space-x-4 space-x-reverse mb-4">
+                    <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-whatsapp"></i></a>
+                </div>
+                <p class="text-xs text-gray-500">© 2025 جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <footer class="bottom-nav">
+        <a href="index.html" class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="s22marketfood.html" class="nav-item text-orange-500">
+            <i class="fas fa-utensils"></i>
+            <span>المطاعم</span>
+        </a>
+        <a href="auctions.html" class="nav-item text-red-600">
+            <i class="fas fa-gavel"></i>
+            <span>المزادات</span>
+        </a>
+        <a href="cart.html" id="bottom-cart-btn" class="nav-item relative">
+            <i class="fas fa-shopping-cart"></i>
+            <span>السلة</span>
+            <span id="cart-badge-bottom"
+                class="hidden absolute top-0 right-1/4 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white">0</span>
+        </a>
+        <a href="profile.html" id="bottom-profile-btn" class="nav-item">
+            <i class="fas fa-user-circle"></i>
+            <span>حسابي</span>
+        </a>
+        <a href="login.html" id="bottom-login-btn" class="nav-item hidden">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>الدخول</span>
+        </a>
+    </footer>
+
+    <div id="modal-container"></div>
+    <div id="toast-container"></div>
+
+    <script type="module">
+        import { db, collection, getDocs, doc, getDoc, query, orderBy, limit, serverTimestamp, addDoc } from './js/firebase-config.js';
+        import { initAuthListener, logoutUser } from './js/auth-service.js';
+        import { loadCart, getCartCount } from './js/cart-service.js';
+        import { showToast, showModal, closeModal, getLoaderHTML } from './js/ui-utils.js';
+
+        // Global Cache
+        let offersCache = [];
+        let categoriesCache = [];
+        let storeSettings = {};
+
+        const elements = {
+            modalContainer: document.getElementById('modal-container'),
+            toastContainer: document.getElementById('toast-container'),
+
+            menuBtn: document.getElementById('menu-btn'),
+            loginBtn: document.getElementById('login-btn'),
+            userMenu: document.getElementById('user-menu'),
+            userMenuButton: document.getElementById('user-menu-button'),
+            userMenuDropdown: document.getElementById('user-menu-dropdown'),
+            userMenuName: document.getElementById('user-menu-name'),
+            userMenuDisplayName: document.getElementById('user-menu-displayname'),
+            logoutBtn: document.getElementById('logout-btn'),
+
+            bottomCartBtn: document.getElementById('bottom-cart-btn'),
+            cartBadgeBottom: document.getElementById('cart-badge-bottom'),
+            bottomProfileBtn: document.getElementById('bottom-profile-btn'),
+            bottomLoginBtn: document.getElementById('bottom-login-btn'),
+
+            sidebar: document.querySelector('.side-bar'),
+            overlay: document.querySelector('.overlay'),
+            closeSidebarBtn: document.getElementById('close-btn'),
+            sidebarCategoriesContainer: document.getElementById('sidebar-categories-container'),
+            sidebarComplaintBtn: document.getElementById('sidebar-complaint-btn'),
+            sidebarAddProductBtn: document.getElementById('sidebar-add-product-btn'),
+            sidebarOrdersBtn: document.getElementById('sidebar-orders-btn'),
+
+            offersCarouselSection: document.getElementById('offers-carousel-section'),
+            offersCarouselWrapper: document.getElementById('offers-carousel-wrapper'),
+            categoryIconsWrapper: document.getElementById('category-icons-wrapper'),
+            dynamicHomeSections: document.getElementById('dynamic-home-sections')
+        };
+
+        // --- Inquiry Logic ---
+
+        // Expose to window for legacy onclick support if needed, or simply handle internally
+        window.showInquiryModal = (type) => {
+            const title = type === 'complaint' ? 'تقديم شكوى أو رأي' : 'طلب منتج';
+            const content = `
+            <form id="inquiry-form" class="space-y-4">
+                <p class="text-sm text-gray-600">سيتم إرسال رسالتك مباشرة إلى الإدارة للمراجعة.</p>
+                <div>
+                    <label class="font-semibold text-sm">الاسم الكامل <span class="text-red-500">*</span></label>
+                    <input type="text" id="inq-name" class="mt-1 w-full p-2 border rounded" required>
+                </div>
+                <div>
+                    <label class="font-semibold text-sm">رقم الهاتف <span class="text-red-500">*</span></label>
+                    <input type="tel" id="inq-phone" class="mt-1 w-full p-2 border rounded" dir="ltr" required>
+                </div>
+                <div>
+                    <label class="font-semibold text-sm">نص الرسالة / الطلب <span class="text-red-500">*</span></label>
+                    <textarea id="inq-message" rows="4" class="mt-1 w-full p-2 border rounded" required></textarea>
+                </div>
+                <div class="text-left">
+                    <button type="submit" id="inq-submit-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                        <span class="button-text">إرسال</span>
+                        <div class="small-loader button-loader hidden"></div>
+                    </button>
+                </div>
+            </form>`;
+
+            showModal(title, content);
+
+            setTimeout(() => {
+                const form = document.getElementById('inquiry-form');
+                if (form) form.onsubmit = (e) => handleInquirySubmit(e, type);
+            }, 100);
+        };
+
+        async function handleInquirySubmit(e, type) {
+            e.preventDefault();
+            const btn = document.getElementById('inq-submit-btn');
+            const btnText = btn.querySelector('.button-text');
+            const btnLoader = btn.querySelector('.button-loader');
+
+            if (btn) btn.disabled = true;
+            if (btnText) btnText.classList.add('hidden');
+            if (btnLoader) btnLoader.classList.remove('hidden');
+
+            try {
+                const data = {
+                    type: type,
+                    fullName: document.getElementById('inq-name').value,
+                    phone: document.getElementById('inq-phone').value,
+                    message: document.getElementById('inq-message').value,
+                    status: 'جديد',
+                    createdAt: serverTimestamp()
+                };
+                await addDoc(collection(db, "inquiries"), data);
+                closeModal();
+                showToast('تم إرسال رسالتك بنجاح، شكراً لك.', true);
+            } catch (error) {
+                console.error("Error submitting inquiry:", error);
+                showToast('فشل إرسال الرسالة، يرجى المحاولة لاحقاً.', false);
+            } finally {
+                if (btn) btn.disabled = false;
+                if (btnText) btnText.classList.remove('hidden');
+                if (btnLoader) btnLoader.classList.add('hidden');
+            }
+        }
+
+        function showRedirectModal({ title, icon, message, targetUrl }) {
+            const content = `
+            <div class="text-center p-4">
+                <div class="text-6xl mb-4">${icon}</div>
+                <p class="text-lg text-gray-700">${message}</p>
+                <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="mt-6 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg hover:bg-blue-700 transition-all transform hover:scale-105 flex items-center justify-center gap-2">
+                    <i class="fas fa-external-link-alt"></i>
+                    متابعة
+                </a>
+            </div>`;
+            showModal(title, content);
+        }
+
+        // --- UI Interactions ---
+
+        const closeSidebar = () => {
+            elements.sidebar.classList.remove('active');
+            elements.overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        };
+
+        function updateCartUI() {
+            const totalItems = getCartCount();
+            elements.cartBadgeBottom.textContent = totalItems;
+            elements.cartBadgeBottom.classList.toggle('hidden', totalItems === 0);
+        }
+
+        // --- Data Fetching ---
+
+        async function loadStoreSettings() {
+            try {
+                const settingsDoc = await getDoc(doc(db, "settings", "storeConfig"));
+                if (settingsDoc.exists()) {
+                    storeSettings = settingsDoc.data();
+                    document.title = storeSettings.seoTitle || 'S22 Market';
+                }
+            } catch (e) { console.error("Store settings error:", e); }
+        }
+
+        // --- Timer Logic ---
+        function updateCountdowns() {
+            const countdownElements = document.querySelectorAll('.countdown-timer');
+            countdownElements.forEach(el => {
+                const endTime = el.dataset.endTime;
+                if (!endTime) return;
+                const t = calculateTimeRemaining(endTime);
+                if (t.total <= 0) {
+                    el.parentElement.classList.add('hidden');
+                } else {
+                    el.innerHTML = `
+                    <div>${t.days} <span>يوم</span></div> :
+                    <div>${t.hours} <span>س</span></div> :
+                    <div>${t.minutes} <span>د</span></div> :
+                    <div>${t.seconds} <span>ث</span></div>
+                `;
+                }
+            });
+        }
+
+        function calculateTimeRemaining(endtime) {
+            const total = Date.parse(endtime) - Date.parse(new Date());
+            const seconds = Math.floor((total / 1000) % 60);
+            const minutes = Math.floor((total / 1000 / 60) % 60);
+            const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
+            const days = Math.floor(total / (1000 * 60 * 60 * 24));
+            return { total, days, hours, minutes, seconds };
+        }
+
+        // --- Rendering ---
+
+        function createOfferCard(offer) {
+            const card = document.createElement('div');
+            card.className = 'swiper-slide offer-carousel-card';
+            const image = offer.imageUrl || 'https://placehold.co/400x200';
+
+            let countdownHTML = '';
+            if (offer.expiryDate && offer.expiryDate.toDate) {
+                const expiryTime = offer.expiryDate.toDate();
+                if (expiryTime > new Date()) {
+                    countdownHTML = `
+                <div class="countdown-timer-container">
+                    <span class="countdown-label"><i class="fas fa-fire-alt ml-1"></i> ينتهي العرض:</span>
+                    <div class="countdown-timer" data-end-time="${expiryTime.toISOString()}"></div>
+                </div>`;
+                }
+            }
+
+            card.innerHTML = `
+            <a href="PRESENTPRODUCT.html?offer=${offer.id}" class="block">
+                <div class="offer-carousel-image" style="background-image: url('${image}')"></div>
+                <h3 class="offer-carousel-title">${offer.title}</h3>
+                <p class="offer-price">${(offer.price || 0).toLocaleString()} د.ج</p>
+                ${countdownHTML}
+            </a>`;
+            return card;
+        }
+
+        async function fetchAndRenderOffers() {
+            try {
+                const snapshot = await getDocs(query(collection(db, "offers"), orderBy("createdAt", "desc"), limit(5)));
+                offersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), isOffer: true }));
+
+                if (offersCache.length > 0) {
+                    elements.offersCarouselWrapper.innerHTML = '';
+                    offersCache.forEach(offer => {
+                        elements.offersCarouselWrapper.appendChild(createOfferCard(offer));
+                    });
+                    elements.offersCarouselSection.classList.remove('hidden');
+
+                    new Swiper('#offers-carousel-section .swiper-container', {
+                        slidesPerView: 'auto',
+                        spaceBetween: 16,
+                        freeMode: true,
+                    });
+
+                    if (document.querySelector('.countdown-timer')) {
+                        updateCountdowns();
+                        setInterval(updateCountdowns, 1000);
+                    }
+                }
+            } catch (error) { console.error("Offers error:", error); }
+        }
+
+        async function fetchAndRenderCategories() {
+            try {
+                const snapshot = await getDocs(query(collection(db, "categories"), orderBy("orderIndex")));
+                categoriesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // 1. Sidebar Categories (Desktop)
+                let sidebarListHTML = '';
+                const heroList = document.getElementById('hero-categories-list');
+
+                // 2. Mobile Swiper Categories
+                let mobileSwiperHTML = '';
+                const mobileWrapper = document.getElementById('category-icons-wrapper');
+
+                categoriesCache.forEach(cat => {
+                    const activeSubcategories = cat.subcategories?.filter(s => s.active && s.id) || [];
+
+                    // Desktop Sidebar Item
+                    sidebarListHTML += `
+                    <li class="group/item relative">
+                        <a href="classproductindex.html?category=${cat.id}" class="flex items-center justify-between p-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors">
+                            <span class="font-medium truncate">${cat.name}</span>
+                            ${activeSubcategories.length > 0 ? '<i class="fas fa-chevron-left text-xs text-gray-400"></i>' : ''}
+                        </a>
+                        ${activeSubcategories.length > 0 ? `
+                        <div class="hidden group-hover/item:block absolute top-0 right-full w-48 bg-white shadow-xl rounded-lg border border-gray-100 p-2 z-50 mr-1">
+                            ${activeSubcategories.map(sub => `
+                                <a href="classproductindex.html?subcategory=${sub.id}" class="block p-2 text-sm hover:bg-gray-50 text-gray-600 rounded transition">${sub.name}</a>
+                            `).join('')}
+                        </div>` : ''}
+                    </li>`;
+
+                    // Mobile Swiper Item
+                    mobileSwiperHTML += `
+                    <a href="classproductindex.html?category=${cat.id}" class="swiper-slide category-icon-item">
+                        <div class="category-icon-circle"><i class="fas fa-box text-2xl text-blue-500"></i></div>
+                        <span>${cat.name}</span>
+                    </a>`;
+                });
+
+                if (heroList) heroList.innerHTML = sidebarListHTML;
+                if (mobileWrapper) {
+                    mobileWrapper.innerHTML = `
+                        <a href="classproductindex.html" class="swiper-slide category-icon-item">
+                            <div class="category-icon-circle"><i class="fas fa-th-large text-2xl text-gray-500"></i></div>
+                            <span>الكل</span>
+                        </a>
+                        ${mobileSwiperHTML}
+                        `;
+                }
+
+                // Initialize Mobile Categories Swiper
+                if (mobileWrapper) {
+                    new Swiper('#category-icons-section .swiper-container', {
+                        slidesPerView: 'auto',
+                        spaceBetween: 10,
+                        freeMode: true,
+                    });
+                }
+
+                // Initialize SideBar (Old Mobile Sidebar - Keep for compatibility)
+                let oldSidebarHTML = `<div class="p-2 space-y-1">`;
+                categoriesCache.forEach(cat => {
+                    const activeSubcategories = cat.subcategories?.filter(s => s.active && s.id) || [];
+                    oldSidebarHTML += `
+                    <div>
+                        <a href="classproductindex.html?category=${cat.id}" class="flex items-center justify-between gap-4 p-3 text-lg font-semibold rounded-lg category-filter-btn hover:bg-gray-100">
+                            <div class="flex items-center gap-4"><i class="fas fa-tag w-8 text-center text-gray-400"></i> <span>${cat.name}</span></div>
+                        </a>
+                        </div>`;
+                });
+                oldSidebarHTML += `</div>`;
+                if (elements.sidebarCategoriesContainer) elements.sidebarCategoriesContainer.innerHTML = oldSidebarHTML;
+
+            } catch (error) { console.error("Categories error:", error); }
+        }
+
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = 'swiper-slide carousel-card';
+
+            const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : 'https://placehold.co/300x300';
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = product.name;
+            const productName = tempDiv.textContent || tempDiv.innerText || "";
+
+            let cardLink = `PRESENTPRODUCT.html?product=${product.id}`;
+            let priceHTML = `<p class="text-blue-600 font-bold mx-2 mb-2">${(product.price || 0).toLocaleString()} د.ج</p>`;
+
+            if (product.productType === 'direct') {
+                priceHTML = `<p class="text-green-600 font-bold mx-2 mb-2">اطلب الآن</p>`;
+            }
+
+            card.innerHTML = `
+            <a href="${cardLink}" class="block flex flex-col flex-grow">
+                <div class="carousel-card-image" style="background-image: url('${image}')"></div>
+                <div class="carousel-card-content">
+                    <h3 class="carousel-card-title">${productName}</h3>
+                    <div class="flex-grow"></div> ${priceHTML}
+                </div>
+            </a>`;
+            return card;
+        }
+
+        function createSectionHTML(sectionId, title, colorClass = 'blue') {
+            return `
+            <section id="${sectionId}" class="fade-in-section">
+                <h2 class="text-2xl font-extrabold text-gray-800 mb-4 border-r-4 border-${colorClass}-500 pr-4 flex items-center justify-between">
+                    <span>${title}</span>
+                    <a href="classproductindex.html" class="text-sm font-normal text-indigo-600 hover:underline ml-2">عرض الكل <i class="fas fa-angle-left text-xs"></i></a>
+                </h2>
+                <div class="swiper swiper-container">
+                    <div class="swiper-wrapper" id="${sectionId}-wrapper"></div>
+                </div>
+            </section>
+        `;
+        }
+
+        async function fetchAndRenderDynamicHome() {
+            const container = elements.dynamicHomeSections;
+            try {
+                const sectionsSnapshot = await getDocs(query(collection(db, "home_sections"), orderBy("orderIndex")));
+                const sectionsConfig = sectionsSnapshot.docs.map(d => d.data());
+
+                // Simple fetch, optimization later
+                // We exclude 'course' type to match original logic
+                const productsQuery = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(100));
+                const productsSnapshot = await getDocs(productsQuery);
+                const allProducts = productsSnapshot.docs
+                    .map(d => ({ id: d.id, ...d.data() }))
+                    .filter(p => p.productType !== 'course' && p.availability !== 'sold_out');
+
+                container.innerHTML = '';
+
+                if (sectionsConfig.length === 0) {
+                    container.innerHTML = createSectionHTML('default-recent', 'وصل حديثاً ✨', 'indigo');
+                    const wrapper = document.getElementById('default-recent-wrapper');
+                    allProducts.slice(0, 10).forEach(p => wrapper.appendChild(createProductCard(p)));
+                    new Swiper('#default-recent .swiper-container', { slidesPerView: 'auto', spaceBetween: 16, freeMode: true });
+                    return;
+                }
+
+                sectionsConfig.forEach((section, index) => {
+                    const sectionId = `section-${index}`;
+                    const color = ['blue', 'red', 'green', 'purple', 'orange'][index % 5];
+                    container.insertAdjacentHTML('beforeend', createSectionHTML(sectionId, section.title, color));
+                    const wrapper = document.getElementById(`${sectionId}-wrapper`);
+
+                    let filteredProducts = [];
+                    if (section.type === 'recent') filteredProducts = allProducts.slice(0, 10);
+                    else if (section.type === 'category' && section.config?.categoryId) filteredProducts = allProducts.filter(p => p.categoryId === section.config.categoryId);
+                    else if (section.type === 'offers') filteredProducts = allProducts.slice(5, 15);
+
+                    if (filteredProducts.length > 0) {
+                        filteredProducts.forEach(product => wrapper.appendChild(createProductCard(product)));
+                        new Swiper(`#${sectionId} .swiper-container`, { slidesPerView: 'auto', spaceBetween: 16, freeMode: true });
+                    } else {
+                        document.getElementById(sectionId).style.display = 'none';
+                    }
+                });
+
+            } catch (error) {
+                console.error("Dynamic home error:", error);
+                let errorMsg = "عذراً، حدث خطأ في تحميل المنتجات.";
+                if (error && error.message && error.message.includes("index")) errorMsg += "<br><br><b>السبب:</b> يتطلب هذا الاستعلام فهرساً (Index). يرجى فتح 'Console' والضغط على الرابط لإنشائه.";
+                else if (error && error.code === "permission-denied") errorMsg += "<br><br><b>السبب:</b> لا تملك صلاحية القراءة. تأكد من تحديث 'Firestore Rules'.";
+                else errorMsg += `<br><br><b>التفاصيل:</b> ${error ? error.message : 'غير معروف'}`;
+
+                container.innerHTML = `<div class="text-center py-10 text-red-500 bg-red-50 rounded-lg mx-4">
+                    <p class="font-bold text-lg">${errorMsg}</p>
+                    <button onclick="location.reload()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition">إعادة المحاولة</button>
+                </div>`;
+            }
+        }
+
+        async function initializeStore() {
+            // Sidebar Events
+            if (elements.menuBtn) {
+                elements.menuBtn.onclick = () => {
+                    elements.sidebar.classList.add('active');
+                    elements.overlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                };
+            }
+            if (elements.closeSidebarBtn) elements.closeSidebarBtn.onclick = closeSidebar;
+            if (elements.overlay) elements.overlay.onclick = closeSidebar;
+
+            if (elements.sidebarComplaintBtn) {
+                elements.sidebarComplaintBtn.onclick = (e) => {
+                    e.preventDefault();
+                    window.showInquiryModal('complaint');
+                    closeSidebar();
+                };
+            }
+
+            if (elements.sidebarAddProductBtn) {
+                elements.sidebarAddProductBtn.onclick = (e) => {
+                    e.preventDefault();
+                    closeSidebar();
+                    showRedirectModal({
+                        title: "عرض منتج جديد",
+                        icon: "📦",
+                        message: "مرحباً بك، يبدو أن لديك منتج تريد عرضه يا زبوننا الكريم.",
+                        targetUrl: e.currentTarget.href
+                    });
+                };
+            }
+
+            if (elements.sidebarOrdersBtn) {
+                elements.sidebarOrdersBtn.onclick = (e) => {
+                    e.preventDefault();
+                    closeSidebar();
+                    showRedirectModal({
+                        title: "الطلبات والمأكولات",
+                        icon: "😋",
+                        message: "مرحباً بزائرنا الكريم، لا تنسى، نحن نهتم بكل شيء عوضاً عنك.",
+                        targetUrl: e.currentTarget.href
+                    });
+                };
+            }
+
+            // User Menu
+            if (elements.userMenuButton) {
+                elements.userMenuButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (elements.userMenuDropdown) elements.userMenuDropdown.classList.toggle('show');
+                });
+            }
+            document.addEventListener('click', (e) => {
+                if (elements.userMenuDropdown && elements.userMenuDropdown.classList.contains('show') && !elements.userMenuButton.contains(e.target)) {
+                    elements.userMenuDropdown.classList.remove('show');
+                }
+            });
+
+            if (elements.logoutBtn) {
+                elements.logoutBtn.addEventListener('click', async () => {
+                    await logoutUser();
+                    window.location.reload();
+                });
+            }
+
+            // 2. Load Local Data
+            loadCart();
+            updateCartUI();
+
+            // 3. Start Async Data Fetching
+            try {
+                await Promise.all([
+                    loadStoreSettings(),
+                    fetchAndRenderCategories(),
+                    fetchAndRenderOffers(),
+                    fetchAndRenderDynamicHome()
+                ]);
+            } catch (error) {
+                console.error("Initialization error:", error);
+            }
+
+            // Auth Logic
+            initAuthListener({
+                onLogin: (user) => {
+                    if (elements.bottomProfileBtn) elements.bottomProfileBtn.classList.remove('hidden');
+                    if (elements.bottomLoginBtn) elements.bottomLoginBtn.classList.add('hidden');
+                    if (elements.loginBtn) {
+                        elements.loginBtn.classList.add('hidden');
+                        elements.loginBtn.classList.remove('sm:flex');
+                    }
+                    if (elements.userMenu) elements.userMenu.classList.remove('hidden');
+
+                    const displayName = user.displayName || "زبوننا";
+                    if (elements.userMenuName) elements.userMenuName.textContent = displayName.split(' ')[0];
+                    if (elements.userMenuDisplayName) elements.userMenuDisplayName.textContent = displayName;
+                },
+                onLogout: () => {
+                    if (elements.bottomProfileBtn) elements.bottomProfileBtn.classList.add('hidden');
+                    if (elements.bottomLoginBtn) elements.bottomLoginBtn.classList.remove('hidden');
+                    if (elements.loginBtn) {
+                        elements.loginBtn.classList.remove('hidden');
+                        elements.loginBtn.classList.add('sm:flex');
+                    }
+                    if (elements.userMenu) elements.userMenu.classList.add('hidden');
+                }
+            });
+        }
+
+        initializeStore();
+    </script>
 </body>
 
 </html>
