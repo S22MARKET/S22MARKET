@@ -1,0 +1,124 @@
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- (1) وظائف مساعدة ---
+
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email in [
+        's22market@gmail.com',
+        'yacinee474474@gmail.com',
+        'nourmt01@gmail.com'
+      ];
+    }
+    
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // --- (2) قواعد المستخدمين ---
+
+    match /users/{userId} {
+      allow create: if request.auth != null;
+      allow read, update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // --- (3) قواعد المتجر (الجواهر 💎) ---
+    
+    match /settings/storeConfig { 
+      allow get: if true;
+      allow write: if isAdmin();
+    }
+
+    match /settings/loyalty {
+      allow get: if true;
+      allow write: if isAdmin();
+      
+      match /tasks/{taskId} {
+        allow list, get: if true;
+        allow write: if isAdmin();
+      }
+      match /rewards/{rewardId} {
+        allow list, get: if true;
+        allow write: if isAdmin();
+      }
+    }
+
+    // --- (4) قواعد الأكاديمية (العملات 🪙) ---
+
+    match /settings/dawarat_loyalty_config {
+      allow get: if true;
+      allow write: if isAdmin();
+      
+      match /dawarat_tasks/{taskId} {
+        allow list, get: if true;
+        allow write: if isAdmin();
+      }
+      match /dawarat_rewards/{rewardId} {
+        allow list, get: if true;
+        allow write: if isAdmin();
+      }
+    }
+    
+    match /professors/{profId} {
+      allow list, get: if true;
+      allow write: if isAdmin();
+    }
+
+    // --- (5) قواعد مشتركة (المتجر والأكاديمية) ---
+
+    match /loyalty_approvals/{approvalId} {
+      allow create: if request.auth != null;
+      allow list: if isAdmin();
+      allow get: if (request.auth != null && request.resource.data.userId == request.auth.uid) || isAdmin();
+      allow update, delete: if isAdmin();
+    }
+    
+    match /products/{productId} {
+      allow list, get: if true;
+      allow create: if isAdmin() || (request.auth != null && request.resource.data.sellerId == request.auth.uid);
+      allow update, delete: if isAdmin() || (request.auth != null && resource.data.sellerId == request.auth.uid);
+    }
+
+    // --- (6) قواعد المتجر الأخرى ---
+    
+    // +++++++ (تمت الإضافة هنا: إصلاح مشكلة admin-layout) +++++++
+    match /home_sections/{sectionId} { 
+      allow list, get: if true; 
+      allow write: if isAdmin(); 
+    }
+    // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    match /categories/{categoryId} { allow list, get: if true; allow write: if isAdmin(); }
+    match /applications/{appId} { allow list, get: if true; allow write: if isAdmin(); }
+    match /offers/{offerId} { allow list, get: if true; allow write: if isAdmin(); }
+    match /coupons/{couponId} { allow read, write: if isAdmin(); }
+    match /notes/{noteId} { allow read, write: if isAdmin(); }
+    
+    match /orders/{orderId} { 
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+    match /inquiries/{inquiryId} { 
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    } 
+    match /productRequests/{requestId} { 
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    } 
+    
+    match /productReports/{reportId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin(); 
+    }
+    
+    match /phoneNumbers/{phone} {
+      allow create: if request.auth != null;
+      allow read, update: if false;
+      allow delete: if isAdmin();
+    }
+  }
+}
