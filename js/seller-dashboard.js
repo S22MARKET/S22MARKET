@@ -1,6 +1,5 @@
 
-import { initializedApp, auth, db, doc, getDoc, updateDoc, onSnapshot, query, collection, where, orderBy, serverTimestamp, addDoc, deleteDoc, getDocs } from './firebase-config.js';
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { app, auth, db, doc, getDoc, updateDoc, onSnapshot, query, collection, where, orderBy, serverTimestamp, addDoc, deleteDoc, getDocs, onAuthStateChanged, signOut } from './firebase-config.js';
 
 let currentUser = null;
 let quill;
@@ -28,9 +27,16 @@ function initApp() {
                     loadSettings(data);
                     initQuill();
                     initChart(); // New Feature
+                    renderStoreLink(); // New Feature
 
                     // Navigation Logic
                     setupNavigation();
+
+                    // Restaurant Specific UI
+                    if (data.role === 'restaurant') {
+                        document.querySelectorAll('.restaurant-only').forEach(el => el.classList.remove('hidden'));
+                        loadOffers();
+                    }
 
                     // Logout
                     document.getElementById('logout-btn').onclick = () => signOut(auth);
@@ -179,6 +185,43 @@ function loadOrdersListener() {
 
         // Update Chart
         updateChart(salesData);
+        updateTopProducts(ordersCache);
+    });
+}
+
+function updateTopProducts(orders) {
+    const productsMap = {};
+
+    orders.forEach(order => {
+        if (order.status !== 'canceled' && order.items) {
+            order.items.forEach(item => {
+                if (!productsMap[item.name]) {
+                    productsMap[item.name] = { count: 0, revenue: 0 };
+                }
+                productsMap[item.name].count += (item.quantity || 1);
+                productsMap[item.name].revenue += (item.price * (item.quantity || 1));
+            });
+        }
+    });
+
+    const sortedProducts = Object.entries(productsMap)
+        .sort(([, a], [, b]) => b.count - a.count)
+        .slice(0, 5);
+
+    const tbody = document.getElementById('top-products-tbody');
+    if (!tbody) return;
+
+    tbody.innerHTML = sortedProducts.length ? '' : '<tr><td colspan="3" class="p-4 text-center text-gray-400">لا توجد بيانات</td></tr>';
+
+    sortedProducts.forEach(([name, data]) => {
+        const row = `
+            <tr class="border-b border-gray-50 hover:bg-gray-50">
+                <td class="p-3 font-medium text-gray-800">${name}</td>
+                <td class="p-3 text-gray-600 font-bold">${data.count}</td>
+                <td class="p-3 text-indigo-600 font-bold">${data.revenue.toLocaleString()} د.ج</td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
     });
 }
 
@@ -282,6 +325,17 @@ window.openProductModal = () => {
     document.getElementById('prod-id').value = '';
     document.getElementById('modal-title').textContent = 'إضافة منتج';
     if (quill) quill.root.innerHTML = '';
+
+    // Reset Image
+    document.getElementById('prod-image-url').value = '';
+    const fileInput = document.getElementById('prod-image-file');
+    if (fileInput) fileInput.value = '';
+    document.getElementById('img-preview').classList.add('hidden');
+    document.getElementById('img-placeholder').classList.remove('hidden');
+
+    document.getElementById('addons-list').innerHTML = '';
+    if (currentUser.role === 'restaurant') document.getElementById('addons-container').classList.remove('hidden');
+
     document.getElementById('product-modal').classList.add('active');
 };
 
@@ -298,8 +352,12 @@ document.getElementById('product-form').onsubmit = async (e) => {
         price: parseFloat(document.getElementById('prod-price').value),
         categoryId: document.getElementById('prod-category').value,
         description: quill ? quill.root.innerHTML : document.getElementById('prod-name').value,
-        imageUrls: [document.getElementById('prod-image').value],
+        imageUrls: [document.getElementById('prod-image-url').value],
         availability: document.getElementById('prod-available').checked ? 'available' : 'sold_out',
+        addOns: Array.from(document.querySelectorAll('.addon-item')).map(item => ({
+            name: item.querySelector('.addon-name').value,
+            price: Number(item.querySelector('.addon-price').value)
+        })).filter(a => a.name && a.price),
         sellerId: currentUser.uid,
         updatedAt: serverTimestamp()
     };
@@ -337,8 +395,27 @@ window.editProduct = async (id) => {
     document.getElementById('prod-name').value = p.name;
     document.getElementById('prod-price').value = p.price;
     document.getElementById('prod-category').value = p.categoryId;
-    document.getElementById('prod-image').value = p.imageUrls?.[0] || '';
+    // Image handling for edit
+    const imgUrl = p.imageUrls?.[0] || '';
+    document.getElementById('prod-image-url').value = imgUrl;
+    if (imgUrl) {
+        document.getElementById('img-preview').src = imgUrl;
+        document.getElementById('img-preview').classList.remove('hidden');
+        document.getElementById('img-placeholder').classList.add('hidden');
+    } else {
+        document.getElementById('img-preview').classList.add('hidden');
+        document.getElementById('img-placeholder').classList.remove('hidden');
+    }
     document.getElementById('prod-available').checked = p.availability !== 'sold_out';
+
+    // Add-ons
+    const addonsList = document.getElementById('addons-list');
+    addonsList.innerHTML = '';
+    if (p.addOns) {
+        document.getElementById('addons-container').classList.remove('hidden'); // Ensure visible if used
+        p.addOns.forEach(ad => addAddonItem(ad.name, ad.price));
+    }
+
     if (quill) quill.root.innerHTML = p.description;
 
     document.getElementById('modal-title').textContent = 'تعديل منتج';
@@ -483,3 +560,327 @@ function getLast7DaysLabels() {
     }
     return labels;
 }
+
+// --- Image Upload Logic (ImgBB) ---
+async function uploadImageToImgBB(file) {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('key', "ac296feb5a275923598bdbfd4f9aed8c"); // User provided key
+
+    // Show loader
+    const loader = document.getElementById('upload-loader');
+    if (loader) loader.classList.remove('hidden');
+
+    try {
+        const response = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
+        if (!response.ok) throw new Error(`ImgBB upload failed with status ${response.status}`);
+        const result = await response.json();
+
+        if (result.success) {
+            return result.data.url;
+        } else {
+            throw new Error(`ImgBB Error: ${result.error.message}`);
+        }
+    } finally {
+        if (loader) loader.classList.add('hidden');
+    }
+}
+
+// Setup File Input Listener
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('prod-image-file');
+    if (fileInput) {
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('img-preview').src = e.target.result;
+                document.getElementById('img-preview').classList.remove('hidden');
+                document.getElementById('img-placeholder').classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+
+            // Upload
+            try {
+                const url = await uploadImageToImgBB(file);
+                document.getElementById('prod-image-url').value = url;
+                showToast('تم رفع الصورة بنجاح');
+            } catch (err) {
+                console.error(err);
+                showToast('فشل رفع الصورة: ' + err.message, 'error');
+                // Reset
+                fileInput.value = '';
+                document.getElementById('img-preview').classList.add('hidden');
+                document.getElementById('img-placeholder').classList.remove('hidden');
+            }
+        });
+    }
+
+    // Check if we need to render store link on load (moved here to ensure DOM is ready)
+});
+
+
+// --- Store Link Logic ---
+window.copyStoreLink = () => {
+    const link = `https://${window.location.hostname}/vendor.html?id=${currentUser.uid}`;
+    navigator.clipboard.writeText(link).then(() => {
+        showToast('تم نسخ رابط المتجر');
+    }).catch(err => {
+        console.error('Failed to copy: ', err);
+        prompt("نسخ الرابط يدوياً:", link);
+    });
+};
+
+function renderStoreLink() {
+    // Determine base URL (handle local dev vs production)
+    const baseUrl = window.location.origin + window.location.pathname.replace('seller-dashboard.html', 'vendor.html');
+    const link = `${baseUrl}?id=${currentUser.uid}`;
+
+    const displayEl = document.getElementById('store-link-display');
+    if (displayEl) displayEl.textContent = link.replace('https://', '').replace('http://', '');
+}
+
+
+// --- Delivery Pricing Logic ---
+const WILAYAS = [
+    { id: 1, name: "أدرار" }, { id: 2, name: "الشلف" }, { id: 3, name: "الأغواط" }, { id: 4, name: "أم البواقي" }, { id: 5, name: "باتنة" },
+    { id: 6, name: "بجاية" }, { id: 7, name: "بسكرة" }, { id: 8, name: "بشار" }, { id: 9, name: "البليدة" }, { id: 10, name: "البويرة" },
+    { id: 11, name: "تمنراست" }, { id: 12, name: "تبسة" }, { id: 13, name: "تلمسان" }, { id: 14, name: "تيارت" }, { id: 15, name: "تيزي وزو" },
+    { id: 16, name: "الجزائر" }, { id: 17, name: "الجلفة" }, { id: 18, name: "جيجل" }, { id: 19, name: "سطيف" }, { id: 20, name: "سعيدة" },
+    { id: 21, name: "سكيكدة" }, { id: 22, name: "سيدي بلعباس" }, { id: 23, name: "عنابة" }, { id: 24, name: "قالمة" }, { id: 25, name: "قسنطينة" },
+    { id: 26, name: "المدية" }, { id: 27, name: "مستغانم" }, { id: 28, name: "المسيلة" }, { id: 29, name: "معسكر" }, { id: 30, name: "ورقلة" },
+    { id: 31, name: "وهران" }, { id: 32, name: "البيض" }, { id: 33, name: "إليزي" }, { id: 34, name: "برج بوعريريج" }, { id: 35, name: "بومرداس" },
+    { id: 36, name: "الطرف" }, { id: 37, name: "تندوف" }, { id: 38, name: "تيسمسيلت" }, { id: 39, name: "الوادي" }, { id: 40, name: "خنشلة" },
+    { id: 41, name: "سوق أهراس" }, { id: 42, name: "تيبازة" }, { id: 43, name: "ميلة" }, { id: 44, name: "عين الدفلى" }, { id: 45, name: "النعامة" },
+    { id: 46, name: "عين تموشنت" }, { id: 47, name: "غرداية" }, { id: 48, name: "غليزان" }, { id: 49, name: "تيميمون" }, { id: 50, name: "برج باجي مختار" },
+    { id: 51, name: "أولاد جلال" }, { id: 52, name: "بني عباس" }, { id: 53, name: "عين صالح" }, { id: 54, name: "عين قزام" }, { id: 55, name: "تقرت" },
+    { id: 56, name: "جانت" }, { id: 57, name: "المغير" }, { id: 58, name: "المنيعة" }
+];
+
+let deliveryRates = {}; // Store rates here
+
+window.openDeliveryModal = async () => {
+    document.getElementById('delivery-modal').classList.add('active');
+
+    // Fetch current rates if not loaded (or rely on loaded user data)
+    // For now assuming we pass data or fetch it fresh
+    if (currentUser) {
+        const snap = await getDoc(doc(db, "users", currentUser.uid));
+        if (snap.exists()) {
+            deliveryRates = snap.data().deliveryRates || {};
+        }
+    }
+
+    renderWilayaList();
+};
+
+window.closeDeliveryModal = () => document.getElementById('delivery-modal').classList.remove('active');
+
+function renderWilayaList() {
+    const list = document.getElementById('wilaya-list');
+    list.innerHTML = '';
+
+    const search = document.getElementById('wilaya-search').value.toLowerCase();
+
+    WILAYAS.forEach(w => {
+        if (!w.name.includes(search)) return;
+
+        const rates = deliveryRates[w.id] || { home: 0, desk: 0 };
+
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100 hover:border-indigo-200 transition';
+        item.innerHTML = `
+            <div class="font-bold text-gray-700 w-1/3">${w.id}. ${w.name}</div>
+            <div class="flex gap-2 w-2/3">
+                <div class="flex-1">
+                    <label class="text-[10px] text-gray-500 block">توصيل للمنزل</label>
+                    <input type="number" value="${rates.home || ''}" placeholder="0" 
+                        onchange="updateRate(${w.id}, 'home', this.value)"
+                        class="w-full p-1 text-sm border rounded">
+                </div>
+                <div class="flex-1">
+                    <label class="text-[10px] text-gray-500 block">توصيل للمكتب</label>
+                    <input type="number" value="${rates.desk || ''}" placeholder="0" 
+                         onchange="updateRate(${w.id}, 'desk', this.value)"
+                        class="w-full p-1 text-sm border rounded">
+                </div>
+            </div>
+        `;
+        list.appendChild(item);
+    });
+}
+
+window.updateRate = (wid, type, value) => {
+    if (!deliveryRates[wid]) deliveryRates[wid] = {};
+    deliveryRates[wid][type] = parseFloat(value);
+};
+
+window.saveDeliveryRates = async () => {
+    const btn = document.querySelector('#delivery-modal button.bg-indigo-600');
+    btn.textContent = 'جاري الحفظ...'; btn.disabled = true;
+
+    try {
+        await updateDoc(doc(db, "users", currentUser.uid), {
+            deliveryRates: deliveryRates
+        });
+        showToast('تم حفظ أسعار التوصيل');
+        closeDeliveryModal();
+    } catch (e) {
+        console.error(e);
+        showToast('حدث خطأ أثناء الحفظ', 'error');
+    } finally {
+        btn.textContent = 'حفظ الأسعار'; btn.disabled = false;
+    }
+};
+
+document.getElementById('wilaya-search').addEventListener('input', renderWilayaList);
+
+// --- Restaurant Features: Offers & Add-ons ---
+
+let offersCache = [];
+
+function loadOffers() {
+    const q = query(collection(db, "offers"), where("sellerId", "==", currentUser.uid));
+    onSnapshot(q, (snapshot) => {
+        offersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderOffers();
+    });
+}
+
+function renderOffers() {
+    const grid = document.getElementById('offers-grid');
+    grid.innerHTML = '';
+
+    offersCache.forEach(offer => {
+        const el = document.createElement('div');
+        el.className = "bg-white p-4 rounded-xl shadow-sm border border-orange-100 flex gap-4 relative group";
+        el.innerHTML = `
+            <img src="${offer.imageUrl || 'https://placehold.co/100'}" class="w-20 h-20 object-cover rounded-lg">
+            <div class="flex-1">
+                <h3 class="font-bold text-gray-800">${offer.title}</h3>
+                <p class="text-xs text-gray-500 line-clamp-2">${offer.description}</p>
+                <div class="flex items-center gap-2 mt-2">
+                    <span class="text-green-600 font-bold">${offer.price} د.ج</span>
+                    ${offer.originalPrice ? `<span class="text-red-400 line-through text-xs">${offer.originalPrice}</span>` : ''}
+                </div>
+            </div>
+            <button onclick="deleteOffer('${offer.id}')" class="absolute top-2 left-2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition"><i class="fas fa-trash"></i></button>
+        `;
+        grid.appendChild(el);
+    });
+}
+
+window.openOfferModal = () => {
+    document.getElementById('offer-form').reset();
+    document.getElementById('offer-id').value = '';
+    document.getElementById('offer-modal').classList.add('active');
+};
+
+window.closeOfferModal = () => {
+    document.getElementById('offer-modal').classList.remove('active');
+};
+
+document.getElementById('offer-image-file').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const url = await uploadImageToImgBB(file);
+        if (url) {
+            document.getElementById('offer-image-url').value = url;
+            showToast('تم رفع الصورة بنجاح');
+        }
+    }
+});
+
+document.getElementById('offer-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('offer-id').value;
+    const data = {
+        sellerId: currentUser.uid,
+        title: document.getElementById('offer-title').value,
+        description: document.getElementById('offer-desc').value,
+        price: Number(document.getElementById('offer-price').value),
+        originalPrice: document.getElementById('offer-original-price').value ? Number(document.getElementById('offer-original-price').value) : null,
+        imageUrl: document.getElementById('offer-image-url').value,
+        createdAt: serverTimestamp()
+    };
+
+    try {
+        if (id) {
+            await updateDoc(doc(db, "offers", id), data);
+            showToast("تم تحديث العرض");
+        } else {
+            await addDoc(collection(db, "offers"), data);
+            showToast("تم إضافة العرض");
+        }
+        closeOfferModal();
+    } catch (err) {
+        console.error(err);
+        showToast("خطأ في الحفظ", "error");
+    }
+});
+
+window.deleteOffer = async (id) => {
+    if (confirm("هل أنت متأكد من حذف هذا العرض؟")) {
+        await deleteDoc(doc(db, "offers", id));
+        showToast("تم الحذف");
+    }
+};
+
+// Add-ons Logic
+window.addAddonItem = (name = '', price = '') => {
+    const container = document.getElementById('addons-list');
+    const div = document.createElement('div');
+    div.className = "flex gap-2 items-center addon-item";
+    div.innerHTML = `
+        <input type="text" placeholder="اسم الإضافة" value="${name}" class="flex-1 p-2 border rounded text-sm addon-name">
+        <input type="number" placeholder="سعر" value="${price}" class="w-24 p-2 border rounded text-sm addon-price">
+        <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+    `;
+    container.appendChild(div);
+
+    // Clear inputs if adding new
+    if (!name && !price) {
+        document.getElementById('new-addon-name').value = '';
+        document.getElementById('new-addon-price').value = '';
+    }
+}
+};
+
+// --- AI Description Logic ✨ ---
+window.generateAIDescription = () => {
+    const name = document.getElementById('prod-name').value;
+    const price = document.getElementById('prod-price').value;
+    const catSelect = document.getElementById('prod-category');
+    const category = catSelect.options[catSelect.selectedIndex]?.text || 'المنتج';
+
+    if (!name) return showToast('يرجى كتابة اسم المنتج أولاً ⚠️', 'error');
+
+    const btn = document.querySelector('button[onclick="window.generateAIDescription()"]');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الكتابة...';
+    btn.disabled = true;
+
+    // Simulate AI Delay
+    setTimeout(() => {
+        const descriptions = [
+            `<p>استمتع بأفضل تجربة مع <strong>${name}</strong>. منتج رائع يجمع بين الجودة والأداء المتميز. مثالي لـ ${category}، ويأتي بسعر مميز <span style="color:green;font-weight:bold">${price} د.ج</span> فقط! اطلبه الآن قبل نفاذ الكمية.</p>`,
+            `<p>هل تبحث عن ${category} مميز؟ <strong>${name}</strong> هو الخيار الأمثل لك! تصميم عصري وجودة عالية تضمن لك الرضا التام. احصل عليه اليوم بسعر ${price} د.ج.</p>`,
+            `<p>لا تفوت فرصة اقتناء <strong>${name}</strong>. يعتبر من أفضل ما قدمنا في قسم ${category}. جودة تستحق الثقة وتوصيل سريع لباب منزلك. 🚚</p>`
+        ];
+
+        const randomDesc = descriptions[Math.floor(Math.random() * descriptions.length)];
+
+        if (quill) {
+            quill.root.innerHTML = randomDesc;
+        } else {
+            // Fallback
+        }
+        showToast('✨ تم توليد الوصف بنجاح');
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }, 1500);
+};
+

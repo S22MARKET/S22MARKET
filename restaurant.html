@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Market - Restaurant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f1f5f9;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #f97316;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
+            animation: slideInUp 0.4s;
+            position: relative;
+        }
+
+        .sidebar {
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-overlay {
+            transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-backdrop-filter: blur(2px);
+            backdrop-filter: blur(2px);
+        }
+
+        .is-visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .is-hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .toast {
+            background-color: #2d3748;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+        }
+
+        .toast.success {
+            background-color: #2f855a;
+        }
+
+        .toast.error {
+            background-color: #c53030;
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+        .font-ar {
+            font-family: 'Lalezar', 'Tajawal', sans-serif;
+            font-size: 1.25rem;
+            line-height: 1.4;
+            color: #1f2937;
+        }
+
+        .img-placeholder {
+            background-color: #e5e7eb;
+        }
+
+        @keyframes cardFadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .menu-card-animate {
+            animation: cardFadeInUp 0.5s ease-out forwards;
+        }
+
+        #user-menu-dropdown.show {
+            display: block;
+            animation: slideInUp 0.2s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="restaurant-status-banner"
+        class="hidden text-center p-3 bg-red-600 text-white font-bold text-lg sticky top-0 z-40">
+        <i class="fas fa-clock mr-2"></i> <span id="restaurant-status-message">المطعم مغلق حاليًا.</span>
+    </div>
+
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <img id="header-logo" src="https://placehold.co/100" alt="Logo" class="h-10 rounded-full border">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-800" id="store-name">
+                    Loading...
+                </h1>
+            </div>
+
+            <div id="header-actions" class="flex items-center gap-4 relative">
+                <a href="index.html" class="text-gray-600 hover:text-orange-600"><i class="fas fa-home"></i></a>
+                <a href="cart.html" id="order-btn"
+                    class="relative text-lg font-semibold text-white bg-orange-500 hover:bg-orange-600 px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 shadow-lg">
+                    <i class="fas fa-shopping-basket"></i>
+                    <span class="hidden md:inline">طلبيتي</span>
+                    <span id="order-badge"
+                        class="hidden absolute top-0 left-0 -mt-2 -ml-2 bg-red-600 text-white rounded-full w-6 h-6 text-sm font-bold flex items-center justify-center border-2 border-white">0</span>
+                </a>
+
+                <div id="auth-buttons">
+                    <a href="login.html" id="login-btn"
+                        class="hidden relative text-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-full transition-colors flex items-center gap-2">
+                        <i class="fas fa-sign-in-alt"></i> <span>دخول</span>
+                    </a>
+                </div>
+
+                <button id="sidebar-toggle" class="md:hidden text-2xl text-gray-700 p-2">
+                    <i class="fas fa-filter"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div id="store-loader" class="text-center py-20">
+        <div class="loader mx-auto"></div>
+        <p class="mt-4 text-gray-600">جاري تحميل المتجر...</p>
+    </div>
+
+    <div id="main-content-wrapper" class="hidden">
+        <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 relative">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <aside id="sidebar"
+                    class="sidebar md:col-span-1 bg-white p-6 rounded-xl shadow-md h-fit md:sticky top-24 fixed md:relative top-0 right-0 h-full w-72 md:w-auto z-40 transform translate-x-full md:translate-x-0 overflow-y-auto">
+                    <div class="flex justify-between items-center md:hidden mb-4 p-4 bg-gray-50 border-b -mx-6 -mt-6">
+                        <h3 class="text-xl font-bold">فلترة القائمة</h3>
+                        <button id="close-sidebar" class="text-2xl">&times;</button>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="search-input" class="font-semibold text-gray-700">ابحث عن وجبة</label>
+                            <div class="relative mt-1">
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-3"><i
+                                        class="fas fa-search text-gray-400"></i></span>
+                                <input type="text" id="search-input" placeholder="اسم الوجبة..."
+                                    class="w-full pr-10 pl-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            </div>
+                        </div>
+                        <div>
+                            <button id="show-offers-btn"
+                                class="w-full text-right p-3 mb-3 rounded-md font-bold text-white bg-amber-500 hover:bg-amber-600 transition-colors flex items-center gap-2">
+                                <i class="fas fa-star"></i> عرض العروض والباقات
+                            </button>
+                            <h4 class="font-semibold text-gray-700 mb-2">الأقسام</h4>
+                            <div id="store-categories" class="space-y-2">
+                                <!-- Categories injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <div class="md:col-span-3">
+
+                    <section id="offers-section" class="mb-12 hidden">
+                        <h2
+                            class="text-2xl md:text-3xl font-extrabold text-gray-800 mb-6 border-r-4 border-orange-500 pr-4">
+                            العروض الحصرية</h2>
+                        <div id="offers-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6"></div>
+                    </section>
+
+                    <section id="menu-section">
+                        <h2
+                            class="text-2xl md:text-3xl font-extrabold text-gray-800 mb-6 border-r-4 border-orange-500 pr-4">
+                            قائمة الطعام</h2>
+
+                        <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+                        <div id="no-products-msg" class="hidden text-center py-20 bg-white rounded-xl shadow-sm">
+                            <i class="fas fa-utensils text-4xl text-gray-400"></i>
+                            <p class="mt-4 text-xl font-semibold text-gray-500">لا توجد وجبات في هذا القسم.</p>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <div id="sidebar-overlay"
+                class="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden sidebar-overlay is-hidden"></div>
+        </main>
+
+        <footer class="bg-gray-800 text-white mt-12">
+            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+                <h3 class="text-2xl font-bold" id="footer-store-name">S22 Market</h3>
+                <p class="text-gray-400 mt-2 mb-6" id="footer-desc"></p>
+                <div id="social-links-container" class="flex justify-center items-center gap-6"></div>
+            </div>
+        </footer>
+    </div>
+
+    <div id="modal-container"></div>
+    <div id="toast-container"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // --- Copy your Firebase Config Here ---
+        import { firebaseConfig } from './js/firebase-config.js'; // Assuming you have this or use the one from index.html
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let vendorId = new URLSearchParams(window.location.search).get('id');
+        let productsCache = [];
+        let categoriesCache = [];
+        let offersCache = [];
+        let cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
+
+        // UI Elements
+        const els = {
+            loader: document.getElementById('store-loader'),
+            mainContent: document.getElementById('main-content-wrapper'),
+            storeName: document.getElementById('store-name'),
+            logo: document.getElementById('header-logo'),
+            categoriesList: document.getElementById('store-categories'),
+            menuGrid: document.getElementById('menu-grid'),
+            offersGrid: document.getElementById('offers-grid'),
+            offersSection: document.getElementById('offers-section'),
+            sidebar: document.getElementById('sidebar'),
+            sidebarOverlay: document.getElementById('sidebar-overlay'),
+            orderBadge: document.getElementById('order-badge')
+        };
+
+        // Init
+        async function init() {
+            if (!vendorId) { alert("رابط المتجر غير صالح"); window.location.href = 'index.html'; return; }
+
+            try {
+                // 1. Fetch Vendor
+                const userDoc = await getDoc(doc(db, "users", vendorId));
+                if (!userDoc.exists()) throw new Error("المتجر غير موجود");
+                const vendor = userDoc.data();
+
+                // 2. Setup UI
+                document.title = vendor.storeName || "مطعم";
+                els.storeName.textContent = vendor.storeName;
+                document.getElementById('footer-store-name').textContent = vendor.storeName;
+                document.getElementById('footer-desc').textContent = vendor.description || '';
+                if (vendor.logoUrl || vendor.photoURL) els.logo.src = vendor.logoUrl || vendor.photoURL;
+
+                // Social Links
+                const social = vendor.socialLinks || {};
+                const socialContainer = document.getElementById('social-links-container');
+                if (social.facebook) socialContainer.innerHTML += `<a href="${social.facebook}" class="text-blue-500 text-2xl"><i class="fab fa-facebook"></i></a>`;
+                if (social.instagram) socialContainer.innerHTML += `<a href="${social.instagram}" class="text-pink-500 text-2xl"><i class="fab fa-instagram"></i></a>`;
+
+                // 3. Fetch Data
+                // Categories
+                const catSnap = await getDocs(query(collection(db, "categories"), orderBy("orderIndex", "asc"))); // Global categories for now, or vendor specific if implemented
+                categoriesCache = catSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderCategories();
+
+                // Products
+                const prodQuery = query(collection(db, "products"), where("sellerId", "==", vendorId));
+                onSnapshot(prodQuery, (snap) => {
+                    productsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    renderProducts();
+                });
+
+                // Offers
+                const offersQuery = query(collection(db, "offers"), where("sellerId", "==", vendorId)); // Assuming 'offers' collection exists
+                onSnapshot(offersQuery, (snap) => {
+                    offersCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    renderOffers();
+                });
+
+                els.loader.classList.add('hidden');
+                els.mainContent.classList.remove('hidden');
+                updateCartBadge();
+
+            } catch (e) {
+                console.error(e);
+                els.loader.innerHTML = `<p class="text-red-500">حدث خطأ: ${e.message}</p>`;
+            }
+        }
+
+        function renderCategories() {
+            // Filter categories that actually have products
+            const activeCats = categoriesCache; // You might want to filter this based on active products
+
+            els.categoriesList.innerHTML = `<button class="w-full text-right p-3 rounded-md font-semibold bg-orange-100 text-orange-700 cat-btn" data-id="all">كل الوجبات</button>`;
+
+            activeCats.forEach(cat => {
+                els.categoriesList.innerHTML += `<button class="w-full text-right p-3 rounded-md font-semibold hover:bg-orange-50 transition-colors cat-btn" data-id="${cat.id}">${cat.name}</button>`;
+            });
+
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.onclick = () => {
+                    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('bg-orange-100', 'text-orange-700'));
+                    btn.classList.add('bg-orange-100', 'text-orange-700');
+                    renderProducts(btn.dataset.id);
+                    if (window.innerWidth < 768) toggleSidebar();
+                }
+            });
+        }
+
+        function renderProducts(catId = 'all') {
+            els.menuGrid.innerHTML = '';
+            const search = document.getElementById('search-input').value.toLowerCase();
+
+            let filtered = productsCache.filter(p => {
+                const matchCat = catId === 'all' || p.categoryId === catId;
+                const matchSearch = p.name.toLowerCase().includes(search);
+                return matchCat && matchSearch && p.availability !== 'sold_out';
+            });
+
+            if (filtered.length === 0) {
+                document.getElementById('no-products-msg').classList.remove('hidden');
+            } else {
+                document.getElementById('no-products-msg').classList.add('hidden');
+                filtered.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = "bg-white rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-xl transition-all";
+                    card.innerHTML = `
+                         <div class="h-48 overflow-hidden relative img-placeholder">
+                            <img src="${p.imageUrls?.[0] || 'https://placehold.co/300'}" class="w-full h-full object-cover">
+                         </div>
+                         <div class="p-4 flex flex-col flex-grow">
+                            <h3 class="text-lg font-bold text-gray-800">${p.name}</h3>
+                            <p class="text-gray-600 text-sm mt-1 mb-3 flex-grow line-clamp-2">${p.description || ''}</p>
+                            <div class="flex justify-between items-center mt-auto">
+                                <span class="text-orange-600 text-xl font-bold">${p.price} د.ج</span>
+                                <button class="add-to-cart-btn bg-orange-500 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-orange-600 transition"
+                                data-id="${p.id}"><i class="fas fa-plus"></i></button>
+                            </div>
+                         </div>
+                    `;
+                    els.menuGrid.appendChild(card);
+                });
+
+                document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                    btn.onclick = () => {
+                        const product = productsCache.find(p => p.id === btn.dataset.id);
+                        addToCart(product);
+                    }
+                });
+            }
+        }
+
+        function renderOffers() {
+            if (offersCache.length === 0) {
+                els.offersSection.classList.add('hidden');
+                return;
+            }
+            els.offersSection.classList.remove('hidden');
+            els.offersGrid.innerHTML = '';
+
+            offersCache.forEach(off => {
+                const card = document.createElement('div');
+                card.className = "bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl shadow-md p-4 border border-orange-100 flex gap-4";
+                card.innerHTML = `
+                    <img src="${off.imageUrl || 'https://placehold.co/100'}" class="w-24 h-24 object-cover rounded-lg">
+                    <div>
+                        <h3 class="font-bold text-gray-800">${off.title}</h3>
+                        <p class="text-sm text-gray-600 my-1">${off.description}</p>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="text-red-500 line-through text-sm">${off.originalPrice || ''}</span>
+                            <span class="text-green-600 font-bold text-lg">${off.price} د.ج</span>
+                        </div>
+                    </div>
+                 `;
+                els.offersGrid.appendChild(card);
+            });
+        }
+
+        function addToCart(product) {
+            // Simplified Add to Cart (Enhance with Options/Addons later)
+            const item = cart.find(i => i.id === product.id);
+            if (item) {
+                item.quantity++;
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image: product.imageUrls?.[0],
+                    quantity: 1,
+                    sellerId: vendorId
+                });
+            }
+            localStorage.setItem('s22market_cart', JSON.stringify(cart));
+            updateCartBadge();
+            showToast("تمت الإضافة للسلة");
+        }
+
+        function updateCartBadge() {
+            const count = cart.reduce((sum, i) => sum + i.quantity, 0);
+            const badge = document.getElementById('order-badge');
+            badge.textContent = count;
+            if (count > 0) badge.classList.remove('hidden');
+            else badge.classList.add('hidden');
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            el.className = 'bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg text-sm mb-2 animate-bounce';
+            el.innerHTML = `<i class="fas fa-check-circle text-green-400 mr-2"></i> ${msg}`;
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 3000);
+        }
+
+        // Sidebar
+        function toggleSidebar() {
+            els.sidebar.classList.toggle('translate-x-full');
+            els.sidebarOverlay.classList.toggle('is-hidden');
+            els.sidebarOverlay.classList.toggle('is-visible');
+        }
+        document.getElementById('sidebar-toggle').onclick = toggleSidebar;
+        document.getElementById('close-sidebar').onclick = toggleSidebar;
+        els.sidebarOverlay.onclick = toggleSidebar;
+        document.getElementById('search-input').oninput = () => renderProducts();
+
+        // Go
+        init();
+
+    </script>
+</body>
+
+</html>

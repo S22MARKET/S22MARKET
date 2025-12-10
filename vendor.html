@@ -298,6 +298,13 @@
                 if (!userDoc.exists()) throw new Error("المتجر غير موجود");
 
                 const vendor = userDoc.data();
+
+                // Redirect if Restaurant
+                if (vendor.role === 'restaurant') {
+                    window.location.replace(`restaurant.html?id=${vendorId}`);
+                    return;
+                }
+
                 const reqData = vendor.storeRequest || {};
 
                 // Update UI

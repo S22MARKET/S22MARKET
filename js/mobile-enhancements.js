@@ -19,6 +19,7 @@ class MobileEnhancements {
         this.setupPullToRefresh();
         this.setupPageTransitions();
         this.setupAutoHidingNavbar();
+        this.setupPWAInstall();
         this.injectStyles();
     }
 
@@ -193,9 +194,36 @@ class MobileEnhancements {
             .bottom-nav.nav-hidden {
                 transform: translateY(100%);
             }
+
+            /* PWA Modal */
+            .pwa-modal {
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                right: 20px;
+                background: white;
+                border-radius: 16px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+                z-index: 9999;
+                transform: translateY(150%);
+                transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                max-width: 400px;
+                margin: 0 auto;
+                border: 1px solid rgba(0,0,0,0.05);
+            }
+            
+            .pwa-modal.active {
+                transform: translateY(0);
+            }
+
+            .pwa-content {
+                padding: 20px;
+            }
         `;
         document.head.appendChild(style);
     }
+
+
 
     setupAutoHidingNavbar() {
         let lastScrollY = window.scrollY;
@@ -204,19 +232,77 @@ class MobileEnhancements {
 
         window.addEventListener('scroll', () => {
             const currentScrollY = window.scrollY;
-
-            // Ignore small scrolls (bounce effect or tiny movements)
             if (Math.abs(currentScrollY - lastScrollY) < 10) return;
-
             if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                // Scrolling DOWN -> Hide
                 bottomNav.classList.add('nav-hidden');
             } else {
-                // Scrolling UP -> Show
                 bottomNav.classList.remove('nav-hidden');
             }
             lastScrollY = currentScrollY;
         }, { passive: true });
+    }
+
+    // --- PWA Install Logic 📲 ---
+    setupPWAInstall() {
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+
+            // Check if user already dismissed it recently (optional: use localStorage)
+            if (localStorage.getItem('pwa-dismissed')) return;
+
+            // Show Custom Modal
+            this.showInstallModal(deferredPrompt);
+        });
+    }
+
+    showInstallModal(deferredPrompt) {
+        // Create Modal HTML
+        const modal = document.createElement('div');
+        modal.className = 'pwa-modal';
+        modal.innerHTML = `
+            <div class="pwa-content">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 text-2xl">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-800">تثبيت التطبيق</h3>
+                        <p class="text-xs text-gray-500">تجربة أسرع وأفضل بدون إنترنت!</p>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button id="pwa-dismiss" class="flex-1 py-2 text-gray-500 font-bold bg-gray-50 rounded-lg">ليس الآن</button>
+                    <button id="pwa-install" class="flex-1 py-2 text-white font-bold bg-indigo-600 rounded-lg shadow-lg shadow-indigo-200">تثبيت</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Animate In
+        setTimeout(() => modal.classList.add('active'), 100);
+
+        // Handlers
+        document.getElementById('pwa-dismiss').onclick = () => {
+            modal.classList.remove('active');
+            setTimeout(() => modal.remove(), 300);
+            localStorage.setItem('pwa-dismissed', 'true');
+        };
+
+        document.getElementById('pwa-install').onclick = async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                }
+                deferredPrompt = null;
+            }
+            modal.classList.remove('active');
+            setTimeout(() => modal.remove(), 300);
+        };
     }
 }
 

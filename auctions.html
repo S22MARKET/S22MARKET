@@ -128,11 +128,7 @@
     <script src="js/mobile-enhancements.js"></script>
 
     <script type="module">
-        // Reuse global config logic by importing from existing modular files
-        // We use relative paths assuming this file is in root
-        import { app, db, auth } from './js/firebase-config.js';
-        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { app, db, auth, onAuthStateChanged, collection, query, where, getDocs, orderBy } from './js/firebase-config.js';
 
         const auctionsGrid = document.getElementById('auctions-grid');
         const loadingIndicator = document.getElementById('loading-indicator');
