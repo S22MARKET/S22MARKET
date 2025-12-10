@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="apple-touch-icon" href="LOGO.jpg">
     <!-- NoUiSlider -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
@@ -371,7 +374,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where, orderBy, limit, startAfter } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, query, where, orderBy, limit, startAfter, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
@@ -384,11 +388,31 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
         let allCategories = [];
         let currentFilter = { type: null, id: null };
         let currentProducts = [];
+        let currentUser = null;
+        let userWishlist = new Set();
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                try {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists() && userDoc.data().wishlist) {
+                        userWishlist = new Set(userDoc.data().wishlist);
+                    }
+                } catch (e) { console.error("Wishlist load error", e); }
+            } else {
+                currentUser = null;
+                userWishlist.clear();
+            }
+            // Re-render only if we have products to show active state
+            if (currentProducts.length > 0) renderProducts(currentProducts);
+        });
 
         const elements = {
             grid: document.getElementById('products-grid'),
@@ -580,9 +604,15 @@
         function createProductCard(product) {
             const image = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : 'https://placehold.co/400x400';
             const card = document.createElement('div');
-            card.className = 'product-card';
+            card.className = 'product-card relative group'; // Added relative group
+
+            const isLiked = userWishlist.has(product.id);
+            const heartClass = isLiked ? 'fas fa-heart text-red-500' : 'far fa-heart text-gray-400';
 
             card.innerHTML = `
+                <button class="wishlist-btn absolute top-2 right-2 z-10 bg-white/90 p-2 rounded-full shadow-md hover:scale-110 transition-transform" data-id="${product.id}">
+                    <i class="${heartClass} text-xl"></i>
+                </button>
                 <a href="PRESENTPRODUCT.html?product=${product.id}" class="block">
                     <div class="product-image-container">
                         <img src="${image}" alt="${product.name}" class="product-image" loading="lazy">
@@ -595,8 +625,56 @@
                 <div class="product-card-actions p-4">
                      <a href="PRESENTPRODUCT.html?product=${product.id}" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 text-sm">
                         <i class="fas fa-eye"></i> عرض التفاصيل
-                    </a>
-                </div>`;
+                     </a>
+                </div>
+            `;
+
+            // Attach Wishlist Listener
+            const btn = card.querySelector('.wishlist-btn');
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!currentUser) {
+                    alert("يرجى تسجيل الدخول لإضافة المفضلة");
+                    return;
+                }
+                const icon = btn.querySelector('i');
+                const id = product.id;
+
+                // Optimistic UI
+                if (userWishlist.has(id)) {
+                    // Remove
+                    userWishlist.delete(id);
+                    icon.className = 'far fa-heart text-gray-400';
+                    try {
+                        await updateDoc(doc(db, "users", currentUser.uid), {
+                            wishlist: arrayRemove(id)
+                        });
+                    } catch (err) {
+                        console.error(err);
+                        userWishlist.add(id); // Revert
+                        icon.className = 'fas fa-heart text-red-500';
+                    }
+                } else {
+                    // Add
+                    userWishlist.add(id);
+                    icon.className = 'fas fa-heart text-red-500 hover:scale-125 transition-transform';
+                    try {
+                        await updateDoc(doc(db, "users", currentUser.uid), {
+                            wishlist: arrayUnion(id)
+                        });
+                    } catch (err) {
+                        console.error(err);
+                        userWishlist.delete(id); // Revert
+                        icon.className = 'far fa-heart text-gray-400';
+                    }
+                }
+            });
+
+            return card;
+        }
+                    </a >
+                </div > `;
             return card;
         }
 
@@ -674,7 +752,7 @@
         function updatePageHeaders() {
             let parentCategory = null;
             let currentSubcategory = null;
-            let breadcrumbsHTML = `<a href="index.html">الرئيسية</a>`;
+            let breadcrumbsHTML = `< a href = "index.html" > الرئيسية</a > `;
 
             if (currentFilter.type === 'category') {
                 parentCategory = allCategories.find(c => c.id === currentFilter.id);
@@ -690,23 +768,23 @@
             }
 
             if (parentCategory) {
-                const pageTitleText = currentSubcategory ? `${parentCategory.name} - ${currentSubcategory.name}` : `قسم: ${parentCategory.name}`;
+                const pageTitleText = currentSubcategory ? `${ parentCategory.name } - ${ currentSubcategory.name } ` : `قسم: ${ parentCategory.name } `;
                 elements.pageTitle.textContent = pageTitleText;
                 document.title = pageTitleText;
 
                 // Breadcrumbs
-                breadcrumbsHTML += `<span>/</span> <a href="classproductindex.html?category=${parentCategory.id}">${parentCategory.name}</a>`;
+                breadcrumbsHTML += `< span > /</span > <a href="classproductindex.html?category=${parentCategory.id}">${parentCategory.name}</a>`;
                 if (currentSubcategory) {
-                    breadcrumbsHTML += `<span>/</span> ${currentSubcategory.name}`;
+                    breadcrumbsHTML += `< span > /</span > ${ currentSubcategory.name } `;
                 }
                 elements.breadcrumbs.innerHTML = breadcrumbsHTML;
 
                 // Filter Buttons (Horizontal)
                 const activeSubcategories = parentCategory.subcategories?.filter(s => s.active && s.id) || [];
                 if (activeSubcategories.length > 0) {
-                    let buttonsHTML = `<button class="filter-button ${!currentSubcategory ? 'active' : ''}" data-filter-type="category" data-filter-id="${parentCategory.id}">الكل</button>`;
+                    let buttonsHTML = `< button class="filter-button ${!currentSubcategory ? 'active' : ''}" data - filter - type="category" data - filter - id="${parentCategory.id}" > الكل</button > `;
                     activeSubcategories.forEach(sub => {
-                        buttonsHTML += `<button class="filter-button ${currentSubcategory && currentSubcategory.id === sub.id ? 'active' : ''}" data-filter-type="subcategory" data-filter-id="${sub.id}">${sub.name}</button>`;
+                        buttonsHTML += `< button class="filter-button ${currentSubcategory && currentSubcategory.id === sub.id ? 'active' : ''}" data - filter - type="subcategory" data - filter - id="${sub.id}" > ${ sub.name }</button > `;
                     });
                     elements.filterButtons.innerHTML = buttonsHTML;
                 } else {
@@ -716,32 +794,40 @@
                 // Sidebar Subcategories (Vertical Radio Buttons)
                 if (activeSubcategories.length > 0) {
                     elements.sidebarSubcats.innerHTML = activeSubcategories.map(s => `
-                        <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded">
-                            <input type="radio" name="sidebar-subcat" value="${s.id}" ${currentSubcategory && currentSubcategory.id === s.id ? 'checked' : ''} onchange="window.location.href='?subcategory=${s.id}'">
-                            <span class="text-gray-700 font-medium">${s.name}</span>
-                        </label>
-                    `).join('');
+            < label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded" >
+                <input type="radio" name="sidebar-subcat" value="${s.id}" ${currentSubcategory && currentSubcategory.id === s.id ? 'checked' : ''} onchange="window.location.href='?subcategory=${s.id}'">
+                    <span class="text-gray-700 font-medium">${s.name}</span>
+                </label>
+        `).join('');
                     // Add "All" option at top
                     elements.sidebarSubcats.insertAdjacentHTML('afterbegin', `
-                        <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded">
-                            <input type="radio" name="sidebar-subcat" value="all" ${!currentSubcategory ? 'checked' : ''} onchange="window.location.href='?category=${parentCategory.id}'">
-                            <span class="text-gray-700 font-medium">الكل</span>
-                        </label>
-                    `);
+            < label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded" >
+                <input type="radio" name="sidebar-subcat" value="all" ${!currentSubcategory ? 'checked' : ''} onchange="window.location.href='?category=${parentCategory.id}'">
+                    <span class="text-gray-700 font-medium">الكل</span>
+                </label>
+        `);
                 } else {
                     elements.sidebarSubcats.innerHTML = '<p class="text-sm text-gray-400">لا توجد أقسام فرعية</p>';
                 }
 
             } else if (currentFilter.type === 'all') {
                 elements.pageTitle.textContent = "كل المنتجات";
-                elements.breadcrumbs.innerHTML = `<a href="index.html">الرئيسية</a> <span>/</span> المنتجات`;
+                elements.breadcrumbs.innerHTML = `< a href = "index.html" > الرئيسية</a > <span>/</span> المنتجات`;
                 elements.filterButtons.innerHTML = '';
                 elements.sidebarSubcats.innerHTML = `
-                    <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded">
-                         <input type="radio" name="sidebar-subcat" checked onchange="window.location.href='?category='">
-                         <span class="text-gray-700">الكل</span>
-                    </label>`;
+            < label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded" >
+                <input type="radio" name="sidebar-subcat" checked onchange="window.location.href='?category='">
+                    <span class="text-gray-700">الكل</span>
+                </label>`;
             }
+        }
+    </script>
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js');
+            });
         }
     </script>
 </body>

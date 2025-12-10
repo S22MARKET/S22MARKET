@@ -369,6 +369,29 @@
                     style="animation: fadeIn 0.5s;">
                 </div>
 
+                <!-- Reviews Section -->
+                <div id="reviews-section" class="bg-white p-6 rounded-lg shadow-md mt-8 hidden fade-in-up">
+                    <div class="flex items-center justify-between border-b pb-4 mb-4">
+                        <h2 class="text-2xl font-bold text-slate-800">التقييمات والآراء</h2>
+                        <button id="add-review-btn"
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition flex items-center gap-2">
+                            <i class="fas fa-plus"></i> أضف تقييمك
+                        </button>
+                    </div>
+
+                    <div id="reviews-summary" class="flex items-center gap-4 mb-6 bg-blue-50 p-4 rounded-lg">
+                        <div class="text-4xl font-black text-blue-600" id="avg-rating-display">0.0</div>
+                        <div>
+                            <div class="flex text-yellow-500 text-lg" id="avg-stars-display"></div>
+                            <p class="text-sm text-gray-500 mt-1"><span id="reviews-count-display">0</span> تقييم</p>
+                        </div>
+                    </div>
+
+                    <div id="reviews-list" class="space-y-4">
+                        <p class="text-gray-500 text-center py-4">لا توجد تقييمات بعد. كن أول من يقيم!</p>
+                    </div>
+                </div>
+
                 <!-- Related Products Section -->
                 <div id="related-products-section" class="mt-12 hidden fade-in-up" style="animation-delay: 0.2s;">
                     <h2 class="text-2xl font-bold mb-6 text-slate-800 border-r-4 border-blue-500 pr-3">منتجات قد تعجبك
@@ -447,7 +470,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
@@ -839,6 +862,178 @@
             // Load Relatet Products
             if (product.categoryId) {
                 fetchAndRenderRelatedProducts(product.categoryId, product.id);
+            }
+
+            // Load Reviews
+            loadReviews(product.id, product);
+        }
+
+        function loadReviews(productId, productData) {
+            const section = document.getElementById('reviews-section');
+            const summaryAvg = document.getElementById('avg-rating-display');
+            const summaryStars = document.getElementById('avg-stars-display');
+            const summaryCount = document.getElementById('reviews-count-display');
+            const list = document.getElementById('reviews-list');
+            const addBtn = document.getElementById('add-review-btn');
+
+            section.classList.remove('hidden');
+
+            // Init Summary from Product Data
+            const avg = productData.rating || 0;
+            const count = productData.reviewsCount || 0;
+            updateSummaryUI(avg, count);
+
+            // Listen to reviews
+            const q = query(collection(db, `products/${productId}/reviews`), orderBy('createdAt', 'desc'));
+
+            onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    list.innerHTML = '<p class="text-gray-500 text-center py-4">لا توجد تقييمات بعد. كن أول من يقيم!</p>';
+                    return;
+                }
+
+                list.innerHTML = snapshot.docs.map(doc => {
+                    const r = doc.data();
+                    const stars = Array(5).fill(0).map((_, i) => `<i class="fas fa-star ${i < r.rating ? 'text-yellow-400' : 'text-gray-300'}"></i>`).join('');
+                    const date = r.createdAt ? new Date(r.createdAt.toDate()).toLocaleDateString('ar-EG') : '';
+
+                    return `
+                    <div class="border-b last:border-0 pb-4 last:pb-0">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500"><i class="fas fa-user"></i></div>
+                                <span class="font-bold text-gray-800">${r.userName || 'مستخدم'}</span>
+                            </div>
+                            <span class="text-xs text-gray-400">${date}</span>
+                        </div>
+                        <div class="flex text-yellow-400 text-sm mb-2">${stars}</div>
+                        <p class="text-gray-700 text-sm leading-relaxed">${r.text}</p>
+                    </div>`;
+                }).join('');
+            });
+
+            addBtn.onclick = () => showReviewModal(productId);
+        }
+
+        function updateSummaryUI(avg, count) {
+            document.getElementById('avg-rating-display').textContent = avg.toFixed(1);
+            document.getElementById('reviews-count-display').textContent = count;
+            document.getElementById('avg-stars-display').innerHTML = Array(5).fill(0).map((_, i) => `<i class="fas fa-star ${i < Math.round(avg) ? 'text-yellow-500' : 'text-gray-300'}"></i>`).join('');
+        }
+
+        function showReviewModal(productId) {
+            if (!currentUser) {
+                localStorage.setItem('redirectToAfterLogin', location.href);
+                return showToast('يرجى تسجيل الدخول للتقييم', false);
+            }
+
+            const content = `
+                <form id="review-form" class="space-y-4">
+                    <div class="flex flex-col items-center gap-2 mb-4">
+                         <span class="text-gray-700 font-semibold">قيم المنتج</span>
+                         <div class="flex gap-2 text-3xl text-gray-300 cursor-pointer" id="star-rating-input">
+                            <i class="fas fa-star hover:text-yellow-400 transition" data-val="1"></i>
+                            <i class="fas fa-star hover:text-yellow-400 transition" data-val="2"></i>
+                            <i class="fas fa-star hover:text-yellow-400 transition" data-val="3"></i>
+                            <i class="fas fa-star hover:text-yellow-400 transition" data-val="4"></i>
+                            <i class="fas fa-star hover:text-yellow-400 transition" data-val="5"></i>
+                         </div>
+                         <input type="hidden" id="rating-value" required>
+                    </div>
+                    
+                    <div>
+                        <label class="font-semibold text-sm">رأيك في المنتج</label>
+                        <textarea id="review-text" rows="3" class="mt-1 w-full p-2 border rounded bg-gray-50" placeholder="اكتب تجربتك هنا..." required></textarea>
+                    </div>
+
+                    <div class="text-left">
+                        <button type="submit" id="submit-review-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 w-full">
+                            نشر التقييم
+                        </button>
+                    </div>
+                </form>
+            `;
+
+            showModal('إضافة تقييم', content);
+
+            // Star Interaction
+            const stars = document.querySelectorAll('#star-rating-input i');
+            const input = document.getElementById('rating-value');
+
+            stars.forEach(star => {
+                star.onclick = function () {
+                    const val = this.dataset.val;
+                    input.value = val;
+                    stars.forEach(s => {
+                        s.classList.toggle('text-yellow-400', s.dataset.val <= val);
+                        s.classList.toggle('text-gray-300', s.dataset.val > val);
+                    });
+                };
+            });
+
+            document.getElementById('review-form').onsubmit = (e) => submitReview(e, productId);
+        }
+
+        async function submitReview(e, productId) {
+            e.preventDefault();
+            const rating = parseInt(document.getElementById('rating-value').value);
+            const text = document.getElementById('review-text').value;
+
+            if (!rating) return showToast('يرجى اختيار عدد النجوم', false);
+
+            const btn = document.getElementById('submit-review-btn');
+            btn.disabled = true;
+            btn.textContent = 'جاري النشر...';
+
+            try {
+                const reviewData = {
+                    rating,
+                    text,
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName || 'مستخدم',
+                    createdAt: serverTimestamp()
+                };
+
+                await addDoc(collection(db, `products/${productId}/reviews`), reviewData);
+
+                // Update Aggregates Transaction
+                const productRef = doc(db, "products", productId);
+                await runTransaction(db, async (transaction) => {
+                    const sfDoc = await transaction.get(productRef);
+                    if (!sfDoc.exists()) throw "Product does not exist!";
+
+                    const data = sfDoc.data();
+                    const newCount = (data.reviewsCount || 0) + 1;
+                    const oldTotal = (data.rating || 0) * (data.reviewsCount || 0);
+                    const newAvg = (oldTotal + rating) / newCount;
+
+                    transaction.update(productRef, {
+                        rating: newAvg,
+                        reviewsCount: newCount
+                    });
+                });
+
+                closeModal();
+                showToast('شكراً لتقييمك! ❤️');
+
+                // Update Local UI display immediately (snapshot will also catch it)
+                // updateSummaryUI is handled by reloading page? No, snapshot handles list, but summary header might need valid listeners or just wait for product reload. 
+                // Since I passed productData to `loadReviews`, that's stale. I should listen to product doc too? 
+                // For now, I will just manually update UI here for speed.
+                const newCount = (currentProduct.reviewsCount || 0) + 1;
+                const oldTotal = (currentProduct.rating || 0) * (currentProduct.reviewsCount || 0);
+                const newAvg = (oldTotal + rating) / newCount;
+                updateSummaryUI(newAvg, newCount);
+
+                // Update global Cache
+                currentProduct.rating = newAvg;
+                currentProduct.reviewsCount = newCount;
+
+            } catch (error) {
+                console.error(error);
+                showToast('حدث خطأ أثناء النشر', false);
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'نشر التقييم'; }
             }
         }
 

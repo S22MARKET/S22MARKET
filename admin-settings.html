@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,157 +9,298 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
-        .hidden { display: none; }
-        .dashboard-tab:hover { background-color: #4338ca; }
-        .dashboard-tab.active-tab { background-color: #4f46e5; color: white; font-weight: bold; }
-        .dashboard-panel { animation: fadeIn 0.5s; }
-        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #48bb78; }
-        input:checked + .slider:before { transform: translateX(24px); }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .dashboard-tab:hover {
+            background-color: #4338ca;
+        }
+
+        .dashboard-tab.active-tab {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: bold;
+        }
+
+        .dashboard-panel {
+            animation: fadeIn 0.5s;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4f46e5;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #48bb78;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(24px);
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Animation */
+        .fade-in-up {
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
+
 <body>
 
-<div id="login-page" class="hidden min-h-screen flex items-center justify-center bg-gray-100 p-4">
+    <div id="login-page" class="hidden min-h-screen flex items-center justify-center bg-gray-100 p-4">
     </div>
 
-<div id="dashboard-page" class="hidden">
-    <div class="relative min-h-screen md:flex">
+    <div id="dashboard-page" class="hidden">
+        <div class="relative min-h-screen md:flex">
 
-        <aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
-            <div class="p-3 text-center border-b border-gray-700">
-                <h2 class="text-2xl font-bold">S22 Market</h2>
-                <p id="admin-welcome-name" class="text-sm text-indigo-300"></p>
-            </div>
-            <nav class="flex-1 p-2 space-y-2">
-                <a href="dashboard.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chart-line fa-fw mr-3"></i> لوحة التحكم</a>
-                <a href="admin-sellers.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-users-cog fa-fw mr-3"></i> إدارة البائعين</a>
-                <a href="admin-reports.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-flag fa-fw mr-3 text-red-400"></i> الإبلاغات</a>
-                <a href="admin-products.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
-                <a href="admin-offers.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-star fa-fw mr-3"></i> العروض</a>
-                <a href="admin-product-requests.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-user-plus fa-fw mr-3"></i> طلبات الزوار</a>
-                <a href="admin-categories.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
-                <a href="admin-orders.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
-                <a href="admin-coupons.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-tags fa-fw mr-3"></i> الكوبونات</a>
-                <a href="admin-inquiries.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-envelope-open-text fa-fw mr-3"></i> الرسائل الواردة</a>
-                <a href="admin-applications.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
-                <a href="admin-notepad.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
-                
-                <hr class="border-gray-700 my-2">
-                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">نظام الولاء (المتجر)</h6>
-                <a href="admin-loyalty-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-gem fa-fw mr-3 text-yellow-400"></i> إعدادات الجواهر 💎</a>
-                <a href="admin-loyalty-approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات المهام</a>
-                <a href="admin-referrals-pending.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
-                <hr class="border-gray-700 my-2">
-
-                <a href="admin-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
-                
-                <hr class="border-gray-700 my-2">
-                <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</h6>
-                <a href="dawarat_admin_manager.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700" target="_blank">
-                    <i class="fas fa-graduation-cap fa-fw mr-3 text-gray-400"></i>
-                    <span>إدارة البذلورات</span>
-                    <i class="fas fa-external-link-alt fa-xs ml-auto"></i>
-                </a>
-
-            </nav>
-            <div class="p-4 border-t border-gray-700">
-                <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
-            </div>
-        </aside>
-        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
-            <div id="settings-panel" class="dashboard-panel">
-                <div class="text-center py-20">
-                    <div class="loader mx-auto"></div>
-                    <p class="mt-4 text-gray-600">جاري تحميل الإعدادات...</p>
+            <aside id="sidebar"
+                class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
+                <div class="p-3 text-center border-b border-gray-700">
+                    <h2 class="text-2xl font-bold">S22 Market</h2>
+                    <p id="admin-welcome-name" class="text-sm text-indigo-300"></p>
                 </div>
-            </div>
-        </main>
+                <nav class="flex-1 p-2 space-y-2">
+                    <a href="dashboard.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-chart-line fa-fw mr-3"></i> لوحة التحكم</a>
+                    <a href="admin-sellers.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-users-cog fa-fw mr-3"></i> إدارة البائعين</a>
+                    <a href="admin-reports.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-flag fa-fw mr-3 text-red-400"></i> الإبلاغات</a>
+                    <a href="admin-products.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
+                    <a href="admin-offers.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-star fa-fw mr-3"></i> العروض</a>
+                    <a href="admin-product-requests.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-user-plus fa-fw mr-3"></i> طلبات الزوار</a>
+                    <a href="admin-categories.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-sitemap fa-fw mr-3"></i> الأقسام</a>
+                    <a href="admin-orders.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-clipboard-list fa-fw mr-3"></i> الطلبات</a>
+                    <a href="admin-coupons.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-tags fa-fw mr-3"></i> الكوبونات</a>
+                    <a href="admin-inquiries.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-envelope-open-text fa-fw mr-3"></i> الرسائل الواردة</a>
+                    <a href="admin-applications.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fab fa-google-play fa-fw mr-3"></i> التطبيقات</a>
+                    <a href="admin-notepad.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
+
+                    <hr class="border-gray-700 my-2">
+                    <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">نظام الولاء (المتجر)</h6>
+                    <a href="admin-loyalty-settings.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-gem fa-fw mr-3 text-yellow-400"></i> إعدادات الجواهر 💎</a>
+                    <a href="admin-loyalty-approvals.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات المهام</a>
+                    <a href="admin-referrals-pending.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
+                    <hr class="border-gray-700 my-2">
+
+                    <a href="admin-settings.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-cogs fa-fw mr-3"></i> إعدادات المتجر</a>
+
+                    <hr class="border-gray-700 my-2">
+                    <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</h6>
+                    <a href="dawarat_admin_manager.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"
+                        target="_blank">
+                        <i class="fas fa-graduation-cap fa-fw mr-3 text-gray-400"></i>
+                        <span>إدارة البذلورات</span>
+                        <i class="fas fa-external-link-alt fa-xs ml-auto"></i>
+                    </a>
+
+                </nav>
+                <div class="p-4 border-t border-gray-700">
+                    <button id="logout-btn"
+                        class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i
+                            class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
+                </div>
+            </aside>
+            <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+                <div id="settings-panel" class="dashboard-panel">
+                    <div class="text-center py-20">
+                        <div class="loader mx-auto"></div>
+                        <p class="mt-4 text-gray-600">جاري تحميل الإعدادات...</p>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
-</div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
-        authDomain: "s22market-4e3e6.firebaseapp.com",
-        projectId: "s22market-4e3e6",
-        storageBucket: "s22market-4e3e6.appspot.com",
-        messagingSenderId: "119186699901",
-        appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
-        measurementId: "G-MWYNCVP4WQ"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    const ADMIN_EMAILS = [
-        's22market@gmail.com',
-        'yacinee474474@gmail.com',
-        'nourmt01@gmail.com'
-    ];
+        const ADMIN_EMAILS = [
+            's22market@gmail.com',
+            'yacinee474474@gmail.com',
+            'nourmt01@gmail.com'
+        ];
 
-    const loginPage = document.getElementById('login-page');
-    const dashboardPage = document.getElementById('dashboard-page');
-    const logoutBtn = document.getElementById('logout-btn');
-    const getEl = (id) => document.getElementById(id);
-    const getVal = (id) => getEl(id)?.value || '';
-    const getNum = (id) => parseFloat(getVal(id));
-    const getChecked = (id) => getEl(id)?.checked || false;
+        const loginPage = document.getElementById('login-page');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const logoutBtn = document.getElementById('logout-btn');
+        const getEl = (id) => document.getElementById(id);
+        const getVal = (id) => getEl(id)?.value || '';
+        const getNum = (id) => parseFloat(getVal(id));
+        const getChecked = (id) => getEl(id)?.checked || false;
 
-    // --- دوال المصادقة والتنقل ---
-    function checkAdminPermissions(user) {
-        if (user && ADMIN_EMAILS.includes(user.email)) {
-            loginPage.classList.add('hidden');
-            dashboardPage.classList.remove('hidden');
-            getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
-            initializeDashboard();
-        } else {
-            dashboardPage.classList.add('hidden');
-            loginPage.classList.remove('hidden');
-            if (user) signOut(auth);
-        }
-    }
-    onAuthStateChanged(auth, user => { checkAdminPermissions(user); });
-    logoutBtn.addEventListener('click', async () => { await signOut(auth); });
-
-    function setActiveTab() {
-        const currentPage = window.location.pathname.split('/').pop();
-        const tabs = document.querySelectorAll('.dashboard-tab');
-        tabs.forEach(tab => {
-            const tabHref = tab.getAttribute('href').split('/').pop();
-            if (tabHref === currentPage) {
-                tab.classList.add('active-tab');
+        // --- دوال المصادقة والتنقل ---
+        function checkAdminPermissions(user) {
+            if (user && ADMIN_EMAILS.includes(user.email)) {
+                loginPage.classList.add('hidden');
+                dashboardPage.classList.remove('hidden');
+                getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
+                initializeDashboard();
             } else {
-                tab.classList.remove('active-tab');
+                dashboardPage.classList.add('hidden');
+                loginPage.classList.remove('hidden');
+                if (user) signOut(auth);
             }
-        });
-    }
+        }
+        onAuthStateChanged(auth, user => { checkAdminPermissions(user); });
+        logoutBtn.addEventListener('click', async () => { await signOut(auth); });
 
-    // --- الدالة الرئيسية ---
-    async function initializeDashboard() {
-        setActiveTab();
-        loadStoreSettings();
-    }
+        function setActiveTab() {
+            const currentPage = window.location.pathname.split('/').pop();
+            const tabs = document.querySelectorAll('.dashboard-tab');
+            tabs.forEach(tab => {
+                const tabHref = tab.getAttribute('href').split('/').pop();
+                if (tabHref === currentPage) {
+                    tab.classList.add('active-tab');
+                } else {
+                    tab.classList.remove('active-tab');
+                }
+            });
+        }
 
-    async function loadStoreSettings() {
-        const panel = getEl('settings-panel');
-        const docRef = doc(db, "settings", "storeConfig");
-        const docSnap = await getDoc(docRef);
-        const settings = docSnap.exists() ? docSnap.data() : {};
+        // --- الدالة الرئيسية ---
+        async function initializeDashboard() {
+            setActiveTab();
+            loadStoreSettings();
+        }
 
-        panel.innerHTML = `
+        async function loadStoreSettings() {
+            const panel = getEl('settings-panel');
+            const docRef = doc(db, "settings", "storeConfig");
+            const docSnap = await getDoc(docRef);
+            const settings = docSnap.exists() ? docSnap.data() : {};
+
+            panel.innerHTML = `
+            <div class="fade-in-up">
             <h1 class="text-3xl font-bold text-gray-800 mb-6">إعدادات المتجر العامة</h1>
             <div class="bg-white p-6 rounded-xl shadow-md space-y-6">
                 
@@ -233,58 +375,60 @@
                     </button>
                     <span id="save-status" class="mr-4 text-green-600 font-semibold hidden"></span>
                 </div>
+            </div>
             </div>`;
-        
-        getEl('save-settings-btn').onclick = async () => {
-            const btn = getEl('save-settings-btn');
-            const status = getEl('save-status');
-            btn.disabled = true;
-            btn.innerHTML = '<div class="loader !w-6 !h-6 !border-4 !border-t-green-300 mx-auto"></div>';
-            
-            const data = {
-                seoTitle: getVal('setting-seo-title'),
-                seoDescription: getVal('setting-seo-desc'),
-                logoUrl: getVal('setting-logo-url'),
-                isBannerActive: getChecked('setting-banner-active'),
-                bannerMessage: getVal('setting-banner-msg'),
-                shippingCost: getNum('setting-shipping-cost') || 0,
-                freeShippingThreshold: getNum('setting-free-shipping') || 0,
-                socialLinks: {
-                    whatsapp: getVal('setting-social-whatsapp'),
-                    facebook: getVal('setting-social-facebook'),
-                    instagram: getVal('setting-social-instagram'),
-                    telegram1: getVal('setting-social-telegram1'),
-                    phone: getVal('setting-social-phone'),
-                },
-                gaId: getVal('setting-ga-id'),
-                fbPixelId: getVal('setting-pixel-id'),
-                
-                exchangeRates: {
-                    jewels_to_coins: getNum('exchange_jewels_to_coins') || 0,
-                    coins_to_jewels: getNum('exchange_coins_to_jewels') || 0,
-                },
 
-                lastUpdated: serverTimestamp()
+            getEl('save-settings-btn').onclick = async () => {
+                const btn = getEl('save-settings-btn');
+                const status = getEl('save-status');
+                btn.disabled = true;
+                btn.innerHTML = '<div class="loader !w-6 !h-6 !border-4 !border-t-green-300 mx-auto"></div>';
+
+                const data = {
+                    seoTitle: getVal('setting-seo-title'),
+                    seoDescription: getVal('setting-seo-desc'),
+                    logoUrl: getVal('setting-logo-url'),
+                    isBannerActive: getChecked('setting-banner-active'),
+                    bannerMessage: getVal('setting-banner-msg'),
+                    shippingCost: getNum('setting-shipping-cost') || 0,
+                    freeShippingThreshold: getNum('setting-free-shipping') || 0,
+                    socialLinks: {
+                        whatsapp: getVal('setting-social-whatsapp'),
+                        facebook: getVal('setting-social-facebook'),
+                        instagram: getVal('setting-social-instagram'),
+                        telegram1: getVal('setting-social-telegram1'),
+                        phone: getVal('setting-social-phone'),
+                    },
+                    gaId: getVal('setting-ga-id'),
+                    fbPixelId: getVal('setting-pixel-id'),
+
+                    exchangeRates: {
+                        jewels_to_coins: getNum('exchange_jewels_to_coins') || 0,
+                        coins_to_jewels: getNum('exchange_coins_to_jewels') || 0,
+                    },
+
+                    lastUpdated: serverTimestamp()
+                };
+
+                try {
+                    await setDoc(docRef, data, { merge: true });
+                    status.textContent = 'تم الحفظ بنجاح!';
+                    status.classList.remove('hidden', 'text-red-600');
+                    status.classList.add('text-green-600');
+                } catch (error) {
+                    console.error("Error saving settings: ", error);
+                    status.textContent = 'حدث خطأ أثناء الحفظ.';
+                    status.classList.remove('hidden', 'text-green-600');
+                    status.classList.add('text-red-600');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-save mr-2"></i> حفظ الإعدادات';
+                    setTimeout(() => status.classList.add('hidden'), 3000);
+                }
             };
+        }
 
-            try {
-                await setDoc(docRef, data, { merge: true }); 
-                status.textContent = 'تم الحفظ بنجاح!';
-                status.classList.remove('hidden', 'text-red-600');
-                status.classList.add('text-green-600');
-            } catch (error) {
-                console.error("Error saving settings: ", error);
-                status.textContent = 'حدث خطأ أثناء الحفظ.';
-                status.classList.remove('hidden', 'text-green-600');
-                status.classList.add('text-red-600');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-save mr-2"></i> حفظ الإعدادات';
-                setTimeout(() => status.classList.add('hidden'), 3000);
-            }
-        };
-    }
-
-</script>
+    </script>
 </body>
+
 </html>

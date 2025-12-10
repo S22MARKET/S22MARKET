@@ -374,39 +374,33 @@
             const tbody = getEl('sellers-table-body');
             const oldLoader = getEl('sellers-loader');
             if (oldLoader) oldLoader.classList.add('hidden');
+            sellersTable.classList.remove('hidden');
 
-            // Listen to real-time updates
-            onSnapshot(query(collection(db, "storeRequests"), where("status", "==", "approved")), async (snapshot) => {
-                const sellers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            // Unsubscribe from previous listeners if any
+            if (unsubPending) unsubPending();
+            if (unsubClosure) unsubClosure();
+            if (unsubSellers) unsubSellers();
 
-                // Fetch product counts in parallel (simulated or real count)
-                const productCounts = {};
-                // Note: In a real large app, you'd want to store productCount on the seller doc to avoid this. 
-                // For now, we'll skip the heavy query or do it efficiently. 
-                // To keep it fast, let's just proceed to render. 
+            // 1. Pending Store Requests
+            const qPending = query(collection(db, "users"), where("storeRequest.status", "==", "pending"));
+            unsubPending = onSnapshot(qPending, (snapshot) => {
+                state.pendingRequests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAll();
+            }, (error) => console.error("Error fetching pending requests:", error));
 
-                sellersTable.classList.remove('hidden');
+            // 2. Closure Requests
+            const qClosure = query(collection(db, "users"), where("storeRequest.closureStatus", "==", "pending"));
+            unsubClosure = onSnapshot(qClosure, (snapshot) => {
+                state.closureRequests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAll();
+            }, (error) => console.error("Error fetching closure requests:", error));
 
-                tbody.innerHTML = '';
-                sellers.forEach((seller, index) => {
-                    // We will not await product count here to avoid N+1 queries slowing down the UI
-                    // If needed, it can be fetched asynchronously.
-
-                    const row = document.createElement('tr');
-                    row.className = "border-b hover:bg-gray-50 transition-colors fade-in-up";
-                    row.style.animationDelay = `${index * 0.05}s`;
-                    row.innerHTML = `
-                        <td class="p-4 font-semibold">${seller.ownerName}</td>
-                        <td class="p-4 text-indigo-600">${seller.storeName}</td>
-                        <td class="p-4 text-center font-mono">---</td> 
-                        <td class="p-4 text-center"><span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">---</span></td>
-                        <td class="p-4 text-center"><input type="number" class="w-20 p-1 border rounded text-center limit-input" value="${seller.productLimit || 10}" data-id="${seller.id}"></td>
-                        <td class="p-4 actions-cell"><button class="bg-red-100 text-red-600 px-3 py-1 rounded hover:bg-red-200 transition-colors delete-seller-btn" data-id="${seller.id}"><i class="fas fa-trash"></i></button></td>
-                    `;
-                    tbody.appendChild(row);
-                });
-                attachSellerListeners();
-            });
+            // 3. Active Sellers
+            const qActive = query(collection(db, "users"), where("role", "in", ["vendor", "restaurant"]));
+            unsubSellers = onSnapshot(qActive, (snapshot) => {
+                state.activeSellers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAll();
+            }, (error) => console.error("Error fetching active sellers:", error));
         }
 
         function renderAll() {
@@ -500,6 +494,9 @@
                            onchange="updateUserLimit(this)">
                 </td>
                 <td class="p-4 actions-cell space-x-2 space-x-reverse">
+                    <a href="store-orders-screen.html?uid=${user.id}" target="_blank" class="text-orange-500 hover:text-orange-700" title="شاشة المطبخ">
+                        <i class="fas fa-utensils"></i>
+                    </a>
                     <button class="text-red-600 hover:text-red-800" onclick="deleteUser('${user.id}')">
                         <i class="fas fa-trash"></i>
                     </button>
