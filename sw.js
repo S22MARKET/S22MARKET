@@ -1,4 +1,4 @@
-const CACHE_NAME = 's22-market-v1';
+const CACHE_NAME = 's22-market-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -49,7 +49,7 @@ self.addEventListener('fetch', (event) => {
         caches.open(CACHE_NAME).then((cache) => {
           // Only cache http/https requests
           if (event.request.url.startsWith('http')) {
-             cache.put(event.request, responseClone);
+            cache.put(event.request, responseClone);
           }
         });
         return response;
