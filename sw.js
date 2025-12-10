@@ -1,4 +1,5 @@
-const CACHE_NAME = 's22-market-v2';
+const CACHE_NAME = 's22-market-no-cache-products-v2';
+
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -14,8 +15,9 @@ const ASSETS_TO_CACHE = [
   'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap'
 ];
 
-// Install Event
+// 1. التثبيت: فرض التفعيل الفوري
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE);
@@ -23,7 +25,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate Event
+// 2. التفعيل: حذف الكاش القديم
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -34,26 +36,55 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
-// Fetch Event
+// 3. الجلب (Fetch)
 self.addEventListener('fetch', (event) => {
-  // Network First, Fallback to Cache logic
+  const url = new URL(event.request.url);
+
+  // استراتيجية "الشبكة فقط" (Network Only) لملفات المنتجات والصور والبيانات
+  // أي شيء يتعلق بفايربيس، الصور، أو المجلدات الديناميكية لا يتم تخزينه
+  if (
+    url.hostname.includes('googleapis') ||
+    url.hostname.includes('firebase') ||
+    url.href.includes('firestore') ||
+    url.pathname.includes('/products/') || // افتراض لمسار محتمل
+    url.href.includes('.jpg') ||          // عدم تخزين الصور الجديدة لتوفير المساحة وتجنب النسخ القديمة
+    url.href.includes('.png') ||
+    url.href.includes('.jpeg')
+  ) {
+    // استثناء: LOGO.jpg موجود في الـ ASSETS_TO_CACHE لذا نسمح به إذا كان مطابقاً تماماً
+    if (!url.pathname.endsWith('/LOGO.jpg')) {
+      return; // العودة للمتصفح (Network Direct)
+    }
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Build a copy of the response
+        // إذا نجح الاتصال، نحدث الكاش فقط للملفات الأساسية (HTML/CSS/JS)
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+          return response;
+        }
+
+        // تخزين نسخة فقط إذا كان الطلب من ضمن القائمة البيضاء (اختياري، أو نستخدم النهج السابق)
+        // النهج السابق كان Network First عام. سنبقيه ولكن مع الاستثناءات الصارمة أعلاه.
+
         const responseClone = response.clone();
         caches.open(CACHE_NAME).then((cache) => {
-          // Only cache http/https requests
+          // نخزن فقط إذا كان الطلب http/https وليس chrome-extension
           if (event.request.url.startsWith('http')) {
             cache.put(event.request, responseClone);
           }
         });
+
         return response;
       })
-      .catch(() => caches.match(event.request))
+      .catch(() => {
+        // إذا فشل الإنترنت، فقط حينها استخدم الكاش
+        return caches.match(event.request);
+      })
   );
 });

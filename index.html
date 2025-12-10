@@ -867,13 +867,20 @@
                     try {
                         if (section.type === 'recent') {
                             try {
-                                // Use the robust method: Fetch by date then filter in memory
-                                const qProd = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(50));
+                                // Use the robust method: Fetch simple batch then sort in memory
+                                // This bypasses Index requirements completely
+                                const qProd = query(collection(db, "products"), limit(50));
                                 const snap = await getDocs(qProd);
                                 products = snap.docs
                                     .map(d => ({ id: d.id, ...d.data() }))
                                     .filter(p => p.productType !== 'course')
-                                    .slice(0, 6); // Take top 6 after filtering
+                                    .sort((a, b) => {
+                                        // Sort desc by createdAt, handling missing dates safely
+                                        const dateA = a.createdAt?.seconds || 0;
+                                        const dateB = b.createdAt?.seconds || 0;
+                                        return dateB - dateA;
+                                    })
+                                    .slice(0, 6); // Take top 6 after filtering details
                             } catch (e) {
                                 console.error("Error fetching recent section:", e);
                             }
@@ -967,36 +974,41 @@
 
         async function loadDefaultRecentProducts() {
             const productsGrid = document.getElementById('products-grid');
+
             try {
-                // Fix: Fetch by createdAt only (no composite index needed) then filter in JS
-                // Increased limit to 50 to ensure we get products even if many courses were added recently
-                const q = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(50));
+                console.log("محاولة جلب المنتجات...");
+
+                // المحاولة الأولى: الجلب البسيط (بدون ترتيب) لضمان ظهور البيانات مهما كانت المشكلة
+                // هذا سيتجاوز مشكلة عدم وجود حقل التاريخ أو مشاكل الفهرسة
+                const q = query(collection(db, "products"), limit(20));
+
                 const prodSnap = await getDocs(q);
+                console.log(`تم العثور على ${prodSnap.size} منتج`);
 
                 productsGrid.innerHTML = '';
 
                 if (prodSnap.empty) {
-                    productsGrid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400">لا توجد منتجات حالياً.</div>';
+                    productsGrid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400">لا توجد منتجات في قاعدة البيانات.</div>';
                     return;
                 }
 
-                let count = 0;
                 prodSnap.forEach(doc => {
                     const p = doc.data();
-                    if (p.productType !== 'course' && count < 10) {
+                    // تصفية الكورسات إذا لم تكن تريد عرضها
+                    if (p.productType !== 'course') {
                         productsGrid.innerHTML += createProductCardHTML({ id: doc.id, ...p });
-                        count++;
                     }
                 });
 
-                if (productsGrid.innerHTML === '') {
-                    productsGrid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400">لا توجد منتجات للعرض حالياً.</div>';
-                }
-
+                // إظهار الشبكة
+                productsGrid.classList.remove('hidden');
+                document.getElementById('default-recent-title').classList.remove('hidden');
                 setupWishlistButtons();
+
             } catch (e) {
-                console.error("Default products failed", e);
-                productsGrid.innerHTML = '<div class="col-span-full text-center py-10 text-red-400">حدث خطأ في تحميل المنتجات. تأكد من الاتصال بالإنترنت.</div>';
+                console.error("فشل الجلب:", e);
+                productsGrid.innerHTML = `<div class="col-span-full text-center py-4 text-red-500" dir="ltr">Error: ${e.message}</div>`;
+                productsGrid.classList.remove('hidden');
             }
         }
 
@@ -1087,10 +1099,8 @@
             }
         });
 
-        // PWA Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
-        }
+        // PWA Service Worker Registration removed from here, moving to separate script block
+
 
 
         // --- Spin Wheel Feature ---
@@ -1099,6 +1109,25 @@
         // Start
         initHome();
 
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(registration => {
+                console.log('Service Worker Registered');
+
+                // دالة للبحث عن تحديثات كل دقيقة (60000 ميلي ثانية)
+                setInterval(() => {
+                    registration.update().then(() => {
+                        console.log('Checking for sw.js updates...');
+                    });
+                }, 60000);
+            });
+
+            // إذا تم العثور على تحديث، قم بتحديث الصفحة تلقائياً (اختياري)
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                window.location.reload();
+            });
+        }
     </script>
 </body>
 

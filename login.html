@@ -289,7 +289,8 @@
         import {
             auth, db,
             createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, updateProfile,
-            doc, setDoc, Timestamp, getDoc, updateDoc, writeBatch, collection, query, where, getDocs, limit
+            doc, setDoc, Timestamp, getDoc, updateDoc, writeBatch, collection, query, where, getDocs, limit,
+            setPersistence, browserLocalPersistence, browserSessionPersistence
         } from './js/firebase-config.js';
 
         const loginView = document.getElementById('login-view');
@@ -301,13 +302,14 @@
         const loginForm = document.getElementById('login-form');
         const toastContainer = document.getElementById('toast-container');
 
+        // ... existing functions ...
+
         function handleSuccessfulAuth() {
             const redirectUrl = localStorage.getItem('redirectToAfterLogin');
             if (redirectUrl) {
                 localStorage.removeItem('redirectToAfterLogin');
                 window.location.href = redirectUrl;
             } else {
-                // *** تعديل: توجيه المستخدم إلى ملفه الشخصي بعد التسجيل/الدخول
                 window.location.href = 'profile.html';
             }
         }
@@ -374,13 +376,21 @@
                 e.preventDefault();
                 const submitButton = document.getElementById('login-submit-button');
                 toggleButtonState(submitButton, true);
+
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
+                const rememberMe = document.getElementById('remember-me').checked;
 
                 try {
+                    // تحديد نوع الحفظ بناءً على خيار "تذكرني"
+                    const persistenceType = rememberMe ? browserLocalPersistence : browserSessionPersistence;
+
+                    await setPersistence(auth, persistenceType);
                     await signInWithEmailAndPassword(auth, email, password);
+
                     handleSuccessfulAuth();
                 } catch (error) {
+                    console.error("Login Error:", error);
                     showToast('البريد الإلكتروني أو كلمة المرور غير صحيحة.', 'error');
                 } finally {
                     toggleButtonState(submitButton, false);
