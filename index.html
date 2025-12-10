@@ -8,7 +8,7 @@
     <title>S22 Market - الرئيسية</title>
     <meta name="theme-color" content="#4f46e5">
     <meta name="description" content="متجر S22 Market - أفضل المنتجات والعروض">
-    <link rel="manifest" href="manifest.json">
+
     <link rel="apple-touch-icon" href="LOGO.jpg">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -610,15 +610,344 @@
     </script>
 
     <!-- Mobile Enhancements -->
-    <script src="js/mobile-enhancements.js"></script>
+    <!-- Mobile Enhancements -->
+    <script>
+        /**
+         * Mobile Enhancements Script
+         * Handles back button for overlays, pull-to-refresh, and page transitions.
+         */
+
+        class MobileEnhancements {
+            constructor() {
+                this.overlayStack = []; // Stack to track open overlays (sidebar, modals)
+                this.touchStartY = 0;
+                this.refreshThreshold = 150; // Pull distance to trigger refresh
+                this.isPulling = false;
+                this.spinner = null;
+
+                this.init();
+            }
+
+            init() {
+                this.setupBackButton();
+                this.setupPullToRefresh();
+                this.setupPageTransitions();
+                this.setupAutoHidingNavbar();
+                this.setupPWAInstall();
+                this.injectStyles();
+            }
+
+            // --- Back Button Logic ---
+
+            setupBackButton() {
+                // Push initial state to handle the first back press
+                window.history.replaceState({ overlay: null }, document.title, window.location.href);
+
+                window.addEventListener('popstate', (event) => {
+                    if (this.overlayStack.length > 0) {
+                        // If overlays are open, close the top one
+                        const topOverlay = this.overlayStack.pop();
+                        if (topOverlay && typeof topOverlay.close === 'function') {
+                            topOverlay.close();
+                            // Prevent default back navigation by pushing state again ONLY if we closed something
+                            // However, popstate already happened, effectively "going back".
+                            // If we want to stay on page, we need to push state again.
+                            // But standard pattern:
+                            // Open Overlay -> Push State
+                            // Back Press -> Pop State -> Close Overlay
+
+                            // So we don't need to push state here. The "Back" action removed the state we added when opening.
+                        }
+                    } else {
+                        // Normal back navigation matches browser behavior
+                    }
+                });
+            }
+
+            /**
+             * Call this when opening an overlay (Sidebar, Modal)
+             * @param {Function} closeCallback - Function to actually close the UI element
+             * @param {string} name - Name for debugging
+             */
+            pushOverlay(closeCallback, name = 'overlay') {
+                this.overlayStack.push({ close: closeCallback, name });
+                window.history.pushState({ overlay: name }, document.title, window.location.href);
+            }
+
+            /**
+             * Call this when closing an overlay Programmatically (e.g. clicking 'X' button)
+             * This ensures the history state is kept in sync (removes the state we added)
+             */
+            closeOverlay() {
+                if (this.overlayStack.length > 0) {
+                    // We do NOT pop here. We let the popstate event handler do it.
+                    // This ensures consistent behavior whether the user presses Back or clicks 'X'.
+                    window.history.back();
+                }
+            }
+
+            // --- Pull to Refresh Logic ---
+
+            setupPullToRefresh() {
+                // Create Spinner
+                this.spinner = document.createElement('div');
+                this.spinner.className = 'ptr-spinner';
+                this.spinner.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>';
+                document.body.prepend(this.spinner);
+
+                window.addEventListener('touchstart', (e) => {
+                    if (window.scrollY === 0) {
+                        this.touchStartY = e.touches[0].clientY;
+                    }
+                }, { passive: true });
+
+                window.addEventListener('touchmove', (e) => {
+                    if (window.scrollY === 0 && this.touchStartY > 0) {
+                        const touchY = e.touches[0].clientY;
+                        const pullDistance = touchY - this.touchStartY;
+
+                        if (pullDistance > 0) {
+                            this.isPulling = true;
+                            // Visual feedback
+                            this.spinner.style.transform = `translateY(${Math.min(pullDistance / 2, 80)}px) translateX(-50%) rotate(${pullDistance}deg)`;
+                            this.spinner.style.opacity = Math.min(pullDistance / 100, 1);
+                        }
+                    }
+                }, { passive: true });
+
+                window.addEventListener('touchend', (e) => {
+                    if (this.isPulling) {
+                        const touchY = e.changedTouches[0].clientY;
+                        const pullDistance = touchY - this.touchStartY;
+
+                        if (pullDistance > this.refreshThreshold) {
+                            this.triggerRefresh();
+                        } else {
+                            this.resetSpinner();
+                        }
+                        this.isPulling = false;
+                        this.touchStartY = 0;
+                    }
+                });
+            }
+
+            triggerRefresh() {
+                this.spinner.style.transition = '0.3s';
+                this.spinner.style.transform = 'translateY(60px) translateX(-50%) rotate(360deg)';
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+            }
+
+            resetSpinner() {
+                this.spinner.style.transition = '0.3s';
+                this.spinner.style.transform = 'translateY(-50px) translateX(-50%)';
+                this.spinner.style.opacity = '0';
+            }
+
+            // --- Page Transitions ---
+
+            setupPageTransitions() {
+                document.body.classList.add('page-enter');
+
+                // Hijack internal links for exit animation (optional, can be disabled if buggy)
+                // document.addEventListener('click', (e) => {
+                //     const link = e.target.closest('a');
+                //     if (link && link.href && link.href.startsWith(window.location.origin) && !link.target) {
+                //         e.preventDefault();
+                //         document.body.classList.add('page-exit');
+                //         setTimeout(() => {
+                //             window.location.href = link.href;
+                //         }, 300);
+                //     }
+                // });
+            }
+
+            injectStyles() {
+                const style = document.createElement('style');
+                style.textContent = `
+                    /* Pull to Refresh Spinner */
+                    .ptr-spinner {
+                        position: fixed;
+                        top: -50px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        width: 40px;
+                        height: 40px;
+                        background: white;
+                        border-radius: 50%;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 1000;
+                        color: var(--primary, #4f46e5);
+                        opacity: 0;
+                        pointer-events: none;
+                    }
+
+                    /* Page Transitions */
+                    .page-enter {
+                        animation: fadeEnter 0.4s ease-out forwards;
+                    }
+                    @keyframes fadeEnter {
+                        from { opacity: 0; transform: translateY(10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    
+                    .page-exit {
+                        opacity: 0;
+                        transform: scale(0.98);
+                        transition: 0.3s;
+                    }
+
+                    /* Auto Hide Navbar */
+                    .bottom-nav {
+                        transition: transform 0.3s ease-in-out;
+                    }
+                    .bottom-nav.nav-hidden {
+                        transform: translateY(100%);
+                    }
+
+                    /* PWA Modal */
+                    .pwa-modal {
+                        position: fixed;
+                        bottom: 20px;
+                        left: 20px;
+                        right: 20px;
+                        background: white;
+                        border-radius: 16px;
+                        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+                        z-index: 9999;
+                        transform: translateY(150%);
+                        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                        max-width: 400px;
+                        margin: 0 auto;
+                        border: 1px solid rgba(0,0,0,0.05);
+                    }
+                    
+                    .pwa-modal.active {
+                        transform: translateY(0);
+                    }
+
+                    .pwa-content {
+                        padding: 20px;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+
+
+            setupAutoHidingNavbar() {
+                let lastScrollY = window.scrollY;
+                const bottomNav = document.querySelector('.bottom-nav');
+                if (!bottomNav) return;
+
+                window.addEventListener('scroll', () => {
+                    const currentScrollY = window.scrollY;
+                    if (Math.abs(currentScrollY - lastScrollY) < 10) return;
+                    if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                        bottomNav.classList.add('nav-hidden');
+                    } else {
+                        bottomNav.classList.remove('nav-hidden');
+                    }
+                    lastScrollY = currentScrollY;
+                }, { passive: true });
+            }
+
+            // --- PWA Install Logic 📲 ---
+            setupPWAInstall() {
+                let deferredPrompt;
+
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+
+                    // Check if user already dismissed it recently (optional: use localStorage)
+                    if (localStorage.getItem('pwa-dismissed')) return;
+
+                    // Show Custom Modal
+                    this.showInstallModal(deferredPrompt);
+                });
+            }
+
+            showInstallModal(deferredPrompt) {
+                // Create Modal HTML
+                const modal = document.createElement('div');
+                modal.className = 'pwa-modal';
+                modal.innerHTML = `
+                    <div class="pwa-content">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 text-2xl">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-gray-800">تثبيت التطبيق</h3>
+                                <p class="text-xs text-gray-500">تجربة أسرع وأفضل بدون إنترنت!</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button id="pwa-dismiss" class="flex-1 py-2 text-gray-500 font-bold bg-gray-50 rounded-lg">ليس الآن</button>
+                            <button id="pwa-install" class="flex-1 py-2 text-white font-bold bg-indigo-600 rounded-lg shadow-lg shadow-indigo-200">تثبيت</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                // Animate In
+                setTimeout(() => modal.classList.add('active'), 100);
+
+                // Handlers
+                document.getElementById('pwa-dismiss').onclick = () => {
+                    modal.classList.remove('active');
+                    setTimeout(() => modal.remove(), 300);
+                    localStorage.setItem('pwa-dismissed', 'true');
+                };
+
+                document.getElementById('pwa-install').onclick = async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        if (outcome === 'accepted') {
+                            console.log('User accepted the install prompt');
+                        }
+                        deferredPrompt = null;
+                    }
+                    modal.classList.remove('active');
+                    setTimeout(() => modal.remove(), 300);
+                };
+            }
+        }
+
+        // Initialize
+        const mobileApp = new MobileEnhancements();
+
+        // Global Helper for existing code to call
+        window.openMobileOverlay = (closeCallback, name) => mobileApp.pushOverlay(closeCallback, name);
+        window.closeMobileOverlay = () => mobileApp.closeOverlay();
+    </script>
 
     <script type="module">
-        // استيراد الإعدادات والأدوات الجاهزة من الملف الموحد
-        import {
-            auth, db,
-            onAuthStateChanged, signOut,
-            collection, getDocs, query, orderBy, limit, doc, getDoc, where, updateDoc, arrayUnion, arrayRemove
-        } from './js/firebase-config.js';
+        // --- Inlined: Firebase Config ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, addDoc, query, orderBy, serverTimestamp, where, limit, updateDoc, onSnapshot, arrayUnion, arrayRemove, setDoc, writeBatch, Timestamp, deleteDoc, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        // --- End Inlined Config ---
 
         // --- 2. Global State & UI Elements ---
         let currentUser = null;
@@ -1103,29 +1432,336 @@
 
 
 
-        // --- Spin Wheel Feature ---
-        import { SpinWheel } from './js/spin-wheel.js';
+        // --- Inlined: SpinWheel ---
+        class SpinWheel {
+            constructor() {
+                this.config = null;
+                this.segments = [];
+                this.todayStr = new Date().toISOString().split('T')[0];
+                this.user = null;
+                this.isSpinning = false;
+
+                this.init();
+            }
+
+            async init() {
+                // 1. Auth Listener
+                onAuthStateChanged(auth, (user) => {
+                    this.user = user;
+                    if (user) {
+                        this.loadConfig();
+                    } else {
+                        this.removeUI();
+                    }
+                });
+            }
+
+            async loadConfig() {
+                try {
+                    const snap = await getDoc(doc(db, "settings", "daily_rewards"));
+                    if (snap.exists()) {
+                        this.config = snap.data();
+                        if (this.config.isActive && this.checkSchedule()) {
+                            // Check if already played today
+                            const played = await this.checkIfPlayedToday();
+                            if (!played) {
+                                this.renderFloatingButton();
+                                this.renderModal();
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error("Wheel Init Error:", e);
+                }
+            }
+
+            checkSchedule() {
+                if (!this.config.schedule) return true;
+
+                const now = new Date();
+                const currentHour = now.getHours();
+                const currentDay = now.getDay(); // 0 = Sunday
+
+                const { startHour, endHour, activeDays } = this.config.schedule;
+
+                if (currentHour < startHour || currentHour >= endHour) return false;
+                if (activeDays && !activeDays.includes(currentDay)) return false;
+
+                return true;
+            }
+
+            async checkIfPlayedToday() {
+                if (!this.user) return true;
+                // Check local storage first for speed (optimization)
+                const localKey = `s22_spin_${this.user.uid}_${this.todayStr}`;
+                if (localStorage.getItem(localKey)) return true;
+
+                // Verify with Firestore
+                // We query the 'claims' subcollection for this user
+                const q = query(
+                    collection(db, "daily_rewards_history", this.todayStr, "claims"),
+                    where("userId", "==", this.user.uid)
+                );
+                const snap = await getDocs(q);
+                const played = !snap.empty;
+
+                if (played) localStorage.setItem(localKey, 'true');
+                return played;
+            }
+
+            renderFloatingButton() {
+                if (document.getElementById('spin-fab')) return;
+
+                const btn = document.createElement('div');
+                btn.id = 'spin-fab';
+                btn.className = 'fixed bottom-24 left-4 z-40 animate-bounce cursor-pointer';
+                btn.innerHTML = `
+                    <div class="relative group">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-pink-600 to-purple-600 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                        <button class="relative w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl shadow-2xl border-2 border-white transform transition hover:scale-110">
+                            🎡
+                        </button>
+                        <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-max bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition">
+                            جرب حظك اليوم!
+                        </div>
+                    </div>
+                `;
+                btn.onclick = () => this.openModal();
+                document.body.appendChild(btn);
+            }
+
+            renderModal() {
+                if (document.getElementById('spin-modal')) return;
+
+                // Inject Styles
+                const style = document.createElement('style');
+                style.textContent = `
+                    .wheel-container { position: relative; width: 300px; height: 300px; margin: 0 auto; }
+                    .wheel { width: 100%; height: 100%; border-radius: 50%; border: 8px solid white; box-shadow: 0 0 20px rgba(0,0,0,0.2); transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); position: relative; overflow: hidden; background: #333; }
+                    .wheel-segment { position: absolute; width: 50%; height: 50%; top: 50%; left: 50%; transform-origin: 0% 0%; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+                    .wheel-text { position: absolute; left: 120%; top: 20%; transform: rotate(45deg); font-weight: bold; color: white; font-size: 12px; white-space: nowrap; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+                    .wheel-arrow { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 30px; height: 40px; z-index: 10; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.3)); }
+                    .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; background: white; border-radius: 50%; z-index: 5; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
+                `;
+                document.head.appendChild(style);
+
+                const modal = document.createElement('div');
+                modal.id = 'spin-modal';
+                modal.className = 'fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm';
+                modal.innerHTML = `
+                    <div class="bg-white rounded-3xl p-6 max-w-sm w-full relative text-center shadow-2xl overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-indigo-100 to-white -z-10"></div>
+                        
+                        <h2 class="text-2xl font-extrabold text-indigo-900 mb-1">عجلة الحظ اليومية 🎡</h2>
+                        <p class="text-xs text-gray-500 mb-6">جرب حظك وإربح جوائز قيمة!</p>
+
+                        <div class="wheel-container mb-6">
+                            <img src="https://cdn-icons-png.flaticon.com/512/295/295128.png" class="wheel-arrow">
+                            <div class="wheel" id="the-wheel">
+                                <!-- Segments Injected Here -->
+                            </div>
+                            <button id="spin-btn-action" class="wheel-center text-indigo-600 text-xl font-bold bg-white hover:bg-indigo-50 border-4 border-indigo-100 rounded-full w-16 h-16 shadow-inner transition">
+                                العب
+                            </button>
+                        </div>
+
+                        <div id="spin-status" class="h-6 text-sm font-bold text-indigo-600"></div>
+
+                        <button onclick="document.getElementById('spin-modal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                document.getElementById('spin-btn-action').onclick = () => this.spin();
+            }
+
+            openModal() {
+                if (!this.checkSchedule()) {
+                    alert('عذراً، لعبة الحظ غير متاحة في هذا الوقت.');
+                    return;
+                }
+                this.drawWheel();
+                document.getElementById('spin-modal').classList.remove('hidden');
+            }
+
+            drawWheel() {
+                const wheel = document.getElementById('the-wheel');
+                wheel.innerHTML = '';
+                this.segments = this.config.segments || [];
+
+                if (this.segments.length === 0) return;
+
+                const sliceAngle = 360 / this.segments.length;
+                let gradientStr = 'conic-gradient(';
+                let currentDeg = 0;
+
+                this.segments.forEach((seg, i) => {
+                    const endDeg = currentDeg + sliceAngle;
+                    gradientStr += `${seg.color} ${currentDeg}deg ${endDeg}deg${i === this.segments.length - 1 ? '' : ','}`;
+
+                    const label = document.createElement('div');
+                    const midAngle = currentDeg + (sliceAngle / 2);
+                    label.style.cssText = `
+                        position: absolute;
+                        top: 50%; left: 50%;
+                        width: 50%; height: 20px;
+                        transform-origin: 0% 50%;
+                        transform: rotate(${midAngle - 90}deg) translate(20px);
+                        text-align: right;
+                        color: white;
+                        font-size: 10px;
+                        font-weight: bold;
+                        pointer-events: none;
+                        padding-right: 15px;
+                        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+                    `;
+                    label.innerHTML = `<span style="display:inline-block; transform: rotate(90deg)">${seg.label}</span>`;
+                    currentDeg = endDeg;
+                });
+                gradientStr += ')';
+                wheel.style.background = gradientStr;
+            }
+
+            async spin() {
+                if (this.isSpinning) return;
+                this.isSpinning = true;
+                const btn = document.getElementById('spin-btn-action');
+                const status = document.getElementById('spin-status');
+                btn.disabled = true;
+                status.textContent = 'جاري السحب...';
+
+                try {
+                    const resultDoc = await runTransaction(db, async (transaction) => {
+                        const statsRef = doc(db, "daily_rewards_history", this.todayStr);
+                        const statsDoc = await transaction.get(statsRef);
+
+                        let currentCounts = {};
+                        let totalSpins = 0;
+
+                        if (statsDoc.exists()) {
+                            const d = statsDoc.data();
+                            currentCounts = d.segmentCounts || {};
+                            totalSpins = d.totalSpins || 0;
+                        }
+
+                        const availableSegments = this.segments.filter(seg => {
+                            const count = currentCounts[seg.id] || 0;
+                            const limit = seg.limit || 0;
+                            if (limit > 0 && count >= limit) return false;
+                            return true;
+                        });
+
+                        let winningSegment;
+
+                        if (availableSegments.length === 0) {
+                            winningSegment = this.segments.find(s => s.type === 'hardluck') || this.segments[0];
+                        } else {
+                            const totalWeight = availableSegments.reduce((sum, s) => sum + (s.probability || 0), 0);
+                            let random = Math.random() * totalWeight;
+
+                            for (const seg of availableSegments) {
+                                random -= (seg.probability || 0);
+                                if (random <= 0) {
+                                    winningSegment = seg;
+                                    break;
+                                }
+                            }
+                            if (!winningSegment) winningSegment = availableSegments[availableSegments.length - 1]; // Fallback
+                        }
+
+                        const newCount = (currentCounts[winningSegment.id] || 0) + 1;
+                        transaction.set(statsRef, {
+                            totalSpins: totalSpins + 1,
+                            segmentCounts: { ...currentCounts, [winningSegment.id]: newCount },
+                            lastUpdated: serverTimestamp()
+                        }, { merge: true });
+
+                        const claimRef = doc(collection(db, "daily_rewards_history", this.todayStr, "claims"));
+                        transaction.set(claimRef, {
+                            userId: this.user.uid,
+                            userName: this.user.displayName || 'Anonymous',
+                            segmentId: winningSegment.id,
+                            rewardValue: winningSegment.value,
+                            type: winningSegment.type,
+                            timestamp: serverTimestamp()
+                        });
+
+                        if (winningSegment.type === 'points' && winningSegment.value > 0) {
+                            const userRef = doc(db, "users", this.user.uid);
+                            transaction.update(userRef, {
+                                points: increment(winningSegment.value)
+                            });
+                        }
+
+                        return winningSegment;
+                    });
+
+                    const segmentIndex = this.segments.findIndex(s => s.id === resultDoc.id);
+                    const segmentAngle = 360 / this.segments.length;
+                    const targetRotation = 3600 + (360 - (segmentIndex * segmentAngle)) - (segmentAngle / 2);
+
+                    const wheel = document.getElementById('the-wheel');
+                    wheel.style.transform = `rotate(${targetRotation}deg)`;
+
+                    setTimeout(() => {
+                        this.showResult(resultDoc);
+                        localStorage.setItem(`s22_spin_${this.user.uid}_${this.todayStr}`, 'true');
+                    }, 4100);
+
+                } catch (e) {
+                    console.error(e);
+                    status.textContent = 'حدث خطأ، حاول مرة أخرى';
+                    this.isSpinning = false;
+                    btn.disabled = false;
+                }
+            }
+
+            showResult(segment) {
+                const modal = document.getElementById('spin-modal');
+                const isWin = segment.type !== 'hardluck';
+
+                const content = modal.querySelector('.bg-white');
+                content.innerHTML = `
+                    <div class="py-10 animate-pulse">
+                        <div class="text-6xl mb-4">${isWin ? '🎉' : '🥺'}</div>
+                        <h2 class="text-3xl font-extrabold ${isWin ? 'text-green-600' : 'text-gray-600'} mb-2">
+                            ${isWin ? 'ألف مبروك!' : 'حظ أوفر!'}
+                        </h2>
+                        <p class="text-gray-800 text-lg font-bold mb-6">
+                            ${segment.label}
+                        </p>
+                        <button onclick="location.reload()" class="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition">
+                            حسناً
+                        </button>
+                    </div>
+                `;
+                document.getElementById('spin-fab')?.remove();
+            }
+
+            removeUI() {
+                document.getElementById('spin-fab')?.remove();
+                document.getElementById('spin-modal')?.remove();
+            }
+        }
+
+        // Init SpinWheel
+        new SpinWheel();
+        // --- End Inlined SpinWheel ---
 
         // Start
         initHome();
 
     </script>
     <script>
+        // Unregister Service Worker to ensure fresh content
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(registration => {
-                console.log('Service Worker Registered');
-
-                // دالة للبحث عن تحديثات كل دقيقة (60000 ميلي ثانية)
-                setInterval(() => {
-                    registration.update().then(() => {
-                        console.log('Checking for sw.js updates...');
-                    });
-                }, 60000);
-            });
-
-            // إذا تم العثور على تحديث، قم بتحديث الصفحة تلقائياً (اختياري)
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                window.location.reload();
+            navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                for (let registration of registrations) {
+                    registration.unregister();
+                    console.log('Service Worker Unregistered');
+                }
             });
         }
     </script>

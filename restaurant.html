@@ -282,8 +282,15 @@
         import { getFirestore, collection, getDocs, doc, getDoc, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // --- Copy your Firebase Config Here ---
-        import { firebaseConfig } from './js/firebase-config.js'; // Assuming you have this or use the one from index.html
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
