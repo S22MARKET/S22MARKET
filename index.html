@@ -413,13 +413,15 @@
         </section>
 
         <section class="px-4">
-            <div class="flex justify-between items-center mb-4">
+            <div id="home-dynamic-sections" class="space-y-8 mb-8"></div>
+
+            <div class="flex justify-between items-center mb-4 hidden" id="default-recent-title">
                 <h2 class="font-bold text-gray-800 text-lg flex items-center gap-2">
                     <i class="fas fa-fire text-orange-500"></i> وصل حديثاً
                 </h2>
             </div>
 
-            <div id="products-grid" class="grid grid-cols-2 gap-3 sm:gap-4">
+            <div id="products-grid" class="grid grid-cols-2 gap-3 sm:gap-4 hidden">
                 <!-- Skeleton Loading Items -->
                 <div class="product-card">
                     <div class="product-image skeleton h-full"></div>
@@ -689,7 +691,10 @@
         // --- 4. Data Fetching Functions ---
 
         async function initHome() {
-            // A. Load Categories
+            // A. Load Dynamic Sections (Custom Home Layout)
+            await loadHomeSections();
+
+            // B. Load Categories (Independent)
             try {
                 const catSnap = await getDocs(query(collection(db, "categories"), orderBy("orderIndex")));
                 let catHTML = `
@@ -740,16 +745,21 @@
                 }
             } catch (e) { console.error("Offers failed", e); }
 
-            // C. Load Recent Products
+            // C. Load Recent Products (Moved to loadHomeSections / loadDefaultRecentProducts)
             try {
                 // استعلام: المنتجات الحديثة (ليست دورات)
                 // ملاحظة: قد يحتاج إلى Composite Index في Firestore. إذا فشل، سيتم استخدام الفلترة في المتصفح.
-                let q = query(collection(db, "products"), where("productType", "!=", "course"), orderBy("productType"), orderBy("createdAt", "desc"), limit(10));
-
-                // Fallback query (if index missing)
-                // q = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(20));
-
-                const prodSnap = await getDocs(q);
+                let prodSnap;
+                try {
+                    // محاولة الاستعلام المتقدم (يتطلب Index)
+                    const q = query(collection(db, "products"), where("productType", "!=", "course"), orderBy("productType"), orderBy("createdAt", "desc"), limit(10));
+                    prodSnap = await getDocs(q);
+                } catch (err) {
+                    console.warn("Primary query failed (likely missing index), using fallback:", err);
+                    // استعلام بسيط لا يحتاج Index مع فلترة النتائج لاحقاً
+                    const qFallback = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(20));
+                    prodSnap = await getDocs(qFallback);
+                }
                 productsGrid.innerHTML = '';
 
                 let count = 0;
@@ -790,8 +800,182 @@
 
             } catch (e) {
                 console.error("Products failed", e);
-                productsGrid.innerHTML = `<div class="col-span-full text-center text-red-400 py-4 bg-red-50 rounded-lg">حدث خطأ في التحميل.</div>`;
+                // productsGrid.innerHTML = `<div class="col-span-full text-center text-red-400 py-4 bg-red-50 rounded-lg">حدث خطأ في التحميل.</div>`;
             }
+        }
+
+        // --- Dynamic Sections Logic ---
+        async function loadHomeSections() {
+            const container = document.getElementById('home-dynamic-sections');
+            const defaultGrid = document.getElementById('products-grid');
+            const defaultTitle = document.getElementById('default-recent-title');
+
+            try {
+                const q = query(collection(db, "home_sections"), orderBy("orderIndex", "asc"));
+                const snapshot = await getDocs(q);
+
+                if (snapshot.empty) {
+                    // If no dynamic sections, show default recent products
+                    defaultGrid.classList.remove('hidden');
+                    defaultTitle.classList.remove('hidden');
+
+                    // Helper to load default products
+                    loadDefaultRecentProducts();
+                    return;
+                }
+
+                container.innerHTML = '';
+
+                // Hide default hardcoded section if we have dynamic ones
+                // (Or keep it if you prefer mixed, but typically dynamic replaces static)
+                // For now, we assume if dynamic sections exist, we use them.
+
+                for (const docSnap of snapshot.docs) {
+                    const section = docSnap.data();
+                    if (section.isActive === false) continue; // Skip inactive
+
+                    const sectionDiv = document.createElement('section');
+                    // sectionDiv.className = "px-4"; 
+
+                    // Header
+                    const headerHTML = `
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+                                 ${getSectionIcon(section.type)} ${section.title}
+                            </h2>
+                            ${section.type === 'category' ? `<a href="classproductindex.html?category=${section.config?.categoryId || ''}" class="text-xs text-indigo-600 font-bold">عرض الكل</a>` : ''}
+                        </div>`;
+
+                    sectionDiv.innerHTML = headerHTML;
+
+                    // Content Container
+                    const gridDiv = document.createElement('div');
+                    gridDiv.className = "grid grid-cols-2 gap-3 sm:gap-4";
+                    sectionDiv.appendChild(gridDiv);
+
+                    // Fetch Data based on type
+                    let products = [];
+                    try {
+                        if (section.type === 'recent') {
+                            try {
+                                const qProd = query(collection(db, "products"), where("productType", "!=", "course"), orderBy("createdAt", "desc"), limit(6));
+                                const snap = await getDocs(qProd);
+                                products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                            } catch (e) {
+                                // Fallback
+                                const qFallback = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(6));
+                                const snap = await getDocs(qFallback);
+                                products = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => p.productType !== 'course');
+                            }
+                        } else if (section.type === 'category') {
+                            if (section.config && section.config.categoryId) {
+                                const qCat = query(collection(db, "products"), where("categoryId", "==", section.config.categoryId), limit(6));
+                                const snap = await getDocs(qCat);
+                                products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                            }
+                        } else if (section.type === 'offers') {
+                            // Fetch from offers collection
+                            const qOff = query(collection(db, "offers"), limit(6));
+                            const snap = await getDocs(qOff);
+                            products = snap.docs.map(d => ({ id: d.id, ...d.data(), isOffer: true }));
+                        }
+                    } catch (err) {
+                        console.error(`Error loading section ${section.title}:`, err);
+                        gridDiv.innerHTML = '<p class="text-red-400 text-xs">خطأ في تحميل القسم</p>';
+                        container.appendChild(sectionDiv);
+                        continue;
+                    }
+
+                    // Render Items
+                    if (products.length > 0) {
+                        products.forEach(p => {
+                            // If it's an offer, map it to product-like structure for the card if needed, 
+                            // or create a special card.
+                            // Assuming createProductCard handles standard product object.
+                            // For offers, we might need adapter.
+                            if (p.isOffer) {
+                                // Simple adapter for offer to product card
+                                p.name = p.title;
+                                p.price = p.discountPrice || p.price || 0;
+                            }
+                            gridDiv.innerHTML += createProductCardHTML(p);
+                        });
+                    } else {
+                        gridDiv.innerHTML = '<div class="col-span-full text-center py-4 text-gray-400 text-sm">لا توجد عناصر لعرضها</div>';
+                    }
+
+                    container.appendChild(sectionDiv);
+                }
+
+                // Setup wishlist listeners for new dynamic content
+                setupWishlistButtons();
+
+            } catch (e) {
+                console.error("Error loading home sections:", e);
+                // Fallback
+                defaultGrid.classList.remove('hidden');
+                defaultTitle.classList.remove('hidden');
+                loadDefaultRecentProducts();
+            }
+        }
+
+        function getSectionIcon(type) {
+            if (type === 'recent') return '<i class="fas fa-clock text-blue-500"></i>';
+            if (type === 'category') return '<i class="fas fa-folder-open text-indigo-500"></i>';
+            if (type === 'offers') return '<i class="fas fa-fire text-orange-500"></i>';
+            return '<i class="fas fa-layer-group"></i>';
+        }
+
+        function createProductCardHTML(p) {
+            const img = (p.imageUrls && p.imageUrls[0]) ? p.imageUrls[0] : (p.imageUrl || 'https://placehold.co/300');
+            const isDirect = p.productType === 'direct';
+            const price = p.price ? p.price.toLocaleString() : '0';
+
+            // Check if item is in wishlist (simple local check if possible, or jus static for now)
+            // We rely on setupWishlistButtons to handle state check if needed or just render generic button
+
+            return `
+                <div class="product-card group" onclick="location.href='PRESENTPRODUCT.html?product=${p.id}${p.isOffer ? '&offer=true' : ''}'">
+                    <div class="product-image">
+                        <img src="${img}" alt="${p.name}" loading="lazy">
+                        ${isDirect ? '<span class="absolute top-2 right-2 bg-green-500/90 text-white text-[9px] px-2 py-1 rounded-full font-bold shadow-sm backdrop-blur">طلب مباشر</span>' : ''}
+                        <button class="wishlist-btn absolute top-2 left-2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-300" data-id="${p.id}" onclick="event.stopPropagation()">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="text-sm font-bold text-gray-800 line-clamp-2 h-9 leading-snug mb-1">${p.name}</h3>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="text-indigo-600 font-bold text-sm">${price} د.ج</span>
+                            <button class="w-7 h-7 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-colors shadow-sm">
+                                <i class="fas ${isDirect ? 'fa-paper-plane' : 'fa-plus'} text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        async function loadDefaultRecentProducts() {
+            // Reusing the logic that was previously in C. Load Recent Products
+            // But now inside a function to call only if needed.
+            // (We need to copy that logic here or ensure it runs in fallback)
+            const productsGrid = document.getElementById('products-grid');
+            try {
+                let q = query(collection(db, "products"), where("productType", "!=", "course"), orderBy("createdAt", "desc"), limit(10));
+                const prodSnap = await getDocs(q);
+                productsGrid.innerHTML = '';
+
+                if (prodSnap.empty) {
+                    productsGrid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400">لا توجد منتجات حالياً.</div>';
+                    return;
+                }
+
+                prodSnap.forEach(doc => {
+                    const p = doc.data();
+                    productsGrid.innerHTML += createProductCardHTML({ id: doc.id, ...p });
+                });
+                setupWishlistButtons();
+            } catch (e) { console.error("Default products failed", e); }
         }
 
         // --- 5. Auth & Wishlist Logic ---
