@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Market - إعدادات عجلة الحظ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .dashboard-tab.active-tab {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: bold;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4f46e5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #48bb78;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(24px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="login-overlay" class="fixed inset-0 bg-gray-900 z-50 flex items-center justify-center text-white">
+        <div class="text-center">
+            <div class="loader mx-auto mb-4"></div>
+            <p>جاري التحقق من الصلاحيات...</p>
+        </div>
+    </div>
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="bg-gray-800 text-white w-64 flex-shrink-0 hidden md:flex flex-col">
+            <div class="p-4 text-center border-b border-gray-700">
+                <h2 class="text-2xl font-bold">S22 Market</h2>
+                <p class="text-xs text-indigo-300 mt-1">لوحة تحكم الألعاب</p>
+            </div>
+            <nav class="flex-1 overflow-y-auto p-2 space-y-1">
+                <a href="dashboard.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 rounded-md">
+                    <i class="fas fa-arrow-right ml-3"></i> عودة للرئيسية
+                </a>
+                <div class="border-t border-gray-700 my-2"></div>
+                <a href="#" class="flex items-center px-4 py-3 bg-indigo-700 text-white rounded-md font-bold">
+                    <i class="fas fa-dharmachakra ml-3"></i> عجلة الحظ
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto bg-gray-100 p-4 md:p-8">
+            <div class="max-w-5xl mx-auto space-y-6">
+
+                <header class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-3xl font-extrabold text-gray-800">🎡 إعدادات عجلة الحظ</h1>
+                        <p class="text-gray-500 mt-1">التحكم في الجوائز، الاحتمالات، وأوقات العمل.</p>
+                    </div>
+                    <button id="save-btn"
+                        class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg transform active:scale-95 transition flex items-center gap-2">
+                        <i class="fas fa-save"></i> حفظ التغييرات
+                    </button>
+                </header>
+
+                <!-- 1. General Settings -->
+                <section class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">⚙️ الإعدادات العامة</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <div
+                            class="flex items-center justify-between bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                            <div>
+                                <h3 class="font-bold text-indigo-900">حالة العجلة</h3>
+                                <p class="text-xs text-indigo-600">تفعيل أو تعطيل اللعبة في التطبيق</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="wheel-active">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">ساعة البدء (0-23)</label>
+                                <input type="number" id="start-hour"
+                                    class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    min="0" max="23" placeholder="مثال: 10">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">ساعة الانتهاء (0-23)</label>
+                                <input type="number" id="end-hour"
+                                    class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    min="0" max="23" placeholder="مثال: 22">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">أيام العمل المسموحة</label>
+                        <div class="flex flex-wrap gap-2" id="days-container">
+                            <!-- JS will generate checkboxes -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. Today's Stats -->
+                <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-r-4 border-blue-500">
+                        <p class="text-gray-500 text-xs font-bold uppercase">عدد اللفات اليوم</p>
+                        <h3 class="text-3xl font-extrabold text-blue-600 mt-1" id="stat-spins">0</h3>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-r-4 border-green-500">
+                        <p class="text-gray-500 text-xs font-bold uppercase">قيمة الجوائز الموزعة</p>
+                        <h3 class="text-3xl font-extrabold text-green-600 mt-1" id="stat-payout">0 💎</h3>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-r-4 border-purple-500">
+                        <p class="text-gray-500 text-xs font-bold uppercase">أكبر فائز اليوم</p>
+                        <h3 class="text-lg font-bold text-purple-600 mt-1 truncate" id="stat-winner">-</h3>
+                    </div>
+                </section>
+
+                <!-- 3. Segments Editor -->
+                <section class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <h2 class="text-xl font-bold text-gray-800">🍕 أقسام العجلة (الجوائز)</h2>
+                        <button onclick="addSegment()"
+                            class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-sm font-bold transition">
+                            <i class="fas fa-plus"></i> إضافة قسم
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-right">
+                            <thead class="bg-gray-50 text-gray-500 font-bold">
+                                <tr>
+                                    <th class="p-3">العنوان</th>
+                                    <th class="p-3">النوع</th>
+                                    <th class="p-3">القيمة</th>
+                                    <th class="p-3">الاحتمالية %</th>
+                                    <th class="p-3">الحد اليومي</th>
+                                    <th class="p-3">اللون</th>
+                                    <th class="p-3 text-center">حذف</th>
+                                </tr>
+                            </thead>
+                            <tbody id="segments-table-body" class="divide-y divide-gray-100">
+                                <!-- Rows generated by JS -->
+                            </tbody>
+                            <tr class="bg-yellow-50 font-bold border-t-2 border-yellow-100">
+                                <td colspan="3" class="p-3 text-left pl-10">المجموع:</td>
+                                <td class="p-3" id="total-prob-display">0%</td>
+                                <td colspan="3"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <p class="text-xs text-red-500 mt-2 hidden" id="prob-error">⚠️ يجب أن يكون مجموع الاحتمالات 100%
+                        تماماً.</p>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Template for Table Row -->
+    <template id="segment-row-template">
+        <tr class="hover:bg-gray-50 transition segment-row">
+            <td class="p-2"><input type="text" class="seg-label w-full p-2 border rounded-lg bg-white"
+                    placeholder="مثال: فزت بـ 50"></td>
+            <td class="p-2">
+                <select class="seg-type w-full p-2 border rounded-lg bg-white">
+                    <option value="points">نقاط/جواهر</option>
+                    <option value="hardluck">حظ أوفر</option>
+                    <option value="coupon">كوبون (قريباً)</option>
+                </select>
+            </td>
+            <td class="p-2"><input type="number" class="seg-value w-20 p-2 border rounded-lg bg-white" placeholder="0">
+            </td>
+            <td class="p-2"><input type="number" class="seg-prob w-20 p-2 border rounded-lg bg-white text-center"
+                    placeholder="10" oninput="calculateTotalProb()"></td>
+            <td class="p-2"><input type="number" class="seg-limit w-20 p-2 border rounded-lg bg-white text-center"
+                    placeholder="100"></td>
+            <td class="p-2"><input type="color" class="seg-color w-10 h-10 p-1 rounded cursor-pointer" value="#4f46e5">
+            </td>
+            <td class="p-2 text-center">
+                <button onclick="removeSegment(this)" class="text-red-400 hover:text-red-600 transition"><i
+                        class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    </template>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const ADMIN_EMAILS = ['s22market@gmail.com', 'yacinee474474@gmail.com', 'nourmt01@gmail.com'];
+        const DAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+        // --- Auth Check ---
+        onAuthStateChanged(auth, user => {
+            if (user && ADMIN_EMAILS.includes(user.email)) {
+                document.getElementById('login-overlay').classList.add('hidden');
+                initAdmin();
+            } else {
+                location.href = 'admin-login.html';
+            }
+        });
+
+        // --- Init Logic ---
+        function initAdmin() {
+            renderDays();
+            loadSettings();
+            loadTodayStats();
+        }
+
+        function renderDays() {
+            const container = document.getElementById('days-container');
+            DAYS.forEach((day, index) => {
+                const label = document.createElement('label');
+                label.className = 'flex items-center gap-2 bg-white px-3 py-2 rounded-lg border cursor-pointer select-none';
+                label.innerHTML = `
+                    <input type="checkbox" class="day-checkbox w-4 h-4 text-indigo-600 rounded" value="${index}" checked>
+                    <span class="text-sm font-semibold">${day}</span>
+                `;
+                container.appendChild(label);
+            });
+        }
+
+        // --- Settings Management ---
+        const settingsRef = doc(db, "settings", "daily_rewards");
+
+        async function loadSettings() {
+            try {
+                const docSnap = await getDoc(settingsRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+
+                    document.getElementById('wheel-active').checked = data.isActive || false;
+                    document.getElementById('start-hour').value = data.schedule?.startHour ?? 10;
+                    document.getElementById('end-hour').value = data.schedule?.endHour ?? 22;
+
+                    // Days
+                    const activeDays = data.schedule?.activeDays || [0, 1, 2, 3, 4, 5, 6];
+                    document.querySelectorAll('.day-checkbox').forEach(cb => {
+                        cb.checked = activeDays.includes(parseInt(cb.value));
+                    });
+
+                    // Segments
+                    const tbody = document.getElementById('segments-table-body');
+                    tbody.innerHTML = '';
+                    if (data.segments && data.segments.length > 0) {
+                        data.segments.forEach(seg => addSegmentRow(seg));
+                    } else {
+                        // Defaults
+                        addSegmentRow({ label: 'فزت بـ 50', type: 'points', value: 50, probability: 20, limit: 50, color: '#3b82f6' });
+                        addSegmentRow({ label: 'حظ أوفر', type: 'hardluck', value: 0, probability: 80, limit: 9999, color: '#94a3b8' });
+                    }
+                    calculateTotalProb();
+                } else {
+                    // Defaults for first run
+                    addSegmentRow({ label: 'فزت بـ 50', type: 'points', value: 50, probability: 20, limit: 50, color: '#3b82f6' });
+                    addSegmentRow({ label: 'حظ أوفر', type: 'hardluck', value: 0, probability: 80, limit: 9999, color: '#94a3b8' });
+                }
+            } catch (error) {
+                console.error("Load Error:", error);
+                alert("فشل تحميل الإعدادات");
+            }
+        }
+
+        // --- Segments UI ---
+        window.addSegment = () => addSegmentRow();
+
+        function addSegmentRow(data = {}) {
+            const tmpl = document.getElementById('segment-row-template');
+            const clone = tmpl.content.cloneNode(true);
+            const tr = clone.querySelector('tr');
+
+            tr.querySelector('.seg-label').value = data.label || '';
+            tr.querySelector('.seg-type').value = data.type || 'points';
+            tr.querySelector('.seg-value').value = data.value || 0;
+            tr.querySelector('.seg-prob').value = data.probability || 0;
+            tr.querySelector('.seg-limit').value = data.limit || 100;
+            tr.querySelector('.seg-color').value = data.color || '#4f46e5';
+
+            document.getElementById('segments-table-body').appendChild(tr);
+            calculateTotalProb();
+        }
+
+        window.removeSegment = (btn) => {
+            if (confirm('حذف هذا القسم؟')) {
+                btn.closest('tr').remove();
+                calculateTotalProb();
+            }
+        };
+
+        window.calculateTotalProb = () => {
+            let total = 0;
+            document.querySelectorAll('.seg-prob').forEach(inp => total += parseFloat(inp.value) || 0);
+            const display = document.getElementById('total-prob-display');
+            display.textContent = total + '%';
+
+            if (total !== 100) {
+                display.classList.add('text-red-500');
+                document.getElementById('prob-error').classList.remove('hidden');
+            } else {
+                display.classList.remove('text-red-500');
+                display.classList.add('text-green-600');
+                document.getElementById('prob-error').classList.add('hidden');
+            }
+            return total;
+        };
+
+        // --- Save Logic ---
+        document.getElementById('save-btn').addEventListener('click', async () => {
+            const totalProb = calculateTotalProb();
+            if (totalProb !== 100) {
+                alert('⚠️ مجموع الاحتمالات يجب أن يكون 100%');
+                return;
+            }
+
+            const btn = document.getElementById('save-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loader !w-5 !h-5 !border-2"></div> جاري الحفظ...';
+
+            // Gather Data
+            const segments = [];
+            document.querySelectorAll('.segment-row').forEach(tr => {
+                segments.push({
+                    id: 'seg_' + Date.now() + Math.random().toString(36).substr(2, 5), // Dynamic ID
+                    label: tr.querySelector('.seg-label').value,
+                    type: tr.querySelector('.seg-type').value,
+                    value: parseInt(tr.querySelector('.seg-value').value) || 0,
+                    probability: parseFloat(tr.querySelector('.seg-prob').value) || 0,
+                    limit: parseInt(tr.querySelector('.seg-limit').value) || 0,
+                    color: tr.querySelector('.seg-color').value
+                });
+            });
+
+            const activeDays = [];
+            document.querySelectorAll('.day-checkbox:checked').forEach(cb => activeDays.push(parseInt(cb.value)));
+
+            const data = {
+                isActive: document.getElementById('wheel-active').checked,
+                schedule: {
+                    startHour: parseInt(document.getElementById('start-hour').value) || 0,
+                    endHour: parseInt(document.getElementById('end-hour').value) || 23,
+                    activeDays: activeDays
+                },
+                segments: segments,
+                lastUpdated: serverTimestamp()
+            };
+
+            try {
+                await setDoc(settingsRef, data);
+                btn.innerHTML = '<i class="fas fa-check"></i> تم الحفظ!';
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-save"></i> حفظ التغييرات';
+                }, 2000);
+            } catch (e) {
+                console.error(e);
+                alert('خطأ في الحفظ');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> حفظ التغييرات';
+            }
+        });
+
+        // --- Stats Monitor ---
+        function loadTodayStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const statsRef = doc(db, "daily_rewards_history", today);
+
+            onSnapshot(statsRef, (doc) => {
+                if (doc.exists()) {
+                    const data = doc.data();
+                    document.getElementById('stat-spins').textContent = data.totalSpins || 0;
+
+                    // Calculate Payout based on claims needs subcollection query, 
+                    // for simple MVP stats we can aggregate if we stored totalPayout in doc
+                    // Assuming we might add totalPayout field to the doc in client logic later
+                    // For now, let's just show spins.
+                } else {
+                    document.getElementById('stat-spins').textContent = 0;
+                }
+            });
+        }
+
+    </script>
+</body>
+
+</html>

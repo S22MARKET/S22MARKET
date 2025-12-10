@@ -867,14 +867,15 @@
                     try {
                         if (section.type === 'recent') {
                             try {
-                                const qProd = query(collection(db, "products"), where("productType", "!=", "course"), orderBy("createdAt", "desc"), limit(6));
+                                // Use the robust method: Fetch by date then filter in memory
+                                const qProd = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(50));
                                 const snap = await getDocs(qProd);
-                                products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                                products = snap.docs
+                                    .map(d => ({ id: d.id, ...d.data() }))
+                                    .filter(p => p.productType !== 'course')
+                                    .slice(0, 6); // Take top 6 after filtering
                             } catch (e) {
-                                // Fallback
-                                const qFallback = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(6));
-                                const snap = await getDocs(qFallback);
-                                products = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => p.productType !== 'course');
+                                console.error("Error fetching recent section:", e);
                             }
                         } else if (section.type === 'category') {
                             if (section.config && section.config.categoryId) {
@@ -965,13 +966,13 @@
         }
 
         async function loadDefaultRecentProducts() {
-            // Reusing the logic that was previously in C. Load Recent Products
-            // But now inside a function to call only if needed.
-            // (We need to copy that logic here or ensure it runs in fallback)
             const productsGrid = document.getElementById('products-grid');
             try {
-                let q = query(collection(db, "products"), where("productType", "!=", "course"), orderBy("createdAt", "desc"), limit(10));
+                // Fix: Fetch by createdAt only (no composite index needed) then filter in JS
+                // Increased limit to 50 to ensure we get products even if many courses were added recently
+                const q = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(50));
                 const prodSnap = await getDocs(q);
+
                 productsGrid.innerHTML = '';
 
                 if (prodSnap.empty) {
@@ -979,12 +980,24 @@
                     return;
                 }
 
+                let count = 0;
                 prodSnap.forEach(doc => {
                     const p = doc.data();
-                    productsGrid.innerHTML += createProductCardHTML({ id: doc.id, ...p });
+                    if (p.productType !== 'course' && count < 10) {
+                        productsGrid.innerHTML += createProductCardHTML({ id: doc.id, ...p });
+                        count++;
+                    }
                 });
+
+                if (productsGrid.innerHTML === '') {
+                    productsGrid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400">لا توجد منتجات للعرض حالياً.</div>';
+                }
+
                 setupWishlistButtons();
-            } catch (e) { console.error("Default products failed", e); }
+            } catch (e) {
+                console.error("Default products failed", e);
+                productsGrid.innerHTML = '<div class="col-span-full text-center py-10 text-red-400">حدث خطأ في تحميل المنتجات. تأكد من الاتصال بالإنترنت.</div>';
+            }
         }
 
         // --- 5. Auth & Wishlist Logic ---
