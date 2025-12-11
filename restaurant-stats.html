@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإحصائيات - S22 Restaurant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .dashboard-tab.active-tab {
+            background-color: #ea580c;
+            color: white;
+        }
+
+        .dashboard-panel {
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .spinner-dark {
+            width: 24px;
+            height: 24px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top-color: #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .responsive-table thead {
+                display: none;
+            }
+
+            .responsive-table tr {
+                display: block;
+                border: 1px solid #e5e7eb;
+                border-radius: 0.5rem;
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .responsive-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 0;
+                border-bottom: 1px solid #f3f4f6;
+            }
+
+            .responsive-table td:last-child {
+                border-bottom: none;
+            }
+
+            .responsive-table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                margin-left: 0.5rem;
+            }
+        }
+
+        .chart-bar {
+            transition: height 0.3s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="auth-loader" class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-4">S22 <span class="text-orange-500">RESTAURANT</span></h1>
+        <div class="spinner-dark"></div>
+        <p class="mt-4 text-gray-600">جاري التحقق من الهوية...</p>
+    </div>
+
+    <div id="dashboard-page" class="hidden">
+        <div class="relative min-h-screen md:flex">
+
+            <aside id="sidebar"
+                class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-300 ease-in-out z-30">
+                <div class="p-3 text-center border-b border-gray-700">
+                    <h2 class="text-2xl font-bold">S22 <span class="text-orange-400">RESTAURANT</span></h2>
+                    <p id="restaurant-name-display" class="text-xs text-gray-400 mt-1">...</p>
+                </div>
+                <nav class="flex-1 p-2 space-y-2">
+                    <a href="restaurant-dashboard.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-tachometer-alt fa-fw ml-3"></i> اللوحة الرئيسية</a>
+                    <a href="restaurant-orders.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-clipboard-list fa-fw ml-3"></i> الطلبات الواردة</a>
+                    <a href="restaurant-loyalty.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-check-to-slot fa-fw ml-3"></i> موافقات النقاط</a>
+                    <a href="restaurant-customer-log.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-users fa-fw ml-3"></i> سجل العملاء (بالطلبات)</a>
+                    <a href="restaurant-customers.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-id-card fa-fw ml-3"></i> العملاء المسجلون</a>
+                    <a href="restaurant-menu.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-utensils fa-fw ml-3"></i> قائمة الطعام</a>
+                    <a href="restaurant-offers.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-star fa-fw ml-3"></i> العروض والباقات</a>
+                    <a href="restaurant-coupons.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-tags fa-fw ml-3"></i> الكوبونات</a>
+                    <a href="restaurant-sections.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-sitemap fa-fw ml-3"></i> الأقسام</a>
+                    <a href="restaurant-drivers.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-biking fa-fw ml-3"></i> عمال التوصيل</a>
+                    <a href="restaurant-stats.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-chart-line fa-fw ml-3"></i> الإحصائيات</a>
+                    <a href="restaurant-fulfillment-settings.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-gift fa-fw ml-3"></i> إعدادات الوفاء</a>
+                    <a href="restaurant-delivery-settings.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-motorcycle fa-fw ml-3"></i> إعدادات التوصيل</a>
+                    <a href="restaurant-settings.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-cogs fa-fw ml-3"></i> إعدادات المطعم</a>
+                </nav>
+                <div class="p-4 border-t border-gray-700">
+                    <button id="logout-btn"
+                        class="w-full flex items-center justify-center px-4 py-3 rounded-md bg-red-600 hover:bg-red-700">
+                        <i class="fas fa-sign-out-alt fa-fw ml-3"></i> تسجيل الخروج
+                    </button>
+                    <a href="index.html"
+                        class="w-full flex items-center justify-center px-4 py-2 mt-2 rounded-md bg-gray-700 text-sm hover:bg-gray-600">
+                        العودة للمتجر
+                    </a>
+                </div>
+            </aside>
+            <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden hidden"></div>
+
+            <div class="flex-1 flex flex-col">
+                <header class="bg-white shadow-md p-4 flex justify-between items-center">
+                    <h1 class="text-xl font-bold">لوحة تحكم المطعم</h1>
+                    <button id="mobile-menu-btn" class="text-gray-800 p-2 rounded-lg md:hidden"><i
+                            class="fas fa-bars fa-lg"></i></button>
+                </header>
+
+                <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+
+                    <div id="stats-panel" class="dashboard-panel">
+                        <h1 class="text-3xl font-bold text-gray-800 mb-6">الإحصائيات</h1>
+                        <div id="stats-content">
+                            <div class="text-center p-10">
+                                <div class="spinner-dark mx-auto"></div>
+                                <p class="mt-4 text-gray-600">جاري تحليل البيانات...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, query, serverTimestamp, orderBy, getDocs, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // S22MARKET Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let currentUser = null;
+
+        const authLoader = document.getElementById('auth-loader');
+        const dashboardPage = document.getElementById('dashboard-page');
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    if (userData.role === 'restaurant' || userData.role === 'admin') {
+                        if (userData.isSuspended && userData.role !== 'admin') {
+                            document.body.innerHTML = `
+                                <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
+                                    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md text-center">
+                                        <div class="text-red-500 text-5xl mb-4"><i class="fas fa-store-slash"></i></div>
+                                        <h1 class="text-2xl font-bold text-gray-800 mb-2">تم تجميد حساب المتجر</h1>
+                                        <p class="text-gray-600 mb-6">نأسف، تم إيقاف حساب متجرك مؤقتاً من قبل الإدارة. يرجى التواصل مع الدعم الفني لمزيد من التفاصيل.</p>
+                                        <button onclick="window.location.reload()" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300">تحديث الصفحة</button>
+                                        <button onclick="logout()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 mt-2 block w-full">تسجيل الخروج</button>
+                                    </div>
+                                </div>
+                            `;
+                            window.logout = () => signOut(auth).then(() => window.location.href = 'index.html');
+                            return;
+                        }
+
+                        currentUser = user;
+                        if (document.getElementById('restaurant-name-display')) {
+                            document.getElementById('restaurant-name-display').textContent = userData.storeName || userData.displayName;
+                        }
+                        authLoader.classList.add('hidden');
+                        dashboardPage.classList.remove('hidden');
+                        initializeDashboard();
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                } else {
+                    window.location.href = 'login.html';
+                }
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Helper for currency formatting
+        const formatCurrency = (number) => {
+            const num = Math.round(number) || 0;
+            return `${num} د.ج`;
+        };
+
+        // Add getDoc import
+        import { getDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        function setActiveTab() {
+            const currentPage = window.location.pathname.split('/').pop();
+            if (!currentPage) return;
+            const tabs = document.querySelectorAll('.dashboard-tab');
+            tabs.forEach(tab => {
+                const tabHref = tab.getAttribute('href').split('/').pop();
+                if (tabHref === currentPage) {
+                    tab.classList.add('active-tab');
+                } else {
+                    tab.classList.remove('active-tab');
+                }
+            });
+        }
+
+        function initializeDashboard() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            mobileMenuBtn.onclick = () => { sidebar.classList.remove('translate-x-full'); overlay.classList.remove('hidden'); };
+            overlay.onclick = () => { sidebar.classList.add('translate-x-full'); overlay.classList.add('hidden'); };
+            logoutBtn.onclick = () => { signOut(auth).catch((error) => console.error("Logout Error:", error)); };
+            setActiveTab();
+
+            loadStats();
+        }
+
+        async function loadStats() {
+            const statsContent = document.getElementById('stats-content');
+
+            try {
+                // Filter everything by sellerId
+                const [ordersSnapshot, menuItemsSnapshot] = await Promise.all([
+                    getDocs(query(collection(db, "orders"), where("sellerId", "==", currentUser.uid), where("status", "==", "completed"))),
+                    getDocs(query(collection(db, "products"), where("sellerId", "==", currentUser.uid)))
+                ]);
+
+                // Create product MAP for categories
+                const menuItemsMap = new Map();
+                menuItemsSnapshot.docs.forEach(doc => {
+                    const item = doc.data();
+                    // Store BOTH Arabic and English/French names if possible to match order items
+                    const nameAr = item.name?.ar || item.name;
+                    if (nameAr) menuItemsMap.set(nameAr, item.category);
+                });
+
+                // Analyze Orders
+                const allCompletedOrders = ordersSnapshot.docs.map(d => d.data());
+                const totalRevenue = allCompletedOrders.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
+                const totalOrders = allCompletedOrders.length;
+
+                // Sales Last 7 Days
+                const salesByDay = {};
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    const key = d.toISOString().split('T')[0];
+                    const dayName = new Intl.DateTimeFormat('ar-DZ', { weekday: 'short' }).format(d);
+                    salesByDay[key] = { label: dayName, revenue: 0 };
+                }
+
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                let monthlyRevenue = 0;
+
+                const itemCounts = {};
+                const itemRevenue = {};
+                const salesByCategory = {};
+                const couponCounts = {};
+                const couponRevenue = {};
+                const customerSpending = {};
+                let totalCouponsUsed = 0;
+                const customerContacts = new Set();
+                let totalItemsSold = 0;
+
+                allCompletedOrders.forEach(order => {
+                    const orderDate = (order.createdAt && typeof order.createdAt.toDate === 'function') ? order.createdAt.toDate() : null;
+
+                    if (orderDate) {
+                        if (orderDate >= sevenDaysAgo) {
+                            const key = orderDate.toISOString().split('T')[0];
+                            if (salesByDay[key]) { salesByDay[key].revenue += order.totalPrice; }
+                        }
+                        if (orderDate >= thirtyDaysAgo) {
+                            monthlyRevenue += (order.totalPrice || 0);
+                        }
+                    }
+
+                    // Customer Analysis
+                    const contact = order.customerContact || 'unknown';
+                    if (contact !== 'unknown') {
+                        customerContacts.add(contact);
+                        if (!customerSpending[contact]) {
+                            customerSpending[contact] = { name: order.customerName, contact: contact, totalSpent: 0, orderCount: 0 };
+                        }
+                        customerSpending[contact].totalSpent += (order.totalPrice || 0);
+                        customerSpending[contact].orderCount++;
+                    }
+
+                    // Coupon Analysis
+                    if (order.couponCode) {
+                        totalCouponsUsed++;
+                        const code = order.couponCode;
+                        couponCounts[code] = (couponCounts[code] || 0) + 1;
+                        couponRevenue[code] = (couponRevenue[code] || 0) + (order.totalPrice || 0);
+                    }
+
+                    // Item Analysis
+                    (order.items || []).forEach(item => {
+                        const name = item.name;
+                        const quantity = item.quantity;
+                        const revenue = (item.price * quantity) || 0;
+
+                        totalItemsSold += quantity;
+                        itemCounts[name] = (itemCounts[name] || 0) + quantity;
+                        itemRevenue[name] = (itemRevenue[name] || 0) + revenue;
+
+                        const category = menuItemsMap.get(name) || 'غير مصنف';
+                        if (!salesByCategory[category]) {
+                            salesByCategory[category] = { quantity: 0, revenue: 0 };
+                        }
+                        salesByCategory[category].quantity += quantity;
+                        salesByCategory[category].revenue += revenue;
+                    });
+                });
+
+                const uniqueCustomers = customerContacts.size;
+                const chartData = Object.values(salesByDay);
+                const maxRevenue = Math.max(...chartData.map(d => d.revenue));
+
+                // Sort Data
+                const allItemsData = Object.entries(itemCounts).map(([name, quantity]) => ({
+                    name,
+                    quantity,
+                    revenue: itemRevenue[name] || 0
+                })).sort((a, b) => b.revenue - a.revenue);
+
+                const allCustomersData = Object.values(customerSpending).sort((a, b) => b.totalSpent - a.totalSpent);
+
+                const allCouponsData = Object.entries(couponCounts).map(([code, count]) => ({
+                    code,
+                    count,
+                    revenue: couponRevenue[code] || 0
+                })).sort((a, b) => b.count - a.count);
+
+                const allCategoriesData = Object.entries(salesByCategory).map(([name, data]) => ({
+                    name,
+                    ...data
+                })).sort((a, b) => b.revenue - a.revenue);
+
+                const maxCategoryRevenue = allCategoriesData.length > 0 ? allCategoriesData[0].revenue : 0;
+
+                // Render
+                statsContent.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
+                        <i class="fas fa-coins fa-3x text-yellow-500"></i>
+                        <div><p class="text-gray-500">إجمالي الإيرادات</p><p class="text-2xl font-bold">${formatCurrency(totalRevenue)}</p></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
+                        <i class="fas fa-calendar-alt fa-3x text-blue-500"></i>
+                        <div><p class="text-gray-500">مبيعات آخر 30 يوم</p><p class="text-2xl font-bold">${formatCurrency(monthlyRevenue)}</p></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
+                        <i class="fas fa-receipt fa-3x text-purple-500"></i>
+                        <div><p class="text-gray-500">إجمالي الطلبات</p><p class="text-2xl font-bold">${totalOrders}</p></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
+                        <i class="fas fa-chart-pie fa-3x text-teal-500"></i>
+                        <div><p class="text-gray-500">متوسط قيمة الطلب</p><p class="text-2xl font-bold">${formatCurrency(totalOrders > 0 ? totalRevenue / totalOrders : 0)}</p></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
+                        <i class="fas fa-user-check fa-3x text-green-500"></i>
+                        <div><p class="text-gray-500">العملاء الفعليين</p><p class="text-2xl font-bold">${uniqueCustomers}</p></div>
+                    </div>
+                     <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
+                        <i class="fas fa-utensils fa-3x text-red-500"></i>
+                        <div><p class="text-gray-500">وجبات مباعة</p><p class="text-2xl font-bold">${totalItemsSold}</p></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
+                        <i class="fas fa-tags fa-3x text-indigo-500"></i>
+                        <div><p class="text-gray-500">كوبونات مستخدمة</p><p class="text-2xl font-bold">${totalCouponsUsed}</p></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold mb-4">مبيعات آخر 7 أيام</h3>
+                        <div class="flex justify-between items-end h-64 gap-2 border-b border-gray-200 pb-2">
+                            ${chartData.map(day => `
+                                <div class="flex-1 flex flex-col items-center justify-end">
+                                    <div class="text-xs font-bold">${day.revenue > 0 ? formatCurrency(day.revenue) : ''}</div>
+                                    <div class="w-3/4 bg-orange-200 rounded-t-lg chart-bar" style="height: ${maxRevenue > 0 ? (day.revenue / maxRevenue) * 90 : 0}%;"></div>
+                                    <div class="text-sm text-gray-500 mt-1">${day.label}</div>
+                                </div>`).join('')}
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold mb-4">المبيعات حسب القسم</h3>
+                        <div class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                            ${allCategoriesData.length > 0 ? allCategoriesData.map(cat => `
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-semibold">${cat.name}</span>
+                                        <span class="text-sm font-bold text-green-700">${formatCurrency(cat.revenue)}</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-green-500 h-2.5 rounded-full" style="width: ${maxCategoryRevenue > 0 ? (cat.revenue / maxCategoryRevenue) * 100 : 0}%"></div>
+                                    </div>
+                                </div>
+                            `).join('') : '<p class="text-gray-500">لا توجد بيانات.</p>'}
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-3 bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold mb-4">أكثر الوجبات مبيعاً</h3>
+                        <div class="overflow-x-auto max-h-96">
+                            <table class="w-full responsive-table">
+                                <thead class="bg-gray-100 sticky top-0">
+                                    <tr>
+                                        <th class="p-3 text-right">#</th>
+                                        <th class="p-3 text-right">الوجبة</th>
+                                        <th class="p-3 text-right">الكمية المباعة</th>
+                                        <th class="p-3 text-right">إجمالي الإيرادات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="items-table-body">
+                                    ${allItemsData.length > 0 ? allItemsData.map((item, index) => `
+                                        <tr class="border-b">
+                                            <td data-label="#" class="p-3 font-bold">${index + 1}</td>
+                                            <td data-label="الوجبة" class="p-3 font-semibold">${item.name}</td>
+                                            <td data-label="الكمية" class="p-3">${item.quantity}</td>
+                                            <td data-label="الإيرادات" class="p-3 font-mono font-bold">${formatCurrency(item.revenue)}</td>
+                                        </tr>
+                                    `).join('') : '<tr><td colspan="4" class="p-4 text-center text-gray-500">لا توجد بيانات.</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-3 bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold mb-4">أفضل العملاء</h3>
+                        <div class="overflow-x-auto max-h-96">
+                            <table class="w-full responsive-table">
+                                <thead class="bg-gray-100 sticky top-0">
+                                    <tr>
+                                        <th class="p-3 text-right">#</th>
+                                        <th class="p-3 text-right">العميل</th>
+                                        <th class="p-3 text-right">الاتصال</th>
+                                        <th class="p-3 text-right">إجمالي الإنفاق</th>
+                                        <th class="p-3 text-right">عدد الطلبات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${allCustomersData.length > 0 ? allCustomersData.map((customer, index) => `
+                                        <tr class="border-b">
+                                            <td data-label="#" class="p-3 font-bold">${index + 1}</td>
+                                            <td data-label="العميل" class="p-3 font-semibold">${customer.name}</td>
+                                            <td data-label="الاتصال" class="p-3 font-mono" dir="ltr">${customer.contact}</td>
+                                            <td data-label="الإنفاق" class="p-3 font-mono font-bold text-green-700">${formatCurrency(customer.totalSpent)}</td>
+                                            <td data-label="الطلبات" class="p-3">${customer.orderCount}</td>
+                                        </tr>
+                                    `).join('') : '<tr><td colspan="5" class="p-4 text-center text-gray-500">لا توجد بيانات.</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>`;
+
+            } catch (error) {
+                console.error("Error loading stats:", error);
+                statsContent.innerHTML = `<div class="bg-red-100 text-red-700 p-4 rounded-lg">حدث خطأ أثناء تحميل الإحصائيات. ${error.message}</div>`;
+            }
+        }
+
+    </script>
+
+</body>
+
+</html>

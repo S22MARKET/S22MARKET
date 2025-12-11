@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إعدادات التوصيل - S22 Restaurant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .dashboard-tab.active-tab {
+            background-color: #ea580c;
+            color: white;
+        }
+
+        .dashboard-panel {
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 700px;
+            z-index: 50;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .toast {
+            background-color: #2d3748;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+        }
+
+        .toast.success {
+            background-color: #2f855a;
+        }
+
+        .toast.error {
+            background-color: #c53030;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #48bb78;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(24px);
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .spinner-dark {
+            width: 24px;
+            height: 24px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top-color: #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @media (max-width: 768px) {
+            .responsive-table thead {
+                display: none;
+            }
+
+            .responsive-table tr {
+                display: block;
+                border: 1px solid #e5e7eb;
+                border-radius: 0.5rem;
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .responsive-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 0;
+                border-bottom: 1px solid #f3f4f6;
+            }
+
+            .responsive-table td:last-child {
+                border-bottom: none;
+            }
+
+            .responsive-table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                margin-left: 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="auth-loader" class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-4">S22 <span class="text-orange-500">RESTAURANT</span></h1>
+        <div class="spinner-dark"></div>
+        <p class="mt-4 text-gray-600">جاري التحقق من الهوية...</p>
+    </div>
+
+    <div id="dashboard-page" class="hidden">
+        <div class="relative min-h-screen md:flex">
+
+            <aside id="sidebar"
+                class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-300 ease-in-out z-30">
+                <div class="p-3 text-center border-b border-gray-700">
+                    <h2 class="text-2xl font-bold">S22 <span class="text-orange-400">RESTAURANT</span></h2>
+                    <p id="restaurant-name-display" class="text-xs text-gray-400 mt-1">...</p>
+                </div>
+                <nav class="flex-1 p-2 space-y-2">
+                    <a href="restaurant-dashboard.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-tachometer-alt fa-fw ml-3"></i> اللوحة الرئيسية</a>
+                    <a href="restaurant-orders.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-clipboard-list fa-fw ml-3"></i> الطلبات الواردة</a>
+                    <a href="restaurant-loyalty.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-check-to-slot fa-fw ml-3"></i> موافقات النقاط</a>
+                    <a href="restaurant-customer-log.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-users fa-fw ml-3"></i> سجل العملاء (بالطلبات)</a>
+                    <a href="restaurant-customers.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-id-card fa-fw ml-3"></i> العملاء المسجلون</a>
+                    <a href="restaurant-menu.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-utensils fa-fw ml-3"></i> قائمة الطعام</a>
+                    <a href="restaurant-offers.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-star fa-fw ml-3"></i> العروض والباقات</a>
+                    <a href="restaurant-coupons.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-tags fa-fw ml-3"></i> الكوبونات</a>
+                    <a href="restaurant-sections.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-sitemap fa-fw ml-3"></i> الأقسام</a>
+                    <a href="restaurant-drivers.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-biking fa-fw ml-3"></i> عمال التوصيل</a>
+                    <a href="restaurant-stats.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-chart-line fa-fw ml-3"></i> الإحصائيات</a>
+                    <a href="restaurant-fulfillment-settings.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-gift fa-fw ml-3"></i> إعدادات الوفاء</a>
+                    <a href="restaurant-delivery-settings.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-motorcycle fa-fw ml-3"></i> إعدادات التوصيل</a>
+                    <a href="restaurant-settings.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-cogs fa-fw ml-3"></i> إعدادات المطعم</a>
+                </nav>
+                <div class="p-4 border-t border-gray-700">
+                    <button id="logout-btn"
+                        class="w-full flex items-center justify-center px-4 py-3 rounded-md bg-red-600 hover:bg-red-700">
+                        <i class="fas fa-sign-out-alt fa-fw ml-3"></i> تسجيل الخروج
+                    </button>
+                    <a href="index.html"
+                        class="w-full flex items-center justify-center px-4 py-2 mt-2 rounded-md bg-gray-700 text-sm hover:bg-gray-600">
+                        العودة للمتجر
+                    </a>
+                </div>
+            </aside>
+            <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden hidden"></div>
+
+            <div class="flex-1 flex flex-col">
+                <header class="bg-white shadow-md p-4 flex justify-between items-center">
+                    <h1 class="text-xl font-bold">لوحة تحكم المطعم</h1>
+                    <button id="mobile-menu-btn" class="text-gray-800 p-2 rounded-lg md:hidden"><i
+                            class="fas fa-bars fa-lg"></i></button>
+                </header>
+
+                <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+
+                    <div id="delivery-panel" class="dashboard-panel max-w-4xl mx-auto">
+                        <h1 class="text-3xl font-bold text-gray-800 mb-6">إعدادات التوصيل والخدمة</h1>
+
+                        <!-- General Settings Panel -->
+                        <div id="general-delivery-settings" class="bg-white p-6 rounded-xl shadow-md mb-8">
+                            <h2 class="text-2xl font-bold mb-4 border-b pb-2 text-gray-800">إعدادات عامة وقيود الخدمة
+                            </h2>
+                            <div id="delivery-config-loader" class="text-center p-4">
+                                <div class="spinner-dark mx-auto"></div>
+                                <p class="mt-2 text-gray-600">جاري تحميل الإعدادات العامة...</p>
+                            </div>
+                            <form id="delivery-config-form" class="hidden space-y-4">
+
+                                <div class="p-4 rounded-lg border bg-yellow-50">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <label for="delivery-closed-toggle"
+                                            class="font-semibold text-lg text-yellow-800">إغلاق خدمة التوصيل مؤقتاً
+                                            (طوارئ)</label>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="delivery-closed-toggle">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <label class="font-semibold text-sm">رسالة الإغلاق/تأخير التوصيل</label>
+                                    <input type="text" id="delivery-closed-message"
+                                        placeholder="مثال: الخدمة مغلقة حاليًا أو قد تتأخر الطلبات"
+                                        class="w-full p-2 border rounded mt-1">
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                                    <div>
+                                        <label for="min-order-value" class="font-semibold">الحد الأدنى لقيمة الطلب
+                                            للتوصيل (د.ج)</label>
+                                        <input type="number" id="min-order-value"
+                                            placeholder="أدخل 0 إذا لم يكن هناك حد"
+                                            class="w-full p-2 border rounded mt-1" value="0">
+                                        <p class="text-sm text-gray-500 mt-1">يجب أن تتجاوز قيمة طلب العميل هذا المبلغ
+                                            ليتمكن من اختيار التوصيل.</p>
+                                    </div>
+
+                                    <div>
+                                        <label for="delivery-time-estimate" class="font-semibold">وقت التوصيل المتوقع
+                                            (بالدقائق)</label>
+                                        <input type="number" id="delivery-time-estimate" placeholder="مثال: 45"
+                                            class="w-full p-2 border rounded mt-1" value="45">
+                                        <p class="text-sm text-gray-500 mt-1">هذا الرقم سيظهر للعميل كزمن تقريبي (45-60
+                                            دقيقة).</p>
+                                    </div>
+
+                                    <div class="md:col-span-2">
+                                        <label for="fallback-delivery-fee" class="font-semibold">رسوم التوصيل الافتراضية
+                                            / الطوارئ (د.ج)</label>
+                                        <input type="number" id="fallback-delivery-fee"
+                                            placeholder="السعر الذي يطبق خارج مناطق التغطية"
+                                            class="w-full p-2 border rounded mt-1" value="300">
+                                        <p class="text-sm text-gray-500 mt-1">يُطبق هذا السعر إذا لم يتمكن العميل من
+                                            تحديد منطقته أو فشل تحديد الموقع.</p>
+                                    </div>
+
+                                </div>
+
+                                <div class="text-right pt-4 border-t">
+                                    <button id="save-delivery-config-btn" type="submit"
+                                        class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700">
+                                        حفظ الإعدادات العامة
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Delivery Zones Panel -->
+                        <div class="flex justify-between items-center mb-6">
+                            <h1 class="text-3xl font-bold">أسعار مناطق التغطية</h1>
+                            <button id="add-zone-btn"
+                                class="bg-orange-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-orange-700">
+                                <i class="fas fa-plus mr-2"></i> إضافة منطقة
+                            </button>
+                        </div>
+                        <div class="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-lg mb-6 text-sm">
+                            <i class="fas fa-info-circle ml-2"></i>
+                            يمكنك تحديد مناطق التوصيل وأسعارها هنا. العميل سيختار منطقته عند إتمام الطلب ليتم حساب سعر
+                            التوصيل المناسب.
+                        </div>
+                        <div class="overflow-x-auto bg-white rounded-xl shadow-md">
+                            <table class="w-full text-right responsive-table">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="p-3">اسم المنطقة</th>
+                                        <th class="p-3">سعر التوصيل العادي</th>
+                                        <th class="p-3">سعر التوصيل السريع</th>
+                                        <th class="p-3">ترتيب الظهور</th>
+                                        <th class="p-3">إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="zones-table-body">
+                                    <tr>
+                                        <td colspan="5" class="p-8 text-center">
+                                            <div class="spinner-dark mx-auto"></div>
+                                            <p class="mt-2">جاري تحميل المناطق...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-container"></div>
+    <div id="toast-container"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, serverTimestamp, orderBy, getDoc, setDoc, getDocs, where, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // S22MARKET Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let currentUser = null;
+        let deliveryZonesCache = [];
+        let deliveryConfigCache = {};
+
+        const authLoader = document.getElementById('auth-loader');
+        const dashboardPage = document.getElementById('dashboard-page');
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    if (userData.role === 'restaurant' || userData.role === 'admin') {
+                        if (userData.isSuspended && userData.role !== 'admin') {
+                            document.body.innerHTML = `
+                                <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
+                                    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md text-center">
+                                        <div class="text-red-500 text-5xl mb-4"><i class="fas fa-store-slash"></i></div>
+                                        <h1 class="text-2xl font-bold text-gray-800 mb-2">تم تجميد حساب المتجر</h1>
+                                        <p class="text-gray-600 mb-6">نأسف، تم إيقاف حساب متجرك مؤقتاً من قبل الإدارة. يرجى التواصل مع الدعم الفني لمزيد من التفاصيل.</p>
+                                        <button onclick="window.location.reload()" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300">تحديث الصفحة</button>
+                                        <button onclick="logout()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 mt-2 block w-full">تسجيل الخروج</button>
+                                    </div>
+                                </div>
+                            `;
+                            window.logout = () => signOut(auth).then(() => window.location.href = 'index.html');
+                            return;
+                        }
+
+                        currentUser = user;
+                        if (document.getElementById('restaurant-name-display')) {
+                            document.getElementById('restaurant-name-display').textContent = userData.storeName || userData.displayName;
+                        }
+                        authLoader.classList.add('hidden');
+                        dashboardPage.classList.remove('hidden');
+                        initializeDashboard();
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                } else {
+                    window.location.href = 'login.html';
+                }
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        const formatCurrency = (number) => {
+            const num = Math.round(number) || 0;
+            return `${num} د.ج`;
+        };
+
+        const showModal = (title, content, onConfirm, confirmText = 'حفظ', showCancel = true) => {
+            const modalContainer = document.getElementById('modal-container');
+            const confirmButtonHtml = onConfirm ? `<button id="modal-confirm" class="bg-orange-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-orange-700 flex items-center gap-2">${confirmText}</button>` : '';
+            const cancelButtonHtml = showCancel ? `<button id="modal-cancel" class="bg-gray-200 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button>` : '';
+            modalContainer.innerHTML = `<div class="modal-backdrop" id="modal-backdrop"><div class="modal-content"><div class="flex justify-between items-center mb-4 border-b pb-3"><h3 class="text-xl font-bold">${title}</h3><button id="modal-close-btn" class="text-2xl">&times;</button></div><div id="modal-body">${content}</div><div class="flex justify-end gap-4 mt-6 border-t pt-4">${cancelButtonHtml}${confirmButtonHtml}</div></div></div>`;
+            const close = () => { modalContainer.innerHTML = ''; }
+            if (showCancel) document.getElementById('modal-cancel').onclick = close;
+            document.getElementById('modal-close-btn').onclick = close;
+            document.getElementById('modal-backdrop').onclick = e => { if (e.target.id === 'modal-backdrop') close(); };
+            if (onConfirm) document.getElementById('modal-confirm').onclick = onConfirm;
+        };
+
+        const closeModal = () => { document.getElementById('modal-container').innerHTML = ''; }
+
+        const showDeletionConfirmModal = (onConfirmCallback) => {
+            const content = `<p class="mb-4 text-lg">هل أنت متأكد أنك تريد حذف هذه المنطقة؟</p>`;
+            showModal('تأكيد عملية الحذف', content, () => {
+                onConfirmCallback(); closeModal();
+            }, 'تأكيد الحذف', true);
+        };
+
+        const showToast = (message, type = 'success') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+            toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        };
+
+        const setButtonLoading = (btn, isLoading, text = 'حفظ') => {
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = `<div class="spinner"></div><span>جاري الحفظ...</span>`;
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = text;
+            }
+        };
+
+        function setActiveTab() {
+            const currentPage = window.location.pathname.split('/').pop();
+            if (!currentPage) return;
+            const tabs = document.querySelectorAll('.dashboard-tab');
+            tabs.forEach(tab => {
+                const tabHref = tab.getAttribute('href').split('/').pop();
+                if (tabHref === currentPage) {
+                    tab.classList.add('active-tab');
+                } else {
+                    tab.classList.remove('active-tab');
+                }
+            });
+        }
+
+        function initializeDashboard() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            mobileMenuBtn.onclick = () => { sidebar.classList.remove('translate-x-full'); overlay.classList.remove('hidden'); };
+            overlay.onclick = () => { sidebar.classList.add('translate-x-full'); overlay.classList.add('hidden'); };
+            logoutBtn.onclick = () => { signOut(auth).catch((error) => console.error("Logout Error:", error)); };
+            setActiveTab();
+
+            loadDeliverySettings();
+            loadDeliveryConfig();
+        }
+
+        async function loadDeliveryConfig() {
+            const loader = document.getElementById('delivery-config-loader');
+            const form = document.getElementById('delivery-config-form');
+
+            try {
+                // Get from users/{sellerId}/settings/delivery_config
+                const docRef = doc(db, "users", currentUser.uid, "settings", "delivery_config");
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    deliveryConfigCache = docSnap.data();
+                    document.getElementById('delivery-closed-toggle').checked = deliveryConfigCache.isClosed || false;
+                    document.getElementById('delivery-closed-message').value = deliveryConfigCache.closedMessage || '';
+                    document.getElementById('min-order-value').value = deliveryConfigCache.minOrderValue || 0;
+                    document.getElementById('delivery-time-estimate').value = deliveryConfigCache.timeEstimate || 45;
+                    document.getElementById('fallback-delivery-fee').value = deliveryConfigCache.fallbackFee || 300;
+                }
+
+                loader.classList.add('hidden');
+                form.classList.remove('hidden');
+
+                form.addEventListener('submit', saveDeliveryConfig);
+
+            } catch (error) {
+                console.error("Error loading delivery config: ", error);
+                loader.innerHTML = `<p class="text-red-500">فشل تحميل الإعدادات العامة: ${error.message}</p>`;
+            }
+        }
+
+        async function saveDeliveryConfig(e) {
+            e.preventDefault();
+            const saveBtn = document.getElementById('save-delivery-config-btn');
+            setButtonLoading(saveBtn, true, 'حفظ الإعدادات العامة');
+
+            try {
+                const settingsData = {
+                    isClosed: document.getElementById('delivery-closed-toggle').checked,
+                    closedMessage: document.getElementById('delivery-closed-message').value.trim(),
+                    minOrderValue: parseFloat(document.getElementById('min-order-value').value) || 0,
+                    timeEstimate: parseInt(document.getElementById('delivery-time-estimate').value, 10) || 45,
+                    fallbackFee: parseFloat(document.getElementById('fallback-delivery-fee').value) || 0,
+                    sellerId: currentUser.uid // Just in case we query by this later
+                };
+
+                const docRef = doc(db, "users", currentUser.uid, "settings", "delivery_config");
+                await setDoc(docRef, settingsData, { merge: true });
+
+                deliveryConfigCache = settingsData;
+                showToast('تم حفظ الإعدادات العامة بنجاح!', 'success');
+
+            } catch (error) {
+                console.error("Error saving delivery config: ", error);
+                showToast('فشل حفظ الإعدادات العامة: ' + error.message, 'error');
+            } finally {
+                setButtonLoading(saveBtn, false, 'حفظ الإعدادات العامة');
+            }
+        }
+
+        function loadDeliverySettings() {
+            document.getElementById('add-zone-btn').onclick = () => showZoneModal();
+
+            // Filter zones by sellerId
+            const q = query(
+                collection(db, "delivery_zones"),
+                where("sellerId", "==", currentUser.uid),
+                orderBy("sortOrder", "asc"),
+                orderBy("name", "asc")
+            );
+
+            onSnapshot(q,
+                (snapshot) => {
+                    deliveryZonesCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                    const tBody = document.getElementById('zones-table-body');
+                    tBody.innerHTML = deliveryZonesCache.length === 0 ? `<tr><td colspan="5" class="p-8 text-center text-gray-500">لم تقم بإضافة أي مناطق توصيل بعد.</td></tr>` : '';
+
+                    deliveryZonesCache.forEach(zone => {
+                        tBody.innerHTML += `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td data-label="اسم المنطقة" class="p-3 font-semibold">${zone.name}</td>
+                            <td data-label="السعر العادي" class="p-3 font-mono">${formatCurrency(zone.price_normal)}</td>
+                            <td data-label="السعر السريع" class="p-3 font-mono">${formatCurrency(zone.price_fast)}</td>
+                            <td data-label="ترتيب الظهور" class="p-3 font-bold text-orange-600">${zone.sortOrder || 0}</td>
+                            <td data-label="إجراءات" class="p-3">
+                                <button class="edit-zone-btn text-indigo-500 hover:text-indigo-700 ml-4" data-id="${zone.id}"><i class="fas fa-edit"></i> تعديل</button>
+                                <button class="delete-zone-btn text-red-500 hover:text-red-700" data-id="${zone.id}"><i class="fas fa-trash"></i> حذف</button>
+                            </td>
+                        </tr>`;
+                    });
+
+                    document.querySelectorAll('.edit-zone-btn').forEach(btn => btn.onclick = e => showZoneModal(deliveryZonesCache.find(z => z.id === e.currentTarget.dataset.id)));
+                    document.querySelectorAll('.delete-zone-btn').forEach(btn => btn.onclick = e => {
+                        const docId = e.currentTarget.dataset.id;
+                        showDeletionConfirmModal(() => {
+                            deleteDoc(doc(db, "delivery_zones", docId)).then(() => showToast('تم حذف المنطقة', 'success'));
+                        });
+                    });
+                },
+                (error) => {
+                    console.error("فشل تحميل مناطق التوصيل: ", error);
+                    const tBody = document.getElementById('zones-table-body');
+
+                    if (error.code === 'failed-precondition' && error.message.includes('index')) {
+                        const indexLink = error.message.match(/https?:\/\/[^\s]+/)?.[0];
+                        tBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center bg-yellow-50">
+                        <p class="mb-2 font-bold text-lg text-gray-800">مطلوب إنشاء فهرس (Index)</p>
+                        <p class="mb-3 text-sm text-gray-600">لتفعيل ترتيب المناطق حسب الأولوية، يرجى إنشاء الفهرس في Firebase.</p>
+                        ${indexLink ? `<a href="${indexLink}" target="_blank" class="inline-block bg-orange-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-orange-700">إنشاء الفهرس الآن</a>` : ''}
+                     </td></tr>`;
+                    } else {
+                        tBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-600">فشل تحميل المناطق: ${error.message}</td></tr>`;
+                    }
+                }
+            );
+        }
+
+        function showZoneModal(zone = null) {
+            const content = `
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">اسم المنطقة</label>
+                    <input type="text" id="zone-name" placeholder="مثال: وسط المدينة" class="w-full p-2 border rounded focus:ring-orange-500 focus:border-orange-500" value="${zone?.name || ''}" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">سعر التوصيل العادي</label>
+                        <input type="number" id="zone-price-normal" placeholder="د.ج" class="w-full p-2 border rounded focus:ring-orange-500 focus:border-orange-500" value="${zone?.price_normal || ''}" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">سعر التوصيل السريع</label>
+                        <input type="number" id="zone-price-fast" placeholder="د.ج" class="w-full p-2 border rounded focus:ring-orange-500 focus:border-orange-500" value="${zone?.price_fast || ''}">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ترتيب الظهور</label>
+                    <input type="number" id="zone-sort-order" placeholder="0" class="w-full p-2 border rounded focus:ring-orange-500 focus:border-orange-500" value="${zone?.sortOrder || 0}">
+                    <p class="text-xs text-gray-500 mt-1">الأرقام الأقل تظهر في أعلى القائمة عند العميل.</p>
+                </div>
+            </div>`;
+
+            showModal(zone ? 'تعديل منطقة' : 'إضافة منطقة', content, async () => {
+                const data = {
+                    name: document.getElementById('zone-name').value.trim(),
+                    price_normal: parseFloat(document.getElementById('zone-price-normal').value) || 0,
+                    price_fast: parseFloat(document.getElementById('zone-price-fast').value) || 0,
+                    sortOrder: parseInt(document.getElementById('zone-sort-order').value, 10) || 0,
+                    sellerId: currentUser.uid // Implicitly link to the restaurant
+                };
+
+                if (!data.name) {
+                    showToast('اسم المنطقة مطلوب.', 'error');
+                    return;
+                }
+
+                const confirmBtn = document.getElementById('modal-confirm');
+                setButtonLoading(confirmBtn, true);
+
+                try {
+                    if (zone) {
+                        await updateDoc(doc(db, "delivery_zones", zone.id), data);
+                    } else {
+                        await addDoc(collection(db, "delivery_zones"), data);
+                    }
+                    closeModal();
+                    showToast('تم حفظ المنطقة بنجاح', 'success');
+                } catch (error) {
+                    showToast('حدث خطأ: ' + error.message, 'error');
+                } finally {
+                    setButtonLoading(confirmBtn, false);
+                }
+            });
+        }
+
+    </script>
+
+</body>
+
+</html>

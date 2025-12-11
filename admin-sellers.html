@@ -595,8 +595,51 @@
         };
 
         window.deleteUser = async (uid) => {
-            if (!confirm('حذف المستخدم نهائياً؟')) return;
-            try { await deleteDoc(doc(db, "users", uid)); } catch (e) { alert(e.message); }
+            const confirmMsg = "هل أنت متأكد تماماً من حذف هذا المستخدم؟\n\nتحذير: هذا الإجراء سيقوم بحذف:\n- جميع المنتجات\n- جميع الطلبات\n- الأقسام والكوبونات\n- مناطق التوصيل والعمال\n- وكل البيانات المرتبطة بهذا المتجر.\n\nلا يمكن التراجع عن هذا الإجراء!";
+            if (!confirm(confirmMsg)) return;
+
+            const row = document.querySelector(`button[onclick="deleteUser('${uid}')"]`).closest('tr');
+            if (row) row.style.opacity = '0.5';
+
+            try {
+                // Show global loading if possible or just use alert at the end
+                // Helper to delete collection by sellerId
+                const deleteBySellerId = async (collectionName) => {
+                    const q = query(collection(db, collectionName), where("sellerId", "==", uid));
+                    const snapshot = await getDocs(q);
+                    const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+                    await Promise.all(deletePromises);
+                    console.log(`Deleted ${snapshot.size} docs from ${collectionName}`);
+                };
+
+                // 1. Delete all related collections
+                const collections = [
+                    "products",
+                    "orders",
+                    "categories",
+                    "coupons",
+                    "offers",
+                    "delivery_zones",
+                    "delivery_personnel",
+                    "loyalty_approvals"
+                ];
+
+                for (const col of collections) {
+                    await deleteBySellerId(col);
+                }
+
+                // 2. Delete User Document (and ideally subcollections if we could list them, 
+                // but we rely on client-side known paths if strictly needed. 
+                // For now, deleting parent allows cleanup).
+                await deleteDoc(doc(db, "users", uid));
+
+                alert("تم حذف المستخدم وكافة بياناته بنجاح.");
+
+            } catch (e) {
+                console.error("Cascade Delete Error:", e);
+                alert("حدث خطأ أثناء الحذف: " + e.message);
+                if (row) row.style.opacity = '1';
+            }
         };
 
 
