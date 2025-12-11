@@ -519,8 +519,8 @@
             try {
                 const q = query(
                     collection(db, "orders"),
-                    where("createdAt", ">=", Timestamp.fromDate(todayStart)),
-                    where("sellerId", "==", currentUser.uid)
+                    where("sellerId", "==", currentUser.uid),
+                    where("createdAt", ">=", Timestamp.fromDate(todayStart))
                 );
 
                 onSnapshot(q, async (snapshot) => {

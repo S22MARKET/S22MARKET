@@ -336,6 +336,13 @@
                 </div>
                 <i class="fas fa-chevron-left text-gray-400 text-xs"></i>
             </a>
+            <div class="menu-item" onclick="openCredentialModal()">
+                <div class="flex items-center">
+                    <div class="menu-icon bg-purple-50 text-purple-500"><i class="fas fa-key"></i></div>
+                    <span class="font-bold text-gray-700">توليد بطاقة الدخول</span>
+                </div>
+                <i class="fas fa-chevron-left text-gray-400 text-xs"></i>
+            </div>
         </div>
 
         <div class="mt-6 bg-indigo-50 border-2 border-dashed border-indigo-200 rounded-xl p-4 text-center">
@@ -429,6 +436,34 @@
     </nav>
 
     <div id="toast-container" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50"></div>
+
+    <!-- Credential Card Modal -->
+    <div id="credential-modal" class="modal">
+        <div class="modal-content">
+            <h3 class="font-bold text-lg text-gray-800 mb-4 text-center">🔐 بطاقة الدخول الآمنة</h3>
+            <p class="text-xs text-gray-500 text-center mb-4">أدخل كلمة المرور لتوليد صورة تذكير ببيانات دخولك.</p>
+
+            <div id="card-preview-container" class="hidden mb-4 flex-col items-center">
+                <canvas id="cred-canvas" class="w-full rounded-lg shadow-lg mb-3"></canvas>
+                <a id="download-card-link" href="#" download="S22-Credentials.png"
+                    class="w-full bg-green-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-green-700">
+                    <i class="fas fa-download"></i> تحميل الصورة
+                </a>
+            </div>
+
+            <form id="credential-form" class="space-y-4">
+                <input type="password" id="confirm-pass"
+                    class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
+                    placeholder="كلمة المرور الحالية" required>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeModal('credential-modal')"
+                        class="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded-xl">إغلاق</button>
+                    <button type="submit" id="gen-card-btn"
+                        class="flex-1 bg-purple-600 text-white font-bold py-3 rounded-xl hover:bg-purple-700">توليد</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Mobile Enhancements -->
     <script>
@@ -746,6 +781,96 @@
         // Global Helper for existing code to call
         window.openMobileOverlay = (closeCallback, name) => mobileApp.pushOverlay(closeCallback, name);
         window.closeMobileOverlay = () => mobileApp.closeOverlay();
+        window.openMobileOverlay = (closeCallback, name) => mobileApp.pushOverlay(closeCallback, name);
+        window.closeMobileOverlay = () => mobileApp.closeOverlay();
+
+        // Canvas Generation Logic
+        window.generateCredentialCard = (name, email, password) => {
+            const canvas = document.getElementById('cred-canvas');
+            const ctx = canvas.getContext('2d');
+
+            // High Resolution
+            canvas.width = 1080;
+            canvas.height = 1920; // Story format
+
+            // 1. Background (Gradient)
+            const grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grd.addColorStop(0, '#4f46e5');
+            grd.addColorStop(1, '#7c3aed');
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 2. Pattern Overlay
+            ctx.globalAlpha = 0.05;
+            for (let i = 0; i < canvas.width; i += 40) {
+                for (let j = 0; j < canvas.height; j += 40) {
+                    ctx.beginPath();
+                    ctx.arc(i, j, 2, 0, Math.PI * 2);
+                    ctx.fillStyle = 'white';
+                    ctx.fill();
+                }
+            }
+            ctx.globalAlpha = 1.0;
+
+            // 3. Glass Card
+            const cardX = 100, cardY = 500, cardW = 880, cardH = 920;
+            ctx.save();
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+            ctx.shadowBlur = 40;
+            ctx.shadowOffsetY = 20;
+            ctx.roundRect(cardX, cardY, cardW, cardH, 40);
+            ctx.fill();
+
+            // Glass Border
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            ctx.restore();
+
+            // 4. Content
+            ctx.textAlign = 'center';
+            ctx.fillStyle = 'white';
+
+            // Logo/Title
+            ctx.font = 'bold 80px Tajawal';
+            ctx.fillText('S22 MARKET', canvas.width / 2, cardY + 150);
+
+            ctx.font = '50px Tajawal';
+            ctx.globalAlpha = 0.8;
+            ctx.fillText('بطاقة الوصول الخاصة بك', canvas.width / 2, cardY + 230);
+            ctx.globalAlpha = 1.0;
+
+            // Fields
+            const startY = cardY + 400;
+            const gap = 180;
+
+            const drawField = (label, value, y) => {
+                ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                ctx.font = '40px Tajawal';
+                ctx.fillText(label, canvas.width / 2, y);
+
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 60px Tajawal';
+                ctx.fillText(value, canvas.width / 2, y + 70);
+            };
+
+            drawField('الاسم', name, startY);
+            drawField('البريد الإلكتروني', email, startY + gap);
+            drawField('كلمة المرور', password, startY + (gap * 2));
+
+            // Warning
+            ctx.fillStyle = '#fca5a5';
+            ctx.font = '30px Tajawal';
+            ctx.fillText('⚠️ يرجى حفظ هذه الصورة في مكان آمن', canvas.width / 2, cardY + cardH - 60);
+
+            // Footer
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.font = '30px Tajawal';
+            ctx.fillText('s22market.com', canvas.width / 2, canvas.height - 100);
+
+            return canvas.toDataURL('image/png');
+        };
     </script>
 
     <script type="module">
@@ -964,6 +1089,69 @@
         }
 
         window.auth = auth; // For HTML access
+
+        // Credential Modal Logic
+        window.openCredentialModal = () => {
+            const modal = document.getElementById('credential-modal');
+            if (modal) {
+                modal.classList.add('active');
+                if (window.openMobileOverlay) window.openMobileOverlay(() => closeModal('credential-modal'), 'credentialModal');
+
+                // Reset State
+                document.getElementById('credential-form').reset();
+                document.getElementById('card-preview-container').classList.add('hidden');
+                document.getElementById('credential-form').classList.remove('hidden');
+
+                // Ensure canvas is visible for drawing (even if hidden by container initially)
+                const canvas = document.getElementById('cred-canvas');
+                if (canvas) canvas.style.display = 'block';
+            }
+        };
+
+        if (document.getElementById('credential-form')) {
+            document.getElementById('credential-form').onsubmit = async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('gen-card-btn');
+                const password = document.getElementById('confirm-pass').value;
+
+                btn.disabled = true;
+                btn.innerText = 'جاري التحقق...';
+
+                try {
+                    // Verify password by re-authenticating
+                    // Note: This requires the user to know their password. If Google Sign-In, this flow might error (no password).
+                    // We assume Email/Password auth here as per request.
+                    const credential = await signInWithEmailAndPassword(auth, currentUser.email, password);
+                    if (credential.user) {
+                        // Success: Generate Card
+                        btn.innerText = 'جاري التوليد...';
+
+                        if (window.generateCredentialCard) {
+                            const imgData = window.generateCredentialCard(
+                                userData.displayName || 'مستخدم',
+                                currentUser.email,
+                                password
+                            );
+
+                            document.getElementById('credential-form').classList.add('hidden');
+                            const previewContainer = document.getElementById('card-preview-container');
+                            previewContainer.classList.remove('hidden');
+                            previewContainer.style.display = 'flex';
+
+                            document.getElementById('download-card-link').href = imgData;
+                        } else {
+                            alert("خطأ: دالة التوليد غير موجودة.");
+                        }
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert('كلمة المرور غير صحيحة!');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerText = 'توليد';
+                }
+            };
+        }
     </script>
 </body>
 

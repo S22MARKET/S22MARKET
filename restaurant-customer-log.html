@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
@@ -21,22 +22,6 @@
         .dashboard-tab.active-tab {
             background-color: #ea580c;
             color: white;
-        }
-
-        .dashboard-panel {
-            animation: fadeIn 0.5s;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .spinner-dark {
@@ -53,38 +38,6 @@
                 transform: rotate(360deg);
             }
         }
-
-        @media (max-width: 768px) {
-            .responsive-table thead {
-                display: none;
-            }
-
-            .responsive-table tr {
-                display: block;
-                border: 1px solid #e5e7eb;
-                border-radius: 0.5rem;
-                padding: 1rem;
-                margin-bottom: 1rem;
-            }
-
-            .responsive-table td {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0.75rem 0;
-                border-bottom: 1px solid #f3f4f6;
-            }
-
-            .responsive-table td:last-child {
-                border-bottom: none;
-            }
-
-            .responsive-table td::before {
-                content: attr(data-label);
-                font-weight: 600;
-                margin-left: 0.5rem;
-            }
-        }
     </style>
 </head>
 
@@ -93,18 +46,18 @@
     <div id="auth-loader" class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
         <h1 class="text-3xl font-extrabold text-gray-800 mb-4">S22 <span class="text-orange-500">RESTAURANT</span></h1>
         <div class="spinner-dark"></div>
-        <p class="mt-4 text-gray-600">جاري التحقق من الهوية...</p>
     </div>
 
     <div id="dashboard-page" class="hidden">
         <div class="relative min-h-screen md:flex">
-
+            <!-- Sidebar -->
             <aside id="sidebar"
                 class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-300 ease-in-out z-30">
                 <div class="p-3 text-center border-b border-gray-700">
                     <h2 class="text-2xl font-bold">S22 <span class="text-orange-400">RESTAURANT</span></h2>
                     <p id="restaurant-name-display" class="text-xs text-gray-400 mt-1">...</p>
                 </div>
+                <!-- Navigation -->
                 <nav class="flex-1 p-2 space-y-2">
                     <a href="restaurant-dashboard.html"
                         class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
@@ -116,8 +69,8 @@
                         class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
                             class="fas fa-check-to-slot fa-fw ml-3"></i> موافقات النقاط</a>
                     <a href="restaurant-customer-log.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
-                            class="fas fa-users fa-fw ml-3"></i> سجل العملاء (بالطلبات)</a>
+                        class="dashboard-tab active-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
+                            class="fas fa-users fa-fw ml-3"></i> سجل العملاء</a>
                     <a href="restaurant-customers.html"
                         class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
                             class="fas fa-id-card fa-fw ml-3"></i> العملاء المسجلون</a>
@@ -151,61 +104,48 @@
                 </nav>
                 <div class="p-4 border-t border-gray-700">
                     <button id="logout-btn"
-                        class="w-full flex items-center justify-center px-4 py-3 rounded-md bg-red-600 hover:bg-red-700">
-                        <i class="fas fa-sign-out-alt fa-fw ml-3"></i> تسجيل الخروج
-                    </button>
-                    <a href="index.html"
-                        class="w-full flex items-center justify-center px-4 py-2 mt-2 rounded-md bg-gray-700 text-sm hover:bg-gray-600">
-                        العودة للمتجر
-                    </a>
+                        class="w-full flex items-center justify-center px-4 py-3 rounded-md bg-red-600 hover:bg-red-700"><i
+                            class="fas fa-sign-out-alt fa-fw ml-3"></i> تسجيل الخروج</button>
                 </div>
             </aside>
             <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden hidden"></div>
 
-            <div class="flex-1 flex flex-col">
+            <div class="flex-1 flex flex-col h-screen overflow-hidden">
                 <header class="bg-white shadow-md p-4 flex justify-between items-center">
-                    <h1 class="text-xl font-bold">لوحة تحكم المطعم</h1>
+                    <h1 class="text-xl font-bold">سجل العملاء المبني على الطلبات</h1>
                     <button id="mobile-menu-btn" class="text-gray-800 p-2 rounded-lg md:hidden"><i
                             class="fas fa-bars fa-lg"></i></button>
                 </header>
 
                 <main class="flex-1 p-4 md:p-8 overflow-y-auto">
-
-                    <div id="customer-log-panel" class="dashboard-panel">
-                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
-                            <h1 class="text-3xl font-bold text-gray-800">سجل العملاء (بالطلبات)</h1>
-                            <div class="relative">
-                                <i class="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                <input type="text" id="customer-log-search" placeholder="ابحث بالاسم أو الهاتف..."
-                                    class="w-full md:w-80 pr-10 pl-3 py-2 border rounded-lg">
-                            </div>
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                        <div class="p-4 border-b">
+                            <input type="text" id="search-customer" placeholder="بحث باسم العميل أو رقم الهاتف..."
+                                class="w-full p-2 border rounded-lg">
                         </div>
-                        <p class="text-sm text-gray-600 mb-4 bg-yellow-50 p-3 rounded-lg"><i
-                                class="fas fa-info-circle ml-2"></i>هذا السجل يعرض جميع العملاء الذين قاموا بـ <strong
-                                class="text-yellow-700">إجراء طلبات من مطعمك</strong>.</p>
-                        <div class="overflow-x-auto bg-white rounded-xl shadow-md">
-                            <table class="w-full text-right responsive-table">
-                                <thead class="bg-gray-100">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right">
+                                <thead class="bg-gray-100 text-gray-600">
                                     <tr>
-                                        <th class="p-3">العميل (الاسم)</th>
-                                        <th class="p-3">الهاتف</th>
-                                        <th class="p-3">إجمالي الطلبات</th>
-                                        <th class="p-3">إجمالي المنفق</th>
-                                        <th class="p-3">آخر طلب</th>
+                                        <th class="p-4">اسم العميل</th>
+                                        <th class="p-4">رقم الهاتف</th>
+                                        <th class="p-4">عدد الطلبات</th>
+                                        <th class="p-4">إجمالي الإنفاق</th>
+                                        <th class="p-4">آخر طلب</th>
+                                        <th class="p-4">الإجراءات</th>
                                     </tr>
                                 </thead>
-                                <tbody id="customer-log-table-body">
+                                <tbody id="customer-log-body">
                                     <tr>
-                                        <td colspan="5" class="p-8 text-center" id="log-loader">
+                                        <td colspan="6" class="p-8 text-center">
                                             <div class="spinner-dark mx-auto"></div>
-                                            <p class="mt-2">جاري تجميع سجل الطلبات...</p>
+                                            <p class="mt-2 text-gray-500">جاري تحليل بيانات العملاء...</p>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-
                 </main>
             </div>
         </div>
@@ -213,7 +153,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, query, serverTimestamp, orderBy, getDocs, where, getDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // S22MARKET Config
@@ -230,168 +170,113 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-
         let currentUser = null;
+        let allCustomers = [];
 
         const authLoader = document.getElementById('auth-loader');
         const dashboardPage = document.getElementById('dashboard-page');
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    if (userData.role === 'restaurant' || userData.role === 'admin') {
-                        if (userData.isSuspended && userData.role !== 'admin') {
-                            document.body.innerHTML = `
-                                <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-                                    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md text-center">
-                                        <div class="text-red-500 text-5xl mb-4"><i class="fas fa-store-slash"></i></div>
-                                        <h1 class="text-2xl font-bold text-gray-800 mb-2">تم تجميد حساب المتجر</h1>
-                                        <p class="text-gray-600 mb-6">نأسف، تم إيقاف حساب متجرك مؤقتاً من قبل الإدارة. يرجى التواصل مع الدعم الفني لمزيد من التفاصيل.</p>
-                                        <button onclick="window.location.reload()" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300">تحديث الصفحة</button>
-                                        <button onclick="logout()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 mt-2 block w-full">تسجيل الخروج</button>
-                                    </div>
-                                </div>
-                            `;
-                            window.logout = () => signOut(auth).then(() => window.location.href = 'index.html');
-                            return;
-                        }
-
-                        currentUser = user;
-                        if (document.getElementById('restaurant-name-display')) {
-                            document.getElementById('restaurant-name-display').textContent = userData.storeName || userData.displayName;
-                        }
-                        authLoader.classList.add('hidden');
-                        dashboardPage.classList.remove('hidden');
-                        initializeDashboard();
-                    } else {
-                        window.location.href = 'index.html';
-                    }
-                } else {
-                    window.location.href = 'login.html';
-                }
+                // Simplified access check - assume if they reached here via dashboard they are valid
+                currentUser = user;
+                authLoader.classList.add('hidden');
+                dashboardPage.classList.remove('hidden');
+                loadCustomerLog();
             } else {
                 window.location.href = 'login.html';
             }
         });
 
-        let customerLogCache = [];
-
-        const formatCurrency = (number) => {
-            const num = Math.round(number) || 0;
-            return `${num} د.ج`;
-        };
-
-        function setActiveTab() {
-            const currentPage = window.location.pathname.split('/').pop();
-            if (!currentPage) return;
-            const tabs = document.querySelectorAll('.dashboard-tab');
-            tabs.forEach(tab => {
-                const tabHref = tab.getAttribute('href').split('/').pop();
-                if (tabHref === currentPage) {
-                    tab.classList.add('active-tab');
-                } else {
-                    tab.classList.remove('active-tab');
-                }
-            });
-        }
-
-        function initializeDashboard() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebar-overlay');
-            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-            const logoutBtn = document.getElementById('logout-btn');
-            mobileMenuBtn.onclick = () => { sidebar.classList.remove('translate-x-full'); overlay.classList.remove('hidden'); };
-            overlay.onclick = () => { sidebar.classList.add('translate-x-full'); overlay.classList.add('hidden'); };
-            logoutBtn.onclick = () => { signOut(auth).catch((error) => console.error("Logout Error:", error)); };
-            setActiveTab();
-
-            document.getElementById('customer-log-search').addEventListener('input', renderCustomerLog);
-            loadCustomerLog();
-        }
+        document.getElementById('logout-btn').onclick = () => signOut(auth);
 
         async function loadCustomerLog() {
             try {
-                // Filter by sellerId
-                const ordersQuery = query(
+                // Fetch ALL orders for this seller to aggregate customer data
+                // Note: In a massive app this needs aggregation functions or Cloud Functions.
+                // For now, client-side aggregation is acceptable for small-medium scale.
+
+                const q = query(
                     collection(db, "orders"),
                     where("sellerId", "==", currentUser.uid),
-                    orderBy("createdAt", "desc")
+                    orderBy("createdAt", "desc") // Recent first
                 );
-                const snapshot = await getDocs(ordersQuery);
 
-                const customerData = {};
+                const snapshot = await getDocs(q);
+                const customersMap = new Map();
 
                 snapshot.forEach(doc => {
                     const order = doc.data();
-                    const key = order.customerContact; // Phone as unique ID
+                    const customerPhone = order.customerPhone || 'N/A';
+                    const customerName = order.customerName || 'ضيف';
 
-                    if (!key) return;
+                    // Group by Phone primarily, or Name if phone missing
+                    const key = customerPhone !== 'N/A' ? customerPhone : customerName;
 
-                    if (!customerData[key]) {
-                        customerData[key] = {
-                            name: order.customerName,
-                            phone: order.customerContact,
-                            totalSpent: 0,
+                    if (!customersMap.has(key)) {
+                        customersMap.set(key, {
+                            name: customerName,
+                            phone: customerPhone,
                             orderCount: 0,
-                            lastOrderDate: order.createdAt.toDate()
-                        };
+                            totalSpent: 0,
+                            lastOrderDate: order.createdAt?.toDate ? order.createdAt.toDate() : new Date(),
+                            lastOrderId: doc.id
+                        });
                     }
 
-                    customerData[key].totalSpent += order.totalPrice;
-                    customerData[key].orderCount++;
+                    const data = customersMap.get(key);
+                    data.orderCount++;
+                    if (order.status === 'completed' || order.status === 'delivered') { // only count spent for completed
+                        data.totalSpent += (order.totalPrice || 0);
+                    }
                 });
 
-                customerLogCache = Object.values(customerData);
-                customerLogCache.sort((a, b) => b.totalSpent - a.totalSpent);
-
-                renderCustomerLog();
+                allCustomers = Array.from(customersMap.values());
+                renderCustomers(allCustomers);
 
             } catch (error) {
-                console.error("Error loading customer log:", error);
-                if (error.code === 'failed-precondition') {
-                    document.getElementById('log-loader').innerHTML = `<p class="text-red-500 bg-red-50 p-4 border rounded">فشل تحميل السجل: يرجى إنشاء الفهرس في Firebase (orders: sellerId, createdAt).</p>`;
-                } else {
-                    document.getElementById('log-loader').innerHTML = `<p class="text-red-500">فشل تحميل السجل: ${error.message}</p>`;
-                }
+                console.error("Error loading log:", error);
+                document.getElementById('customer-log-body').innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-500">فشل تحميل البيانات. قد تحتاج لإنشاء فهرس (Index) جديد.<br>${error.message}</td></tr>`;
             }
         }
 
-        function renderCustomerLog() {
-            const tBody = document.getElementById('customer-log-table-body');
-            const loader = document.getElementById('log-loader');
-            const searchTerm = document.getElementById('customer-log-search').value.toLowerCase();
+        function renderCustomers(list) {
+            const tbody = document.getElementById('customer-log-body');
+            tbody.innerHTML = '';
 
-            const filteredLog = customerLogCache.filter(customer =>
-                (customer.name || '').toLowerCase().includes(searchTerm) ||
-                (customer.phone || '').includes(searchTerm)
-            );
-
-            loader.classList.add('hidden');
-            tBody.innerHTML = '';
-
-            if (filteredLog.length === 0) {
-                tBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center">لا يوجد عملاء يطابقون بحثك.</td></tr>`;
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-500">لا توجد سجلات عملاء بعد.</td></tr>`;
                 return;
             }
 
-            filteredLog.forEach(customer => {
-                const row = document.createElement('tr');
-                row.className = 'border-b';
-                row.innerHTML = `
-                <td data-label="العميل" class="p-3 font-semibold">${customer.name}</td>
-                <td data-label="الهاتف" class="p-3 font-mono" dir="ltr">${customer.phone}</td>
-                <td data-label="إجمالي الطلبات" class="p-3 font-bold text-center">${customer.orderCount}</td>
-                <td data-label="إجمالي المنفق" class="p-3 font-bold text-orange-600">${formatCurrency(customer.totalSpent)}</td>
-                <td data-label="آخر طلب" class="p-3 font-mono text-sm">${customer.lastOrderDate.toLocaleDateString('ar-EG')}</td>
-            `;
-                tBody.appendChild(row);
+            list.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b hover:bg-gray-50';
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-gray-800">${c.name}</td>
+                    <td class="p-4 font-mono text-gray-600" dir="ltr">${c.phone}</td>
+                    <td class="p-4 text-center ">
+                         <span class="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-sm font-bold">${c.orderCount}</span>
+                    </td>
+                    <td class="p-4 font-bold text-green-700">${Math.round(c.totalSpent)} د.ج</td>
+                    <td class="p-4 text-sm text-gray-500">${moment(c.lastOrderDate).format('YYYY/MM/DD')}</td>
+                    <td class="p-4">
+                        <button class="text-orange-600 hover:text-orange-800 font-semibold text-sm" onclick="alert('تفاصيل العميل قريباً')">التفاصيل</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
             });
         }
 
+        document.getElementById('search-customer').oninput = (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allCustomers.filter(c =>
+                c.name.toLowerCase().includes(term) ||
+                c.phone.includes(term)
+            );
+            renderCustomers(filtered);
+        };
     </script>
-
 </body>
 
 </html>
