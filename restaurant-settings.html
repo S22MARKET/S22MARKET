@@ -379,7 +379,7 @@
                 // Strategy: Keep settings inside 'users/{uid}' for simplicity OR 'users/{uid}/settings/general'
                 // Let's use 'users/{uid}' top level for common fields and 'users/{uid}/settings/general' for specific config
                 // Actually, let's keep it simple: Store in `users/{uid}` fields directly where appropriate, or a sub-collection for settings.
-                // TEXMEX used `settings/config` (global). S22 needs `users/{uid}/settings/general`.
+                // المطاعم used `settings/config` (global). S22 needs `users/{uid}/settings/general`.
 
                 const settingsRef = doc(db, "users", currentUser.uid, "settings", "general");
                 const settingsSnap = await getDoc(settingsRef);
@@ -406,11 +406,11 @@
             const formData = new FormData();
             formData.append("image", file);
             // Use a specific key for S22 or fallback to one if known, otherwise user might need to provide one.
-            // Using the key from TEXMEX as fallback or we can assume it's working if origin allowed.
+            // Using the key from المطاعم as fallback or we can assume it's working if origin allowed.
             // Key: 6f8ed8272973d42065538e4a9sq... (This should be in a safe config)
             // For now I will use the free API key often used in demos or ask user if broken.
-            // Assuming we use the same key as TEXMEX: 'c0744de4e040742514120011494f664a' (Example key from past context if any)
-            // I'll grab it from admin-products.html if needed. I saw admin_settings.html in TEXMEX had it? 
+            // Assuming we use the same key as المطاعم: 'c0744de4e040742514120011494f664a' (Example key from past context if any)
+            // I'll grab it from admin-products.html if needed. I saw admin_settings.html in المطاعم had it? 
             // admin_settings.html source might have the key: `uploadImageToImgBB` function.
             // I will use a placeholder fetch logic. 
             // NOTE: In production, key should be secure.
