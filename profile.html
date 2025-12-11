@@ -828,7 +828,11 @@
             pendingBanner.classList.add('hidden');
             rejectedBanner.classList.add('hidden');
 
-            if (data.role === 'vendor' || data.role === 'restaurant') {
+            if (data.role === 'vendor') {
+                dashboardBtn.href = 'seller-dashboard.html';
+                dashboardBtn.classList.remove('hidden');
+            } else if (data.role === 'restaurant') {
+                dashboardBtn.href = 'restaurant-dashboard.html';
                 dashboardBtn.classList.remove('hidden');
             } else if (data.storeRequest?.status === 'pending') {
                 pendingBanner.classList.remove('hidden');

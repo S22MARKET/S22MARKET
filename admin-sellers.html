@@ -494,10 +494,15 @@
                            onchange="updateUserLimit(this)">
                 </td>
                 <td class="p-4 actions-cell space-x-2 space-x-reverse">
+                    <button class="${user.isSuspended ? 'text-green-600 hover:text-green-800' : 'text-yellow-600 hover:text-yellow-800'}" 
+                            onclick="toggleSuspension('${user.id}', ${user.isSuspended || false})" 
+                            title="${user.isSuspended ? 'تنشيط المتجر' : 'تجميد المتجر (إغلاق مؤقت)'}">
+                        <i class="fas ${user.isSuspended ? 'fa-play' : 'fa-pause'}"></i>
+                    </button>
                     <a href="store-orders-screen.html?uid=${user.id}" target="_blank" class="text-orange-500 hover:text-orange-700" title="شاشة المطبخ">
                         <i class="fas fa-utensils"></i>
                     </a>
-                    <button class="text-red-600 hover:text-red-800" onclick="deleteUser('${user.id}')">
+                    <button class="text-red-600 hover:text-red-800" onclick="deleteUser('${user.id}')" title="حذف نهائي">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
@@ -508,6 +513,20 @@
                 tableBody.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-gray-500">لا يوجد بيانات لعرضها</td></tr>`;
             }
         }
+
+        // --- Suspension Action ---
+        window.toggleSuspension = async (uid, currentStatus) => {
+            const action = currentStatus ? 'تنشيط' : 'تجميد';
+            if (!confirm(`هل أنت متأكد من ${action} هذا المتجر؟\n${!currentStatus ? 'سيتم منع البائع من الدخول للوحة التحكم.' : 'سيتمكن البائع من الدخول مجدداً.'}`)) return;
+
+            try {
+                await updateDoc(doc(db, "users", uid), { isSuspended: !currentStatus });
+                // alert(`تم ${action} المتجر بنجاح.`); // No need for alert, UI updates automatically
+            } catch (e) {
+                console.error(e);
+                alert("حدث خطأ أثناء التحديث.");
+            }
+        };
 
         // --- Closure Actions ---
         window.approveClosure = async (uid) => {
