@@ -711,6 +711,50 @@
 
             const panel = document.getElementById('orders-panel');
             panel.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Card 1: Total Orders Today -->
+                    <div class="bg-gray-800 rounded-2xl p-6 shadow-lg border-l-4 border-blue-500 relative overflow-hidden group">
+                        <div class="flex justify-between items-start z-10 relative">
+                            <div>
+                                <h3 class="text-gray-400 font-medium mb-1">طلبات اليوم</h3>
+                                <p class="text-4xl font-extrabold text-white" id="stat-total-today">0</p>
+                            </div>
+                            <div class="bg-blue-500/10 p-3 rounded-xl group-hover:scale-110 transition-transform">
+                                <i class="fas fa-clipboard-list text-2xl text-blue-500"></i>
+                            </div>
+                        </div>
+                        <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
+                    </div>
+
+                    <!-- Card 2: Pending (New & Preparing) -->
+                    <div class="bg-gray-800 rounded-2xl p-6 shadow-lg border-l-4 border-yellow-500 relative overflow-hidden group">
+                        <div class="flex justify-between items-start z-10 relative">
+                            <div>
+                                <h3 class="text-gray-400 font-medium mb-1">قيد الانتظار / التحضير</h3>
+                                <p class="text-4xl font-extrabold text-white" id="stat-pending">0</p>
+                            </div>
+                            <div class="bg-yellow-500/10 p-3 rounded-xl group-hover:scale-110 transition-transform">
+                                <i class="fas fa-clock text-2xl text-yellow-500"></i>
+                            </div>
+                        </div>
+                        <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-yellow-500/5 rounded-full blur-2xl group-hover:bg-yellow-500/10 transition-colors"></div>
+                    </div>
+
+                    <!-- Card 3: Completed -->
+                    <div class="bg-gray-800 rounded-2xl p-6 shadow-lg border-l-4 border-green-500 relative overflow-hidden group">
+                        <div class="flex justify-between items-start z-10 relative">
+                            <div>
+                                <h3 class="text-gray-400 font-medium mb-1">مكتملة</h3>
+                                <p class="text-4xl font-extrabold text-white" id="stat-completed">0</p>
+                            </div>
+                            <div class="bg-green-500/10 p-3 rounded-xl group-hover:scale-110 transition-transform">
+                                <i class="fas fa-check-circle text-2xl text-green-500"></i>
+                            </div>
+                        </div>
+                        <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-green-500/5 rounded-full blur-2xl group-hover:bg-green-500/10 transition-colors"></div>
+                    </div>
+                </div>
+
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
                     <h1 class="text-3xl font-bold">الطلبات الواردة</h1>
                     <div class="flex items-center gap-2 p-1 bg-gray-800 rounded-lg flex-wrap justify-center" id="order-status-filters">
@@ -726,7 +770,7 @@
                         <thead class="bg-gray-800 text-gray-300">
                             <tr>
                                 <th class="p-4">العميل</th>
-                                <th class="p-4">الوقت المنقضي</th>
+                                <th class="p-4">الوقت والتقدم</th>
                                 <th class="p-4 w-1/3">الطلبية</th>
                                 <th class="p-4">الحالة</th>
                                 <th class="p-4">الإجراءات</th>
@@ -804,11 +848,51 @@
         }
 
         function calculateTimeSince(timestamp) {
-            if (!timestamp?.toDate) return { text: '...', class: 'new' };
+            if (!timestamp?.toDate) return { text: '...', class: 'new', minutes: 0 };
             const diffMinutes = Math.floor((new Date() - timestamp.toDate()) / 60000);
-            if (diffMinutes < 5) return { text: `منذ ${diffMinutes} د`, class: 'new' };
-            if (diffMinutes < 15) return { text: `منذ ${diffMinutes} د`, class: 'medium' };
-            return { text: `منذ ${diffMinutes} د`, class: 'old' };
+            if (diffMinutes < 5) return { text: `منذ ${diffMinutes} د`, class: 'new', minutes: diffMinutes };
+            if (diffMinutes < 15) return { text: `منذ ${diffMinutes} د`, class: 'medium', minutes: diffMinutes };
+            return { text: `منذ ${diffMinutes} د`, class: 'old', minutes: diffMinutes };
+        }
+
+        function getProgressBar(startTime) {
+            if (!startTime?.toDate) return '';
+            const standardPrepTime = 20; // minutes
+            const elapsed = Math.floor((new Date() - startTime.toDate()) / 60000);
+            let percentage = (elapsed / standardPrepTime) * 100;
+            if (percentage > 100) percentage = 100;
+
+            let color = 'bg-green-500';
+            if (percentage > 50) color = 'bg-yellow-500';
+            if (percentage > 85) color = 'bg-red-500';
+
+            return `
+                <div class="w-full bg-gray-700 rounded-full h-1.5 mt-2 overflow-hidden">
+                    <div class="${color} h-1.5 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+                </div>
+            `;
+        }
+
+        function updateStatsDashboard(orders) {
+            // Count today's orders
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let totalToday = 0;
+            let pending = 0;
+            let completed = 0;
+
+            orders.forEach(order => {
+                if (order.createdAt?.toDate && order.createdAt.toDate() >= today) {
+                    totalToday++;
+                    if (order.status === 'completed') completed++;
+                    else if (order.status !== 'canceled') pending++; // New or Preparing
+                }
+            });
+
+            document.getElementById('stat-total-today').textContent = totalToday;
+            document.getElementById('stat-pending').textContent = pending;
+            document.getElementById('stat-completed').textContent = completed;
         }
 
         function renderOrdersTable() {
@@ -825,6 +909,8 @@
                     tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-400 text-lg">لا توجد طلبات تطابق هذه الفئة.</td></tr>`;
                     return;
                 }
+
+                updateStatsDashboard(ordersCache);
 
                 const fragment = document.createDocumentFragment();
                 filteredOrders.forEach(order => {
@@ -849,6 +935,7 @@
 
                     const formattedDate = order.createdAt?.toDate() ? order.createdAt.toDate().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '...';
                     const timeSince = calculateTimeSince(order.createdAt);
+                    const progressBar = getProgressBar(order.createdAt);
 
                     const row = document.createElement('tr');
 
@@ -868,10 +955,13 @@
                             <div class="text-sm text-gray-400 mt-1">${formattedDate}</div>
                             <div class="text-lg text-orange-400 font-bold mt-2">${(order.totalPrice || 0).toLocaleString()} د.ج</div>
                         </td>
-                        <td data-label="الوقت" class="p-4 align-top text-center"><span class="time-badge ${timeSince.class}">${timeSince.text}</span></td>
+                        <td data-label="الوقت" class="p-4 align-top text-center w-32">
+                            <span class="time-badge ${timeSince.class}">${timeSince.text}</span>
+                            ${order.status === 'new' || order.status === 'preparing' ? progressBar : ''}
+                        </td>
                         <td data-label="الطلبية" class="p-4 align-top text-sm">${itemsHtml}</td>
                         <td data-label="الحالة" class="p-4 align-top">
-                            <select class="order-status-select p-2 rounded-lg border-0 font-bold w-full text-white ${currentStatus.color}" data-id="${order.id}">
+                            <select class="order-status-select p-2 rounded-lg border-0 font-bold w-full text-white ${currentStatus.color}" data-id="${order.id}" onclick="event.stopPropagation()">
                                 <option value="new" ${order.status === 'new' ? 'selected' : ''}>جديد</option>
                                 <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>قيد التحضير</option>
                                 <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>مكتمل</option>
@@ -897,17 +987,108 @@
             }
         }
 
+        function openDetailModal(order) {
+            const formattedPrice = (order.totalPrice || 0).toLocaleString('fr-DZ');
+            const itemsHtml = (order.items || []).map(item => {
+                let addons = '';
+                if (item.selectedAddons && item.selectedAddons.length > 0) {
+                    addons = `<div class="mt-1 mr-4">
+                        ${item.selectedAddons.map(a => `<span class="inline-block bg-gray-700 text-xs px-2 py-1 rounded ml-1 text-gray-300">+ ${a.name}</span>`).join('')}
+                     </div>`;
+                }
+                let note = '';
+                if (item.cookingInstructions) {
+                    note = `<div class="mt-1 mr-4 text-cyan-400 text-sm"><i class="fas fa-comment"></i> ${item.cookingInstructions}</div>`;
+                }
+                return `<div class="bg-gray-700/50 p-3 rounded-lg mb-2">
+                    <div class="flex justify-between items-start">
+                        <span class="font-bold text-white text-lg">${item.quantity}x ${item.name}</span>
+                        <span class="text-orange-400 font-mono">${(item.price * item.quantity).toLocaleString()}</span>
+                    </div>
+                    ${addons}
+                    ${note}
+                 </div>`;
+            }).join('');
+
+            const modalContent = `
+                <div class="text-right">
+                    <div class="flex justify-between items-start mb-6 pb-4 border-b border-gray-700">
+                        <div>
+                            <h2 class="text-3xl font-bold text-white mb-1">طلب #${order.id.substring(0, 5)}</h2>
+                            <p class="text-gray-400 text-sm">${order.createdAt?.toDate ? order.createdAt.toDate().toLocaleString('ar-DZ') : ''}</p>
+                        </div>
+                        <button onclick="document.getElementById('new-order-modal').classList.add('hidden')" class="text-gray-400 hover:text-white text-2xl"><i class="fas fa-times"></i></button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                            <h3 class="text-gray-500 text-xs mb-1">بيانات العميل</h3>
+                            <div class="font-bold text-xl text-white mb-1">${order.customerName}</div>
+                            <div class="text-cyan-400 font-mono text-lg" dir="ltr">${order.customerContact}</div>
+                            ${order.customerLocation ? `<div class="text-gray-400 text-sm mt-2"><i class="fas fa-map-marker-alt ml-1"></i> ${order.customerLocation}</div>` : ''}
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                             <h3 class="text-gray-500 text-xs mb-1">ملخص الدفع</h3>
+                             <div class="flex justify-between items-center mb-1">
+                                <span class="text-gray-300">المجموع</span>
+                                <span class="font-bold text-orange-400 text-xl">${formattedPrice} د.ج</span>
+                             </div>
+                             <div class="flex justify-between items-center">
+                                <span class="text-gray-300">حالة الطلب</span>
+                                <span class="px-2 py-1 rounded text-xs bg-gray-700 text-white">${order.status}</span>
+                             </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-white mb-3 border-r-4 border-orange-500 pr-3">تفاصيل الطلبية</h3>
+                    <div class="max-h-60 overflow-y-auto pr-1 custom-scrollbar mb-6">
+                        ${itemsHtml}
+                    </div>
+
+                    <div class="flex gap-3 mt-4">
+                        <button onclick="printOrder('${order.id}')" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-xl font-bold transition-colors">
+                            <i class="fas fa-print ml-2"></i> طباعة الوصل
+                        </button>
+                        <button onclick="document.getElementById('new-order-modal').classList.add('hidden')" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl font-bold transition-colors">
+                            إغلاق
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Reuse new-order-modal container but replace content
+            const modal = document.getElementById('new-order-modal');
+            const contentDiv = modal.querySelector('.modal-content');
+
+            // Save original content if needed, but for now we just overwrite logic
+            // We need to make sure we don't break the "New Order Alert" logic which uses the same modal ID but different innerHTML structure
+            // Actually, best to create a separate modal or handle state. 
+            // The existing alert logic sets innerHTML of 'modal-order-details'. 
+            // Let's replace the whole innerHTML of modal-content for the detailed view.
+
+            contentDiv.innerHTML = modalContent;
+            contentDiv.classList.remove('border-orange-500', 'text-center'); // Remove alert styling
+            contentDiv.classList.add('text-right');
+
+            modal.classList.remove('hidden');
+        }
+
         function attachOrderActionListeners() {
-            document.querySelectorAll('.order-status-select').forEach(sel => sel.onchange = e => updateDoc(doc(db, "orders", e.target.dataset.id), { status: e.target.value }));
+            document.querySelectorAll('.order-status-select').forEach(sel => sel.onchange = e => {
+                // e.stopPropagation(); // Already handled inline
+                updateDoc(doc(db, "orders", e.target.dataset.id), { status: e.target.value });
+            });
 
             document.querySelectorAll('.print-order-btn').forEach(btn => btn.onclick = e => {
                 e.stopPropagation();
                 printOrder(e.currentTarget.dataset.id);
             });
+
             document.querySelectorAll('#orders-table-body tr').forEach(row => {
                 row.onclick = () => {
-                    document.querySelectorAll('.selected-order').forEach(selected => selected.classList.remove('selected-order'));
-                    row.classList.add('selected-order');
+                    const orderId = row.dataset.orderId;
+                    const order = ordersCache.find(o => o.id === orderId);
+                    if (order) openDetailModal(order);
                 };
             });
         }
