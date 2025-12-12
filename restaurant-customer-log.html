@@ -65,6 +65,9 @@
                     <a href="restaurant-orders.html"
                         class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
                             class="fas fa-clipboard-list fa-fw ml-3"></i> الطلبات الواردة</a>
+                    <a href="store-orders-screen.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700 text-yellow-300 font-bold"><i
+                            class="fas fa-tv fa-fw ml-3"></i> شاشة المطبخ</a>
                     <a href="restaurant-loyalty.html"
                         class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
                             class="fas fa-check-to-slot fa-fw ml-3"></i> موافقات النقاط</a>
@@ -180,6 +183,9 @@
             if (user) {
                 // Simplified access check - assume if they reached here via dashboard they are valid
                 currentUser = user;
+                if (document.getElementById('restaurant-name-display')) {
+                    document.getElementById('restaurant-name-display').textContent = "أهلا بك في مطعمك";
+                }
                 authLoader.classList.add('hidden');
                 dashboardPage.classList.remove('hidden');
                 loadCustomerLog();
@@ -212,6 +218,7 @@
 
                     // Group by Phone primarily, or Name if phone missing
                     const key = customerPhone !== 'N/A' ? customerPhone : customerName;
+
 
                     if (!customersMap.has(key)) {
                         customersMap.set(key, {
