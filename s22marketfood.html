@@ -103,78 +103,126 @@
     <main class="max-w-7xl mx-auto px-4 py-8">
 
         <!-- Enhanced Welcome Hero Section -->
-        <div
-            class="bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 rounded-2xl p-6 md:p-10 mb-10 text-white shadow-2xl relative overflow-hidden">
-            <!-- Animated Background Pattern -->
-            <div class="absolute inset-0 opacity-20">
-                <div class="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -mr-48 -mt-48"></div>
-                <div class="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full -ml-32 -mb-32"></div>
+        <div class="relative mb-10">
+            <!-- Stories Section -->
+            <div class="flex gap-4 overflow-x-auto pb-4 mb-6 scrollbar-hide px-2" id="stories-container">
+                <!-- Stories injected by JS -->
             </div>
 
-            <div class="relative z-10">
-                <div class="flex items-start justify-between mb-6">
-                    <div>
-                        <h2 class="text-3xl md:text-5xl font-black mb-3 leading-tight">جائع؟ 🍕😋</h2>
-                        <p class="text-base md:text-xl opacity-90 mb-4">اطلب وجبتك المفضلة الآن من أفضل المطاعم</p>
+            <div
+                class="bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 rounded-3xl p-6 md:p-10 text-white shadow-2xl relative overflow-hidden">
+                <!-- Animated Background Pattern -->
+                <div class="absolute inset-0 opacity-20">
+                    <div class="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -mr-48 -mt-48"></div>
+                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full -ml-32 -mb-32"></div>
+                </div>
+
+                <div class="relative z-10">
+                    <div class="flex flex-col md:flex-row items-center justify-between mb-8 gap-6">
+                        <div class="text-center md:text-right">
+                            <h2 class="text-3xl md:text-5xl font-black mb-3 leading-tight drop-shadow-md">جائع؟ 🍕😋
+                            </h2>
+                            <p class="text-base md:text-xl opacity-95 font-medium mb-4">اطلب وجبتك المفضلة الآن من أفضل
+                                المطاعم</p>
+
+                            <!-- Wilaya Selector -->
+                            <button id="wilaya-selector-btn"
+                                class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md border border-white/30 text-white px-5 py-2 rounded-full font-bold hover:bg-white/30 transition-all group">
+                                <i
+                                    class="fas fa-map-marker-alt text-yellow-300 group-hover:scale-110 transition-transform"></i>
+                                <span id="current-wilaya-text">اختر ولايتك</span>
+                                <i class="fas fa-chevron-down text-xs opacity-70"></i>
+                            </button>
+                        </div>
+
+                        <div class="w-full md:w-auto">
+                            <div
+                                class="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/10 shadow-lg relative overflow-hidden group">
+                                <div
+                                    class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform">
+                                </div>
+                                <div class="relative">
+                                    <div class="text-4xl font-black mb-1" id="restaurant-count">0</div>
+                                    <div class="text-xs font-bold uppercase tracking-wider opacity-90">مطعم متاح</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="hidden md:block">
-                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
-                            <div class="text-3xl font-black" id="restaurant-count">0</div>
-                            <div class="text-xs opacity-90">مطعم متاح</div>
+
+                    <!-- Search Bar -->
+                    <div
+                        class="bg-white rounded-2xl shadow-xl p-2 flex items-center gap-2 mb-8 transform hover:scale-[1.01] transition-transform">
+                        <i class="fas fa-search text-gray-400 text-xl mr-3 ml-1"></i>
+                        <input type="text" id="restaurant-search" placeholder="ابحث عن مطعم، وجبة، أو مزاج..."
+                            class="flex-1 outline-none text-gray-800 text-lg placeholder-gray-400 h-10 bg-transparent">
+                        <button
+                            class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-orange-500/30 transition-all">
+                            بحث
+                        </button>
+                    </div>
+
+                    <!-- Quick Features -->
+                    <div class="flex flex-wrap justify-center md:justify-start gap-3 text-sm font-bold">
+                        <div
+                            class="inline-flex items-center gap-2 bg-black/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+                            <i class="fas fa-bolt text-yellow-300"></i> توصيل سريع
+                        </div>
+                        <div
+                            class="inline-flex items-center gap-2 bg-black/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+                            <i class="fas fa-tags text-green-300"></i> عروض حصرية
+                        </div>
+                        <div
+                            class="inline-flex items-center gap-2 bg-black/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+                            <i class="fas fa-star text-orange-300"></i> أفضل التقييمات
                         </div>
                     </div>
                 </div>
 
-                <!-- Search Bar -->
-                <div class="bg-white rounded-xl shadow-xl p-2 flex items-center gap-2 mb-6">
-                    <i class="fas fa-search text-gray-400 text-xl mr-3"></i>
-                    <input type="text" id="restaurant-search" placeholder="ابحث عن مطعم أو وجبة..."
-                        class="flex-1 outline-none text-gray-800 text-base placeholder-gray-400">
-                    <button
-                        class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all">
-                        بحث
-                    </button>
-                </div>
-
-                <!-- Quick Features -->
-                <div class="flex flex-wrap gap-3">
-                    <div
-                        class="inline-flex bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full font-bold items-center gap-2">
-                        <i class="fas fa-motorcycle"></i> توصيل سريع
-                    </div>
-                    <div
-                        class="inline-flex bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full font-bold items-center gap-2">
-                        <i class="fas fa-percentage"></i> عروض حصرية
-                    </div>
-                    <div
-                        class="inline-flex bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full font-bold items-center gap-2">
-                        <i class="fas fa-star"></i> أفضل التقييمات
-                    </div>
-                </div>
+                <!-- Decorative Food Icons -->
+                <i class="fas fa-hamburger absolute -bottom-10 -left-10 text-9xl text-white/10 transform rotate-12"></i>
+                <i class="fas fa-pizza-slice absolute top-10 -right-10 text-8xl text-white/10 transform -rotate-12"></i>
             </div>
-
-            <!-- Decorative Food Icons -->
-            <i class="fas fa-hamburger absolute -bottom-10 -left-10 text-9xl text-white/10 transform rotate-12"></i>
-            <i class="fas fa-pizza-slice absolute top-10 -right-10 text-8xl text-white/10 transform -rotate-12"></i>
         </div>
 
         <!-- Filters (Optional future expansion) -->
         <!-- Filters -->
-        <div class="flex gap-4 overflow-x-auto pb-4 mb-6 scrollbar-hide" id="food-filters">
+        <div class="flex gap-3 overflow-x-auto pb-4 mb-8 scrollbar-hide px-1" id="food-filters">
             <button data-filter="all"
-                class="filter-btn bg-gray-800 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap shadow-md transition-all">الكل</button>
+                class="filter-btn active bg-gray-900 text-white px-5 py-2.5 rounded-2xl font-bold whitespace-nowrap shadow-lg transition-all scale-105">الكل</button>
+
+            <!-- Food Types -->
             <button data-filter="pizza"
-                class="filter-btn bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50 transition-all">بيتزا
+                class="filter-btn bg-white text-gray-600 px-5 py-2.5 rounded-2xl font-bold whitespace-nowrap border border-gray-100 hover:bg-gray-50 transition-all shadow-sm">بيتزا
                 🍕</button>
             <button data-filter="burger"
-                class="filter-btn bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50 transition-all">برجر
+                class="filter-btn bg-white text-gray-600 px-5 py-2.5 rounded-2xl font-bold whitespace-nowrap border border-gray-100 hover:bg-gray-50 transition-all shadow-sm">برجر
                 🍔</button>
+            <button data-filter="tacos"
+                class="filter-btn bg-white text-gray-600 px-5 py-2.5 rounded-2xl font-bold whitespace-nowrap border border-gray-100 hover:bg-gray-50 transition-all shadow-sm">تاكوس
+                🌮</button>
             <button data-filter="shawarma"
-                class="filter-btn bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50 transition-all">شاورما
+                class="filter-btn bg-white text-gray-600 px-5 py-2.5 rounded-2xl font-bold whitespace-nowrap border border-gray-100 hover:bg-gray-50 transition-all shadow-sm">شاورما
                 🌯</button>
             <button data-filter="sweets"
-                class="filter-btn bg-white text-gray-600 px-6 py-2 rounded-full font-semibold whitespace-nowrap border hover:bg-gray-50 transition-all">حلويات
+                class="filter-btn bg-white text-gray-600 px-5 py-2.5 rounded-2xl font-bold whitespace-nowrap border border-gray-100 hover:bg-gray-50 transition-all shadow-sm">حلويات
                 🍰</button>
+
+            <div class="w-px bg-gray-300 h-8 mx-1 self-center"></div>
+
+            <!-- Mood Filters -->
+            <button data-filter="mood:healthy"
+                class="filter-btn bg-green-50 text-green-700 px-5 py-2.5 rounded-2xl font-bold whitespace-nowrap border border-green-100 hover:bg-green-100 transition-all shadow-sm"><i
+                    class="fas fa-leaf mr-2"></i>أكل صحي</button>
+            <button data-filter="mood:night"
+                class="filter-btn bg-indigo-50 text-indigo-700 px-5 py-2.5 rounded-2xl font-bold whitespace-nowrap border border-indigo-100 hover:bg-indigo-100 transition-all shadow-sm"><i
+                    class="fas fa-moon mr-2"></i>جوع الليل</button>
+            <button data-filter="mood:budget"
+                class="filter-btn bg-orange-50 text-orange-700 px-5 py-2.5 rounded-2xl font-bold whitespace-nowrap border border-orange-100 hover:bg-orange-100 transition-all shadow-sm"><i
+                    class="fas fa-wallet mr-2"></i>على قد الجيب</button>
+            <button data-filter="mood:family"
+                class="filter-btn bg-purple-50 text-purple-700 px-5 py-2.5 rounded-2xl font-bold whitespace-nowrap border border-purple-100 hover:bg-purple-100 transition-all shadow-sm"><i
+                    class="fas fa-users mr-2"></i>لمة العائلة</button>
+
         </div>
 
         <!-- Restaurants Grid -->
@@ -529,7 +577,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, query, where, getDocs, orderBy, limit, getDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
@@ -641,18 +689,180 @@
             }
         }
 
+        // WILAYA LOGIC
+        const wilayas = [
+            "أدرار", "الشلف", "الأغواط", "أم البواقي", "باتنة", "بجاية", "بسكرة", "بشار", "البليدة", "البويرة", "تمنراست", "تبسة", "تلمسان", "تيارت", "تيزي وزو", "الجزائر", "الجلفة", "جيجل", "سطيف", "سعيدة", "سكيكدة", "سيدي بلعباس", "عنابة", "قالمة", "قسنطينة", "المدية", "مستغانم", "المسيلة", "معسكر", "ورقلة", "وهران", "البيض", "إليزي", "برج بوعريريج", "بومرداس", "الطارق", "تندوف", "تيسمسيلت", "الوادي", "خنشلة", "سوق أهراس", "تيبازة", "ميلة", "عين الدفلى", "النعامة", "عين تموشنت", "غرداية", "غليزان", "تيميمون", "برج باجي مختار", "أولاد جلال", "بني عباس", "عين صالح", "عين قزام", "تقرت", "جانوت", "المغير", "المنيعة"
+        ];
+
+        const wilayaSelectorBtn = document.getElementById('wilaya-selector-btn');
+        const currentWilayaText = document.getElementById('current-wilaya-text');
+
+        // Initial Load of Wilaya
+        let selectedWilaya = localStorage.getItem('s22_selected_wilaya');
+        if (selectedWilaya) {
+            currentWilayaText.textContent = selectedWilaya;
+        }
+
+        wilayaSelectorBtn.onclick = () => {
+            // Create a nice modal for wilaya selection
+            const modalHTML = `
+                <div class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="this.parentElement.remove()"></div>
+                    <div class="relative bg-white rounded-3xl p-6 w-full max-w-lg shadow-2xl h-[80vh] flex flex-col animate-[slideInUp_0.3s_ease-out]">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-2xl font-bold text-gray-800">اختر ولايتك 🇩🇿</h3>
+                            <button onclick="this.closest('.fixed').remove()" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200"><i class="fas fa-times"></i></button>
+                        </div>
+                        <input type="search" id="wilaya-search" placeholder="ابحث عن الولاية..." class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl mb-4 focus:ring-2 focus:ring-orange-500 outline-none">
+                        <div class="overflow-y-auto flex-1 grid grid-cols-2 gap-2" id="wilaya-list">
+                            ${wilayas.map(w => `<button class="wilaya-option p-3 rounded-xl hover:bg-orange-50 border border-transparent hover:border-orange-200 text-right transition-all font-medium text-gray-700 hover:text-orange-700" onclick="selectWilaya('${w}')">${w}</button>`).join('')}
+                        </div>
+                    </div>
+                </div>
+             `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            // Search Logic inside modal
+            document.getElementById('wilaya-search').focus();
+            document.getElementById('wilaya-search').oninput = (e) => {
+                const term = e.target.value.toLowerCase();
+                document.querySelectorAll('.wilaya-option').forEach(btn => {
+                    btn.style.display = btn.innerText.toLowerCase().includes(term) ? 'block' : 'none';
+                });
+            };
+        };
+
+        window.selectWilaya = (wilaya) => {
+            selectedWilaya = wilaya;
+            localStorage.setItem('s22_selected_wilaya', wilaya);
+            currentWilayaText.textContent = wilaya;
+            document.querySelector('.fixed.z-\\[60\\]').remove(); // Close modal
+
+            // Re-fetch or Re-filter
+            loadRestaurants(); // Reload to apply filter
+        };
+
+
+        // --- PRODUCT PREVIEW LOGIC ---
+        const productsCache = {};
+
+        async function fetchRestaurantPreviews(restaurantId) {
+            if (productsCache[restaurantId]) return productsCache[restaurantId];
+
+            try {
+                // Fetch top 5 products
+                const q = query(collection(db, "products"), where("sellerId", "==", restaurantId), where("isAvailable", "==", true), limit(5));
+                const snap = await getDocs(q);
+                const products = snap.docs.map(d => d.data());
+                productsCache[restaurantId] = products;
+                return products;
+            } catch (e) {
+                console.warn(`Failed to fetch preview for ${restaurantId}`, e);
+                return [];
+            }
+        }
+
+        // --- STORIES LOGIC ---
+        function renderStories(restaurants) {
+            const container = document.getElementById('stories-container');
+            const now = new Date();
+            const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+            const activeStories = restaurants.filter(r => {
+                if (!r.storyUrl) return false;
+                // Check timestamp if available
+                if (r.storyTimestamp) {
+                    const storyTime = r.storyTimestamp.toDate ? r.storyTimestamp.toDate() : new Date(r.storyTimestamp);
+                    return storyTime > twentyFourHoursAgo;
+                }
+                return true;
+            });
+
+            const storiesHTML = activeStories.map(r => {
+                return `
+                    <div class="flex flex-col items-center gap-2 cursor-pointer group min-w-[70px]" onclick="viewStory('${r.id}', '${r.displayName}', '${r.photoURL || r.logoUrl}', '${r.storyUrl}')">
+                        <div class="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-yellow-400 to-red-600 group-hover:scale-110 transition-transform">
+                            <img src="${r.photoURL || r.logoUrl || 'https://placehold.co/100'}" class="w-full h-full rounded-full border-2 border-white object-cover">
+                        </div>
+                        <span class="text-xs font-bold text-gray-700 truncate w-16 text-center">${r.displayName ? r.displayName.split(' ')[0] : 'مطعم'}</span>
+                    </div>
+                `;
+            }).join('');
+
+            // Add "Promotional Story" (Static)
+            const promoStory = `
+                <div class="flex flex-col items-center gap-2 cursor-pointer group min-w-[70px]" onclick="viewStory('admin', 'عرض خاص', 'img/logo.png', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=1000')">
+                    <div class="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-blue-400 to-purple-600 group-hover:scale-110 transition-transform">
+                        <div class="w-full h-full rounded-full border-2 border-white bg-white flex items-center justify-center overflow-hidden">
+                             <span class="text-xs font-black text-purple-600">S22</span>
+                        </div>
+                    </div>
+                     <span class="text-xs font-bold text-gray-500">العروض</span>
+                </div>
+            `;
+
+            if (storiesHTML || promoStory) {
+                container.innerHTML = promoStory + storiesHTML;
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        window.viewStory = (id, name, logo, storyImg) => {
+            const storyHTML = `
+                <div class="fixed inset-0 z-[70] bg-black flex items-center justify-center" id="story-viewer">
+                    <div class="absolute top-4 left-4 right-4 flex justify-between items-center z-20 text-white">
+                        <div class="flex items-center gap-3">
+                             <img src="${logo}" class="w-10 h-10 rounded-full border border-white/50">
+                             <span class="font-bold shadow-black drop-shadow-md">${name}</span>
+                        </div>
+                        <button onclick="document.getElementById('story-viewer').remove()" class="text-2xl"><i class="fas fa-times"></i></button>
+                    </div>
+                    
+                    <div class="absolute top-0 left-0 right-0 gap-1 flex px-2 pt-2">
+                         <div class="h-1 bg-white/30 flex-1 rounded-full overflow-hidden">
+                             <div class="h-full bg-white w-full animate-[progress_5s_linear]"></div>
+                         </div>
+                    </div>
+
+                    <div class="w-full h-full relative">
+                        <img src="${storyImg}" class="w-full h-full object-cover">
+                         <div class="absolute bottom-10 left-0 right-0 text-center p-4 bg-gradient-to-t from-black/80 to-transparent pt-20">
+                              <a href="vendor.html?id=${id}&type=restaurant" class="inline-block mt-4 bg-white text-black px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform shadow-lg">زيارة المطعم 🍽️</a>
+                         </div>
+                    </div>
+                </div>
+             `;
+            document.body.insertAdjacentHTML('beforeend', storyHTML);
+            setTimeout(() => { if (document.getElementById('story-viewer')) document.getElementById('story-viewer').remove(); }, 5000);
+        };
+
         function renderRestaurants(list) {
             restaurantsGrid.innerHTML = '';
 
-            // Filter logic (Category)
+            // Filter logic (Category & Mood)
             let filtered = list;
             if (currentFilter !== 'all') {
-                const term = currentFilter.toLowerCase();
-                filtered = list.filter(r =>
-                    (r.displayName && r.displayName.toLowerCase().includes(term)) ||
-                    (r.description && r.description.toLowerCase().includes(term)) ||
-                    (r.tags && r.tags.includes(term))
-                );
+                if (currentFilter.startsWith('mood:')) {
+                    // MOOD FILTERING
+                    const mood = currentFilter.split(':')[1];
+                    // Logic: Check 'tags' array or 'moods' array in restaurant doc
+                    // Assuming we will add 'moods' field later, for now check tags/description
+                    filtered = list.filter(r =>
+                        (r.moods && r.moods.includes(mood)) ||
+                        (r.tags && r.tags.includes(mood)) ||
+                        (r.description && r.description.toLowerCase().includes(mood))
+                    );
+                } else {
+                    // FOOD TYPE FILTERING
+                    const term = currentFilter.toLowerCase();
+                    filtered = list.filter(r =>
+                        (r.displayName && r.displayName.toLowerCase().includes(term)) ||
+                        (r.description && r.description.toLowerCase().includes(term)) ||
+                        (r.tags && r.tags.includes(term))
+                    );
+                }
             }
 
             // Search
@@ -672,9 +882,10 @@
                 noRestaurantsMsg.classList.add('hidden');
             }
 
-            filtered.forEach((data, index) => {
-                const card = createRestaurantCard(data.id, data);
-                card.style.animationDelay = `${index * 100}ms`;
+            filtered.forEach(async (data, index) => {
+                const card = await createRestaurantCard(data.id, data);
+                card.style.animationDelay = `${index * 100
+                    }ms`;
                 card.classList.add('fade-in-up');
                 restaurantsGrid.appendChild(card);
             });
@@ -684,59 +895,99 @@
         searchInput.addEventListener('input', () => renderRestaurants(allRestaurants));
 
         filterBtns.addEventListener('click', (e) => {
-            if (e.target.tagName === 'BUTTON') {
+            const btn = e.target.closest('.filter-btn');
+            if (btn) {
                 // Update active state
                 document.querySelectorAll('.filter-btn').forEach(b => {
-                    b.classList.remove('bg-gray-800', 'text-white');
+                    b.classList.remove('bg-gray-900', 'text-white', 'scale-105', 'active');
                     b.classList.add('bg-white', 'text-gray-600');
+                    if (b.dataset.filter.startsWith('mood:')) {
+                        // Reset specific colors for mood buttons if needed, simplified here
+                        // For now just general reset, specific classes in HTML handle hover
+                    }
                 });
-                e.target.classList.remove('bg-white', 'text-gray-600');
-                e.target.classList.add('bg-gray-800', 'text-white');
 
-                currentFilter = e.target.dataset.filter;
+                btn.classList.remove('bg-white', 'text-gray-600', 'bg-green-50', 'text-green-700', 'bg-indigo-50', 'text-indigo-700', 'bg-orange-50', 'text-orange-700', 'bg-purple-50', 'text-purple-700'); // Remove potential color classes
+                btn.classList.add('bg-gray-900', 'text-white', 'scale-105', 'active');
+
+                currentFilter = btn.dataset.filter;
                 renderRestaurants(allRestaurants);
             }
         });
 
-        function createRestaurantCard(id, data) {
+        async function createRestaurantCard(id, data) {
             const div = document.createElement('div');
-            div.className = 'bg-white rounded-2xl shadow-sm overflow-hidden restaurant-card border border-gray-100 group';
+            div.className = 'bg-white rounded-3xl shadow-sm overflow-hidden restaurant-card border border-gray-100 group flex flex-col h-full';
 
             const coverImage = data.coverUrl || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1000';
             const logoImage = data.photoURL || data.logoUrl || 'https://placehold.co/100';
             const name = data.displayName || data.storeName || 'مطعم جديد';
             const desc = data.description || 'أفضل المأكولات لدينا';
-            const status = data.isOpen === false ? '<span class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs">مغلق</span>' : '<span class="bg-green-100 text-green-600 px-2 py-1 rounded text-xs">مفتوح</span>';
+            const status = data.isOpen === false ? '<span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold">مغلق</span>' : '<span class="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-bold">مفتوح</span>';
+            const rating = data.rating || '4.8';
 
             div.innerHTML = `
-                <div class="h-40 bg-gray-200 relative overflow-hidden">
-                    <img src="${coverImage}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                    <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold shadow-sm">
-                        ⏱️ 30-45 دقيقة
+                        < div class="h-44 relative overflow-hidden" >
+                    <img src="${coverImage}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
+                    
+                    <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm flex items-center gap-1">
+                        ⏱️ ${(data.deliveryTime || '30-45')} دقيقة
+                    </div>
+                    
+                    <div class="absolute -bottom-10 right-4 w-20 h-20 rounded-2xl border-4 border-white shadow-lg bg-white overflow-hidden transition-transform duration-300 group-hover:-translate-y-2">
+                         <img src="${logoImage}" class="w-full h-full object-cover">
                     </div>
                 </div>
-                <div class="p-5 pt-0 relative">
-                    <div class="flex justify-between items-start">
-                        <img src="${logoImage}" class="w-16 h-16 rounded-2xl border-4 border-white shadow-md -mt-8 bg-white object-cover">
-                        <div class="mt-2 flex gap-2">
+                
+                <div class="p-5 pt-12 flex-1 flex flex-col">
+                    <div class="flex justify-between items-start mb-1">
+                        <h3 class="text-xl font-extrabold text-gray-800 leading-tight group-hover:text-orange-600 transition-colors">${name}</h3>
+                        <div class="flex gap-1">
                              ${status}
-                             <span class="bg-yellow-50 text-yellow-600 px-2 py-1 rounded text-xs font-bold flex items-center gap-1"><i class="fas fa-star text-yellow-400"></i> ${(data.rating || '4.8')}</span>
                         </div>
                     </div>
                     
-                    <h3 class="text-xl font-bold text-gray-800 mt-2">${name}</h3>
-                    <p class="text-gray-500 text-sm mt-1 line-clamp-2">${desc}</p>
+                    <div class="flex items-center gap-2 mb-3 text-sm">
+                        <span class="text-yellow-500 font-bold flex items-center gap-1"><i class="fas fa-star"></i> ${rating}</span>
+                        <span class="text-gray-300">•</span>
+                        <span class="text-gray-500 truncate max-w-[150px]">${desc}</span>
+                    </div>
+
+                    <!-- Dish Preview Carousel -->
+                    <div class="dish-preview-carousel flex gap-2 overflow-x-auto scrollbar-hide mb-4 py-1" id="preview-${id}">
+                        <!-- Skeletons -->
+                        <div class="w-16 h-16 rounded-lg bg-gray-100 skeleton flex-shrink-0"></div>
+                        <div class="w-16 h-16 rounded-lg bg-gray-100 skeleton flex-shrink-0"></div>
+                        <div class="w-16 h-16 rounded-lg bg-gray-100 skeleton flex-shrink-0"></div>
+                    </div>
                     
-                    <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-                         <div class="text-xs text-gray-400 font-mono">
-                            <i class="fas fa-motorcycle ml-1"></i> توصيل: ${(data.deliveryFee || 200)} د.ج
+                    <div class="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+                         <div class="text-xs text-gray-500 font-bold bg-gray-50 px-2 py-1 rounded-lg">
+                            <i class="fas fa-motorcycle ml-1 text-orange-500"></i> ${(data.deliveryFee || 200)} د.ج
                          </div>
-                         <a href="vendor.html?id=${id}&type=restaurant" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-xl font-bold text-sm transition-colors shadow-orange-200 shadow-lg">
+                         <a href="vendor.html?id=${id}&type=restaurant" class="bg-gray-900 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg hover:shadow-orange-500/30 transform hover:-translate-y-0.5">
                             قائمة الطعام
                          </a>
                     </div>
                 </div>
-            `;
+                    `;
+
+            // Lazy Load Previews
+            fetchRestaurantPreviews(id).then(products => {
+                const container = div.querySelector(`#preview - ${id} `);
+                if (products.length > 0) {
+                    container.innerHTML = products.map(p => `
+                        < div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 relative group/dish" title = "${p.name?.ar}" >
+                            <img src="${p.imageUrl}" class="w-full h-full object-cover">
+                            </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<span class="text-xs text-gray-400 italic">لا توجد صور وجبات</span>';
+                    container.classList.add('justify-center', 'items-center');
+                }
+            });
+
             return div;
         }
 

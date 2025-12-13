@@ -944,6 +944,28 @@
             document.getElementById('stat-completed').textContent = completed;
         }
 
+        // SMART OUT-OF-STOCK LOGIC
+        window.markOutOfStock = async (productId, itemName) => {
+            if (confirm(`هل أنت متأكد من تغيير حالة "${itemName}" إلى نفاذ الكمية؟ لن يظهر هذا المنتج للزبائن.`)) {
+                try {
+                    const productRef = doc(db, "products", productId); // Assuming 'products' collection
+                    await updateDoc(productRef, { isAvailable: false });
+                    // Show feedback
+                    const btn = document.getElementById(`oos-btn-${productId}`);
+                    if (btn) {
+                        btn.className = "text-xs text-red-500 bg-red-100 px-2 py-1 rounded ml-2 cursor-not-allowed";
+                        btn.innerHTML = '<i class="fas fa-ban"></i> نفذت';
+                        btn.onclick = null;
+                    }
+                    // Use standard alert/toast
+                    alert(`تم إيقاف "${itemName}" بنجاح.`);
+                } catch (e) {
+                    console.error("Error updating product:", e);
+                    alert("حدث خطأ أثناء تحديث المنتج.");
+                }
+            }
+        };
+
         function renderOrdersTable() {
             try {
                 const tableBody = document.getElementById('orders-table-body');
@@ -972,7 +994,15 @@
                     const currentStatus = statusConfig[order.status] || { text: order.status, color: 'bg-gray-600' };
 
                     const itemsHtml = (order.items || []).map(item => {
-                        let itemText = `<div><span class="font-semibold">${item.quantity} x ${item.name}</span> <span class="text-orange-400 font-mono">${(item.price || 0).toLocaleString()} دج</span></div>`;
+                        let itemText = `<div><span class="font-semibold">${item.quantity} x ${item.name}</span> <span class="text-orange-400 font-mono">${(item.price || 0).toLocaleString()} دج</span>`;
+
+                        // Smart Out-of-Stock Button (Only if productId exists)
+                        if (item.productId) {
+                            itemText += `<button id="oos-btn-${item.productId}" onclick="window.markOutOfStock('${item.productId}', '${item.name.replace(/'/g, "\\'")}')" class="text-xs text-gray-500 hover:text-red-500 bg-gray-800 hover:bg-red-900/30 px-2 py-1 rounded ml-2 transition-colors" title="إبلاغ عن نفاذ الكمية"><i class="fas fa-ban"></i> نفذ؟</button>`;
+                        }
+
+                        itemText += `</div>`;
+
                         if (item.selectedAddons && item.selectedAddons.length > 0) {
                             itemText += item.selectedAddons.map(addon => `<div class="text-xs text-gray-400 mr-4">+ ${addon.name}</div>`).join('');
                         }

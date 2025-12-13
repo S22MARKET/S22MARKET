@@ -524,6 +524,38 @@
                             rows="2"></textarea>
                     </div>
 
+                    <!-- Gifting Section -->
+                    <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mt-4">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" id="is-gift-checkbox"
+                                class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500">
+                            <span class="mr-3 font-bold text-indigo-900 flex items-center gap-2">
+                                <i class="fas fa-gift text-indigo-500"></i> إرسال كهدية 🎁
+                            </span>
+                        </label>
+
+                        <div id="gift-fields" class="mt-4 space-y-3 hidden">
+                            <div>
+                                <label class="block text-xs font-bold text-indigo-800 mb-1">اسم المستلم</label>
+                                <input type="text" id="gift-recipient-name"
+                                    class="w-full p-2 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                                    placeholder="اسم الشخص الذي تهديه">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-indigo-800 mb-1">رقم هاتف المستلم</label>
+                                <input type="tel" id="gift-recipient-phone"
+                                    class="w-full p-2 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                                    dir="ltr" placeholder="05...">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-indigo-800 mb-1">رسالة إهداء</label>
+                                <textarea id="gift-message" rows="2"
+                                    class="w-full p-2 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                                    placeholder="اكتب رسالة جميلة..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="border-t pt-4">
                         <div class="flex justify-between text-xl font-bold">
                             <span>الإجمالي للدفع:</span>
@@ -1169,6 +1201,27 @@
                 cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
             );
 
+            // Gifting Handling
+            const isGift = document.getElementById('is-gift-checkbox').checked;
+            let giftDetails = null;
+
+            if (isGift) {
+                const rName = document.getElementById('gift-recipient-name').value.trim();
+                const rPhone = document.getElementById('gift-recipient-phone').value.trim();
+                const rMsg = document.getElementById('gift-message').value.trim();
+
+                if (!rName || !rPhone) {
+                    showToast('يرجى إدخال اسم ورقم هاتف المستلم للهدية', 'error');
+                    toggleButtonState(elements.submitBtn, false);
+                    return;
+                }
+                giftDetails = {
+                    recipientName: rName,
+                    recipientPhone: rPhone,
+                    message: rMsg
+                };
+            }
+
             const orderData = {
                 customerName: document.getElementById('q-customer-name').value,
                 customerContact: document.getElementById('q-customer-phone').value,
@@ -1182,6 +1235,8 @@
                 shippingCost: 0,
                 discountAmount: discountAmount,
                 couponCode: currentDiscount ? currentDiscount.code : null,
+                isGift: isGift,
+                giftDetails: giftDetails,
                 status: 'new',
                 createdAt: serverTimestamp(),
                 userId: currentUser ? currentUser.uid : null
@@ -1276,6 +1331,22 @@
 
         // (جديد) ربط زر تطبيق الكوبون
         elements.couponBtn.addEventListener('click', handleApplyCoupon);
+
+        // GIFTING LOGIC
+        const giftCheckbox = document.getElementById('is-gift-checkbox');
+        const giftFields = document.getElementById('gift-fields');
+
+        if (giftCheckbox) {
+            giftCheckbox.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    giftFields.classList.remove('hidden');
+                    giftFields.classList.add('block');
+                } else {
+                    giftFields.classList.remove('block');
+                    giftFields.classList.add('hidden');
+                }
+            });
+        }
 
     </script>
 

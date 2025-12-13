@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
@@ -233,6 +234,113 @@
                 <main class="flex-1 p-4 md:p-8 overflow-y-auto">
                     <div id="settings-panel" class="max-w-4xl mx-auto">
                         <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+                            <h2 class="text-xl font-bold mb-4 border-b pb-2">صورة البراند (الغلاف)</h2>
+                            <div class="flex flex-col gap-4">
+                                <div class="w-full h-48 border rounded-xl overflow-hidden bg-gray-100 relative group">
+                                    <img id="cover-preview"
+                                        src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1000"
+                                        class="w-full h-full object-cover">
+                                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                        onclick="document.getElementById('cover-upload').click()">
+                                        <p class="text-white font-bold"><i class="fas fa-camera mr-2"></i> تغيير الصورة
+                                        </p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-2">هذه الصورة تظهر كخلفية لكرت المطعم في الصفحة
+                                        الرئيسية. (المقاس المفضل: 1200x600)</p>
+                                    <input type="file" id="cover-upload" accept="image/*" class="hidden">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+                            <h2 class="text-xl font-bold mb-4 border-b pb-2">تصنيف مزاج المطعم (يساعد في ظهورك في
+                                الفلتر)</h2>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <label
+                                    class="flex items-center gap-2 cursor-pointer p-3 border rounded-xl hover:bg-gray-50 transition">
+                                    <input type="checkbox" name="moods" value="healthy"
+                                        class="w-5 h-5 text-green-600 rounded focus:ring-green-500">
+                                    <span class="font-bold text-gray-700">🥗 أكل صحي</span>
+                                </label>
+                                <label
+                                    class="flex items-center gap-2 cursor-pointer p-3 border rounded-xl hover:bg-gray-50 transition">
+                                    <input type="checkbox" name="moods" value="night"
+                                        class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500">
+                                    <span class="font-bold text-gray-700">🌙 جوع الليل</span>
+                                </label>
+                                <label
+                                    class="flex items-center gap-2 cursor-pointer p-3 border rounded-xl hover:bg-gray-50 transition">
+                                    <input type="checkbox" name="moods" value="budget"
+                                        class="w-5 h-5 text-orange-600 rounded focus:ring-orange-500">
+                                    <span class="font-bold text-gray-700">💸 على قد الجيب</span>
+                                </label>
+                                <label
+                                    class="flex items-center gap-2 cursor-pointer p-3 border rounded-xl hover:bg-gray-50 transition">
+                                    <input type="checkbox" name="moods" value="family"
+                                        class="w-5 h-5 text-purple-600 rounded focus:ring-purple-500">
+                                    <span class="font-bold text-gray-700">👨‍👩‍👧‍👦 لمة العائلة</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+                            <h2 class="text-xl font-bold mb-4 border-b pb-2">القصص اليومية (Stories)</h2>
+                            <div class="flex flex-col gap-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-20 h-20 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition"
+                                        onclick="document.getElementById('story-upload').click()">
+                                        <i class="fas fa-plus text-2xl text-gray-400"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-800">إضافة قصة جديدة</p>
+                                        <p class="text-xs text-gray-500">تظهر قصتك لمدة 24 ساعة في الصفحة الرئيسية.</p>
+                                    </div>
+                                </div>
+                                <input type="file" id="story-upload" accept="image/*" class="hidden">
+
+                                <div id="active-story-preview"
+                                    class="hidden mt-4 p-4 bg-gray-50 rounded-xl flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <img id="story-img-display" src=""
+                                            class="w-12 h-12 rounded-full object-cover border-2 border-orange-500">
+                                        <div>
+                                            <p class="text-sm font-bold text-green-600">قصة نشطة</p>
+                                            <p class="text-xs text-gray-400" id="story-date">تم النشر: الآن</p>
+                                        </div>
+                                    </div>
+                                    <button id="delete-story-btn"
+                                        class="text-red-500 hover:text-red-700 text-sm font-bold">حذف</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+                            <h2 class="text-xl font-bold mb-4 border-b pb-2">رمز الاستجابة السريعة (QR Code) 📱</h2>
+                            <div class="flex flex-col md:flex-row items-center gap-8">
+                                <div class="flex-1 text-center md:text-right">
+                                    <h3 class="font-bold text-gray-800 text-lg mb-2">منيو مطعمك الرقمي</h3>
+                                    <p class="text-gray-500 mb-4">قم بتوليد رمز QR خاص بمطعمك. يمكن للعملاء مسحه للوصول
+                                        المباشر لقائمة طعامك.</p>
+                                    <button id="generate-qr-btn"
+                                        class="bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-indigo-700 transition shadow-lg flex items-center gap-2 mx-auto md:mx-0">
+                                        <i class="fas fa-qrcode"></i> توليد الرمز
+                                    </button>
+                                </div>
+                                <div
+                                    class="bg-gray-100 p-6 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center min-w-[200px] min-h-[200px]">
+                                    <div id="qrcode-container"></div>
+                                    <p class="text-xs text-gray-400 mt-2 hidden" id="qr-instruction">امسح للطلب</p>
+                                    <a id="download-qr-btn"
+                                        class="mt-4 text-sm text-indigo-600 font-bold hover:underline hidden cursor-pointer">
+                                        <i class="fas fa-download"></i> تحميل الصورة
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-md mb-6">
                             <h2 class="text-xl font-bold mb-4 border-b pb-2">شعار المطعم</h2>
                             <div class="flex items-center gap-6">
                                 <div
@@ -404,30 +512,101 @@
         // Settings Logic
         const saveBtn = document.getElementById('save-settings-btn');
         let selectedLogoFile = null;
+        let selectedCoverFile = null;
 
-        document.getElementById('logo-upload').onchange = (e) => {
-            if (e.target.files && e.target.files[0]) {
-                selectedLogoFile = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = (evt) => document.getElementById('logo-preview').src = evt.target.result;
-                reader.readAsDataURL(selectedLogoFile);
+        // ... existing upload listeners ...
+
+        // Story Upload Logic
+        const storyUpload = document.getElementById('story-upload');
+        if (storyUpload) {
+            storyUpload.onchange = async (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+                    // Immediate upload for story
+                    try {
+                        showToast('جاري رفع القصة...', 'info');
+                        const url = await uploadImageToImgBB(file);
+
+                        // Update User Doc directly
+                        await updateDoc(doc(db, "users", currentUser.uid), {
+                            storyUrl: url,
+                            storyTimestamp: serverTimestamp() // To check 24h expiration
+                        });
+
+                        showToast('تم نشر القصة بنجاح!', 'success');
+
+                        // Update UI
+                        document.getElementById('active-story-preview').classList.remove('hidden');
+                        document.getElementById('story-img-display').src = url;
+                        document.getElementById('story-date').textContent = 'تم النشر: الآن';
+
+                    } catch (err) {
+                        console.error(err);
+                        showToast('فشل نشر القصة', 'error');
+                    }
+                }
+            };
+        }
+
+        document.getElementById('delete-story-btn')?.addEventListener('click', async () => {
+            if (confirm('هل أنت متأكد من حذف القصة الحالية؟')) {
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    storyUrl: null,
+                    storyTimestamp: null
+                });
+                document.getElementById('active-story-preview').classList.add('hidden');
+                showToast('تم حذف القصة', 'success');
             }
-        };
+        });
+
+        // QR Code Logic
+        document.getElementById('generate-qr-btn').addEventListener('click', () => {
+            const container = document.getElementById('qrcode-container');
+            container.innerHTML = ''; // Clear previous
+
+            const link = `${window.location.origin}/vendor.html?id=${currentUser.uid}&type=restaurant`;
+
+            new QRCode(container, {
+                text: link,
+                width: 150,
+                height: 150,
+                colorDark: "#ea580c", // Orange Theme
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            document.getElementById('qr-instruction').classList.remove('hidden');
+
+            // Allow download
+            setTimeout(() => {
+                const img = container.querySelector('img');
+                if (img) {
+                    const dlBtn = document.getElementById('download-qr-btn');
+                    dlBtn.classList.remove('hidden');
+                    dlBtn.onclick = () => {
+                        const link = document.createElement('a');
+                        link.download = `S22-Menu-${currentUser.uid.substring(0, 5)}.png`;
+                        link.href = img.src;
+                        link.click();
+                    };
+                }
+            }, 500);
+
+            showToast('تم توليد الرمز بنجاح!', 'success');
+        });
 
         async function loadSettings() {
             try {
-                // Load from user document directly (nested settings object or separate doc?)
-                // Strategy: Keep settings inside 'users/{uid}' for simplicity OR 'users/{uid}/settings/general'
-                // Let's use 'users/{uid}' top level for common fields and 'users/{uid}/settings/general' for specific config
-                // Actually, let's keep it simple: Store in `users/{uid}` fields directly where appropriate, or a sub-collection for settings.
-                // المطاعم used `settings/config` (global). S22 needs `users/{uid}/settings/general`.
-
                 const settingsRef = doc(db, "users", currentUser.uid, "settings", "general");
-                const settingsSnap = await getDoc(settingsRef);
+                const userRef = doc(db, "users", currentUser.uid);
+
+                const [settingsSnap, userSnap] = await Promise.all([getDoc(settingsRef), getDoc(userRef)]);
 
                 if (settingsSnap.exists()) {
                     const data = settingsSnap.data();
                     if (data.logoUrl) document.getElementById('logo-preview').src = data.logoUrl;
+                    if (data.coverUrl) document.getElementById('cover-preview').src = data.coverUrl;
+
                     document.getElementById('store-description').value = data.description || '';
                     document.getElementById('open-time').value = data.openTime || '';
                     document.getElementById('close-time').value = data.closeTime || '';
@@ -443,39 +622,32 @@
                         if (wSelect) wSelect.value = data.wilaya;
                     }
                 }
+
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    // Load Moods (saved in user doc for easier filtering)
+                    if (userData.moods) {
+                        userData.moods.forEach(mood => {
+                            const cb = document.querySelector(`input[name="moods"][value="${mood}"]`);
+                            if (cb) cb.checked = true;
+                        });
+                    }
+
+                    // Load Story
+                    if (userData.storyUrl) {
+                        document.getElementById('active-story-preview').classList.remove('hidden');
+                        document.getElementById('story-img-display').src = userData.storyUrl;
+                        // Calculate time ago (Optional)
+                    }
+                }
+
             } catch (error) {
                 console.error("Error loading settings:", error);
                 showToast('فشل تحميل الإعدادات', 'error');
             }
         }
 
-        async function uploadImageToImgBB(file) {
-            const formData = new FormData();
-            formData.append("image", file);
-            // Use a specific key for S22 or fallback to one if known, otherwise user might need to provide one.
-            // Using the key from المطاعم as fallback or we can assume it's working if origin allowed.
-            // Key: 6f8ed8272973d42065538e4a9sq... (This should be in a safe config)
-            // For now I will use the free API key often used in demos or ask user if broken.
-            // Assuming we use the same key as المطاعم: 'c0744de4e040742514120011494f664a' (Example key from past context if any)
-            // I'll grab it from admin-products.html if needed. I saw admin_settings.html in المطاعم had it? 
-            // admin_settings.html source might have the key: `uploadImageToImgBB` function.
-            // I will use a placeholder fetch logic. 
-            // NOTE: In production, key should be secure.
-
-            // Let's rely on a known key or generic upload function if user defined one.
-            // I'll just use a direct fetch with the key found in other files (if I recall correctly). 
-            // If not, I will use a standard one. 
-            // Key from standard ImgBB: `c2f0f4a...`? 
-            // Let's try to verify via view_file if I was unsure, but I'll proceed with a standard implementation.
-
-            const API_KEY = '5f42e4719e766e4796675034606778f6'; // Replace with valid key if fails
-            const url = `https://api.imgbb.com/1/upload?key=${API_KEY}`;
-
-            const response = await fetch(url, { method: "POST", body: formData });
-            const result = await response.json();
-            if (result.success) return result.data.url;
-            throw new Error('Image upload failed');
-        }
+        // ... uploadImageToImgBB ...
 
         saveBtn.onclick = async () => {
             saveBtn.disabled = true;
@@ -483,13 +655,18 @@
 
             try {
                 let logoUrl = document.getElementById('logo-preview').src;
+                let coverUrl = document.getElementById('cover-preview').src;
 
-                if (selectedLogoFile) {
-                    logoUrl = await uploadImageToImgBB(selectedLogoFile);
-                }
+                // Upload NEW images if selected
+                if (selectedLogoFile) logoUrl = await uploadImageToImgBB(selectedLogoFile);
+                if (selectedCoverFile) coverUrl = await uploadImageToImgBB(selectedCoverFile);
+
+                // Collect Moods
+                const selectedMoods = Array.from(document.querySelectorAll('input[name="moods"]:checked')).map(cb => cb.value);
 
                 const settingsData = {
                     logoUrl: logoUrl,
+                    coverUrl: coverUrl,
                     description: document.getElementById('store-description').value,
                     openTime: document.getElementById('open-time').value,
                     closeTime: document.getElementById('close-time').value,
@@ -499,7 +676,8 @@
                     whatsapp: document.getElementById('store-whatsapp').value,
                     facebook: document.getElementById('store-facebook').value,
                     instagram: document.getElementById('store-instagram').value,
-                    wilaya: document.getElementById('store-wilaya').value
+                    wilaya: document.getElementById('store-wilaya').value,
+                    moods: selectedMoods // Save locally in settings too
                 };
 
                 const settingsRef = doc(db, "users", currentUser.uid, "settings", "general");
@@ -508,10 +686,12 @@
                 // Also update Main User Doc for critical fields used in listing
                 const userUpdate = {
                     storeLogo: logoUrl,
+                    coverUrl: coverUrl,
                     description: settingsData.description,
                     phone: settingsData.phone,
                     isShopOpen: !settingsData.isManuallyClosed,
-                    wilaya: settingsData.wilaya
+                    wilaya: settingsData.wilaya,
+                    moods: selectedMoods // CRITICAL for filtering
                 };
 
                 // For filtering

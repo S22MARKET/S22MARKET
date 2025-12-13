@@ -421,8 +421,43 @@
                 const maxCategoryRevenue = allCategoriesData.length > 0 ? allCategoriesData[0].revenue : 0;
 
                 // Render
+                // MENU ENGINEERING CALCULATION
+                const totalItems = allItemsData.length;
+                if (totalItems > 0) {
+                    const avgQty = totalItemsSold / totalItems;
+                    const avgRev = totalRevenue / totalItems; // Gross simplification (Revenue per item total, not unit price)
+
+                    // Better: Avg Unit Price vs Popularity? 
+                    // Menu Engineering usually compares:
+                    // 1. Popularity (Mix %) vs 70% of Noteoriety
+                    // 2. Profitability (Contribution Margin). We lack Cost. We will use Revenue contribution.
+
+                    allItemsData.forEach(item => {
+                        const isHighVol = item.quantity >= avgQty;
+                        const isHighRev = item.revenue >= avgRev;
+
+                        if (isHighVol && isHighRev) { item.class = '⭐ نجمة (Star)'; item.classColor = 'bg-yellow-100 text-yellow-800'; item.desc = 'شعبية عالية، أرباح عالية'; }
+                        else if (isHighVol && !isHighRev) { item.class = '🐴 حصان عمل (Plowhorse)'; item.classColor = 'bg-blue-100 text-blue-800'; item.desc = 'شعبية عالية، أرباح منخفضة'; }
+                        else if (!isHighVol && isHighRev) { item.class = '🧩 لغز (Puzzle)'; item.classColor = 'bg-purple-100 text-purple-800'; item.desc = 'شعبية منخفضة، أرباح عالية'; }
+                        else { item.class = '🐕 كلب (Dog)'; item.classColor = 'bg-gray-100 text-gray-800'; item.desc = 'شعبية منخفضة، أرباح منخفضة'; }
+                    });
+                }
+
+                // Render
                 statsContent.innerHTML = `
+                <div class="bg-blue-50 border-r-4 border-blue-500 p-4 rounded-lg mb-8">
+                     <h3 class="font-bold text-blue-900 mb-2">💡 هندسة القائمة (Menu Engineering)</h3>
+                     <p class="text-sm text-blue-800">
+                        نستخدم مصفوفة "النجوم والكلاب" لتحليل أداء أطباقك:
+                        <span class="inline-block bg-yellow-100 text-yellow-800 px-2 rounded text-xs mx-1">⭐ نجوم:</span> حافظ عليها!
+                        <span class="inline-block bg-blue-100 text-blue-800 px-2 rounded text-xs mx-1">🐴 خيول:</span> ارفع السعر قليلاً.
+                        <span class="inline-block bg-purple-100 text-purple-800 px-2 rounded text-xs mx-1">🧩 ألغاز:</span> سوّق لها أكثر.
+                        <span class="inline-block bg-gray-100 text-gray-800 px-2 rounded text-xs mx-1">🐕 كلاب:</span> فكر في حذفها.
+                     </p>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- ... stats cards ... -->
                     <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
                         <i class="fas fa-coins fa-3x text-yellow-500"></i>
                         <div><p class="text-gray-500">إجمالي الإيرادات</p><p class="text-2xl font-bold">${formatCurrency(totalRevenue)}</p></div>
@@ -436,24 +471,13 @@
                         <div><p class="text-gray-500">إجمالي الطلبات</p><p class="text-2xl font-bold">${totalOrders}</p></div>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
-                        <i class="fas fa-chart-pie fa-3x text-teal-500"></i>
-                        <div><p class="text-gray-500">متوسط قيمة الطلب</p><p class="text-2xl font-bold">${formatCurrency(totalOrders > 0 ? totalRevenue / totalOrders : 0)}</p></div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
-                        <i class="fas fa-user-check fa-3x text-green-500"></i>
-                        <div><p class="text-gray-500">العملاء الفعليين</p><p class="text-2xl font-bold">${uniqueCustomers}</p></div>
-                    </div>
-                     <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
                         <i class="fas fa-utensils fa-3x text-red-500"></i>
                         <div><p class="text-gray-500">وجبات مباعة</p><p class="text-2xl font-bold">${totalItemsSold}</p></div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
-                        <i class="fas fa-tags fa-3x text-indigo-500"></i>
-                        <div><p class="text-gray-500">كوبونات مستخدمة</p><p class="text-2xl font-bold">${totalCouponsUsed}</p></div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                     <!-- ... existing charts ... -->
                     <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
                         <h3 class="text-xl font-bold mb-4">مبيعات آخر 7 أيام</h3>
                         <div class="flex justify-between items-end h-64 gap-2 border-b border-gray-200 pb-2">
@@ -484,26 +508,32 @@
                     </div>
 
                     <div class="lg:col-span-3 bg-white p-6 rounded-xl shadow-md">
-                        <h3 class="text-xl font-bold mb-4">أكثر الوجبات مبيعاً</h3>
+                        <h3 class="text-xl font-bold mb-4">تحليل هندسة القائمة (أكثر الوجبات مبيعاً)</h3>
                         <div class="overflow-x-auto max-h-96">
                             <table class="w-full responsive-table">
                                 <thead class="bg-gray-100 sticky top-0">
                                     <tr>
                                         <th class="p-3 text-right">#</th>
                                         <th class="p-3 text-right">الوجبة</th>
+                                        <th class="p-3 text-right">التصنيف (Eng.)</th>
                                         <th class="p-3 text-right">الكمية المباعة</th>
                                         <th class="p-3 text-right">إجمالي الإيرادات</th>
                                     </tr>
                                 </thead>
                                 <tbody id="items-table-body">
                                     ${allItemsData.length > 0 ? allItemsData.map((item, index) => `
-                                        <tr class="border-b">
+                                        <tr class="border-b hover:bg-gray-50">
                                             <td data-label="#" class="p-3 font-bold">${index + 1}</td>
                                             <td data-label="الوجبة" class="p-3 font-semibold">${item.name}</td>
+                                            <td data-label="التصنيف" class="p-3">
+                                                <span class="${item.classColor || 'bg-gray-100'} px-2 py-1 rounded text-xs font-bold" title="${item.desc || ''}">
+                                                    ${item.class || 'غير مصنف'}
+                                                </span>
+                                            </td>
                                             <td data-label="الكمية" class="p-3">${item.quantity}</td>
                                             <td data-label="الإيرادات" class="p-3 font-mono font-bold">${formatCurrency(item.revenue)}</td>
                                         </tr>
-                                    `).join('') : '<tr><td colspan="4" class="p-4 text-center text-gray-500">لا توجد بيانات.</td></tr>'}
+                                    `).join('') : '<tr><td colspan="5" class="p-4 text-center text-gray-500">لا توجد بيانات.</td></tr>'}
                                 </tbody>
                             </table>
                         </div>
