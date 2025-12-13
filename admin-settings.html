@@ -180,18 +180,7 @@
                         class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
                             class="fas fa-book fa-fw mr-3"></i> المفكرة</a>
 
-                    <hr class="border-gray-700 my-2">
-                    <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">نظام الولاء (المتجر)</h6>
-                    <a href="admin-loyalty-settings.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
-                            class="fas fa-gem fa-fw mr-3 text-yellow-400"></i> إعدادات الجواهر 💎</a>
-                    <a href="admin-loyalty-approvals.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
-                            class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i> موافقات المهام</a>
-                    <a href="admin-referrals-pending.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
-                            class="fas fa-check-double fa-fw mr-3 text-blue-400"></i> موافقات الدعوات</a>
-                    <hr class="border-gray-700 my-2">
+
 
                     <a href="admin-settings.html"
                         class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
@@ -311,6 +300,12 @@
                 <div><label class="font-semibold text-sm">وصف SEO (يظهر في جوجل)</label><textarea id="setting-seo-desc" class="mt-1 w-full p-2 border rounded" rows="2">${settings.seoDescription || ''}</textarea></div>
                 
                 <div class="border-t pt-4 space-y-4">
+                    <h3 class="font-bold text-lg text-indigo-700">شروط وأحكام فتح المتجر</h3>
+                    <p class="text-sm text-gray-500">هذه الشروط ستظهر للمستخدم للموافقة عليها قبل إرسال طلب فتح المتجر.</p>
+                    <textarea id="setting-terms" class="mt-1 w-full p-2 border rounded h-40 font-mono text-sm" placeholder="أدخل شروط الاستخدام هنا...">${settings.termsAndConditions || ''}</textarea>
+                </div>
+                
+                <div class="border-t pt-4 space-y-4">
                     <h3 class="font-bold text-lg text-indigo-700">إعدادات البانر الإعلاني</h3>
                     <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg"><label for="setting-banner-active" class="font-semibold">تفعيل البانر العلوي</label><label class="toggle-switch"><input type="checkbox" id="setting-banner-active" ${settings.isBannerActive ? 'checked' : ''}><span class="slider"></span></label></div>
                     <div><label class="font-semibold text-sm">رسالة البانر</label><input type="text" id="setting-banner-msg" class="mt-1 w-full p-2 border rounded" value="${settings.bannerMessage || ''}" placeholder="مثال: توصيل مجاني للطلبات فوق 5000 د.ج!"></div>
@@ -387,6 +382,7 @@
                 const data = {
                     seoTitle: getVal('setting-seo-title'),
                     seoDescription: getVal('setting-seo-desc'),
+                    termsAndConditions: getVal('setting-terms'),
                     logoUrl: getVal('setting-logo-url'),
                     isBannerActive: getChecked('setting-banner-active'),
                     bannerMessage: getVal('setting-banner-msg'),

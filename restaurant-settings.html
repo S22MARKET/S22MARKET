@@ -280,6 +280,29 @@
                         </div>
 
                         <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+                            <h2 class="text-xl font-bold mb-4 border-b pb-2">الموقع والنطاق الجغرافي</h2>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">الولاية (المقر
+                                    الرئيسي)</label>
+                                <select id="store-wilaya" class="w-full p-2 border rounded-lg bg-white">
+                                    <option value="">اختر الولاية...</option>
+                                    <!-- Wilayas will be populated by JS -->
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">سيظهر مطعمك للعملاء في هذه الولاية فقط.</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+                            <h2 class="text-xl font-bold mb-4 border-b pb-2">تفاصيل إضافية</h2>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">وصف المتجر (يظهر
+                                    للعملاء)</label>
+                                <textarea id="store-description" rows="3" class="w-full p-2 border rounded-lg"
+                                    placeholder="اكتب نبذة عن مطعمك..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-md mb-6">
                             <h2 class="text-xl font-bold mb-4 border-b pb-2">بيانات التواصل</h2>
                             <div class="grid md:grid-cols-2 gap-4">
                                 <div>
@@ -338,6 +361,21 @@
         const auth = getAuth(app);
         let currentUser = null;
 
+        const wilayas = [
+            "أدرار", "الشلف", "الأغواط", "أم البواقي", "باتنة", "بجاية", "بسكرة", "بشار", "البليدة", "البويرة", "تمنراست", "تبسة", "تلمسان", "تيارت", "تيزي وزو", "الجزائر", "الجلفة", "جيجل", "سطيف", "سعيدة", "سكيكدة", "سيدي بلعباس", "عنابة", "قالمة", "قسنطينة", "المدية", "مستغانم", "المسيلة", "معسكر", "ورقلة", "وهران", "البيض", "إليزي", "برج بوعريريج", "بومرداس", "الطارق", "تندوف", "تيسمسيلت", "الوادي", "خنشلة", "سوق أهراس", "تيبازة", "ميلة", "عين الدفلى", "النعامة", "عين تموشنت", "غرداية", "غليزان", "تيميمون", "برج باجي مختار", "أولاد جلال", "بني عباس", "عين صالح", "عين قزام", "تقرت", "جانوت", "المغير", "المنيعة"
+        ];
+
+        // Populate Select if element exists
+        const wilayaSelect = document.getElementById('store-wilaya');
+        if (wilayaSelect) {
+            wilayas.forEach((w, i) => {
+                const opt = document.createElement('option');
+                opt.value = w;
+                opt.textContent = `${i + 1} - ${w}`;
+                wilayaSelect.appendChild(opt);
+            });
+        }
+
         // Auth Logic
         const authLoader = document.getElementById('auth-loader');
         const dashboardPage = document.getElementById('dashboard-page');
@@ -390,6 +428,7 @@
                 if (settingsSnap.exists()) {
                     const data = settingsSnap.data();
                     if (data.logoUrl) document.getElementById('logo-preview').src = data.logoUrl;
+                    document.getElementById('store-description').value = data.description || '';
                     document.getElementById('open-time').value = data.openTime || '';
                     document.getElementById('close-time').value = data.closeTime || '';
                     document.getElementById('manual-closed-toggle').checked = data.isManuallyClosed || false;
@@ -398,6 +437,11 @@
                     document.getElementById('store-whatsapp').value = data.whatsapp || '';
                     document.getElementById('store-facebook').value = data.facebook || '';
                     document.getElementById('store-instagram').value = data.instagram || '';
+
+                    if (data.wilaya) {
+                        const wSelect = document.getElementById('store-wilaya');
+                        if (wSelect) wSelect.value = data.wilaya;
+                    }
                 }
             } catch (error) {
                 console.error("Error loading settings:", error);
@@ -446,6 +490,7 @@
 
                 const settingsData = {
                     logoUrl: logoUrl,
+                    description: document.getElementById('store-description').value,
                     openTime: document.getElementById('open-time').value,
                     closeTime: document.getElementById('close-time').value,
                     isManuallyClosed: document.getElementById('manual-closed-toggle').checked,
@@ -454,18 +499,27 @@
                     whatsapp: document.getElementById('store-whatsapp').value,
                     facebook: document.getElementById('store-facebook').value,
                     instagram: document.getElementById('store-instagram').value,
+                    wilaya: document.getElementById('store-wilaya').value
                 };
 
                 const settingsRef = doc(db, "users", currentUser.uid, "settings", "general");
                 await setDoc(settingsRef, settingsData, { merge: true });
 
                 // Also update Main User Doc for critical fields used in listing
-                await updateDoc(doc(db, "users", currentUser.uid), {
+                const userUpdate = {
                     storeLogo: logoUrl,
+                    description: settingsData.description,
                     phone: settingsData.phone,
-                    // Store essential operational data on the user doc for easy query
-                    isShopOpen: !settingsData.isManuallyClosed // simplified logic
-                });
+                    isShopOpen: !settingsData.isManuallyClosed,
+                    wilaya: settingsData.wilaya
+                };
+
+                // For filtering
+                if (settingsData.wilaya) {
+                    userUpdate.coveredWilayas = [settingsData.wilaya];
+                }
+
+                await updateDoc(doc(db, "users", currentUser.uid), userUpdate);
 
                 showToast('تم حفظ الإعدادات بنجاح', 'success');
             } catch (error) {

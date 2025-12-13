@@ -1312,14 +1312,9 @@
             const productsGrid = document.getElementById('products-grid');
 
             try {
-                console.log("محاولة جلب المنتجات...");
-
-                // المحاولة الأولى: الجلب البسيط (بدون ترتيب) لضمان ظهور البيانات مهما كانت المشكلة
-                // هذا سيتجاوز مشكلة عدم وجود حقل التاريخ أو مشاكل الفهرسة
-                const q = query(collection(db, "products"), limit(20));
-
+                // Fetch more to allow for filtering
+                const q = query(collection(db, "products"), limit(50));
                 const prodSnap = await getDocs(q);
-                console.log(`تم العثور على ${prodSnap.size} منتج`);
 
                 productsGrid.innerHTML = '';
 
@@ -1328,15 +1323,67 @@
                     return;
                 }
 
-                prodSnap.forEach(doc => {
-                    const p = doc.data();
-                    // تصفية الكورسات إذا لم تكن تريد عرضها
+                let products = prodSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Filter by Wilaya
+                if (currentUserProfile && currentUserProfile.wilaya) {
+                    const userWilaya = currentUserProfile.wilaya;
+                    console.log("Filtering products by Wilaya:", userWilaya);
+
+                    // Get unique seller IDs
+                    const sellerIds = [...new Set(products.map(p => p.sellerId).filter(id => id))];
+
+                    if (sellerIds.length > 0) {
+                        // Fetch sellers in parallel
+                        // Optimization: Check local cache or fetch
+                        // We will just fetch individually for simplicity (or chunks if widely supported, but in is limited)
+                        // Given limit 50, fetch usually < 20 sellers.
+
+                        const validSellerIds = new Set();
+                        await Promise.all(sellerIds.map(async (sid) => {
+                            try {
+                                const sDoc = await getDoc(doc(db, "users", sid));
+                                if (sDoc.exists()) {
+                                    const sData = sDoc.data();
+                                    // Check coverage
+                                    // 1. isNational
+                                    const isNat = sData.fulfillment?.isNational || (sData.role === 'vendor' && sData.isNational === true); // Handle legacy/new
+                                    if (isNat) {
+                                        validSellerIds.add(sid);
+                                        return;
+                                    }
+                                    // 2. coveredWilayas (store or user doc)
+                                    const covered = sData.fulfillment?.coveredWilayas || sData.coveredWilayas || [sData.wilaya];
+                                    if (covered && covered.includes(userWilaya)) {
+                                        validSellerIds.add(sid);
+                                        return;
+                                    }
+                                    // 3. Simple wilaya match
+                                    if (sData.wilaya === userWilaya) validSellerIds.add(sid);
+                                }
+                            } catch (e) { console.log("Err checking seller", sid, e); }
+                        }));
+
+                        // Filter products
+                        products = products.filter(p => validSellerIds.has(p.sellerId));
+
+                        // Badge or Message
+                        if (products.length > 0) {
+                            const title = document.getElementById('default-recent-title');
+                            if (title) title.innerHTML = `<i class="fas fa-map-marker-alt text-indigo-500"></i> منتجات في ${userWilaya} والكوت الوطني`;
+                        } else {
+                            productsGrid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">لا توجد منتجات متاحة في ${userWilaya} حالياً.</div>`;
+                            return;
+                        }
+                    }
+                }
+
+                products.forEach(p => {
                     if (p.productType !== 'course') {
-                        productsGrid.innerHTML += createProductCardHTML({ id: doc.id, ...p });
+                        productsGrid.innerHTML += createProductCardHTML(p);
                     }
                 });
 
-                // إظهار الشبكة
                 productsGrid.classList.remove('hidden');
                 document.getElementById('default-recent-title').classList.remove('hidden');
                 setupWishlistButtons();
@@ -1413,6 +1460,7 @@
                     const userDoc = await getDoc(doc(db, "users", user.uid));
                     if (userDoc.exists()) {
                         const data = userDoc.data();
+                        currentUserProfile = data; // Save for filtering
                         if (data.wishlist) userWishlist = new Set(data.wishlist);
                         setupWishlistButtons(); // Re-run to update UI icons
 
@@ -1436,6 +1484,7 @@
 
             } else {
                 currentUser = null;
+                currentUserProfile = null;
                 userWishlist.clear();
 
                 // إعادة أيقونة المستخدم للصفحة الرئيسية

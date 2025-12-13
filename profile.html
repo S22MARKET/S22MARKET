@@ -245,13 +245,7 @@
                 class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold">عضو</span>
         </div>
 
-        <div class="grid grid-cols-3 gap-3 mt-4">
-            <div class="stat-card">
-                <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><i
-                        class="fas fa-gem"></i></div>
-                <span class="font-bold text-gray-800" id="points-val">0</span>
-                <span class="text-xs text-gray-500">جواهر</span>
-            </div>
+        <div class="grid grid-cols-2 gap-3 mt-4">
             <div class="stat-card">
                 <div class="w-8 h-8 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center"><i
                         class="fas fa-coins"></i></div>
@@ -313,13 +307,7 @@
                 <i class="fas fa-chevron-left text-gray-400 text-xs"></i>
             </div>
 
-            <a href="loyalty_card.html" class="menu-item">
-                <div class="flex items-center">
-                    <div class="menu-icon bg-orange-50 text-orange-500"><i class="fas fa-id-card"></i></div>
-                    <span class="font-bold text-gray-700">بطاقة الوفاء</span>
-                </div>
-                <i class="fas fa-chevron-left text-gray-400 text-xs"></i>
-            </a>
+
 
             <a href="order_history.html" class="menu-item">
                 <div class="flex items-center">
@@ -352,50 +340,147 @@
                 <button onclick="copyRef()" class="text-indigo-400 hover:text-indigo-600"><i
                         class="fas fa-copy"></i></button>
             </div>
-            <p class="text-[10px] text-indigo-400 mt-2">شارك الكود واربح 50 جوهرة لكل صديق! 🎁</p>
+            <p class="text-[10px] text-indigo-400 mt-2">شارك الكود 🎁</p>
         </div>
 
     </div>
 
     <div id="store-modal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content !max-w-2xl">
             <div class="flex justify-between items-center mb-4 border-b pb-3">
-                <h3 class="font-bold text-lg text-gray-800">طلب فتح متجر</h3>
+                <h3 class="font-bold text-lg text-gray-800">طلب فتح متجر / انضمام كبائع</h3>
                 <button onclick="closeModal('store-modal')" class="text-gray-400 hover:text-red-500 text-xl"><i
                         class="fas fa-times"></i></button>
             </div>
             <form id="store-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">اسم المتجر / النشاط</label>
-                    <input type="text" id="req-name"
-                        class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500"
-                        placeholder="مثال: مطعم السعادة" required>
+
+                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                    <h4 class="font-bold text-indigo-800 mb-3 text-sm"><i class="fas fa-user-circle"></i> معلومات صاحب
+                        المتجر</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">الاسم واللقب</label>
+                            <input type="text" id="req-applicant-name"
+                                class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
+                                placeholder="الاسم الكامل" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">رقم الهاتف</label>
+                            <input type="tel" id="req-phone"
+                                class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
+                                dir="ltr" required>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">نوع النشاط</label>
-                    <select id="req-type"
-                        class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500">
-                        <option value="vendor">متجر (بيع منتجات)</option>
-                        <option value="restaurant">مطعم (مأكولات)</option>
-                    </select>
+
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <h4 class="font-bold text-gray-800 mb-3 text-sm"><i class="fas fa-store"></i> تفاصيل النشاط</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">اسم المتجر</label>
+                            <input type="text" id="req-name"
+                                class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
+                                placeholder="اسم البراند/المحل" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">نوع النشاط</label>
+                            <select id="req-type"
+                                class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                                <option value="vendor">متجر (منتجات، ملابس، إلكترونيات...)</option>
+                                <option value="restaurant">مطعم / مقهى / أكل منزلي</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">التخصص / المجال</label>
+                        <input type="text" id="req-specialty"
+                            class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
+                            placeholder="مثال: بيع العطور، طبخ تقليدي، صيانة هواتف..." required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">وصف المتجر</label>
+                        <textarea id="req-desc"
+                            class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
+                            rows="2" placeholder="نبذة مختصرة عن ما تقدمه..."></textarea>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">وصف مختصر</label>
-                    <textarea id="req-desc"
-                        class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500"
-                        rows="3" placeholder="ماذا تقدم لزبائنك؟"></textarea>
+
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <h4 class="font-bold text-gray-800 mb-3 text-sm"><i class="fas fa-map-marker-alt"></i> نطاق العمل
+                    </h4>
+                    <div class="mb-3">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">منطقة النشاط</label>
+                        <select id="req-region-type"
+                            class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
+                            onchange="toggleWilayaInput()">
+                            <option value="national">كامل التراب الوطني (توصيل 58 ولاية)</option>
+                            <option value="local">منطقة محددة (ولاية/بلدية)</option>
+                        </select>
+                    </div>
+                    <div id="wilaya-input-container" class="hidden">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">اسم الولاية / المنطقة</label>
+                        <input type="text" id="req-region-specific"
+                            class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
+                            placeholder="مثال: الجزائر العاصمة وضواحيها">
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">رقم الهاتف للتواصل</label>
-                    <input type="tel" id="req-phone"
-                        class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500"
-                        dir="ltr" required>
+
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <h4 class="font-bold text-gray-800 mb-3 text-sm"><i class="fas fa-link"></i> روابط التواصل (اختياري)
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1"><i
+                                    class="fab fa-facebook text-blue-600"></i> فيسبوك</label>
+                            <input type="url" id="req-fb"
+                                class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
+                                placeholder="رابط الصفحة">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1"><i
+                                    class="fab fa-instagram text-pink-600"></i> انستغرام</label>
+                            <input type="url" id="req-insta"
+                                class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
+                                placeholder="رابط الحساب">
+                        </div>
+                    </div>
                 </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">معلومات إضافية</label>
+                    <textarea id="req-extra"
+                        class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
+                        rows="2" placeholder="أي تفاصيل أخرى تود إضافتها..."></textarea>
+                </div>
+
                 <button type="submit" id="submit-req-btn"
                     class="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition">
-                    إرسال الطلب
+                    متابعة <i class="fas fa-arrow-left mr-2"></i>
                 </button>
             </form>
+        </div>
+    </div>
+
+    <!-- Terms Modal -->
+    <div id="terms-modal" class="modal z-[110]">
+        <div class="modal-content">
+            <h3 class="font-bold text-lg text-gray-800 mb-4 text-center">📜 شروط وأحكام الانضمام</h3>
+            <div id="terms-content"
+                class="bg-gray-50 p-4 rounded-xl text-sm text-gray-600 h-64 overflow-y-auto border mb-4 leading-relaxed whitespace-pre-wrap">
+                جاري تحميل الشروط...
+            </div>
+            <div class="flex items-start gap-3 mb-6 bg-indigo-50 p-3 rounded-lg">
+                <input type="checkbox" id="terms-agree-check" class="mt-1 w-5 h-5 text-indigo-600 rounded">
+                <label for="terms-agree-check" class="text-sm font-bold text-gray-700 cursor-pointer">لقد قرأت الشروط
+                    وأوافق عليها بالكامل، وأتعهد بالالتزام بسياسات المنصة.</label>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeModal('terms-modal')"
+                    class="flex-1 bg-gray-200 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-300">إلغاء</button>
+                <button id="confirm-terms-btn"
+                    class="flex-1 bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 shadow-lg opacity-50 cursor-not-allowed"
+                    disabled>موافق وإرسال الطلب</button>
+            </div>
         </div>
     </div>
 
@@ -405,6 +490,13 @@
             <form id="profile-edit-form" class="space-y-4">
                 <input type="text" id="edit-name" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
                     placeholder="الاسم الكامل" required>
+
+                <select id="edit-wilaya"
+                    class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-700">
+                    <option value="">اختر ولايتك (لتصفية المطاعم)</option>
+                    <!-- Wilayas populated by JS -->
+                </select>
+
                 <input type="tel" id="edit-phone" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
                     placeholder="رقم الهاتف" dir="ltr">
                 <div class="flex gap-2 pt-2">
@@ -925,10 +1017,26 @@
             } catch (e) { console.error(e); }
         }
 
+        // --- Wilaya List ---
+        const WILAYAS = [
+            "أدرار", "الشلف", "الأغواط", "أم البواقي", "باتنة", "بجاية", "بسكرة", "بشار", "البليدة", "البويرة", "تمنراست", "تبسة", "تلمسان", "تيارت", "تيزي وزو", "الجزائر", "الجلفة", "جيجل", "سطيف", "سعيدة", "سكيكدة", "سيدي بلعباس", "عنابة", "قالمة", "قسنطينة", "المدية", "مستغانم", "المسيلة", "معسكر", "ورقلة", "وهران", "البيض", "إليزي", "برج بوعريريج", "بومرداس", "الطارق", "تندوف", "تيسمسيلت", "الوادي", "خنشلة", "سوق أهراس", "تيبازة", "ميلة", "عين الدفلى", "النعامة", "عين تموشنت", "غرداية", "غليزان", "تيميمون", "برج باجي مختار", "أولاد جلال", "بني عباس", "عين صالح", "عين قزام", "تقرت", "جانوت", "المغير", "المنيعة"
+        ];
+
+        // Populate
+        const wSelect = document.getElementById('edit-wilaya');
+        if (wSelect) {
+            WILAYAS.forEach((w, i) => {
+                const opt = document.createElement('option');
+                opt.value = w;
+                opt.textContent = `${i + 1} - ${w}`;
+                wSelect.appendChild(opt);
+            });
+        }
+
         function renderProfile(data) {
             document.getElementById('user-name').textContent = data.displayName || 'مستخدم';
             document.getElementById('user-email').textContent = data.email;
-            document.getElementById('points-val').textContent = (data.loyaltyPoints || 0);
+
             document.getElementById('coins-val').textContent = (data.dawarat_coins || 0);
             // Badge
             const badge = document.getElementById('user-role-badge');
@@ -938,6 +1046,7 @@
             // Edit Inputs
             document.getElementById('edit-name').value = data.displayName || '';
             document.getElementById('edit-phone').value = data.phone || '';
+            if (data.wilaya) document.getElementById('edit-wilaya').value = data.wilaya; // Set selected wilaya
         }
 
         // --- Store Request Logic ---
@@ -1015,41 +1124,112 @@
 
         // --- Form Submissions ---
 
-        // 1. Submit Store Request
+        // --- Form Submissions ---
+
+        // Helper: Toggle Wilaya Input
+        window.toggleWilayaInput = () => {
+            const type = document.getElementById('req-region-type').value;
+            const container = document.getElementById('wilaya-input-container');
+            if (type === 'local') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        };
+
+        // Terms Agreement Logic
+        const termsCheck = document.getElementById('terms-agree-check');
+        const confirmTermsBtn = document.getElementById('confirm-terms-btn');
+        if (termsCheck) {
+            termsCheck.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    confirmTermsBtn.disabled = false;
+                    confirmTermsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    confirmTermsBtn.disabled = true;
+                    confirmTermsBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            });
+        }
+
+        let pendingStoreRequestData = null;
+
+        // 1. Submit Store Request (Step 1: Validation & Show Terms)
         document.getElementById('store-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submit-req-btn');
-            btn.disabled = true; btn.textContent = 'جاري الإرسال...';
 
-            const reqData = {
+            // Collect Data
+            const regionType = document.getElementById('req-region-type').value;
+            const regionSpecific = document.getElementById('req-region-specific').value;
+            const regionText = regionType === 'national' ? 'كامل التراب الوطني' : (regionSpecific || 'منطقة محددة');
+
+            pendingStoreRequestData = {
+                applicantName: document.getElementById('req-applicant-name').value,
                 storeName: document.getElementById('req-name').value,
                 storeType: document.getElementById('req-type').value,
+                specialty: document.getElementById('req-specialty').value,
                 description: document.getElementById('req-desc').value,
                 phone: document.getElementById('req-phone').value,
+                region: regionText,
+                facebook: document.getElementById('req-fb').value,
+                instagram: document.getElementById('req-insta').value,
+                additionalInfo: document.getElementById('req-extra').value,
                 status: 'pending',
                 requestedAt: serverTimestamp()
             };
 
+            // Loading Terms
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المعالجة...';
+
+            try {
+                // Fetch Terms from Settings
+                const settingsSnap = await getDoc(doc(db, "settings", "storeConfig"));
+                let termsText = "الشروط والأحكام غير متوفرة حالياً. يرجى التواصل مع الإدارة.";
+                if (settingsSnap.exists() && settingsSnap.data().termsAndConditions) {
+                    termsText = settingsSnap.data().termsAndConditions;
+                }
+
+                // Show Terms Modal
+                document.getElementById('terms-content').textContent = termsText;
+                document.getElementById('terms-modal').classList.add('active');
+
+            } catch (error) {
+                console.error("Error fetching terms:", error);
+                alert("حدث خطأ أثناء تحميل الشروط.");
+            } finally {
+                btn.disabled = false; btn.textContent = 'متابعة';
+            }
+        });
+
+        // 2. Confirm & Send Request
+        document.getElementById('confirm-terms-btn').addEventListener('click', async () => {
+            if (!pendingStoreRequestData) return;
+            const btn = document.getElementById('confirm-terms-btn');
+            btn.disabled = true; btn.textContent = 'جاري الإرسال...';
+
             try {
                 await updateDoc(doc(db, "users", currentUser.uid), {
-                    storeRequest: reqData,
-                    phone: reqData.phone // Update user phone too
+                    storeRequest: pendingStoreRequestData,
+                    phone: pendingStoreRequestData.phone // Update user phone too
                 });
 
+                closeModal('terms-modal');
                 closeModal('store-modal');
+
                 // Reload profile logic locally
-                userData.storeRequest = reqData;
+                userData.storeRequest = pendingStoreRequestData;
                 checkStoreStatus(userData);
 
                 // Confetti
                 confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                showToast('تم إرسال طلبك بنجاح!');
+                showToast('تم إرسال طلبك بنجاح! سنقوم بمراجعته قريباً.');
 
             } catch (err) {
                 console.error(err);
-                alert('حدث خطأ');
+                alert('حدث خطأ أثناء إرسال الطلب: ' + err.message);
             } finally {
-                btn.disabled = false; btn.textContent = 'إرسال الطلب';
+                btn.disabled = false; btn.textContent = 'موافق وإرسال الطلب';
             }
         });
 
@@ -1058,12 +1238,14 @@
             e.preventDefault();
             const name = document.getElementById('edit-name').value;
             const phone = document.getElementById('edit-phone').value;
+            const wilaya = document.getElementById('edit-wilaya').value;
 
             try {
                 await updateProfile(currentUser, { displayName: name });
                 await updateDoc(doc(db, "users", currentUser.uid), {
                     displayName: name,
-                    phone: phone
+                    phone: phone,
+                    wilaya: wilaya // Save Wilaya
                 });
 
                 document.getElementById('user-name').textContent = name;

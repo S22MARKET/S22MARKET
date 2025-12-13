@@ -406,7 +406,7 @@
         </div>
 
         <nav class="flex flex-col gap-3">
-            <a href="restaurant-dashboard.html" title="الذهاب للوحة التحكم الرئيسية"
+            <a href="restaurant-dashboard.html" id="dashboard-link" title="الذهاب للوحة التحكم الرئيسية"
                 class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors">
                 <i class="fas fa-tachometer-alt text-lg w-6 text-center text-orange-400"></i>
                 <span class="text-base font-semibold">لوحة التحكم</span>
@@ -453,7 +453,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, query, orderBy, updateDoc, doc, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy, updateDoc, doc, where, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -663,6 +663,43 @@
             closeMenu();
         }
 
+        function updateInterfaceForUser(userData) {
+            const titleEl = document.querySelector('title');
+            const headerTitleEl = document.querySelector('header h1');
+
+            // Default assumes Kitchen/Restaurant
+            let pageTitle = 'S22 MARKET - شاشة المطبخ';
+            let headerTitle = `S22 <span class="text-orange-500">MARKET</span> Kitchen`;
+
+            // If Vendor/Seller (Not Restaurant)
+            if (userData.role === 'vendor' || userData.role === 'seller') {
+                pageTitle = 'S22 MARKET - شاشة المتجر';
+                headerTitle = `S22 <span class="text-indigo-500">MARKET</span> Store`;
+
+                // Update specific restaurant terminology if needed
+                document.querySelectorAll('.restaurant-term').forEach(el => el.style.display = 'none');
+
+                // Update dashboard link
+                const dashboardLink = document.getElementById('dashboard-link');
+                if (dashboardLink) {
+                    dashboardLink.href = 'seller-dashboard.html';
+                    const icon = dashboardLink.querySelector('i');
+                    if (icon) icon.classList.replace('text-orange-400', 'text-indigo-400');
+                }
+            }
+
+            // Append Store Name if available
+            if (userData.storeName || userData.displayName) {
+                const name = userData.storeName || userData.displayName;
+                // Optional: Add store name to header? 
+                // headerTitle += ` <span class="text-sm text-gray-400 block sm:inline"> | ${name}</span>`;
+            }
+
+            titleEl.innerText = pageTitle;
+            originalTitle = pageTitle; // Update global variable for flashing logic
+            headerTitleEl.innerHTML = headerTitle;
+        }
+
         function initializeKitchenApp() {
             const manualRefreshBtn = document.getElementById('manual-refresh-btn');
             const muteBtn = document.getElementById('mute-btn');
@@ -687,9 +724,21 @@
 
             setupSoundActivation();
 
-            onAuthStateChanged(auth, (user) => {
+            onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     currentUser = user;
+
+                    // Fetch user details for customization
+                    try {
+                        const userDoc = await getDoc(doc(db, "users", user.uid));
+                        if (userDoc.exists()) {
+                            const userData = userDoc.data();
+                            updateInterfaceForUser(userData);
+                        }
+                    } catch (error) {
+                        console.error("Error fetching user data:", error);
+                    }
+
                     loadOrders();
                 } else {
                     window.location.href = 'login.html';

@@ -570,14 +570,23 @@
             restaurantsGrid.classList.remove('hidden');
         }
 
-        // 1. Auth Check
-        onAuthStateChanged(auth, (user) => {
+        // 1. Auth Check + Profile Load
+        let currentUserProfile = null;
+
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 userStatus.innerHTML = `<img src="${user.photoURL || 'https://placehold.co/100'}" class="w-full h-full rounded-full object-cover">`;
+
+                // Fetch User Profile for Wilaya
+                try {
+                    const snap = await getDoc(doc(db, "users", user.uid));
+                    if (snap.exists()) {
+                        currentUserProfile = snap.data();
+                    }
+                } catch (e) { console.error("Profile load err", e); }
+
                 loadRestaurants();
             } else {
-                // Redirect to login if enforced, or just show login button
-                // For "Strict Registration" requirement:
                 window.location.href = 'login.html?redirect=s22marketfood.html';
             }
         });
@@ -585,24 +594,9 @@
         // 2. Load Restaurants
         async function loadRestaurants() {
             try {
-                // Query users where role == 'restaurant' OR a specific 'vendors' collection
-                // Strategy: We will query 'users' collection for fields "isRestaurant == true" or "role == 'restaurant'"
-
-                // NOTE: Since we haven't strictly defined the schema, we will search for any user with `role: 'restaurant'`
-                // If that index doesn't exist, we might need a fallback.
-                // For MVP: We query 'vendors' collection if you decide to separate them, or 'users'.
-
-                // Let's assume we use the 'vendors' collection or reuse 'users'. 
-                // Given the prompt "future restaurants", implies scalable list.
-
                 const q = query(collection(db, "users"), where("role", "==", "restaurant"));
-
                 showSkeletons();
-
                 const snapshot = await getDocs(q);
-
-                // Simulate delay for skeleton effect (optional, remove for prod)
-                // await new Promise(r => setTimeout(r, 800));
 
                 if (snapshot.empty) {
                     restaurantsGrid.innerHTML = '';
@@ -612,6 +606,32 @@
                 }
 
                 allRestaurants = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Filter by Wilaya immediately if user has one
+                if (currentUserProfile && currentUserProfile.wilaya) {
+                    const userWilaya = currentUserProfile.wilaya;
+                    console.log("Filtering by Wilaya:", userWilaya);
+
+                    // Filter Logic:
+                    // 1. Restaurant is in same wilaya
+                    // 2. Restaurant covers this wilaya (array)
+                    // 3. Restaurant is National (isNational=true)
+
+                    allRestaurants = allRestaurants.filter(r => {
+                        if (r.fulfillment && r.fulfillment.isNational) return true;
+                        if (r.coveredWilayas && r.coveredWilayas.includes(userWilaya)) return true;
+                        if (r.wilaya === userWilaya) return true;
+                        return false;
+                    });
+
+                    // Show Filter Badge logic (Optional UI enhancement)
+                    if (allRestaurants.length > 0) {
+                        // Maybe add a header indicating filtered results
+                        const header = document.querySelector('h3.border-r-4');
+                        if (header) header.textContent = `المطاعم في ${userWilaya}`;
+                    }
+                }
+
                 document.getElementById('restaurant-count').textContent = allRestaurants.length;
                 renderRestaurants(allRestaurants);
 
@@ -624,10 +644,9 @@
         function renderRestaurants(list) {
             restaurantsGrid.innerHTML = '';
 
-            // Filter logic
+            // Filter logic (Category)
             let filtered = list;
             if (currentFilter !== 'all') {
-                // Simple keyword match in description or name or a 'tags' array
                 const term = currentFilter.toLowerCase();
                 filtered = list.filter(r =>
                     (r.displayName && r.displayName.toLowerCase().includes(term)) ||
@@ -636,6 +655,7 @@
                 );
             }
 
+            // Search
             const searchTerm = searchInput.value.trim().toLowerCase();
             if (searchTerm) {
                 filtered = filtered.filter(r =>
@@ -654,7 +674,6 @@
 
             filtered.forEach((data, index) => {
                 const card = createRestaurantCard(data.id, data);
-                // Staggered Animation
                 card.style.animationDelay = `${index * 100}ms`;
                 card.classList.add('fade-in-up');
                 restaurantsGrid.appendChild(card);
