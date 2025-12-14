@@ -17,9 +17,13 @@
         }
 
         /* تأثيرات الغلاف */
+        /* Mobile-First Header */
         .vendor-header {
             position: relative;
-            height: 250px;
+            height: 35vh;
+            /* Dynamic height */
+            min-height: 200px;
+            max-height: 300px;
             overflow: hidden;
         }
 
@@ -27,130 +31,114 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: brightness(0.8);
-            transition: transform 0.5s;
+            animation: zoomSlow 20s infinite alternate;
+        }
+
+        @keyframes zoomSlow {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.1);
+            }
         }
 
         .vendor-info-card {
-            margin-top: -60px;
+            margin-top: -40px;
             position: relative;
             z-index: 10;
             background: white;
-            border-radius: 20px 20px 0 0;
-            padding: 20px;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+            border-radius: 24px 24px 0 0;
+            padding: 24px 20px;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.08);
         }
 
         .vendor-logo {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            /* Modern square-ish */
             border: 4px solid white;
             object-fit: cover;
             position: absolute;
-            top: -45px;
+            top: -40px;
             right: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
             background: white;
         }
 
-        /* كارت المنتج */
+        /* App-Like Product Card */
         .product-card {
             background: white;
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 12px;
             display: flex;
-            gap: 12px;
-            border: 1px solid #f1f5f9;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-            transition: all 0.2s;
+            gap: 14px;
+            border: 1px solid #f3f4f6;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
         }
 
         .product-card:active {
-            transform: scale(0.98);
-            background-color: #f8fafc;
+            transform: scale(0.97);
         }
 
         .prod-img {
-            width: 90px;
-            height: 90px;
-            border-radius: 12px;
-            object-fit: cover;
-            flex-shrink: 0;
-        }
-
-        /* الزر العائم للسلة */
-        #floating-cart {
-            position: fixed;
-            bottom: 20px;
-            left: 16px;
-            right: 16px;
-            background: #1f2937;
-            color: white;
-            padding: 16px;
+            width: 100px;
+            height: 100px;
             border-radius: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 10px 25px rgba(31, 41, 55, 0.3);
-            z-index: 50;
-            transform: translateY(150%);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
 
-        #floating-cart.visible {
-            transform: translateY(0);
-        }
-
-        /* التصنيفات Sticky */
+        /* Pill Tabs */
         .sticky-tabs {
             position: sticky;
             top: 0;
-            background: white;
-            z-index: 20;
-            padding: 10px 0;
-            border-bottom: 1px solid #f1f5f9;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 40;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
             white-space: nowrap;
             overflow-x: auto;
+            display: flex;
+            gap: 8px;
+            scroll-snap-type: x mandatory;
         }
 
         .tab-btn {
             display: inline-block;
-            padding: 8px 16px;
-            margin: 0 4px;
-            border-radius: 20px;
-            background: #f1f5f9;
+            padding: 8px 20px;
+            border-radius: 100px;
+            background: #f8fafc;
             color: #64748b;
             font-size: 14px;
-            font-weight: bold;
+            font-weight: 800;
             transition: all 0.3s;
+            border: 1px solid transparent;
+            scroll-snap-align: start;
         }
 
         .tab-btn.active {
-            background: #1f2937;
+            background: #0f172a;
             color: white;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* Floating Cart with Glassmorphism */
+        #floating-cart {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .no-scrollbar::-webkit-scrollbar {
             display: none;
-        }
-
-        /* Loader */
-        .skeleton {
-            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
-
-        @keyframes shimmer {
-            0% {
-                background-position: 200% 0;
-            }
-
-            100% {
-                background-position: -200% 0;
-            }
         }
     </style>
 </head>
@@ -213,6 +201,49 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Customer Stories / Visual Reviews -->
+            <div class="mt-8 mb-2">
+                <div class="flex items-center justify-between px-1 mb-3">
+                    <h3 class="font-bold text-gray-800 text-lg">تجارب الناس 📸</h3>
+                    <span
+                        class="text-xs text-orange-600 font-bold bg-orange-50 px-2 py-1 rounded-full cursor-pointer hover:bg-orange-100">عرض
+                        الكل</span>
+                </div>
+                <!-- Stories Container -->
+                <div class="flex gap-3 overflow-x-auto pb-4 no-scrollbar px-1" id="review-stories-container">
+                    <!-- Static placeholders for now, will be dynamic later -->
+                    <div class="flex flex-col items-center gap-1 min-w-[70px] cursor-pointer group">
+                        <div class="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-pink-500 to-purple-600">
+                            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=150"
+                                class="w-full h-full rounded-full border-2 border-white object-cover group-hover:scale-95 transition-transform">
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-600 truncate w-14 text-center">أحمد</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 min-w-[70px] cursor-pointer group">
+                        <div class="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-pink-500 to-purple-600">
+                            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=150"
+                                class="w-full h-full rounded-full border-2 border-white object-cover group-hover:scale-95 transition-transform">
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-600 truncate w-14 text-center">سارة</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 min-w-[70px] cursor-pointer group">
+                        <div class="w-16 h-16 rounded-full p-[2px] bg-gray-200">
+                            <img src="https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&q=80&w=150"
+                                class="w-full h-full rounded-full border-2 border-white object-cover group-hover:scale-95 transition-transform">
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-600 truncate w-14 text-center">علي</span>
+                    </div>
+                    <!-- Add Review Button -->
+                    <button class="flex flex-col items-center gap-1 min-w-[70px] cursor-pointer group">
+                        <div
+                            class="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 hover:bg-gray-100 hover:border-gray-400 trasition-colors">
+                            <i class="fas fa-camera text-gray-400 text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-400 truncate w-14 text-center">أضف صورتك</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="sticky-tabs no-scrollbar" id="categories-tabs">
@@ -238,6 +269,73 @@
             class="flex items-center gap-2 font-bold text-sm bg-white text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100">
             إتمام الطلب <i class="fas fa-angle-left"></i>
         </button>
+    </div>
+
+    <!-- AI Food Assistant FAB -->
+    <div class="fixed bottom-24 right-4 z-40 animate-bounce cursor-pointer group" onclick="toggleAIAssistant()">
+        <div
+            class="w-14 h-14 bg-gradient-to-br from-indigo-600 to-blue-500 rounded-full shadow-lg shadow-blue-500/30 flex items-center justify-center border-2 border-white relative overflow-hidden">
+            <i class="fas fa-robot text-2xl text-white relative z-10"></i>
+            <div
+                class="absolute inset-0 bg-white/20 transform -translate-y-full group-hover:translate-y-0 transition-transform">
+            </div>
+        </div>
+        <span
+            class="absolute right-16 top-2 bg-white px-3 py-1 rounded-xl text-xs font-bold shadow-md w-max animate-pulse hidden group-hover:block transition-all">محتار
+            وش تاكل؟ 🤔</span>
+    </div>
+
+    <!-- AI Assistant Overlay -->
+    <div id="ai-overlay"
+        class="fixed inset-0 bg-black/50 z-[60] hidden items-end sm:items-center justify-center backdrop-blur-sm">
+        <div
+            class="bg-white w-full sm:w-[400px] h-[80vh] sm:h-[600px] rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-[slideUp_0.3s_ease-out]">
+            <!-- Header -->
+            <div class="bg-indigo-600 p-4 text-white flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center border border-white/30">
+                        <i class="fas fa-robot text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg">Dr. S22 🤖</h3>
+                        <p class="text-xs opacity-80">مساعدك الشخصي للطلب</p>
+                    </div>
+                </div>
+                <button onclick="toggleAIAssistant()"
+                    class="w-8 h-8 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition"><i
+                        class="fas fa-times"></i></button>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="flex-1 bg-gray-50 p-4 overflow-y-auto space-y-4" id="ai-chat-box">
+                <!-- Initial Message -->
+                <div class="flex gap-3">
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-robot text-indigo-600 text-xs"></i>
+                    </div>
+                    <div class="bg-white p-3 rounded-2xl rounded-tr-none shadow-sm text-sm text-gray-700 max-w-[80%]">
+                        أهلاً بك! 👋 أنا الدكتور S22. شايفك محتار.. كيف أقدر أساعدك اليوم؟
+                    </div>
+                </div>
+
+                <!-- Options -->
+                <div class="flex flex-wrap gap-2 mt-2 justify-end" id="ai-options">
+                    <button onclick="aiReply('cold')"
+                        class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-200 transition">بردان
+                        وابغى اتدفا 🥶</button>
+                    <button onclick="aiReply('quick')"
+                        class="bg-orange-100 text-orange-700 px-4 py-2 rounded-xl text-xs font-bold hover:bg-orange-200 transition">غداء
+                        سريع ⚡</button>
+                    <button onclick="aiReply('surprise')"
+                        class="bg-purple-100 text-purple-700 px-4 py-2 rounded-xl text-xs font-bold hover:bg-purple-200 transition">فاجئني!
+                        🎲</button>
+                    <button onclick="aiReply('broke')"
+                        class="bg-green-100 text-green-700 px-4 py-2 rounded-xl text-xs font-bold hover:bg-green-200 transition">مطفر
+                        (رخيص) 💸</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="toast-container" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 w-max max-w-[90%]"></div>
@@ -467,22 +565,31 @@
                         </button>`;
                 }
 
+                // App-Like Card Structure
                 card.innerHTML = `
-                    <div class="absolute top-2 left-2 flex gap-1 z-10">
-                         ${isAuction ? '<span class="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">مزاد</span>' : ''}
+                    <div class="relative">
+                        <img src="${img}" class="prod-img" onclick="location.href='PRESENTPRODUCT.html?product=${product.id}'">
+                        ${isAuction ? '<span class="absolute top-1 right-1 bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-md">مزاد</span>' : ''}
                     </div>
-                    <img src="${img}" class="prod-img" onclick="location.href='PRESENTPRODUCT.html?product=${product.id}'">
-                    <div class="flex-grow flex flex-col justify-between" onclick="location.href='PRESENTPRODUCT.html?product=${product.id}'">
+                    
+                    <div class="flex-grow flex flex-col justify-between py-1" onclick="location.href='PRESENTPRODUCT.html?product=${product.id}'">
                         <div>
-                            <h3 class="font-bold text-gray-800 line-clamp-1">${product.name}</h3>
-                            <p class="text-xs text-gray-500 line-clamp-2 mt-1">${product.description || ''}</p>
+                            <div class="flex justify-between items-start">
+                                <h3 class="font-extrabold text-gray-800 text-base leading-tight line-clamp-2">${product.name}</h3>
+                            </div>
+                            <p class="text-xs text-gray-400 line-clamp-2 mt-1 font-medium">${product.description || 'وصف مختصر للمنتج...'}</p>
                         </div>
+                        
                         <div class="flex justify-between items-end mt-2">
-                            <span class="font-bold text-indigo-600 text-lg">${product.price.toLocaleString()} د.ج</span>
+                            <div class="flex flex-col">
+                                ${product.oldPrice && product.oldPrice > product.price ? `<span class="text-xs text-gray-400 line-through Decoration-red-500">${product.oldPrice.toLocaleString()}</span>` : ''}
+                                <span class="font-black text-indigo-600 text-lg ">${product.price.toLocaleString()} <span class="text-xs font-normal text-gray-500">د.ج</span></span>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex flex-col justify-end">
-                        ${actionBtn}
+
+                    <div class="flex flex-col justify-end pb-1">
+                        ${actionBtn.replace('class="', 'class="shadow-md scale-110 ')}
                     </div>
                 `;
 
@@ -573,7 +680,110 @@
             }
         };
 
-        // Initialize is handled in auth listener
+        // Initial Load handled in auth listener
+
+        // --- AI Assistant Logic ---
+        window.toggleAIAssistant = () => {
+            const el = document.getElementById('ai-overlay');
+            el.classList.toggle('hidden');
+            el.classList.toggle('flex');
+        };
+
+        window.aiReply = async (type) => {
+            const chatBox = document.getElementById('ai-chat-box');
+            const options = document.getElementById('ai-options');
+
+            // User Msg
+            let userText = "";
+            if (type === 'cold') userText = "بردان وابغى اتدفا 🥶";
+            if (type === 'quick') userText = "غداء سريع ⚡";
+            if (type === 'surprise') userText = "فاجئني! 🎲";
+            if (type === 'broke') userText = "مطفر (رخيص) 💸";
+
+            chatBox.innerHTML += `
+                <div class="flex gap-3 justify-end animate-fade-in">
+                    <div class="bg-indigo-600 p-3 rounded-2xl rounded-tl-none shadow-sm text-sm text-white max-w-[80%]">
+                        ${userText}
+                    </div>
+                </div>
+            `;
+
+            // Simulate Typing
+            chatBox.innerHTML += `
+                <div class="flex gap-3 animate-fade-in" id="ai-typing">
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-robot text-indigo-600 text-xs"></i>
+                    </div>
+                    <div class="bg-gray-200 p-3 rounded-2xl rounded-tr-none shadow-sm flex gap-1 items-center h-10">
+                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
+                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-75"></div>
+                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-150"></div>
+                    </div>
+                </div>
+            `;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            options.classList.add('hidden'); // Hide options
+
+            // Fake Delay
+            await new Promise(r => setTimeout(r, 1500));
+            document.getElementById('ai-typing').remove();
+
+            // Logic to pick product
+            let suggestion = null;
+            if (vendorProducts.length > 0) {
+                // Simple logic for demo
+                if (type === 'broke') {
+                    // Find cheapest
+                    suggestion = vendorProducts.sort((a, b) => a.price - b.price)[0];
+                } else if (type === 'surprise') {
+                    suggestion = vendorProducts[Math.floor(Math.random() * vendorProducts.length)];
+                } else {
+                    suggestion = vendorProducts[0]; // Fallback
+                }
+            }
+
+            let responseHTML = '';
+            if (suggestion) {
+                const img = (suggestion.imageUrls && suggestion.imageUrls[0]) || suggestion.imageUrl || 'https://placehold.co/100';
+                responseHTML = `
+                    <div class="flex gap-3 animate-fade-in">
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-robot text-indigo-600 text-xs"></i>
+                        </div>
+                        <div class="flex flex-col gap-2 max-w-[85%]">
+                            <div class="bg-white p-3 rounded-2xl rounded-tr-none shadow-sm text-sm text-gray-700">
+                                لقيت لك شيء بيعجبك! 😋 جرب هذا:
+                            </div>
+                            <div class="bg-white p-3 rounded-xl shadow-md border border-gray-100 cursor-pointer hover:scale-105 transition-transform" onclick="location.href='PRESENTPRODUCT.html?product=${suggestion.id}'">
+                                <img src="${img}" class="w-full h-32 object-cover rounded-lg mb-2">
+                                <h4 class="font-bold text-gray-900">${suggestion.name}</h4>
+                                <div class="flex justify-between items-center mt-1">
+                                    <span class="text-indigo-600 font-bold">${suggestion.price} د.ج</span>
+                                    <button class="bg-indigo-600 text-white px-3 py-1 rounded-lg text-xs">طلب</button>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 justify-center mt-2">
+                                <button onclick="toggleAIAssistant()" class="text-xs text-gray-500 underline">شكراً، يكفي</button>
+                                <button onclick="aiReply('${type}')" class="text-xs text-indigo-600 font-bold">اقتراح ثاني 🔄</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                responseHTML = `
+                    <div class="flex gap-3 animate-fade-in">
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-robot text-indigo-600 text-xs"></i>
+                        </div>
+                        <div class="bg-white p-3 rounded-2xl rounded-tr-none shadow-sm text-sm text-gray-700">
+                            للأسف ما لقيت منتجات في هذا المتجر تناسب طلبك 😔
+                        </div>
+                    </div>`;
+            }
+
+            chatBox.innerHTML += responseHTML;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
 
     </script>
 </body>
