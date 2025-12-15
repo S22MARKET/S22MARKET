@@ -1029,7 +1029,10 @@
 
                     row.innerHTML = `
                         <td data-label="العميل" class="p-4 align-top">
-                            <div class="font-semibold text-lg">${order.customerName}</div>
+                            <div class="font-semibold text-lg">
+                                ${order.customerName}
+                                ${order.customerGps ? `<a href="${order.customerGps}" target="_blank" class="text-red-500 hover:text-red-400 mr-2" title="GPS Location" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt"></i></a>` : ''}
+                            </div>
                             <div class="text-sm text-cyan-400 font-semibold" dir="ltr">${order.customerContact}</div>
                             <div class="text-sm text-gray-400 mt-1">${formattedDate}</div>
                             <div class="text-lg text-orange-400 font-bold mt-2">${(order.totalPrice || 0).toLocaleString()} د.ج</div>
@@ -1105,6 +1108,7 @@
                             <div class="font-bold text-xl text-white mb-1">${order.customerName}</div>
                             <div class="text-cyan-400 font-mono text-lg" dir="ltr">${order.customerContact}</div>
                             ${order.customerLocation ? `<div class="text-gray-400 text-sm mt-2"><i class="fas fa-map-marker-alt ml-1"></i> ${order.customerLocation}</div>` : ''}
+                            ${order.customerGps ? `<div class="mt-2"><a href="${order.customerGps}" target="_blank" class="text-red-400 underline font-bold"><i class="fas fa-location-arrow ml-1"></i> فتح في الخرائط (GPS)</a></div>` : ''}
                         </div>
                         <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
                              <h3 class="text-gray-500 text-xs mb-1">ملخص الدفع</h3>
@@ -1194,7 +1198,8 @@
 
             const locationLink = order.customerLocation ?
                 `<div class="info-item">
-                    <b>الموقع:</b> <a href="${order.customerLocation}" target="_blank">اضغط هنا للذهاب للخرائط</a>
+                    <b>الموقع:</b> ${order.customerLocation || ''} 
+                    ${order.customerGps ? `<br><a href="${order.customerGps}" target="_blank">[رابط GPS]</a>` : ''}
                 </div>` : '';
 
             printWindow.document.write(`

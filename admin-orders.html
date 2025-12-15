@@ -396,12 +396,23 @@
 
                     const totalPriceDisplay = order.shippingCost ? `${order.totalPrice.toLocaleString()} د.ج (شامل توصيل ${order.shippingCost.toLocaleString()} د.ج)` : `${(order.totalPrice || 0).toLocaleString()} د.ج`;
 
+                    const gpsButton = order.customerGps ? `<a href="${order.customerGps}" target="_blank" class="text-red-500 hover:text-red-700 ml-2" title="موقع GPS"><i class="fas fa-map-marker-alt"></i></a>` : '';
+                    const scheduleBadge = order.isScheduled ? `<span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mr-1"><i class="fas fa-clock"></i> ${order.scheduleFrequency === 'daily' ? 'يومي' : (order.scheduleFrequency === 'weekly' ? 'أسبوعي' : 'مجول')}</span>` : '';
+
                     const row = tableBody.insertRow();
                     row.className = `border-b ${rowColor} transition-colors fade-in-up`;
                     row.style.animationDelay = `${index * 0.05}s`;
                     row.innerHTML = `
-                    <td data-label="العميل" class="p-3 font-semibold">${order.customerName}</td><td data-label="الهاتف" class="p-3 font-mono" dir="ltr"><a href="tel:${order.customerContact}" class="hover:underline">${order.customerContact}</a></td>
-                    <td data-label="الموقع" class="p-3 text-sm font-medium">${order.customerLocation || '---'}</td><td data-label="نوع التوصيل" class="p-3 text-sm">${deliveryDisplay}</td>
+                    <td data-label="العميل" class="p-3 font-semibold">
+                        ${order.customerName}
+                        <div>${scheduleBadge}</div>
+                    </td>
+                    <td data-label="الهاتف" class="p-3 font-mono" dir="ltr"><a href="tel:${order.customerContact}" class="hover:underline">${order.customerContact}</a></td>
+                    <td data-label="الموقع" class="p-3 text-sm font-medium">
+                        ${order.customerLocation || '---'}
+                        ${gpsButton}
+                    </td>
+                    <td data-label="نوع التوصيل" class="p-3 text-sm">${deliveryDisplay}</td>
                     <td data-label="المنتجات" class="p-3 text-sm">${itemsHtml}</td><td data-label="المبلغ" class="p-3 font-mono">${totalPriceDisplay}</td>
                     <td data-label="الربح" class="p-3"><input type="number" class="profit-input w-24 p-1 border rounded text-center font-mono transition-colors" placeholder="0" value="${order.profit ?? defaultProfit}" data-id="${order.id}"></td>
                     <td data-label="ملاحظات" class="p-3 text-sm text-gray-600">${order.customerInquiry || '---'}</td>
@@ -438,7 +449,11 @@
                 const itemsText = (order.items || []).map(item => `   - ${item.quantity} x ${item.name}`).join('\n');
                 const deliveryPreferenceText = order.deliveryPreference === 'Home' ? 'المنزل' : (order.deliveryPreference === 'Office' ? 'المكتب' : 'غير محدد');
                 const finalPriceText = order.shippingCost ? `${order.totalPrice.toLocaleString()} د.ج (شامل التوصيل)` : `${order.totalPrice.toLocaleString()} د.ج`;
-                const messageToCopy = `السلام عليكم ورحمة الله تعالى وبركاته\n\n📋 **معلومات الطلبية** 📋\n\n👤 **اسم العميل:** ${order.customerName}\n📞 **رقم الهاتف:** ${order.customerContact}\n📦 **المنتج:**\n${itemsText}\n📍 **العنوان:** ${order.customerLocation}\n🚚 **التوصيل إلى:** ${deliveryPreferenceText}\n💰 **السعر الإجمالي:** ${finalPriceText}`.trim();
+
+                let gpsInfo = order.customerGps ? `\n📍 **رابط GPS:** ${order.customerGps}` : '';
+                let scheduleInfo = order.isScheduled ? `\n📅 **مجدول:** ${order.scheduleFrequency === 'daily' ? 'يومي' : 'أسبوعي'}` : '';
+
+                const messageToCopy = `السلام عليكم ورحمة الله تعالى وبركاته\n\n📋 **معلومات الطلبية** 📋\n\n👤 **اسم العميل:** ${order.customerName}\n📞 **رقم الهاتف:** ${order.customerContact}\n📦 **المنتج:**\n${itemsText}\n📍 **العنوان:** ${order.customerLocation}${gpsInfo}${scheduleInfo}\n🚚 **التوصيل إلى:** ${deliveryPreferenceText}\n💰 **السعر الإجمالي:** ${finalPriceText}`.trim();
                 navigator.clipboard.writeText(messageToCopy).then(() => {
                     const originalIcon = e.currentTarget.innerHTML;
                     e.currentTarget.innerHTML = '<i class="fas fa-check text-green-500 fa-lg"></i>';

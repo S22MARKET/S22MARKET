@@ -646,6 +646,92 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        // --- AI ASSISTANT LOGIC (Main Page) ---
+        window.toggleAIAssistant = () => {
+            const el = document.getElementById('ai-overlay');
+            el.classList.toggle('hidden');
+            el.classList.toggle('flex');
+        };
+
+        window.aiReply = async (type) => {
+            const chatBox = document.getElementById('ai-chat-box');
+            const options = document.getElementById('ai-options');
+
+            let userText = type === 'random' ? "اقترح لي مطعم عشوائي 🎲" : "جيعان مرة (أسرع توصيل) ⚡";
+
+            chatBox.innerHTML += `
+                <div class="flex gap-3 justify-end animate-fade-in">
+                    <div class="bg-indigo-600 p-3 rounded-2xl rounded-tl-none shadow-sm text-sm text-white max-w-[80%]">
+                        ${userText}
+                    </div>
+                </div>
+            `;
+
+            // Typing
+            chatBox.innerHTML += `
+                <div class="flex gap-3 animate-fade-in" id="ai-typing">
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-robot text-indigo-600 text-xs"></i>
+                    </div>
+                    <div class="bg-gray-200 p-3 rounded-2xl rounded-tr-none shadow-sm flex gap-1 items-center h-10">
+                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
+                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-75"></div>
+                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-150"></div>
+                    </div>
+                </div>
+            `;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            options.classList.add('hidden');
+
+            await new Promise(r => setTimeout(r, 1500));
+            document.getElementById('ai-typing').remove();
+
+            // Logic
+            let suggestion = null;
+            if (allRestaurants.length > 0) {
+                if (type === 'random') {
+                    suggestion = allRestaurants[Math.floor(Math.random() * allRestaurants.length)];
+                } else {
+                    // Fastest delivery
+                    // Note: actual data might not have numeric deliveryTime, so just picking random for now as simulation
+                    suggestion = allRestaurants[0];
+                }
+            }
+
+            let responseHTML = '';
+            if (suggestion) {
+                const img = suggestion.photoURL || suggestion.logoUrl || 'https://placehold.co/100';
+                responseHTML = `
+                    <div class="flex gap-3 animate-fade-in">
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-robot text-indigo-600 text-xs"></i>
+                        </div>
+                        <div class="flex flex-col gap-2 max-w-[85%]">
+                            <div class="bg-white p-3 rounded-2xl rounded-tr-none shadow-sm text-sm text-gray-700">
+                                أبشر! لقيت لك هذا المطعم الرهيب:
+                            </div>
+                            <div class="bg-white p-3 rounded-xl shadow-md border border-gray-100 cursor-pointer hover:scale-105 transition-transform" onclick="location.href='vendor.html?id=${suggestion.id}&type=restaurant'">
+                                <div class="flex items-center gap-3">
+                                    <img src="${img}" class="w-12 h-12 object-cover rounded-full border border-gray-200">
+                                    <div>
+                                         <h4 class="font-bold text-gray-900">${suggestion.displayName}</h4>
+                                         <p class="text-xs text-gray-500">⭐ ${suggestion.rating || 4.5}</p>
+                                    </div>
+                                </div>
+                                <button class="mt-2 w-full bg-indigo-600 text-white text-xs font-bold py-2 rounded-lg">عرض المنيو</button>
+                            </div>
+                             <button onclick="aiReply('random')" class="mt-1 text-xs text-indigo-600 font-bold self-center">غيره 🔄</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                responseHTML = `<div class="bg-white p-3 rounded-2xl shadow-sm text-sm">ما لقيت مطاعم حالياً 😔</div>`;
+            }
+
+            chatBox.innerHTML += responseHTML;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
+
         const restaurantsGrid = document.getElementById('restaurants-grid');
         const noRestaurantsMsg = document.getElementById('no-restaurants-msg');
         const userStatus = document.getElementById('user-status');

@@ -516,12 +516,61 @@
                             class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg" rows="2"
                             required></textarea>
                     </div>
+
+                    <!-- GPS Link Field -->
+                    <div>
+                        <label for="q-customer-gps"
+                            class="block text-sm font-bold text-gray-700 flex items-center gap-2">
+                            <i class="fas fa-map-marker-alt text-red-500"></i> رابط الموقع GPS (اختياري)
+                        </label>
+                        <input type="url" id="q-customer-gps" placeholder="https://maps.google.com/..."
+                            class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg" dir="ltr">
+                        <p class="text-xs text-gray-500 mt-1">يمكنك لصق رابط موقعك من خرائط جوجل لتوصيل أدق.</p>
+                    </div>
                     <div>
                         <label for="q-customer-notes" class="block text-sm font-bold text-gray-700">ملاحظات
                             (اختياري)</label>
                         <textarea id="q-customer-notes"
                             class="mt-1 block w-full p-3 bg-gray-50 border border-gray-300 rounded-lg"
                             rows="2"></textarea>
+                    </div>
+
+                    <!-- Scheduled Orders Section -->
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mt-4">
+                        <label class="flex items-center cursor-pointer mb-3">
+                            <input type="checkbox" id="is-scheduled-checkbox"
+                                class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
+                            <span class="mr-3 font-bold text-blue-900 flex items-center gap-2">
+                                <i class="fas fa-clock text-blue-500"></i> جدولة الطلب (توصيل دوري) 📅
+                            </span>
+                        </label>
+
+                        <div id="schedule-fields" class="mt-3 space-y-3 hidden">
+                            <div>
+                                <label class="block text-xs font-bold text-blue-800 mb-1">التكرار</label>
+                                <select id="schedule-frequency"
+                                    class="w-full p-2 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                                    <option value="once">مرة واحدة (طلب عادي)</option>
+                                    <option value="daily">يومياً</option>
+                                    <option value="weekly">أسبوعياً</option>
+                                    <option value="monthly">شهرياً</option>
+                                </select>
+                            </div>
+                            <!-- Date and Time for specific scheduling if needed, for now Frequency is key -->
+                            <!-- 
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-xs font-bold text-blue-800 mb-1">التاريخ</label>
+                                    <input type="date" id="schedule-date" class="w-full p-2 rounded-lg border-gray-300">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-blue-800 mb-1">وقت التوصيل</label>
+                                    <input type="time" id="schedule-time" class="w-full p-2 rounded-lg border-gray-300">
+                                </div>
+                            </div>
+                            -->
+                            <p class="text-xs text-blue-600">سيتم تكرار هذا الطلب بناءً على التكرار المختار.</p>
+                        </div>
                     </div>
 
                     <!-- Gifting Section -->
@@ -1228,6 +1277,7 @@
                 customerWilaya: document.getElementById('q-customer-wilaya').value,
                 customerBaladiya: document.getElementById('q-customer-baladiya').value,
                 customerLocation: document.getElementById('q-customer-address').value,
+                customerGps: document.getElementById('q-customer-gps').value.trim(), // New GPS Field
                 customerInquiry: document.getElementById('q-customer-notes').value,
                 items: cart,
                 totalPrice: total,
@@ -1237,6 +1287,8 @@
                 couponCode: currentDiscount ? currentDiscount.code : null,
                 isGift: isGift,
                 giftDetails: giftDetails,
+                isScheduled: document.getElementById('is-scheduled-checkbox').checked, // New Schedule Field
+                scheduleFrequency: document.getElementById('is-scheduled-checkbox').checked ? document.getElementById('schedule-frequency').value : null, // New Schedule Field
                 status: 'new',
                 createdAt: serverTimestamp(),
                 userId: currentUser ? currentUser.uid : null
@@ -1270,9 +1322,14 @@
                     <i class="fas fa-check-circle text-6xl text-green-500"></i>
                     <h1 class="mt-4 text-3xl font-extrabold text-gray-900">تم إرسال طلبك بنجاح!</h1>
                     <p class="mt-2 text-xl font-semibold text-gray-500">سنتصل بك قريباً لتأكيد الطلب. رقم طلبك: ${orderRef.id.substring(0, 8)}</p>
-                    <a href="index.html" class="mt-6 inline-block bg-blue-600 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-700 transition-colors">
-                        العودة للرئيسية
-                    </a>
+                    <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+                        <a href="tracking.html?id=${orderRef.id}" class="inline-block bg-indigo-600 text-white font-bold py-3 px-8 rounded-full hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
+                            <i class="fas fa-map-marked-alt mr-2"></i> تتبع الطلب
+                        </a>
+                        <a href="index.html" class="inline-block bg-gray-100 text-gray-700 font-bold py-3 px-8 rounded-full hover:bg-gray-200 transition-colors">
+                            العودة للرئيسية
+                        </a>
+                    </div>
                 </div>
             `;
                 elements.mobileCheckoutBar.classList.add('hidden');
@@ -1344,6 +1401,22 @@
                 } else {
                     giftFields.classList.remove('block');
                     giftFields.classList.add('hidden');
+                }
+            });
+        }
+
+        // SCHEDULE LOGIC
+        const scheduleCheckbox = document.getElementById('is-scheduled-checkbox');
+        const scheduleFields = document.getElementById('schedule-fields');
+
+        if (scheduleCheckbox) {
+            scheduleCheckbox.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    scheduleFields.classList.remove('hidden');
+                    scheduleFields.classList.add('block');
+                } else {
+                    scheduleFields.classList.remove('block');
+                    scheduleFields.classList.add('hidden');
                 }
             });
         }

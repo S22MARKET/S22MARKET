@@ -187,6 +187,11 @@
                         class="hidden absolute top-0 left-0 -mt-2 -ml-2 bg-red-600 text-white rounded-full w-6 h-6 text-sm font-bold flex items-center justify-center border-2 border-white">0</span>
                 </a>
 
+                <button onclick="shareStore()"
+                    class="relative text-lg font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-2.5 rounded-full transition-colors flex items-center gap-2">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+
                 <div id="auth-buttons">
                     <a href="login.html" id="login-btn"
                         class="hidden relative text-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-full transition-colors flex items-center gap-2">
@@ -506,6 +511,18 @@
         document.getElementById('close-sidebar').onclick = toggleSidebar;
         els.sidebarOverlay.onclick = toggleSidebar;
         document.getElementById('search-input').oninput = () => renderProducts();
+
+        window.shareStore = () => {
+            if (navigator.share) {
+                navigator.share({
+                    title: document.title,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                showToast("تم نسخ رابط المطعم!");
+            }
+        };
 
         // Go
         init();

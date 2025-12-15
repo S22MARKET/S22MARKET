@@ -326,9 +326,28 @@
                     <div id="dashboard-panel" class="dashboard-panel">
                         <h1 class="text-3xl font-bold text-gray-800 mb-6">ملخص اليوم</h1>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="summary-cards">
-                            <div class="bg-white p-6 rounded-xl shadow-md text-center col-span-full">
-                                <div class="spinner-dark mx-auto"></div>
-                                <p class="mt-4 text-gray-600">جاري تحميل ملخص اليوم...</p>
+                            <!-- Share Link Card -->
+                            <div
+                                class="bg-indigo-600 p-6 rounded-xl shadow-md text-white overflow-hidden relative group">
+                                <div class="relative z-10">
+                                    <p class="text-indigo-200 text-xs font-bold uppercase mb-1">رابط مطعمك</p>
+                                    <h3 class="font-bold text-white text-sm truncate w-full mb-3" dir="ltr"
+                                        id="store-link-text">...</h3>
+                                    <button onclick="window.copyStoreLink()"
+                                        class="bg-white text-indigo-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-100 transition shadow-sm w-full flex items-center justify-center gap-2">
+                                        <i class="fas fa-copy"></i> نسخ الرابط
+                                    </button>
+                                </div>
+                                <div
+                                    class="absolute -right-6 -bottom-6 text-indigo-500/30 text-9xl transform rotate-12">
+                                    <i class="fas fa-store"></i>
+                                </div>
+                            </div>
+
+                            <div
+                                class="bg-white p-6 rounded-xl shadow-md text-center col-span-3 lg:col-span-3 flex items-center justify-center">
+                                <div class="spinner-dark"></div>
+                                <p class="pr-2 text-gray-600">جاري تحميل ملخص اليوم...</p>
                             </div>
                         </div>
                     </div>
@@ -497,12 +516,45 @@
         // --- MAIN DASHBOARD SUMMARY ---
         async function loadDashboardSummary() {
             const cardsContainer = document.getElementById('summary-cards');
+            // --- SHARE LINK LOGIC ---
+            window.renderStoreLink = () => {
+                const link = `${window.location.origin}/restaurant.html?id=${currentUser.uid}`;
+                const displayEl = document.getElementById('store-link-text');
+                if (displayEl) displayEl.textContent = link.replace('http://', '').replace('https://', '');
+            };
+
+            window.copyStoreLink = () => {
+                const link = `${window.location.origin}/restaurant.html?id=${currentUser.uid}`;
+                navigator.clipboard.writeText(link).then(() => {
+                    window.showToast("تم نسخ رابط المطعم بنجاح!");
+                });
+            };
+
             const renderCards = (data) => {
-                cardsContainer.innerHTML = `
+                // Keep the first card (Share Link) and append others
+                const shareCard = `
+                    <div class="bg-indigo-600 p-6 rounded-xl shadow-md text-white overflow-hidden relative group">
+                        <div class="relative z-10">
+                            <p class="text-indigo-200 text-xs font-bold uppercase mb-1">رابط مطعمك</p>
+                            <h3 class="font-bold text-white text-sm truncate w-full mb-3" dir="ltr" id="store-link-display">${window.location.host}/restaurant...</h3>
+                            <button onclick="window.copyStoreLink()" class="bg-white text-indigo-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-100 transition shadow-sm w-full flex items-center justify-center gap-2">
+                                <i class="fas fa-copy"></i> نسخ الرابط
+                            </button>
+                        </div>
+                        <div class="absolute -right-6 -bottom-6 text-indigo-500/30 text-9xl transform rotate-12">
+                            <i class="fas fa-store"></i>
+                        </div>
+                    </div>
+                `;
+
+                cardsContainer.innerHTML = shareCard + `
                 <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4"><i class="fas fa-wallet fa-3x text-green-500"></i><div><p class="text-gray-500">مبيعات اليوم</p><p class="text-2xl font-bold">${window.formatCurrency(data.todayRevenue)}</p></div></div>
                 <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4"><i class="fas fa-concierge-bell fa-3x text-blue-500"></i><div><p class="text-gray-500">طلبات جديدة</p><p class="text-2xl font-bold">${data.newOrdersCount || 0}</p></div></div>
                 <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4"><i class="fas fa-check-circle fa-3x text-teal-500"></i><div><p class="text-gray-500">طلبات مكتملة اليوم</p><p class="text-2xl font-bold">${data.completedTodayCount || 0}</p></div></div>
-                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4"><i class="fas fa-utensils fa-3x text-orange-500"></i><div><p class="text-gray-500">إجمالي الوجبات</p><p class="text-2xl font-bold">${data.totalMenuItems || 0}</p></div></div>`;
+                `;
+
+                // Update Link Display
+                window.renderStoreLink();
             };
 
             const todayStart = new Date();
