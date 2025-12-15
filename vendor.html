@@ -510,16 +510,21 @@
                         <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
                             <i class="fas fa-store-slash text-4xl text-red-500"></i>
                          </div>
+                document.body.innerHTML = `
+                    < div class="flex flex-col items-center justify-center h-screen bg-gray-50 px-4 text-center" >
+                        <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
+                            <i class="fas fa-store-slash text-4xl text-red-500"></i>
+                         </div>
                         <h1 class="text-2xl font-bold text-gray-800 mb-2">${errorTitle}</h1>
                         <p class="text-gray-500 max-w-xs mx-auto mb-8">
                             ${errorMsg}
-                            <br><span class="text-xs text-gray-400 mt-2 block" dir="ltr">CODE: ${error.code || 'N/A'}</span>
+                            <br><span class="text-xs text-red-400 mt-2 block" dir="ltr">DEBUG: ${error.message}</span>
                         </p>
                         <a href="index.html" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-indigo-700 transition transform hover:scale-105">
                             العودة للرئيسية
                         </a>
-                    </div>
-                `;
+                    </div >
+                    `;
             }
         }
 
@@ -605,7 +610,7 @@
             productsContainer.innerHTML = '';
 
             if (list.length === 0) {
-                productsContainer.innerHTML = `<div class="text-center py-10 text-gray-400">لا توجد منتجات في هذا القسم</div>`;
+                productsContainer.innerHTML = `< div class="text-center py-10 text-gray-400" > لا توجد منتجات في هذا القسم</div > `;
                 return;
             }
 
@@ -617,19 +622,19 @@
                 const card = document.createElement('div');
                 card.className = 'product-card relative';
 
-                let actionBtn = `<button class="w-8 h-8 rounded-full ${isDirect ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'} flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-colors add-btn" data-id="${product.id}">
-                            <i class="fas ${isDirect ? 'fa-paper-plane' : 'fa-plus'}"></i>
-                        </button>`;
+                let actionBtn = `< button class="w-8 h-8 rounded-full ${isDirect ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'} flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-colors add-btn" data - id="${product.id}" >
+                    <i class="fas ${isDirect ? 'fa-paper-plane' : 'fa-plus'}"></i>
+                        </button > `;
 
                 if (isAuction) {
-                    actionBtn = `<button class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-colors" onclick="location.href='auction-details.html?id=${product.id}'">
-                            <i class="fas fa-gavel"></i>
-                        </button>`;
+                    actionBtn = `< button class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-colors" onclick = "location.href='auction-details.html?id=${product.id}'" >
+                    <i class="fas fa-gavel"></i>
+                        </button > `;
                 }
 
                 // App-Like Card Structure
                 card.innerHTML = `
-                    <div class="relative">
+                    < div class="relative" >
                         <img src="${img}" class="prod-img" onclick="location.href='PRESENTPRODUCT.html?product=${product.id}'">
                         ${isAuction ? '<span class="absolute top-1 right-1 bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-md">مزاد</span>' : ''}
                     </div>
@@ -661,7 +666,7 @@
                     btn.onclick = (e) => {
                         e.stopPropagation();
                         if (isDirect) {
-                            window.location.href = `PRESENTPRODUCT.html?product=${product.id}`; // Direct goes to detail for contact
+                            window.location.href = `PRESENTPRODUCT.html ? product = ${ product.id } `; // Direct goes to detail for contact
                         } else {
                             addToCart(product);
                             btn.innerHTML = '<i class="fas fa-check"></i>';
@@ -725,7 +730,7 @@
             const container = document.getElementById('toast-container');
             const el = document.createElement('div');
             el.className = 'bg-gray-800 text-white px-4 py-2 rounded-full shadow-lg text-sm font-bold flex items-center gap-2 animate-bounce';
-            el.innerHTML = `<i class="fas fa-check-circle text-green-400"></i> ${msg}`;
+            el.innerHTML = `< i class="fas fa-check-circle text-green-400" ></i > ${ msg } `;
             container.appendChild(el);
             setTimeout(() => el.remove(), 2000);
         }
@@ -763,16 +768,16 @@
             if (type === 'broke') userText = "مطفر (رخيص) 💸";
 
             chatBox.innerHTML += `
-                <div class="flex gap-3 justify-end animate-fade-in">
-                    <div class="bg-indigo-600 p-3 rounded-2xl rounded-tl-none shadow-sm text-sm text-white max-w-[80%]">
-                        ${userText}
-                    </div>
-                </div>
-            `;
+                    < div class="flex gap-3 justify-end animate-fade-in" >
+                        <div class="bg-indigo-600 p-3 rounded-2xl rounded-tl-none shadow-sm text-sm text-white max-w-[80%]">
+                            ${userText}
+                        </div>
+                </div >
+                    `;
 
             // Simulate Typing
             chatBox.innerHTML += `
-                <div class="flex gap-3 animate-fade-in" id="ai-typing">
+                    < div class="flex gap-3 animate-fade-in" id = "ai-typing" >
                     <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-robot text-indigo-600 text-xs"></i>
                     </div>
@@ -781,8 +786,8 @@
                         <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-75"></div>
                         <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-150"></div>
                     </div>
-                </div>
-            `;
+                </div >
+                    `;
             chatBox.scrollTop = chatBox.scrollHeight;
             options.classList.add('hidden'); // Hide options
 
@@ -808,7 +813,7 @@
             if (suggestion) {
                 const img = (suggestion.imageUrls && suggestion.imageUrls[0]) || suggestion.imageUrl || 'https://placehold.co/100';
                 responseHTML = `
-                    <div class="flex gap-3 animate-fade-in">
+                    < div class="flex gap-3 animate-fade-in" >
                         <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-robot text-indigo-600 text-xs"></i>
                         </div>
@@ -829,18 +834,18 @@
                                 <button onclick="aiReply('${type}')" class="text-xs text-indigo-600 font-bold">اقتراح ثاني 🔄</button>
                             </div>
                         </div>
-                    </div>
-                `;
+                    </div >
+                    `;
             } else {
                 responseHTML = `
-                    <div class="flex gap-3 animate-fade-in">
+                    < div class="flex gap-3 animate-fade-in" >
                         <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-robot text-indigo-600 text-xs"></i>
                         </div>
                         <div class="bg-white p-3 rounded-2xl rounded-tr-none shadow-sm text-sm text-gray-700">
                             للأسف ما لقيت منتجات في هذا المتجر تناسب طلبك 😔
                         </div>
-                    </div>`;
+                    </div >`;
             }
 
             chatBox.innerHTML += responseHTML;
