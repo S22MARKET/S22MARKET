@@ -1413,7 +1413,7 @@
 
         // --- Store Link Logic ---
         window.copyStoreLink = () => {
-            const link = `${window.location.origin}/vendor.html?id=${currentUser.uid}&type=vendor`;
+            const link = `${window.location.origin}/S22MARKET/vendor.html?id=${currentUser.uid}&type=vendor`;
             navigator.clipboard.writeText(link).then(() => {
                 showToast('تم نسخ رابط المتجر');
             }).catch(err => {
@@ -1423,7 +1423,7 @@
         };
 
         function renderStoreLink() {
-            const link = `${window.location.origin}/vendor.html?id=${currentUser.uid}&type=vendor`;
+            const link = `${window.location.origin}/S22MARKET/vendor.html?id=${currentUser.uid}&type=vendor`;
             const displayEl = document.getElementById('store-link-display');
             if (displayEl) displayEl.textContent = link.replace('http://', '').replace('https://', '');
         }

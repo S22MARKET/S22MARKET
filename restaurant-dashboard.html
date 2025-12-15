@@ -518,13 +518,13 @@
             const cardsContainer = document.getElementById('summary-cards');
             // --- SHARE LINK LOGIC ---
             window.renderStoreLink = () => {
-                const link = `${window.location.origin}/vendor.html?id=${currentUser.uid}&type=restaurant`;
+                const link = `${window.location.origin}/S22MARKET/vendor.html?id=${currentUser.uid}&type=restaurant`;
                 const displayEl = document.getElementById('store-link-text');
                 if (displayEl) displayEl.textContent = link.replace('http://', '').replace('https://', '');
             };
 
             window.copyStoreLink = () => {
-                const link = `${window.location.origin}/vendor.html?id=${currentUser.uid}&type=restaurant`;
+                const link = `${window.location.origin}/S22MARKET/vendor.html?id=${currentUser.uid}&type=restaurant`;
                 navigator.clipboard.writeText(link).then(() => {
                     window.showToast("تم نسخ رابط المطعم بنجاح!");
                 });
