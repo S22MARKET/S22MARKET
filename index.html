@@ -1354,7 +1354,7 @@
                             </div>
                             
                             <button class="add-to-cart-btn w-9 h-9 rounded-xl bg-orange-50 text-orange-500 hover:bg-orange-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:shadow-orange-200 active:scale-90" 
-                                onclick="event.stopPropagation(); addToCartWithAnimation(this, '${p.id}', '${p.name}', ${p.price}, '${img}')">
+                                onclick="event.stopPropagation(); addToCartWithAnimation(this, '${p.id}', '${String(p.name).replace(/'/g, "\\'")}', ${p.price}, '${img}')">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>

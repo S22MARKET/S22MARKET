@@ -296,79 +296,98 @@
             color: #2563eb;
             transform: scale(1.1);
         }
+
+        /* Restaurant View Styles */
+        .restaurant-product-view {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .restaurant-product-view {
+                padding: 0.5rem;
+            }
+
+            .restaurant-product-view .product-info {
+                background: white;
+                border-radius: 1rem;
+                padding: 1rem;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            }
+        }
     </style>
-    <!-- Splash Screen Styles -->
-    <style>
-        #splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease-out, visibility 0.5s;
-        }
 
-        #splash-screen.hidden-splash {
-            opacity: 0;
-            visibility: hidden;
-        }
+    < !-- Splash Screen Styles -->
+        <style>
+            #splash-screen {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                transition: opacity 0.5s ease-out, visibility 0.5s;
+            }
 
-        .splash-content {
-            text-align: center;
-            color: white;
-            animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+            #splash-screen.hidden-splash {
+                opacity: 0;
+                visibility: hidden;
+            }
 
-        .splash-logo {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+            .splash-content {
+                text-align: center;
+                color: white;
+                animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
 
-        .splash-loader {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
+            .splash-logo {
+                font-size: 3rem;
+                font-weight: 800;
+                margin-bottom: 1rem;
+                text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
 
-        /* Mobile Improvements */
-        .app-touch {
-            touch-action: manipulation;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+            .splash-loader {
+                width: 40px;
+                height: 40px;
+                border: 4px solid rgba(255, 255, 255, 0.3);
+                border-top-color: white;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin: 0 auto;
+            }
 
-        /* Bottom Navbar */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            padding: 0.75rem 0.5rem;
-            padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
-            z-index: 2000;
-            /* Higher than sticky bar if present? No, sticky bar usually replaces it on product page. */
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
-        }
+            /* Mobile Improvements */
+            .app-touch {
+                touch-action: manipulation;
+                user-select: none;
+                -webkit-user-select: none;
+                -webkit-tap-highlight-color: transparent;
+            }
 
-        /* Hide bottom nav when sticky action bar is present on product page (optional, but usually good to have both if space allows, or hide nav) */
-        /* In this specific product page, we have a "mobile-sticky-bar" for cart actions. 
+            /* Bottom Navbar */
+            .bottom-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                border-top: 1px solid var(--border-color);
+                display: flex;
+                justify-content: space-around;
+                padding: 0.75rem 0.5rem;
+                padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+                z-index: 2000;
+                /* Higher than sticky bar if present? No, sticky bar usually replaces it on product page. */
+                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+            }
+
+            /* Hide bottom nav when sticky action bar is present on product page (optional, but usually good to have both if space allows, or hide nav) */
+            /* In this specific product page, we have a "mobile-sticky-bar" for cart actions. 
            We might want to merge them or hide the general nav. 
            Let's keep the general nav hidden on this specific page active view if sticky bar is visible?
            Actually, sticky cart bar is crucial. Let's make bottom-nav HIDDEN on mobile for this page specifically, 
@@ -379,68 +398,68 @@
            Let's NOT add the global bottom nav to the PRODUCT page if it conflicts with the "Buy" bar.
            Alternatively, we can put the "Buy" bar ABOVE the bottom nav.
         */
-        .bottom-nav-spacer {
-            height: 70px;
-        }
-
-        /* Back to Top */
-        #back-to-top {
-            position: fixed;
-            bottom: 90px;
-            right: 20px;
-            background: var(--primary-color);
-            color: white;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s;
-            z-index: 1000;
-            border: none;
-            cursor: pointer;
-        }
-
-        #back-to-top.visible {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateY(0);
-        }
-
-        /* Pull Refresh Spinner */
-        #pull-refresh-spinner {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2000;
-            background: white;
-            border-radius: 50%;
-            padding: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            display: none;
-            animation: spin 1s linear infinite;
-        }
-
-        /* Customize Sticky Bar for Mobile */
-        @media (max-width: 1024px) {
-            #mobile-sticky-bar {
-                padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
-                z-index: 5000;
-                /* Always on top */
+            .bottom-nav-spacer {
+                height: 70px;
             }
 
-            main {
-                padding-bottom: 100px;
+            /* Back to Top */
+            #back-to-top {
+                position: fixed;
+                bottom: 90px;
+                right: 20px;
+                background: var(--primary-color);
+                color: white;
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+                opacity: 0;
+                pointer-events: none;
+                transition: all 0.3s;
+                z-index: 1000;
+                border: none;
+                cursor: pointer;
             }
 
-            /* Ensure content isn't hidden */
-        }
-    </style>
+            #back-to-top.visible {
+                opacity: 1;
+                pointer-events: auto;
+                transform: translateY(0);
+            }
+
+            /* Pull Refresh Spinner */
+            #pull-refresh-spinner {
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 2000;
+                background: white;
+                border-radius: 50%;
+                padding: 10px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                display: none;
+                animation: spin 1s linear infinite;
+            }
+
+            /* Customize Sticky Bar for Mobile */
+            @media (max-width: 1024px) {
+                #mobile-sticky-bar {
+                    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+                    z-index: 5000;
+                    /* Always on top */
+                }
+
+                main {
+                    padding-bottom: 100px;
+                }
+
+                /* Ensure content isn't hidden */
+            }
+        </style>
 
 <body class="app-touch">
     <!-- Splash Screen -->
@@ -773,31 +792,83 @@
                 const sellerDoc = await getDoc(doc(db, "users", sellerId));
                 if (sellerDoc.exists()) {
                     currentSeller = { id: sellerDoc.id, ...sellerDoc.data() };
-                    const links = currentSeller.socialLinks || {};
-                    let socialHTML = '';
-                    if (links.facebook) socialHTML += `<a href="${links.facebook}" target="_blank" title="فيسبوك"><i class="fab fa-facebook"></i></a>`;
-                    if (links.instagram) socialHTML += `<a href="https://instagram.com/${links.instagram.replace('@', '')}" target="_blank" title="انستغرام"><i class="fab fa-instagram"></i></a>`;
-                    if (links.telegram) socialHTML += `<a href="https://t.me/${links.telegram.replace('@', '')}" target="_blank" title="تيليجرام"><i class="fab fa-telegram"></i></a>`;
 
-                    elements.sellerInfoCard.innerHTML = `
-                        <h2 class="text-2xl font-bold mb-4 border-b pb-3 text-slate-800">عن البائع</h2>
-                        <div class="flex items-center gap-4">
-                            <i class="fas fa-user-tie fa-3x text-gray-400"></i>
-                            <div>
-                                <h3 class="text-xl font-bold">${currentSeller.displayName || 'بائع معتمد'}</h3>
-                                <p class="text-sm text-gray-500">متجر: ${currentSeller.storeName || 'غير محدد'}</p>
-                            </div>
-                        </div>
-                        <div id="seller-social-links" class="flex justify-center gap-4 mt-4 pt-4 border-t">
-                            ${socialHTML || '<p class="text-sm text-gray-400">لا توجد روابط تواصل للبائع.</p>'}
-                        </div>
-                        <button id="contact-seller-btn" class="mt-4 w-full bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors">
-                            <i class="fas fa-envelope mr-2"></i> مراسلة البائع
-                        </button>`;
-                    elements.sellerInfoCard.classList.remove('hidden');
-                    document.getElementById('contact-seller-btn').onclick = showSellerInquiryModal;
+                    // Check if it's a restaurant
+                    if (currentSeller.role === 'restaurant' || currentSeller.accountType === 'restaurant') {
+                        renderRestaurantProductView();
+                    } else {
+                        renderStandardSellerView();
+                    }
                 }
             } catch (e) { console.error("Error loading seller info:", e); }
+        }
+
+        function renderRestaurantProductView() {
+            // Enhanced Restaurant View
+            const logo = currentSeller.photoURL || currentSeller.logoUrl || 'https://placehold.co/100?text=Logo';
+            const name = currentSeller.displayName || currentSeller.storeName || 'مطعم';
+            const rating = currentSeller.rating || '4.5';
+            const deliveryTime = currentSeller.deliveryTime || '30-45';
+
+            elements.sellerInfoCard.innerHTML = `
+                <div class="restaurant-product-view bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-2xl border-2 border-orange-200 shadow-sm">
+                    <div class="flex items-center gap-4 mb-4">
+                        <img src="${logo}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-white shadow-md">
+                        <div>
+                            <h3 class="text-xl sm:text-2xl font-black text-gray-800 flex items-center gap-2">
+                                ${name} 
+                                <i class="fas fa-check-circle text-blue-500 text-sm" title="موتّق"></i>
+                            </h3>
+                            <p class="text-sm text-gray-600 flex flex-wrap items-center gap-3 mt-1">
+                                <span class="bg-white px-2 py-0.5 rounded-md shadow-sm border border-gray-100 flex items-center gap-1">
+                                    <i class="fas fa-star text-yellow-400"></i> ${rating}
+                                </span>
+                                <span class="bg-white px-2 py-0.5 rounded-md shadow-sm border border-gray-100 flex items-center gap-1">
+                                    <i class="fas fa-clock text-gray-400"></i> ${deliveryTime} دقيقة
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-xl border border-gray-100 mb-4 text-sm text-gray-600 leading-relaxed shadow-inner">
+                        <i class="fas fa-quote-right text-orange-200 ml-2"></i>
+                        ${currentSeller.description || 'نقدم لكم أشهى المأكولات المحضرة بعناية.'}
+                    </div>
+
+                    <a href="vendor.html?id=${currentSeller.id}&type=restaurant" 
+                       class="block w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold py-3.5 px-6 rounded-xl text-center shadow-lg hover:shadow-orange-500/30 transition-all transform hover:-translate-y-0.5">
+                        <i class="fas fa-store ml-2"></i>
+                        عرض قائمة الطعام الكاملة
+                    </a>
+                </div>
+            `;
+            elements.sellerInfoCard.classList.remove('hidden');
+        }
+
+        function renderStandardSellerView() {
+            const links = currentSeller.socialLinks || {};
+            let socialHTML = '';
+            if (links.facebook) socialHTML += `<a href="${links.facebook}" target="_blank" title="فيسبوك"><i class="fab fa-facebook"></i></a>`;
+            if (links.instagram) socialHTML += `<a href="https://instagram.com/${links.instagram.replace('@', '')}" target="_blank" title="انستغرام"><i class="fab fa-instagram"></i></a>`;
+            if (links.telegram) socialHTML += `<a href="https://t.me/${links.telegram.replace('@', '')}" target="_blank" title="تيليجرام"><i class="fab fa-telegram"></i></a>`;
+
+            elements.sellerInfoCard.innerHTML = `
+                <h2 class="text-2xl font-bold mb-4 border-b pb-3 text-slate-800">عن البائع</h2>
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-user-tie fa-3x text-gray-400"></i>
+                    <div>
+                        <h3 class="text-xl font-bold">${currentSeller.displayName || 'بائع معتمد'}</h3>
+                        <p class="text-sm text-gray-500">متجر: ${currentSeller.storeName || 'غير محدد'}</p>
+                    </div>
+                </div>
+                <div id="seller-social-links" class="flex justify-center gap-4 mt-4 pt-4 border-t">
+                    ${socialHTML || '<p class="text-sm text-gray-400">لا توجد روابط تواصل للبائع.</p>'}
+                </div>
+                <button id="contact-seller-btn" class="mt-4 w-full bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors">
+                    <i class="fas fa-envelope mr-2"></i> مراسلة البائع
+                </button>`;
+            elements.sellerInfoCard.classList.remove('hidden');
+            document.getElementById('contact-seller-btn').onclick = showSellerInquiryModal;
         }
 
         function showSellerInquiryModal() {
@@ -1353,7 +1424,16 @@
                 }
 
             } catch (error) {
-                elements.pageLoader.innerHTML = '<p class="text-red-500 text-xl">حدث خطأ أثناء تحميل البيانات.</p>';
+                console.error("Error details:", error);
+                elements.pageLoader.innerHTML = `
+                    <div class="text-center py-20 flex flex-col items-center justify-center h-full">
+                        <i class="fas fa-exclamation-circle text-red-500 text-6xl mb-4"></i>
+                        <h3 class="text-red-600 text-2xl font-bold mb-2">حدث خطأ أثناء تحميل البيانات</h3>
+                        <p class="text-gray-500 text-sm mb-6 max-w-md mx-auto">${error.message || 'يرجى المحاولة مرة أخرى لاحقاً'}</p>
+                        <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg hover:shadow-blue-500/30">
+                            <i class="fas fa-sync-alt ml-2"></i>إعادة المحاولة
+                        </button>
+                    </div>`;
             }
 
             elements.thumbnailsContainer.addEventListener('click', (e) => {
