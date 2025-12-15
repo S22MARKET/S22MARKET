@@ -1413,7 +1413,7 @@
 
         // --- Store Link Logic ---
         window.copyStoreLink = () => {
-            const link = `https://${window.location.hostname}/vendor.html?id=${currentUser.uid}`;
+            const link = `${window.location.origin}/vendor.html?id=${currentUser.uid}&type=vendor`;
             navigator.clipboard.writeText(link).then(() => {
                 showToast('تم نسخ رابط المتجر');
             }).catch(err => {
@@ -1423,12 +1423,9 @@
         };
 
         function renderStoreLink() {
-            // Determine base URL (handle local dev vs production)
-            const baseUrl = window.location.origin + window.location.pathname.replace('seller-dashboard.html', 'vendor.html');
-            const link = `${baseUrl}?id=${currentUser.uid}`;
-
+            const link = `${window.location.origin}/vendor.html?id=${currentUser.uid}&type=vendor`;
             const displayEl = document.getElementById('store-link-display');
-            if (displayEl) displayEl.textContent = link.replace('https://', '').replace('http://', '');
+            if (displayEl) displayEl.textContent = link.replace('http://', '').replace('https://', '');
         }
 
 

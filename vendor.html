@@ -397,18 +397,8 @@
 
                 const vendor = userDoc.data();
 
-                // Redirect if Restaurant
-                if (vendor.role === 'restaurant') {
-                    window.location.replace(`restaurant.html?id=${vendorId}`);
-                    return;
-                }
-
-                if (!vendor.role) {
-                    // Check if maybe it's just a regular user, not a store? 
-                    // But we are viewing as a store. 
-                    // We'll proceed but maybe show a warning if needed, 
-                    // or assume "vendor" layout is fine for now if they have products.
-                }
+                // Unified View: No Redirection for Restaurant
+                // We will render restaurant data here in the professional layout
 
                 const reqData = vendor.storeRequest || {};
 
@@ -418,7 +408,9 @@
                 document.getElementById('vendor-desc').textContent = vendor.description || reqData.description || 'مرحباً بكم في متجرنا';
                 document.getElementById('vendor-cover').src = vendor.coverUrl || reqData.coverUrl || 'https://placehold.co/600x200/1f2937/ffffff?text=Cover';
                 document.getElementById('vendor-logo').src = vendor.logoUrl || vendor.photoURL || 'https://placehold.co/100/1f2937/ffffff?text=Logo';
-                document.getElementById('vendor-category').textContent = vendor.role === 'restaurant' ? 'مطعم' : 'متجر';
+
+                const roleText = vendor.role === 'restaurant' ? 'مطعم' : 'متجر';
+                document.getElementById('vendor-category').textContent = roleText;
 
                 // Likes Logic
                 likesCount = vendor.likesCount || 0;
@@ -430,11 +422,14 @@
                 }
 
                 // Contact Links
-                const links = reqData.links || {};
+                const links = reqData.links || vendor.socialLinks || {};
                 const whatsappBtn = document.getElementById('btn-whatsapp');
-                if (links.whatsapp || links.phone) {
-                    const number = links.whatsapp || links.phone;
-                    whatsappBtn.href = `https://wa.me/${number.replace(/\D/g, '')}`;
+                // Check multiple possible phone fields
+                const phone = links.whatsapp || links.phone || vendor.phone;
+
+                if (phone) {
+                    whatsappBtn.href = `https://wa.me/${phone.replace(/\D/g, '')}`;
+                    whatsappBtn.classList.remove('hidden');
                 } else {
                     whatsappBtn.classList.add('hidden');
                 }
@@ -445,15 +440,40 @@
 
                 vendorProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-                // Extract Categories for Tabs
-                const categories = [...new Set(vendorProducts.map(p => p.subCategoryName || 'عام'))];
+                // Extract Categories for Tabs (Handle both 'subCategoryName' for stores and 'categoryName' for restaurants)
+                // Stores usually use `subCategoryName`. Restaurants might use `categoryName` or linked `categoryId`.
+                // We'll prioritize `subCategoryName`, then `categoryName`, then fall back to 'عام'
+
+                const categorySet = new Set();
+                vendorProducts.forEach(p => {
+                    const cat = p.subCategoryName || p.categoryName || 'عام';
+                    categorySet.add(cat);
+                });
+
+                const categories = ['الكل', ...categorySet];
+
+                // Clear existing tabs except static ones if any (but we are rebuilding all)
+                tabsContainer.innerHTML = '';
+
                 categories.forEach(cat => {
                     const btn = document.createElement('button');
-                    btn.className = 'tab-btn';
+                    btn.className = `tab-btn ${cat === 'الكل' ? 'active' : ''}`;
                     btn.textContent = cat;
-                    btn.onclick = () => filterProducts(cat, btn);
+                    // Special handling for 'offers' if we want to keep it
+                    if (cat === 'الكل') {
+                        btn.onclick = () => filterProducts('all', btn);
+                    } else {
+                        btn.onclick = () => filterProducts(cat, btn);
+                    }
                     tabsContainer.appendChild(btn);
                 });
+
+                // Add "Offers" tab manually if not present in categories but logic exists
+                const offersBtn = document.createElement('button');
+                offersBtn.className = 'tab-btn';
+                offersBtn.textContent = 'عروض 🔥';
+                offersBtn.onclick = () => filterProducts('offers', offersBtn);
+                tabsContainer.appendChild(offersBtn);
 
                 renderProducts(vendorProducts);
                 updateCartUI();
@@ -553,9 +573,9 @@
             }
 
             let filtered = [];
-            if (category === 'all') filtered = vendorProducts;
+            if (category === 'all' || category === 'الكل') filtered = vendorProducts;
             else if (category === 'offers') filtered = vendorProducts.filter(p => p.oldPrice > p.price); // Assuming offer logic
-            else filtered = vendorProducts.filter(p => p.subCategoryName === category);
+            else filtered = vendorProducts.filter(p => (p.subCategoryName === category || p.categoryName === category));
 
             renderProducts(filtered);
         };
