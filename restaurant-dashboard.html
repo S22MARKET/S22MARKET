@@ -388,43 +388,62 @@
         const dashboardPage = document.getElementById('dashboard-page');
 
         onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                // Verify role
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    if (userData.role === 'restaurant' || userData.role === 'admin') { // Allow admin too for testing
-                        if (userData.isSuspended && userData.role !== 'admin') {
-                            document.body.innerHTML = `
-                                <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-                                    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md text-center">
-                                        <div class="text-red-500 text-5xl mb-4"><i class="fas fa-store-slash"></i></div>
-                                        <h1 class="text-2xl font-bold text-gray-800 mb-2">تم تجميد حساب المتجر</h1>
-                                        <p class="text-gray-600 mb-6">نأسف، تم إيقاف حساب متجرك مؤقتاً من قبل الإدارة. يرجى التواصل مع الدعم الفني لمزيد من التفاصيل.</p>
-                                        <button onclick="window.location.reload()" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300">تحديث الصفحة</button>
-                                        <button onclick="logout()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 mt-2 block w-full">تسجيل الخروج</button>
+            console.log("Auth state changed:", user ? `User ID: ${user.uid}` : "No user");
+
+            try {
+                if (user) {
+                    console.log("Fetching user document...");
+                    // Verify role
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        console.log("User data loaded:", userData.role, userData.displayName);
+
+                        if (userData.role === 'restaurant' || userData.role === 'admin') {
+                            if (userData.isSuspended && userData.role !== 'admin') {
+                                console.log("Account is suspended");
+                                document.body.innerHTML = `
+                                    <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
+                                        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md text-center">
+                                            <div class="text-red-500 text-5xl mb-4"><i class="fas fa-store-slash"></i></div>
+                                            <h1 class="text-2xl font-bold text-gray-800 mb-2">تم تجميد حساب المتجر</h1>
+                                            <p class="text-gray-600 mb-6">نأسف، تم إيقاف حساب متجرك مؤقتاً من قبل الإدارة. يرجى التواصل مع الدعم الفني لمزيد من التفاصيل.</p>
+                                            <button onclick="window.location.reload()" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300">تحديث الصفحة</button>
+                                            <button onclick="logout()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 mt-2 block w-full">تسجيل الخروج</button>
+                                        </div>
                                     </div>
-                                </div>
-                            `;
-                            window.logout = () => signOut(auth).then(() => window.location.href = 'index.html');
-                            return;
+                                `;
+                                window.logout = () => signOut(auth).then(() => window.location.href = 'index.html');
+                                return;
+                            }
+
+                            console.log("Authentication successful, initializing dashboard...");
+                            currentUser = user;
+                            if (document.getElementById('restaurant-name-display')) {
+                                document.getElementById('restaurant-name-display').textContent = "أهلا بك في مطعمك";
+                            }
+                            authLoader.classList.add('hidden');
+                            dashboardPage.classList.remove('hidden');
+                            initializeDashboard();
+                        } else {
+                            console.log("User role mismatch:", userData.role);
+                            alert("هذا الحساب ليس حساب مطعم. سيتم تحويلك.");
+                            window.location.href = 'index.html';
                         }
-                        currentUser = user;
-                        if (document.getElementById('restaurant-name-display')) {
-                            document.getElementById('restaurant-name-display').textContent = "أهلا بك في مطعمك";
-                        }
-                        authLoader.classList.add('hidden');
-                        dashboardPage.classList.remove('hidden');
-                        initializeDashboard();
                     } else {
-                        alert("هذا الحساب ليس حساب مطعم. سيتم تحويلك.");
-                        window.location.href = 'index.html';
+                        console.error("User document does not exist in Firestore");
+                        alert("لم يتم العثور على بيانات الحساب. سيتم تحويلك لتسجيل الدخول.");
+                        window.location.href = 'login.html';
                     }
                 } else {
+                    console.log("No user logged in, redirecting to login");
                     window.location.href = 'login.html';
                 }
-            } else {
-                window.location.href = 'login.html';
+            } catch (error) {
+                console.error("Authentication error:", error);
+                alert(`حدث خطأ في التحقق من الهوية: ${error.message}\nسيتم إعادة تحميل الصفحة.`);
+                setTimeout(() => window.location.reload(), 2000);
             }
         });
 
@@ -573,10 +592,6 @@
             }, (error) => {
                 console.error("Error loading dashboard summary: ", error);
             });
-            // End of loadDashboardSummary
-        } catch (e) {
-            console.error(e);
-        }
         }
 
     </script>
