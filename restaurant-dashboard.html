@@ -530,10 +530,9 @@
                 });
             };
 
-            const renderCards = (data) => {
-                // Keep the first card (Share Link) and append others
-                const shareCard = `
-                    <div class="bg-indigo-600 p-6 rounded-xl shadow-md text-white overflow-hidden relative group">
+            // Render Share Card Immediately
+            const shareCard = `
+                 <div class="bg-indigo-600 p-6 rounded-xl shadow-md text-white overflow-hidden relative group">
                         <div class="relative z-10">
                             <p class="text-indigo-200 text-xs font-bold uppercase mb-1">رابط مطعمك</p>
                             <h3 class="font-bold text-white text-sm truncate w-full mb-3" dir="ltr" id="store-link-display">${window.location.host}/restaurant...</h3>
@@ -545,67 +544,39 @@
                             <i class="fas fa-store"></i>
                         </div>
                     </div>
-                `;
+            `;
+            // Add placeholders for stats
+            cardsContainer.innerHTML = shareCard + `
+                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4"><i class="fas fa-wallet fa-3x text-green-500"></i><div><p class="text-gray-500">مبيعات اليوم</p><p class="text-2xl font-bold" id="stat-revenue">...</p></div></div>
+                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4"><i class="fas fa-concierge-bell fa-3x text-blue-500"></i><div><p class="text-gray-500">طلبات جديدة</p><p class="text-2xl font-bold" id="stat-orders">...</p></div></div>
+                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4"><i class="fas fa-check-circle fa-3x text-teal-500"></i><div><p class="text-gray-500">طلبات مكتملة اليوم</p><p class="text-2xl font-bold" id="stat-completed">...</p></div></div>
+            `;
+            window.renderStoreLink();
 
-                cardsContainer.innerHTML = shareCard + `
-                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4"><i class="fas fa-wallet fa-3x text-green-500"></i><div><p class="text-gray-500">مبيعات اليوم</p><p class="text-2xl font-bold">${window.formatCurrency(data.todayRevenue)}</p></div></div>
-                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4"><i class="fas fa-concierge-bell fa-3x text-blue-500"></i><div><p class="text-gray-500">طلبات جديدة</p><p class="text-2xl font-bold">${data.newOrdersCount || 0}</p></div></div>
-                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4"><i class="fas fa-check-circle fa-3x text-teal-500"></i><div><p class="text-gray-500">طلبات مكتملة اليوم</p><p class="text-2xl font-bold">${data.completedTodayCount || 0}</p></div></div>
-                `;
+            // Fetch Stats Async
+            const q = query(
+                collection(db, "orders"),
+                where("sellerId", "==", currentUser.uid),
+                where("createdAt", ">=", Timestamp.fromDate(todayStart))
+            );
 
-                // Update Link Display
-                window.renderStoreLink();
-            };
+            onSnapshot(q, (snapshot) => {
+                const todayOrders = snapshot.docs.map(doc => doc.data());
+                const todayRevenue = todayOrders.filter(o => o.status === 'completed').reduce((sum, order) => sum + (order.totalPrice || 0), 0);
+                const newOrdersCount = todayOrders.filter(o => o.status === 'new').length;
+                const completedTodayCount = todayOrders.filter(o => o.status === 'completed').length;
 
-            const todayStart = new Date();
-            todayStart.setHours(0, 0, 0, 0);
-
-            // Filter by Seller ID (Current User) if S22 Market supports multi-vendor in one collection
-            // المطاعم assumed Single Restaurant. S22 Market is Multi-Vendor.
-            // I must UNCOMMENT/ADD where clause for sellerId provided S22 Market stores logic that way.
-            // seller-dashboard.html shows: where("sellerId", "==", currentUser.uid) ?? No, it filters locally? 
-            // Let's check seller-dashboard orders logic: It uses 'orders' collection. Does it filter?
-            // seller-dashboard loadOrders: `q = query(collection(db, "orders"), ...)`
-            // It seems it doesn't filter by sellerId in the query shown in the view_file snippet (or I missed it).
-            // BUT for a robust system, it SHOULD.
-            // I will add `where("sellerId", "==", currentUser.uid)` to the query to be safe.
-            // Assuming the orders have sellerId.
-
-            try {
-                const q = query(
-                    collection(db, "orders"),
-                    where("sellerId", "==", currentUser.uid),
-                    where("createdAt", ">=", Timestamp.fromDate(todayStart))
-                );
-
-                onSnapshot(q, async (snapshot) => {
-                    const todayOrders = snapshot.docs.map(doc => doc.data());
-                    const todayRevenue = todayOrders.filter(o => o.status === 'completed').reduce((sum, order) => sum + (order.totalPrice || 0), 0);
-                    const newOrdersCount = todayOrders.filter(o => o.status === 'new').length;
-                    const completedTodayCount = todayOrders.filter(o => o.status === 'completed').length;
-
-                    // For menu items, we also need to filter by sellerId
-                    const productsQ = query(collection(db, "products"), where("sellerId", "==", currentUser.uid));
-                    const menuItemsSnapshot = await getDocs(productsQ);
-
-                    renderCards({
-                        todayRevenue,
-                        newOrdersCount,
-                        completedTodayCount,
-                        totalMenuItems: menuItemsSnapshot.size
-                    });
-                }, (error) => {
-                    console.error("Error loading dashboard summary: ", error);
-                    // Try without sellerId if it fails (maybe index missing), or guide user.
-                    // For now, assume sellerId exists.
-                    cardsContainer.innerHTML = `<div class="bg-red-100 text-red-700 p-6 rounded-xl col-span-full">
-                    فشل تحميل ملخص اليوم. تأكد من وجود مؤشر مركب (Composite Index) في Firebase.
-                    <br>Error: ${error.message}
-                 </div>`;
-                });
-            } catch (e) {
-                console.error(e);
-            }
+                // Update specific elements
+                if (document.getElementById('stat-revenue')) document.getElementById('stat-revenue').textContent = window.formatCurrency(todayRevenue);
+                if (document.getElementById('stat-orders')) document.getElementById('stat-orders').textContent = newOrdersCount;
+                if (document.getElementById('stat-completed')) document.getElementById('stat-completed').textContent = completedTodayCount;
+            }, (error) => {
+                console.error("Error loading dashboard summary: ", error);
+            });
+            // End of loadDashboardSummary
+        } catch (e) {
+            console.error(e);
+        }
         }
 
     </script>

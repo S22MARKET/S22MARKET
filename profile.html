@@ -1284,15 +1284,23 @@
             return `${window.location.origin}/vendor.html?id=${currentUser.uid}&type=${type}`;
         };
 
-        window.copyStoreLink = () => {
+        window.copyStoreLink = async () => {
             const link = getStoreLink();
             if (link) {
-                navigator.clipboard.writeText(link).then(() => {
+                try {
+                    await navigator.clipboard.writeText(link);
                     showToast('تم نسخ رابط المتجر! 🔗');
-                }).catch(err => {
-                    console.error('Could not copy text: ', err);
-                    showToast('فشل النسخ، حاول يدوياً.');
-                });
+                } catch (err) {
+                    console.error('Clipboard API failed, trying fallback: ', err);
+                    // Fallback
+                    const textArea = document.createElement("textarea");
+                    textArea.value = link;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(textArea);
+                    showToast('تم نسخ رابط المتجر! 🔗');
+                }
             }
         };
 
@@ -1313,9 +1321,7 @@
                     console.log('Error sharing:', err);
                 }
             } else {
-                // Fallback if Web Share API not supported
                 copyStoreLink();
-                showToast('المشاركة غير مدعومة، تم نسخ الرابط بدلاً من ذلك.');
             }
         };
 

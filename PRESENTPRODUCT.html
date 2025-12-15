@@ -65,7 +65,7 @@
 
             to {
                 opacity: 1;
-                translateY(0);
+                transform: translateY(0);
             }
         }
 
@@ -475,9 +475,9 @@
 
     <header id="main-header" class="bg-white shadow-sm sticky top-0 z-50 transition-transform duration-300">
         <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <a href="classproductindex.html" class="text-2xl text-gray-600 hover:text-blue-600">
+            <button onclick="goBack()" class="text-2xl text-gray-600 hover:text-blue-600">
                 <i class="fas fa-arrow-right"></i>
-            </a>
+            </button>
             <h1 onclick="location.href='index.html'"
                 class="cursor-pointer text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
                 S22<span class="text-blue-600">MARKET</span>
@@ -1379,10 +1379,25 @@
             const url = window.location.href;
             try {
                 await navigator.clipboard.writeText(url);
-                showToast('تم نسخ الرابط بنجاح!');
+                showToast('تم نسخ رابط المنتج! 🔗');
             } catch (err) {
-                showToast('فشل نسخ الرابط.', 'error');
-                console.error('Failed to copy link: ', err);
+                console.error('Clipboard API failed, trying fallback: ', err);
+                const textArea = document.createElement("textarea");
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textArea);
+                showToast('تم نسخ رابط المنتج! 🔗');
+            }
+        }
+
+        // Smart Back Button Logic
+        function goBack() {
+            if (document.referrer.includes('vendor.html') || document.referrer.includes('s22marketfood.html')) {
+                history.back();
+            } else {
+                window.location.href = 'index.html'; // Or classproductindex.html if preferred, but index is safer default
             }
         }
 
