@@ -293,9 +293,21 @@
             </div>
 
             <a href="seller-dashboard.html" id="dashboard-btn"
-                class="hidden w-full bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 mb-6 hover:bg-indigo-700 transition">
+                class="hidden w-full bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 mb-3 hover:bg-indigo-700 transition">
                 <i class="fas fa-chart-pie"></i> لوحة تحكم التاجر
             </a>
+
+            <!-- Store Share Actions -->
+            <div id="store-share-container" class="hidden grid grid-cols-2 gap-3 mb-6">
+                <button onclick="copyStoreLink()"
+                    class="bg-gray-100 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-200 flex items-center justify-center gap-2 transition">
+                    <i class="fas fa-copy"></i> نسخ الرابط
+                </button>
+                <button onclick="shareStoreLink()"
+                    class="bg-blue-50 text-blue-600 font-bold py-3 rounded-xl hover:bg-blue-100 flex items-center justify-center gap-2 transition">
+                    <i class="fas fa-share-alt"></i> مشاركة
+                </button>
+            </div>
         </div>
 
         <div class="space-y-1">
@@ -1052,12 +1064,14 @@
         // --- Store Request Logic ---
         function checkStoreStatus(data) {
             const dashboardBtn = document.getElementById('dashboard-btn');
+            const shareContainer = document.getElementById('store-share-container'); // NEW
             const startBanner = document.getElementById('start-selling-banner');
             const pendingBanner = document.getElementById('pending-banner');
             const rejectedBanner = document.getElementById('rejected-banner');
 
             // Reset
             dashboardBtn.classList.add('hidden');
+            shareContainer.classList.add('hidden'); // NEW
             startBanner.classList.add('hidden');
             pendingBanner.classList.add('hidden');
             rejectedBanner.classList.add('hidden');
@@ -1065,9 +1079,11 @@
             if (data.role === 'vendor') {
                 dashboardBtn.href = 'seller-dashboard.html';
                 dashboardBtn.classList.remove('hidden');
+                shareContainer.classList.remove('hidden'); // NEW
             } else if (data.role === 'restaurant') {
                 dashboardBtn.href = 'restaurant-dashboard.html';
                 dashboardBtn.classList.remove('hidden');
+                shareContainer.classList.remove('hidden'); // NEW
             } else if (data.storeRequest?.status === 'pending') {
                 pendingBanner.classList.remove('hidden');
             } else if (data.storeRequest?.status === 'rejected') {
@@ -1259,6 +1275,48 @@
             const code = document.getElementById('ref-code').textContent;
             navigator.clipboard.writeText(code);
             showToast('تم نسخ الكود!');
+        };
+
+        // --- Store Sharing Logic ---
+        window.getStoreLink = () => {
+            if (!userData) return '';
+            const type = userData.role === 'restaurant' ? 'restaurant' : 'vendor';
+            return `${window.location.origin}/vendor.html?id=${currentUser.uid}&type=${type}`;
+        };
+
+        window.copyStoreLink = () => {
+            const link = getStoreLink();
+            if (link) {
+                navigator.clipboard.writeText(link).then(() => {
+                    showToast('تم نسخ رابط المتجر! 🔗');
+                }).catch(err => {
+                    console.error('Could not copy text: ', err);
+                    showToast('فشل النسخ، حاول يدوياً.');
+                });
+            }
+        };
+
+        window.shareStoreLink = async () => {
+            const link = getStoreLink();
+            if (!link) return;
+
+            const shareData = {
+                title: userData.displayName || 'S22 Market Store',
+                text: `تفضل بزيارة متجري ${userData.displayName} على S22 Market!`,
+                url: link
+            };
+
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                } catch (err) {
+                    console.log('Error sharing:', err);
+                }
+            } else {
+                // Fallback if Web Share API not supported
+                copyStoreLink();
+                showToast('المشاركة غير مدعومة، تم نسخ الرابط بدلاً من ذلك.');
+            }
         };
 
         function showToast(msg) {
