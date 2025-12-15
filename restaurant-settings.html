@@ -389,14 +389,46 @@
 
                         <div class="bg-white p-6 rounded-xl shadow-md mb-6">
                             <h2 class="text-xl font-bold mb-4 border-b pb-2">الموقع والنطاق الجغرافي</h2>
-                            <div>
+                            <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">الولاية (المقر
                                     الرئيسي)</label>
                                 <select id="store-wilaya" class="w-full p-2 border rounded-lg bg-white">
                                     <option value="">اختر الولاية...</option>
                                     <!-- Wilayas will be populated by JS -->
                                 </select>
-                                <p class="text-xs text-gray-500 mt-1">سيظهر مطعمك للعملاء في هذه الولاية فقط.</p>
+                                <p class="text-xs text-gray-500 mt-1">سيظهر مطعمك للعملاء في هذه الولاية بشكل أساسي.</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">نطاق التغطية (ولايات
+                                    أخرى)</label>
+                                <div class="p-3 border rounded-lg bg-gray-50 max-h-40 overflow-y-auto"
+                                    id="coverage-wilayas-container">
+                                    <!-- Checkboxes will be populated by JS -->
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">حدد الولايات الإضافية التي يمكنك التوصيل إليها.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+                            <h2 class="text-xl font-bold mb-4 border-b pb-2">عروض التوصيل 🛵</h2>
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 class="font-bold text-gray-800">تفعيل التوصيل المجاني</h3>
+                                    <p class="text-sm text-gray-500">جذب المزيد من العملاء بتقديم توصيل مجاني للطلبات
+                                        الكبيرة.</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="free-delivery-toggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div id="free-delivery-options" class="hidden transition-all">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">المبلغ الأدنى للتوصيل
+                                    المجاني (د.ج)</label>
+                                <input type="number" id="free-delivery-threshold" placeholder="مثال: 1000"
+                                    class="w-full p-2 border rounded-lg">
                             </div>
                         </div>
 
@@ -473,14 +505,36 @@
             "أدرار", "الشلف", "الأغواط", "أم البواقي", "باتنة", "بجاية", "بسكرة", "بشار", "البليدة", "البويرة", "تمنراست", "تبسة", "تلمسان", "تيارت", "تيزي وزو", "الجزائر", "الجلفة", "جيجل", "سطيف", "سعيدة", "سكيكدة", "سيدي بلعباس", "عنابة", "قالمة", "قسنطينة", "المدية", "مستغانم", "المسيلة", "معسكر", "ورقلة", "وهران", "البيض", "إليزي", "برج بوعريريج", "بومرداس", "الطارق", "تندوف", "تيسمسيلت", "الوادي", "خنشلة", "سوق أهراس", "تيبازة", "ميلة", "عين الدفلى", "النعامة", "عين تموشنت", "غرداية", "غليزان", "تيميمون", "برج باجي مختار", "أولاد جلال", "بني عباس", "عين صالح", "عين قزام", "تقرت", "جانوت", "المغير", "المنيعة"
         ];
 
-        // Populate Select if element exists
+        // Populate Select and Checkboxes
         const wilayaSelect = document.getElementById('store-wilaya');
-        if (wilayaSelect) {
+        const coverageContainer = document.getElementById('coverage-wilayas-container');
+
+        if (wilayaSelect && coverageContainer) {
             wilayas.forEach((w, i) => {
+                // Populate Main Select
                 const opt = document.createElement('option');
                 opt.value = w;
                 opt.textContent = `${i + 1} - ${w}`;
                 wilayaSelect.appendChild(opt);
+
+                // Populate Coverage Checkboxes
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-2 mb-2';
+                div.innerHTML = `
+                    <input type="checkbox" name="coverage_wilayas" value="${w}" id="cov_${i}" class="w-4 h-4 text-orange-600 rounded">
+                    <label for="cov_${i}" class="text-sm text-gray-700">${i + 1} - ${w}</label>
+                `;
+                coverageContainer.appendChild(div);
+            });
+        }
+
+        // Toggle visibility for free delivery input
+        const freeDelToggle = document.getElementById('free-delivery-toggle');
+        const freeDelOptions = document.getElementById('free-delivery-options');
+        if (freeDelToggle) {
+            freeDelToggle.addEventListener('change', () => {
+                if (freeDelToggle.checked) freeDelOptions.classList.remove('hidden');
+                else freeDelOptions.classList.add('hidden');
             });
         }
 
@@ -621,6 +675,21 @@
                         const wSelect = document.getElementById('store-wilaya');
                         if (wSelect) wSelect.value = data.wilaya;
                     }
+
+                    // Load Coverage Wilayas
+                    if (data.coverageWilayas) {
+                        data.coverageWilayas.forEach(wilaya => {
+                            const cb = document.querySelector(`input[name="coverage_wilayas"][value="${wilaya}"]`);
+                            if (cb) cb.checked = true;
+                        });
+                    }
+
+                    // Load Delivery Offers
+                    if (data.hasFreeDelivery) {
+                        document.getElementById('free-delivery-toggle').checked = true;
+                        document.getElementById('free-delivery-options').classList.remove('hidden');
+                        document.getElementById('free-delivery-threshold').value = data.freeDeliveryThreshold || '';
+                    }
                 }
 
                 if (userSnap.exists()) {
@@ -664,6 +733,9 @@
                 // Collect Moods
                 const selectedMoods = Array.from(document.querySelectorAll('input[name="moods"]:checked')).map(cb => cb.value);
 
+                // Collect Coverage Wilayas
+                const selectedCoverage = Array.from(document.querySelectorAll('input[name="coverage_wilayas"]:checked')).map(cb => cb.value);
+
                 const settingsData = {
                     logoUrl: logoUrl,
                     coverUrl: coverUrl,
@@ -677,6 +749,9 @@
                     facebook: document.getElementById('store-facebook').value,
                     instagram: document.getElementById('store-instagram').value,
                     wilaya: document.getElementById('store-wilaya').value,
+                    coverageWilayas: selectedCoverage,
+                    hasFreeDelivery: document.getElementById('free-delivery-toggle').checked,
+                    freeDeliveryThreshold: document.getElementById('free-delivery-threshold').value,
                     moods: selectedMoods // Save locally in settings too
                 };
 
@@ -691,12 +766,15 @@
                     phone: settingsData.phone,
                     isShopOpen: !settingsData.isManuallyClosed,
                     wilaya: settingsData.wilaya,
+                    coveredWilayas: selectedCoverage.length > 0 ? selectedCoverage : [settingsData.wilaya], // Default to main wilaya if no extra coverage
+                    hasFreeDelivery: settingsData.hasFreeDelivery,
+                    freeDeliveryThreshold: settingsData.freeDeliveryThreshold,
                     moods: selectedMoods // CRITICAL for filtering
                 };
 
-                // For filtering
-                if (settingsData.wilaya) {
-                    userUpdate.coveredWilayas = [settingsData.wilaya];
+                // Ensure main wilaya is included in Covered Wilayas for search logic
+                if (settingsData.wilaya && !userUpdate.coveredWilayas.includes(settingsData.wilaya)) {
+                    userUpdate.coveredWilayas.push(settingsData.wilaya);
                 }
 
                 await updateDoc(doc(db, "users", currentUser.uid), userUpdate);
