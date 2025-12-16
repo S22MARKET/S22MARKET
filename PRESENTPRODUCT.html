@@ -968,13 +968,19 @@
             const btn = document.getElementById('report-submit-btn');
             toggleButtonState(btn, true);
             try {
+                const pNameFn = (p) => {
+                    if (!p) return '';
+                    if (typeof p === 'object') return p.ar || p.en || '';
+                    return p;
+                };
+                const rawName = pNameFn(currentProduct.name);
                 const data = {
                     type: 'product_report',
                     fullName: document.getElementById('report-name').value,
                     phone: document.getElementById('report-phone').value,
                     reason: document.getElementById('report-reason').value,
                     message: document.getElementById('report-message').value,
-                    productName: currentProduct.name.replace(/<[^>]*>?/gm, ''),
+                    productName: rawName.replace(/<[^>]*>?/gm, ''),
                     productId: currentProduct.id,
                     status: 'pending',
                     createdAt: serverTimestamp()
@@ -992,10 +998,23 @@
 
         function renderProduct(product) {
             currentProduct = product;
-            const productNamePlainText = (product.name || '').replace(/<[^>]*>?/gm, '');
+
+            // Helper to safe get name
+            const getSafeName = (p) => {
+                if (!p.name) return '';
+                if (typeof p.name === 'object') return p.name.ar || p.name.en || '';
+                return p.name;
+            };
+
+            const rawName = getSafeName(product);
+            const productNamePlainText = rawName.replace(/<[^>]*>?/gm, '');
             const priceFormatted = `${(product.price || 0).toLocaleString()} د.ج`;
             document.title = productNamePlainText;
-            elements.productName.innerHTML = product.name;
+
+            // Prefer innerHTML if it contains formatting, but if it is just a plain string/object, correct it.
+            // If it was an object, we use the string version.
+            elements.productName.textContent = productNamePlainText; // Safest for layout
+
             elements.productPrice.textContent = priceFormatted;
             elements.mobileStickyPrice.textContent = priceFormatted;
             elements.productDescription.innerHTML = product.description || '<p>لا يوجد وصف.</p>';
@@ -1333,7 +1352,14 @@
             }
 
             let cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
-            const productNamePlainText = (currentProduct.isOffer ? currentProduct.name : currentProduct.name.replace(/<[^>]*>?/gm, ''));
+
+            const getSafeName = (p) => {
+                if (!p.name) return '';
+                if (typeof p.name === 'object') return p.name.ar || p.name.en || '';
+                return p.name;
+            };
+            const rawName = getSafeName(currentProduct);
+            const productNamePlainText = rawName.replace(/<[^>]*>?/gm, '');
             const existingItem = cart.find(item => item.id === currentProduct.id);
             if (existingItem) {
                 showToast('هذا المنتج موجود بالفعل في السلة.', 'error');
@@ -1361,7 +1387,12 @@
 
         async function shareProduct() {
             if (!currentProduct) return;
-            const productName = (currentProduct.name || '').replace(/<[^>]*>?/gm, '');
+            const getSafeName = (p) => {
+                if (!p.name) return '';
+                if (typeof p.name === 'object') return p.name.ar || p.name.en || '';
+                return p.name;
+            };
+            const productName = getSafeName(currentProduct).replace(/<[^>]*>?/gm, '');
             const shareData = {
                 title: `اكتشف: ${productName}`,
                 text: `ألقِ نظرة على هذا المنتج الرائع "${productName}" على S22MARKET!`,

@@ -637,7 +637,9 @@
                     <div class="flex-grow flex flex-col justify-between py-1" onclick="location.href='PRESENTPRODUCT.html?product=${product.id}'">
                         <div>
                             <div class="flex justify-between items-start">
-                                <h3 class="font-extrabold text-gray-800 text-base leading-tight line-clamp-2">${product.name}</h3>
+                                <h3 class="font-extrabold text-gray-800 text-base leading-tight line-clamp-2">
+                                    ${(typeof product.name === 'object') ? (product.name.ar || product.name.en || 'منتج') : product.name}
+                                </h3>
                             </div>
                             <p class="text-xs text-gray-400 line-clamp-2 mt-1 font-medium">${product.description || 'وصف مختصر للمنتج...'}</p>
                         </div>
@@ -673,7 +675,7 @@
                                 }, 1000);
                             }
                         };
-                    } 
+                    }
                 }
 
                 productsContainer.appendChild(card);
@@ -754,6 +756,13 @@
         };
 
         window.aiReply = async (type) => {
+            // Helper to get name
+            const getName = (p) => {
+                if (!p.name) return 'منتج غير معروف';
+                if (typeof p.name === 'object') return p.name.ar || p.name.en || 'منتج';
+                return p.name;
+            };
+
             const chatBox = document.getElementById('ai-chat-box');
             const options = document.getElementById('ai-options');
 
@@ -765,16 +774,16 @@
             if (type === 'broke') userText = "مطفر (رخيص) 💸";
 
             chatBox.innerHTML += `
-                    < div class="flex gap-3 justify-end animate-fade-in" >
+                    <div class="flex gap-3 justify-end animate-fade-in">
                         <div class="bg-indigo-600 p-3 rounded-2xl rounded-tl-none shadow-sm text-sm text-white max-w-[80%]">
                             ${userText}
                         </div>
-                </div >
+                    </div>
                     `;
 
             // Simulate Typing
             chatBox.innerHTML += `
-                    < div class="flex gap-3 animate-fade-in" id = "ai-typing" >
+                    <div class="flex gap-3 animate-fade-in" id="ai-typing">
                     <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-robot text-indigo-600 text-xs"></i>
                     </div>
@@ -783,7 +792,7 @@
                         <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-75"></div>
                         <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-150"></div>
                     </div>
-                </div >
+                </div>
                     `;
             chatBox.scrollTop = chatBox.scrollHeight;
             options.classList.add('hidden'); // Hide options
@@ -809,8 +818,10 @@
             let responseHTML = '';
             if (suggestion) {
                 const img = (suggestion.imageUrls && suggestion.imageUrls[0]) || suggestion.imageUrl || 'https://placehold.co/100';
+                const pName = getName(suggestion);
+
                 responseHTML = `
-                    < div class="flex gap-3 animate-fade-in" >
+                    <div class="flex gap-3 animate-fade-in">
                         <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-robot text-indigo-600 text-xs"></i>
                         </div>
@@ -820,7 +831,7 @@
                             </div>
                             <div class="bg-white p-3 rounded-xl shadow-md border border-gray-100 cursor-pointer hover:scale-105 transition-transform" onclick="location.href='PRESENTPRODUCT.html?product=${suggestion.id}'">
                                 <img src="${img}" class="w-full h-32 object-cover rounded-lg mb-2">
-                                <h4 class="font-bold text-gray-900">${suggestion.name}</h4>
+                                <h4 class="font-bold text-gray-900">${pName}</h4>
                                 <div class="flex justify-between items-center mt-1">
                                     <span class="text-indigo-600 font-bold">${suggestion.price} د.ج</span>
                                     <button class="bg-indigo-600 text-white px-3 py-1 rounded-lg text-xs">طلب</button>
@@ -831,18 +842,18 @@
                                 <button onclick="aiReply('${type}')" class="text-xs text-indigo-600 font-bold">اقتراح ثاني 🔄</button>
                             </div>
                         </div>
-                    </div >
+                    </div>
                     `;
             } else {
                 responseHTML = `
-                    < div class="flex gap-3 animate-fade-in" >
+                    <div class="flex gap-3 animate-fade-in">
                         <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-robot text-indigo-600 text-xs"></i>
                         </div>
                         <div class="bg-white p-3 rounded-2xl rounded-tr-none shadow-sm text-sm text-gray-700">
                             للأسف ما لقيت منتجات في هذا المتجر تناسب طلبك 😔
                         </div>
-                    </div >`;
+                    </div>`;
             }
 
             chatBox.innerHTML += responseHTML;
