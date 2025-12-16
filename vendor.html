@@ -417,7 +417,9 @@
                 document.getElementById('vendor-name').textContent = vendor.storeName || vendor.displayName;
                 document.getElementById('vendor-desc').textContent = vendor.description || reqData.description || 'مرحباً بكم في متجرنا';
                 document.getElementById('vendor-cover').src = vendor.coverUrl || reqData.coverUrl || 'https://placehold.co/600x200/1f2937/ffffff?text=Cover';
-                document.getElementById('vendor-logo').src = vendor.logoUrl || vendor.photoURL || 'https://placehold.co/100/1f2937/ffffff?text=Logo';
+
+                // Fix: Check storeLogo (saved by restaurant settings) first, then logoUrl, then photoURL
+                document.getElementById('vendor-logo').src = vendor.storeLogo || vendor.logoUrl || vendor.photoURL || 'https://placehold.co/100/1f2937/ffffff?text=Logo';
 
                 const roleText = vendor.role === 'restaurant' ? 'مطعم' : 'متجر';
                 document.getElementById('vendor-category').textContent = roleText;
