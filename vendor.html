@@ -617,19 +617,19 @@
                 const card = document.createElement('div');
                 card.className = 'product-card relative';
 
-                let actionBtn = `< button class="w-8 h-8 rounded-full ${isDirect ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'} flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-colors add-btn" data - id="${product.id}" >
+                let actionBtn = `<button class="w-8 h-8 rounded-full ${isDirect ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'} flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-colors add-btn" data-id="${product.id}">
                     <i class="fas ${isDirect ? 'fa-paper-plane' : 'fa-plus'}"></i>
-                        </button > `;
+                </button>`;
 
                 if (isAuction) {
-                    actionBtn = `< button class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-colors" onclick = "location.href='auction-details.html?id=${product.id}'" >
+                    actionBtn = `<button class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-colors" onclick="location.href='auction-details.html?id=${product.id}'">
                     <i class="fas fa-gavel"></i>
-                        </button > `;
+                    </button>`;
                 }
 
                 // App-Like Card Structure
                 card.innerHTML = `
-                    < div class="relative" >
+                    <div class="relative">
                         <img src="${img}" class="prod-img" onclick="location.href='PRESENTPRODUCT.html?product=${product.id}'">
                         ${isAuction ? '<span class="absolute top-1 right-1 bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-md">مزاد</span>' : ''}
                     </div>
@@ -658,20 +658,22 @@
                 // Add Button Logic
                 if (!isAuction) {
                     const btn = card.querySelector('.add-btn');
-                    btn.onclick = (e) => {
-                        e.stopPropagation();
-                        if (isDirect) {
-                            window.location.href = `PRESENTPRODUCT.html ? product = ${product.id} `; // Direct goes to detail for contact
-                        } else {
-                            addToCart(product);
-                            btn.innerHTML = '<i class="fas fa-check"></i>';
-                            btn.classList.add('bg-green-500', 'text-white');
-                            setTimeout(() => {
-                                btn.innerHTML = '<i class="fas fa-plus"></i>';
-                                btn.classList.remove('bg-green-500', 'text-white');
-                            }, 1000);
-                        }
-                    };
+                    if (btn) {
+                        btn.onclick = (e) => {
+                            e.stopPropagation();
+                            if (isDirect) {
+                                window.location.href = `PRESENTPRODUCT.html?product=${product.id}`;
+                            } else {
+                                addToCart(product);
+                                btn.innerHTML = '<i class="fas fa-check"></i>';
+                                btn.classList.add('bg-green-500', 'text-white');
+                                setTimeout(() => {
+                                    btn.innerHTML = '<i class="fas fa-plus"></i>';
+                                    btn.classList.remove('bg-green-500', 'text-white');
+                                }, 1000);
+                            }
+                        };
+                    } 
                 }
 
                 productsContainer.appendChild(card);
