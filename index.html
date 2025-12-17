@@ -94,13 +94,21 @@
         }
 
         .store-card-mini {
-            min-width: 100px;
+            min-width: 90px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 8px;
+            border-radius: 16px;
+        }
+
+        .store-card-mini:hover {
+            transform: translateY(-5px);
+            background: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .store-card-mini:active {
@@ -108,12 +116,22 @@
         }
 
         .store-avatar-mini {
-            width: 60px;
-            height: 60px;
+            width: 65px;
+            height: 65px;
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid white;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Ring Effect */
+        .store-avatar-ring {
+            position: relative;
+            padding: 2px;
+            background: linear-gradient(45deg, #f59e0b, #ec4899, #8b5cf6);
+            border-radius: 50%;
         }
 
         /* Filter Panel in Header */
@@ -1276,8 +1294,10 @@
 
                         html += `
                             <div class="store-card-mini" onclick="location.href='classproductindex.html?sellerId=${doc.id}'">
-                                <img src="${avatar}" class="store-avatar-mini" loading="lazy">
-                                <span class="text-[10px] font-bold text-gray-700 truncate w-16 text-center">${name}</span>
+                                <div class="store-avatar-ring">
+                                    <img src="${avatar}" class="store-avatar-mini" loading="lazy">
+                                </div>
+                                <span class="text-[10px] font-bold text-gray-700 truncate w-20 text-center">${name}</span>
                             </div>
                         `;
                     });
