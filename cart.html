@@ -892,197 +892,200 @@
         window.closeMobileOverlay = () => mobileApp.closeOverlay();
     </script>
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, getDoc, serverTimestamp, query, where, limit, getDocs, updateDoc,
-    increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {
+            getFirestore, collection, addDoc, doc, getDoc, serverTimestamp, query, where, limit, getDocs, updateDoc,
+            increment
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-    const firebaseConfig = {
-    apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
-    authDomain: "s22market-4e3e6.firebaseapp.com",
-    projectId: "s22market-4e3e6",
-    storageBucket: "s22market-4e3e6.appspot.com",
-    messagingSenderId: "119186699901",
-    appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
-    measurementId: "G-MWYNCVP4WQ"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
 
-    let currentUser = null;
-    let cart = [];
-    let currentDiscount = null;
-    let activeTab = 'market'; // 'market' or 'food'
+        let currentUser = null;
+        let cart = [];
+        let currentDiscount = null;
+        let activeTab = 'market'; // 'market' or 'food'
 
-    const elements = {
-    loader: document.getElementById('cart-loader'),
-    emptyMsg: document.getElementById('empty-cart-msg'),
-    content: document.getElementById('cart-content'),
-    itemsList: document.getElementById('cart-items-container'), // Note: ID changed in HTML
-    subtotal: document.getElementById('summary-subtotal'),
-    total: document.getElementById('summary-total'),
+        const elements = {
+            loader: document.getElementById('cart-loader'),
+            emptyMsg: document.getElementById('empty-cart-msg'),
+            content: document.getElementById('cart-content'),
+            itemsList: document.getElementById('cart-items-container'), // Note: ID changed in HTML
+            subtotal: document.getElementById('summary-subtotal'),
+            total: document.getElementById('summary-total'),
 
-    couponInput: document.getElementById('coupon-code'),
-    couponBtn: document.getElementById('apply-coupon-btn'),
-    couponMsg: document.getElementById('coupon-msg'),
-    discountRow: document.getElementById('discount-row'), // Might not exist in new HTML, check
-    // discountSummary: ... handled dynamically
+            couponInput: document.getElementById('coupon-code'),
+            couponBtn: document.getElementById('apply-coupon-btn'),
+            couponMsg: document.getElementById('coupon-msg'),
+            discountRow: document.getElementById('discount-row'), // Might not exist in new HTML, check
+            // discountSummary: ... handled dynamically
 
-    checkoutModal: document.getElementById('checkout-modal'),
-    closeCheckoutModalBtn: document.getElementById('close-checkout-modal-btn'),
-    checkoutForm: document.getElementById('checkout-form'),
-    submitBtn: document.getElementById('submit-quick-checkout-btn'),
-    modalTotal: document.getElementById('modal-summary-total'),
-    checkoutTypeNotice: document.getElementById('checkout-type-notice'),
+            checkoutModal: document.getElementById('checkout-modal'),
+            closeCheckoutModalBtn: document.getElementById('close-checkout-modal-btn'),
+            checkoutForm: document.getElementById('checkout-form'),
+            submitBtn: document.getElementById('submit-quick-checkout-btn'),
+            modalTotal: document.getElementById('modal-summary-total'),
+            checkoutTypeNotice: document.getElementById('checkout-type-notice'),
 
-    cartBadgeBottom: document.getElementById('cart-badge-bottom'),
-    mobileCheckoutBar: document.getElementById('mobile-checkout-bar'),
-    mobileStickyTotal: document.getElementById('mobile-sticky-total'),
-    mobileCheckoutBtn: document.getElementById('mobile-checkout-btn'),
-    desktopCheckoutBtn: document.getElementById('desktop-checkout-btn'),
+            cartBadgeBottom: document.getElementById('cart-badge-bottom'),
+            mobileCheckoutBar: document.getElementById('mobile-checkout-bar'),
+            mobileStickyTotal: document.getElementById('mobile-sticky-total'),
+            mobileCheckoutBtn: document.getElementById('mobile-checkout-btn'),
+            desktopCheckoutBtn: document.getElementById('desktop-checkout-btn'),
 
-    loginBtn: document.getElementById('login-btn'),
-    // userMenu... (Standard Auth UI)
-    logoutBtn: document.getElementById('logout-btn'),
-    bottomProfileBtn: document.getElementById('bottom-profile-btn'),
-    bottomLoginBtn: document.getElementById('bottom-login-btn'),
-    toastContainer: document.getElementById('toast-container'),
+            loginBtn: document.getElementById('login-btn'),
+            // userMenu... (Standard Auth UI)
+            logoutBtn: document.getElementById('logout-btn'),
+            bottomProfileBtn: document.getElementById('bottom-profile-btn'),
+            bottomLoginBtn: document.getElementById('bottom-login-btn'),
+            toastContainer: document.getElementById('toast-container'),
 
-    // Tabs
-    tabIndicator: document.getElementById('tab-indicator'),
-    tabMarket: document.getElementById('tab-market'),
-    tabFood: document.getElementById('tab-food'),
-    };
+            // Tabs
+            tabIndicator: document.getElementById('tab-indicator'),
+            tabMarket: document.getElementById('tab-market'),
+            tabFood: document.getElementById('tab-food'),
+        };
 
-    // --- Tab Logic ---
-    window.switchCartTab = (tab) => {
-    activeTab = tab;
+        // --- Tab Logic ---
+        window.switchCartTab = (tab) => {
+            activeTab = tab;
 
-    // UI Update
-    if (tab === 'market') {
-    elements.tabIndicator.style.transform = 'translateX(0%)'; // Assuming LTR or absolute positioning logic
-    // Adjust for RTL if needed:
-    elements.tabIndicator.style.left = '1%';
-    elements.tabMarket.classList.replace('text-gray-500', 'text-indigo-600');
-    elements.tabFood.classList.replace('text-indigo-600', 'text-gray-500');
-    } else {
-    elements.tabIndicator.style.left = '51%';
-    elements.tabFood.classList.replace('text-gray-500', 'text-indigo-600');
-    elements.tabMarket.classList.replace('text-indigo-600', 'text-gray-500');
-    }
+            // UI Update
+            if (tab === 'market') {
+                elements.tabIndicator.style.transform = 'translateX(0%)'; // Assuming LTR or absolute positioning logic
+                // Adjust for RTL if needed:
+                elements.tabIndicator.style.left = '1%';
+                elements.tabMarket.classList.replace('text-gray-500', 'text-indigo-600');
+                elements.tabFood.classList.replace('text-indigo-600', 'text-gray-500');
+            } else {
+                elements.tabIndicator.style.left = '51%';
+                elements.tabFood.classList.replace('text-gray-500', 'text-indigo-600');
+                elements.tabMarket.classList.replace('text-indigo-600', 'text-gray-500');
+            }
 
-    renderCartItems();
-    };
+            renderCartItems();
+        };
 
-    // --- Helper Functions ---
-    const showToast = (message, type = 'success') => {
-    const toast = document.createElement('div');
-    toast.className = `fixed bottom-24 left-1/2 -translate-x-1/2 z-[999] bg-gray-800 text-white px-6 py-3 rounded-full
+        // --- Helper Functions ---
+        const showToast = (message, type = 'success') => {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-24 left-1/2 -translate-x-1/2 z-[999] bg-gray-800 text-white px-6 py-3 rounded-full
     shadow-2xl flex items-center gap-3 animate-bounce`;
-    toast.innerHTML = `<i
+            toast.innerHTML = `<i
         class="fas ${type === 'success' ? 'fa-check-circle text-green-400' : 'fa-exclamation-circle text-red-400'}"></i>
     ${message}`;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-    };
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        };
 
-    const toggleButtonState = (btn, isLoading, originalText = 'تأكيد') => {
-    if(!btn) return;
-    if(isLoading) {
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
-    } else {
-    btn.disabled = false;
-    btn.innerHTML = originalText;
-    }
-    };
+        const toggleButtonState = (btn, isLoading, originalText = 'تأكيد') => {
+            if (!btn) return;
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        };
 
-    // --- Cart Logic ---
-    function loadCart() {
-    cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
+        // --- Cart Logic ---
+        function loadCart() {
+            cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
 
-    // Migration: Add default type if missing
-    let dirt = false;
-    cart = cart.map(item => {
-    if(!item.itemType) {
-    item.itemType = 'market';
-    dirt = true;
-    }
-    return item;
-    });
-    if(dirt) saveCart();
+            // Migration: Add default type if missing
+            let dirt = false;
+            cart = cart.map(item => {
+                if (!item.itemType) {
+                    item.itemType = 'market';
+                    dirt = true;
+                }
+                return item;
+            });
+            if (dirt) saveCart();
 
-    renderCartItems();
-    updateCartIcon();
-    }
+            renderCartItems();
+            updateCartIcon();
+        }
 
-    function saveCart() {
-    localStorage.setItem('s22market_cart', JSON.stringify(cart));
-    updateCartIcon();
-    renderCartItems();
-    }
+        function saveCart() {
+            localStorage.setItem('s22market_cart', JSON.stringify(cart));
+            updateCartIcon();
+            renderCartItems();
+        }
 
-    function updateCartIcon() {
-    const total = cart.reduce((sum, i) => sum + i.quantity, 0);
-    if(elements.cartBadgeBottom) {
-    elements.cartBadgeBottom.textContent = total;
-    elements.cartBadgeBottom.classList.toggle('hidden', total === 0);
-    }
-    }
+        function updateCartIcon() {
+            const total = cart.reduce((sum, i) => sum + i.quantity, 0);
+            if (elements.cartBadgeBottom) {
+                elements.cartBadgeBottom.textContent = total;
+                elements.cartBadgeBottom.classList.toggle('hidden', total === 0);
+            }
+        }
 
-    function getFilteredItems() {
-    if(activeTab === 'market') {
-    return cart.filter(i => i.itemType === 'market' || !i.itemType);
-    } else {
-    return cart.filter(i => i.itemType === 'food');
-    }
-    }
+        function getFilteredItems() {
+            if (activeTab === 'market') {
+                return cart.filter(i => i.itemType === 'market' || !i.itemType);
+            } else {
+                return cart.filter(i => i.itemType === 'food');
+            }
+        }
 
-    function renderCartItems() {
-    const items = getFilteredItems();
-    const container = elements.itemsList;
+        function renderCartItems() {
+            const items = getFilteredItems();
+            const container = elements.itemsList;
 
-    elements.loader.classList.add('hidden');
+            elements.loader.classList.add('hidden');
 
-    if (items.length === 0) {
-    elements.emptyMsg.classList.remove('hidden');
-    elements.content.classList.add('hidden');
-    elements.mobileCheckoutBar.classList.add('hidden');
-    return;
-    }
+            if (items.length === 0) {
+                elements.emptyMsg.classList.remove('hidden');
+                elements.content.classList.add('hidden');
+                elements.mobileCheckoutBar.classList.add('hidden');
+                return;
+            }
 
-    elements.emptyMsg.classList.add('hidden');
-    elements.content.classList.remove('hidden');
-    elements.mobileCheckoutBar.classList.remove('hidden');
+            elements.emptyMsg.classList.add('hidden');
+            elements.content.classList.remove('hidden');
+            elements.mobileCheckoutBar.classList.remove('hidden');
 
-    container.innerHTML = '';
-    let subtotal = 0;
+            container.innerHTML = '';
+            let subtotal = 0;
 
-    if (activeTab === 'food') {
-    // Group by Restaurant
-    const groups = {};
-    items.forEach(item => {
-    const storeId = item.sellerId || 'unknown';
-    if(!groups[storeId]) {
-    groups[storeId] = {
-    name: item.storeName || 'مطعم غير معروف',
-    logo: item.storeLogo || 'https://placehold.co/50',
-    items: []
-    };
-    }
-    groups[storeId].items.push(item);
-    });
+            if (activeTab === 'food') {
+                // Group by Restaurant
+                const groups = {};
+                items.forEach(item => {
+                    const storeId = item.sellerId || 'unknown';
+                    if (!groups[storeId]) {
+                        groups[storeId] = {
+                            name: item.storeName || 'مطعم غير معروف',
+                            logo: item.storeLogo || 'https://placehold.co/50',
+                            items: []
+                        };
+                    }
+                    groups[storeId].items.push(item);
+                });
 
-    // Render Groups
-    Object.values(groups).forEach(group => {
-    const groupTotal = group.items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-    subtotal += groupTotal;
+                // Render Groups
+                Object.values(groups).forEach(group => {
+                    const groupTotal = group.items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+                    subtotal += groupTotal;
 
-    const groupEl = document.createElement('div');
-    groupEl.className = 'bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4 fade-in-up';
-    groupEl.innerHTML = `
+                    const groupEl = document.createElement('div');
+                    groupEl.className = 'bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4 fade-in-up';
+                    groupEl.innerHTML = `
     <div class="flex items-center gap-3 mb-4 pb-3 border-b border-dashed">
         <img src="${group.logo}" class="w-8 h-8 rounded-full bg-gray-100 object-cover">
         <h3 class="font-bold text-gray-800">${group.name}</h3>
@@ -1091,23 +1094,23 @@
         ${group.items.map(item => createItemHTML(item)).join('')}
     </div>
     `;
-    container.appendChild(groupEl);
-    });
+                    container.appendChild(groupEl);
+                });
 
-    } else {
-    // Market - Flat List
-    items.forEach(item => {
-    subtotal += (item.price * item.quantity);
-    container.innerHTML += createItemHTML(item, true); // true = wrapper div
-    });
-    }
+            } else {
+                // Market - Flat List
+                items.forEach(item => {
+                    subtotal += (item.price * item.quantity);
+                    container.innerHTML += createItemHTML(item, true); // true = wrapper div
+                });
+            }
 
-    updateSummary(subtotal);
-    }
+            updateSummary(subtotal);
+        }
 
-    function createItemHTML(item, wrap = false) {
-    const img = (item.imageUrls && item.imageUrls[0]) || item.image || 'https://placehold.co/100';
-    const html = `
+        function createItemHTML(item, wrap = false) {
+            const img = (item.imageUrls && item.imageUrls[0]) || item.image || 'https://placehold.co/100';
+            const html = `
     <div
         class="flex items-center gap-4 ${wrap ? 'bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-4' : ''}">
         <img src="${img}" class="w-20 h-20 rounded-xl bg-gray-50 object-cover border border-gray-100">
@@ -1130,193 +1133,203 @@
         </div>
     </div>
     `;
-    return html;
-    }
+            return html;
+        }
 
-    function updateSummary(subtotal) {
-    let discount = 0;
-    if(currentDiscount) {
-    if(currentDiscount.discountType === 'percentage') discount = subtotal * (currentDiscount.discountValue / 100);
-    else discount = currentDiscount.discountValue;
-    }
+        function updateSummary(subtotal) {
+            let discount = 0;
+            if (currentDiscount) {
+                if (currentDiscount.discountType === 'percentage') discount = subtotal * (currentDiscount.discountValue / 100);
+                else discount = currentDiscount.discountValue;
+            }
 
-    const total = Math.max(0, subtotal - discount);
+            const total = Math.max(0, subtotal - discount);
 
-    elements.subtotal.textContent = `${subtotal.toLocaleString()} د.ج`;
-    elements.total.textContent = `${total.toLocaleString()} د.ج`;
-    elements.mobileStickyTotal.textContent = `${total.toLocaleString()} د.ج`;
-    elements.modalTotal.textContent = `${total.toLocaleString()} د.ج`;
+            elements.subtotal.textContent = `${subtotal.toLocaleString()} د.ج`;
+            elements.total.textContent = `${total.toLocaleString()} د.ج`;
+            elements.mobileStickyTotal.textContent = `${total.toLocaleString()} د.ج`;
+            elements.modalTotal.textContent = `${total.toLocaleString()} د.ج`;
 
-    if(currentDiscount) {
-    elements.couponMsg.textContent = `تم تطبيق خصم ${discount.toLocaleString()} د.ج`;
-    elements.couponMsg.className = 'text-xs mt-2 text-green-600 font-bold';
-    elements.couponMsg.classList.remove('hidden');
-    } else {
-    elements.couponMsg.classList.add('hidden');
-    }
-    }
+            if (currentDiscount) {
+                elements.couponMsg.textContent = `تم تطبيق خصم ${discount.toLocaleString()} د.ج`;
+                elements.couponMsg.className = 'text-xs mt-2 text-green-600 font-bold';
+                elements.couponMsg.classList.remove('hidden');
+            } else {
+                elements.couponMsg.classList.add('hidden');
+            }
+        }
 
-    window.updateQty = (id, newQty) => {
-    const idx = cart.findIndex(i => i.id === id);
-    if(idx > -1) {
-    if(newQty <= 0) cart.splice(idx, 1); else cart[idx].quantity=newQty; saveCart(); } }; window.removeItem=(id)=> {
-        window.updateQty(id, 0);
+        window.updateQty = (id, newQty) => {
+            const idx = cart.findIndex(i => i.id === id);
+            if (idx > -1) {
+                if (newQty <= 0) cart.splice(idx, 1); else cart[idx].quantity = newQty; saveCart();
+            }
+        }; window.removeItem = (id) => {
+            window.updateQty(id, 0);
         };
 
         // --- Coupon Logic ---
-        if(elements.couponBtn) {
-        elements.couponBtn.onclick = async () => {
-        const code = elements.couponInput.value.trim().toUpperCase();
-        if(!code) return;
+        if (elements.couponBtn) {
+            elements.couponBtn.onclick = async () => {
+                const code = elements.couponInput.value.trim().toUpperCase();
+                if (!code) return;
 
-        toggleButtonState(elements.couponBtn, true);
-        try {
-        const q = query(collection(db, 'coupons'), where('code', '==', code), where('isActive', '==', true), limit(1));
-        const snap = await getDocs(q);
+                toggleButtonState(elements.couponBtn, true);
+                try {
+                    const q = query(collection(db, 'coupons'), where('code', '==', code), where('isActive', '==', true), limit(1));
+                    const snap = await getDocs(q);
 
-        if(snap.empty) throw new Error('الكود غير صحيح');
-        const data = snap.docs[0].data();
+                    if (snap.empty) throw new Error('الكود غير صحيح');
+                    const data = snap.docs[0].data();
 
-        currentDiscount = { id: snap.docs[0].id, ...data };
-        renderCartItems(); // Re-calc
-        } catch(e) {
-        elements.couponMsg.textContent = e.message;
-        elements.couponMsg.className = 'text-xs mt-2 text-red-500 font-bold';
-        elements.couponMsg.classList.remove('hidden');
-        currentDiscount = null;
-        }
-        toggleButtonState(elements.couponBtn, false, 'تطبيق');
-        };
+                    currentDiscount = { id: snap.docs[0].id, ...data };
+                    renderCartItems(); // Re-calc
+                } catch (e) {
+                    elements.couponMsg.textContent = e.message;
+                    elements.couponMsg.className = 'text-xs mt-2 text-red-500 font-bold';
+                    elements.couponMsg.classList.remove('hidden');
+                    currentDiscount = null;
+                }
+                toggleButtonState(elements.couponBtn, false, 'تطبيق');
+            };
         }
 
         // --- Checkout Logic ---
         function openCheckout() {
-        elements.checkoutModal.classList.add('active');
+            elements.checkoutModal.classList.add('active');
 
-        // Context Update
-        if(activeTab === 'market') {
-        elements.checkoutTypeNotice.className = 'bg-indigo-50 text-indigo-800 p-3 rounded-xl text-sm font-bold flex
-        items-center gap-2';
-        elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-shopping-bag"></i> <span>جاري إتمام طلب
-            <b>تسوق</b></span>';
-        document.getElementById('gps-field-container').classList.add('opacity-50'); // Dim GPS for market
-        } else {
-        elements.checkoutTypeNotice.className = 'bg-orange-50 text-orange-800 p-3 rounded-xl text-sm font-bold flex
-        items-center gap-2';
-        elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-utensils"></i> <span>جاري إتمام طلب
-            <b>طعام</b></span>';
-        document.getElementById('gps-field-container').classList.remove('opacity-50');
-        }
+            // Context Update
+            if (activeTab === 'market') {
+                elements.checkoutTypeNotice.className = 'bg-indigo-50 text-indigo-800 p-3 rounded-xl text-sm font-bold flex
+                items - center gap - 2';
+                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-shopping-bag"></i> <span>جاري إتمام طلب
+                    < b > تسوق</b ></span > ';
+                document.getElementById('gps-field-container').classList.add('opacity-50'); // Dim GPS for market
+            } else {
+                elements.checkoutTypeNotice.className = 'bg-orange-50 text-orange-800 p-3 rounded-xl text-sm font-bold flex
+                items - center gap - 2';
+                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-utensils"></i> <span>جاري إتمام طلب
+                    < b > طعام</b ></span > ';
+                document.getElementById('gps-field-container').classList.remove('opacity-50');
+            }
 
-        // Mobile Hook
-        if(window.openMobileOverlay) window.openMobileOverlay(() => elements.checkoutModal.classList.remove('active'),
-        'checkout');
+            // Mobile Hook
+            if (window.openMobileOverlay) window.openMobileOverlay(() => elements.checkoutModal.classList.remove('active'),
+                'checkout');
         }
 
         elements.desktopCheckoutBtn.onclick = openCheckout;
         elements.mobileCheckoutBtn.onclick = openCheckout;
         elements.closeCheckoutModalBtn.onclick = () => {
-        if(window.closeMobileOverlay) window.closeMobileOverlay();
-        else elements.checkoutModal.classList.remove('active');
+            if (window.closeMobileOverlay) window.closeMobileOverlay();
+            else elements.checkoutModal.classList.remove('active');
         };
 
         elements.checkoutForm.onsubmit = async (e) => {
-        e.preventDefault();
-        const btn = elements.submitBtn;
-        const originalContent = btn.innerHTML;
-        toggleButtonState(btn, true);
+            e.preventDefault();
+            const btn = elements.submitBtn;
+            const originalContent = btn.innerHTML;
+            toggleButtonState(btn, true);
 
-        try {
-        const checkoutItems = getFilteredItems();
-        if(checkoutItems.length === 0) throw new Error('لا توجد عناصر لإتمام الطلب');
+            try {
+                const checkoutItems = getFilteredItems();
+                if (checkoutItems.length === 0) throw new Error('لا توجد عناصر لإتمام الطلب');
 
-        const subtotal = checkoutItems.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-        const discount = currentDiscount ? (currentDiscount.discountType === 'percentage' ? subtotal *
-        (currentDiscount.discountValue/100) : currentDiscount.discountValue) : 0;
-        const total = Math.max(0, subtotal - discount);
+                const subtotal = checkoutItems.reduce((sum, i) => sum + (Number(i.price) * Number(i.quantity)), 0);
+                const discount = currentDiscount ? (currentDiscount.discountType === 'percentage' ? subtotal *
+                    (currentDiscount.discountValue / 100) : currentDiscount.discountValue) : 0;
+                const total = Math.max(0, subtotal - discount);
 
-        // Basic Data
-        const order = {
-        customerName: document.getElementById('q-customer-name').value,
-        customerContact: document.getElementById('q-customer-phone').value,
-        customerWilaya: document.getElementById('q-customer-wilaya').value,
-        customerBaladiya: document.getElementById('q-customer-baladiya').value,
-        customerLocation: document.getElementById('q-customer-address').value,
-        customerGps: document.getElementById('q-customer-gps').value.trim(),
-        customerInquiry: document.getElementById('q-customer-notes').value,
+                // Basic Data
+                const isScheduled = document.getElementById('is-scheduled-checkbox').checked;
+                const scheduleFrequency = document.getElementById('schedule-frequency').value;
 
-        items: checkoutItems,
-        totalPrice: total,
-        subtotal: subtotal,
-        discountAmount: discount,
-        couponCode: currentDiscount?.code || null,
+                const order = {
+                    customerName: document.getElementById('q-customer-name').value,
+                    customerContact: document.getElementById('q-customer-phone').value,
+                    customerWilaya: document.getElementById('q-customer-wilaya').value,
+                    customerBaladiya: document.getElementById('q-customer-baladiya').value,
+                    customerLocation: document.getElementById('q-customer-address').value,
+                    customerGps: document.getElementById('q-customer-gps').value.trim(),
+                    customerInquiry: document.getElementById('q-customer-notes').value,
 
-        orderType: activeTab, // 'market' or 'food'
-        status: 'new',
-        createdAt: serverTimestamp(),
-        userId: currentUser?.uid || null
-        };
+                    // Scheduling Data
+                    isScheduled: isScheduled,
+                    scheduleFrequency: isScheduled ? scheduleFrequency : null,
 
-        // Split Orders if Food (Multi-Restaurant) ???
-        // For simplicity and user UX, we create ONE main order,
-        // BUT if we want to follow strict multi-vendor, we might split.
-        // For now: Keep simple. Admin sees one order with items from X and Y.
-        // Or better: If 'food', maybe grouping helps drivers?
-        // Let's stick to Single Order Document for MVP, but array of items carries sellerIds.
+                    items: checkoutItems,
+                    totalPrice: total,
+                    subtotal: subtotal,
+                    discountAmount: discount,
+                    couponCode: currentDiscount?.code || null,
 
-        const ref = await addDoc(collection(db, 'orders'), order);
+                    orderType: activeTab, // 'market' or 'food'
+                    status: 'new',
+                    createdAt: serverTimestamp(),
+                    userId: currentUser?.uid || null
+                };
 
-        // Clear ONLY purchased items
-        cart = cart.filter(i => activeTab === 'market' ? i.itemType === 'food' : (i.itemType === 'market' ||
-        !i.itemType));
-        saveCart();
-        currentDiscount = null;
+                // Split Orders if Food (Multi-Restaurant) ???
+                // For simplicity and user UX, we create ONE main order,
+                // BUT if we want to follow strict multi-vendor, we might split.
+                // For now: Keep simple. Admin sees one order with items from X and Y.
+                // Or better: If 'food', maybe grouping helps drivers?
+                // Let's stick to Single Order Document for MVP, but array of items carries sellerIds.
 
-        // Success
-        elements.content.innerHTML = `
+                const ref = await addDoc(collection(db, 'orders'), order);
+
+                // Clear ONLY purchased items
+                cart = cart.filter(i => activeTab === 'market' ? i.itemType === 'food' : (i.itemType === 'market' ||
+                    !i.itemType));
+                saveCart();
+                currentDiscount = null;
+
+                // Success
+                elements.content.innerHTML = `
         <div class="text-center py-20 bg-white rounded-3xl shadow-sm animate-pulse">
             <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-check text-4xl text-green-600"></i>
             </div>
             <h2 class="text-3xl font-extrabold text-gray-900 mb-2">تم الطلب بنجاح!</h2>
             <p class="text-gray-500 mb-8">رقم الطلب: <span
-                    class="font-mono font-bold text-gray-800">#${ref.id.slice(0,6)}</span></p>
+                    class="font-mono font-bold text-gray-800">#${ref.id.slice(0, 6)}</span></p>
             <a href="index.html" class="inline-block bg-gray-900 text-white font-bold py-3 px-8 rounded-xl">العودة
                 للرئيسية</a>
         </div>
         `;
-        elements.mobileCheckoutBar.classList.add('hidden');
-        if(window.closeMobileOverlay) window.closeMobileOverlay();
+                elements.mobileCheckoutBar.classList.add('hidden');
+                if (window.closeMobileOverlay) window.closeMobileOverlay();
 
-        } catch(err) {
-        console.error(err);
-        showToast(err.message, 'error');
-        toggleButtonState(btn, false, originalContent);
-        }
+            } catch (err) {
+                console.error(err);
+                showToast(err.message, 'error');
+                toggleButtonState(btn, false, originalContent);
+            }
         };
 
         // --- Init ---
         onAuthStateChanged(auth, (user) => {
-        currentUser = user;
-        loadCart();
-        // Pre-fill
-        if(user) {
-        elements.loginBtn?.classList.add('hidden');
-        elements.bottomLoginBtn?.classList.add('hidden');
-        elements.bottomProfileBtn?.classList.remove('hidden');
+            currentUser = user;
+            loadCart();
+            // Pre-fill
+            if (user) {
+                elements.loginBtn?.classList.add('hidden');
+                elements.bottomLoginBtn?.classList.add('hidden');
+                elements.bottomProfileBtn?.classList.remove('hidden');
 
-        getDoc(doc(db, 'users', user.uid)).then(s => {
-        if(s.exists()) {
-        const d = s.data();
-        document.getElementById('q-customer-name').value = d.displayName || '';
-        document.getElementById('q-customer-phone').value = d.phoneNumber || ''; // Check field name in DB
-        // Auto-fill address if saved?
-        }
+                getDoc(doc(db, 'users', user.uid)).then(s => {
+                    if (s.exists()) {
+                        const d = s.data();
+                        document.getElementById('q-customer-name').value = d.displayName || '';
+                        document.getElementById('q-customer-phone').value = d.phoneNumber || ''; // Check field name in DB
+                        // Auto-fill address if saved?
+                    }
+                });
+            }
         });
-        }
-        });
 
 
+    </script>
 </body>
 
 </html>
