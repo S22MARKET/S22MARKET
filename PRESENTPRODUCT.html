@@ -1365,17 +1365,35 @@
                 showToast('هذا المنتج موجود بالفعل في السلة.', 'error');
                 return;
             }
-            else {
-                cart.push({
-                    id: currentProduct.id,
-                    name: productNamePlainText,
-                    price: currentProduct.price,
-                    imageUrls: currentProduct.imageUrls,
-                    imageUrl: currentProduct.imageUrl,
-                    quantity: 1,
-                    isOffer: currentProduct.isOffer || false
-                });
+            // Dual Cart Logic
+            let itemType = 'market';
+            let storeName = 'S22 Market';
+            let storeLogo = 'https://placehold.co/50';
+            const sellerId = currentProduct.sellerId || currentProduct.vendorId;
+
+            if (currentSeller && (currentSeller.role === 'restaurant' || currentSeller.accountType === 'restaurant')) {
+                itemType = 'food';
+                storeName = currentSeller.storeName || currentSeller.displayName || 'المطعم';
+                storeLogo = currentSeller.logoUrl || currentSeller.photoURL || 'https://placehold.co/50';
+            } else if (sellerId && currentSeller) {
+                // Market Seller
+                storeName = currentSeller.storeName || currentSeller.displayName || 'متجر';
+                storeLogo = currentSeller.logoUrl || currentSeller.photoURL || 'https://placehold.co/50';
             }
+
+            cart.push({
+                id: currentProduct.id,
+                name: productNamePlainText,
+                price: currentProduct.price,
+                imageUrls: currentProduct.imageUrls,
+                imageUrl: currentProduct.imageUrl,
+                quantity: 1,
+                isOffer: currentProduct.isOffer || false,
+                sellerId: sellerId,
+                itemType: itemType,
+                storeName: storeName,
+                storeLogo: storeLogo
+            });
             localStorage.setItem('s22market_cart', JSON.stringify(cart));
 
             if (!currentUser) {

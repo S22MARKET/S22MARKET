@@ -597,7 +597,7 @@
 
             let filtered = [];
             if (category === 'all' || category === 'الكل') filtered = vendorProducts;
-            else if (category === 'offers') filtered = vendorProducts.filter(p => p.oldPrice > p.price); // Assuming offer logic
+            else if (category === 'offers') filtered = vendorProducts.filter(p => p.oldPrice > p.price);
             else filtered = vendorProducts.filter(p => (p.subCategoryName === category || p.categoryName === category));
 
             renderProducts(filtered);
@@ -697,7 +697,10 @@
                     price: product.price,
                     image: (product.imageUrls && product.imageUrls[0]) || product.imageUrl,
                     quantity: 1,
-                    sellerId: product.sellerId // Important for multi-vendor
+                    itemType: 'food', // Explicitly mark as food from restaurant page
+                    sellerId: vendorId, // Use the page's vendorId context
+                    storeName: document.getElementById('vendor-name').textContent, // Save store name for grouping
+                    storeLogo: document.getElementById('vendor-logo').src // Save logo for UI
                 });
             }
             saveCart();

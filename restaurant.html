@@ -337,7 +337,7 @@
                 els.storeName.textContent = vendor.storeName;
                 document.getElementById('footer-store-name').textContent = vendor.storeName;
                 document.getElementById('footer-desc').textContent = vendor.description || '';
-                if (vendor.logoUrl || vendor.photoURL) els.logo.src = vendor.logoUrl || vendor.photoURL;
+                if (vendor.storeLogo || vendor.logoUrl || vendor.photoURL) els.logo.src = vendor.storeLogo || vendor.logoUrl || vendor.photoURL;
 
                 // Social Links
                 const social = vendor.socialLinks || {};
@@ -480,7 +480,6 @@
         }
 
         function addToCart(product) {
-            // Simplified Add to Cart (Enhance with Options/Addons later)
             const item = cart.find(i => i.id === product.id);
             if (item) {
                 item.quantity++;
@@ -489,9 +488,12 @@
                     id: product.id,
                     name: product.name,
                     price: product.price,
-                    image: product.imageUrls?.[0],
+                    image: product.imageUrls?.[0] || product.imageUrl,
                     quantity: 1,
-                    sellerId: vendorId
+                    sellerId: vendorId,
+                    itemType: 'food',
+                    storeName: els.storeName.textContent || 'المطعم',
+                    storeLogo: els.logo.src || 'https://placehold.co/50'
                 });
             }
             localStorage.setItem('s22market_cart', JSON.stringify(cart));

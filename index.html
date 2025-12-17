@@ -84,6 +84,50 @@
             scrollbar-width: none;
         }
 
+        /* Stores Slider */
+        .stores-slider {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scroll-behavior: smooth;
+        }
+
+        .store-card-mini {
+            min-width: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .store-card-mini:active {
+            transform: scale(0.95);
+        }
+
+        .store-avatar-mini {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Filter Panel in Header */
+        #header-filters {
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            max-height: 0;
+        }
+
+        #header-filters.open {
+            max-height: 120px;
+            margin-top: 10px;
+        }
+
         /* تأثير الزجاج (Glassmorphism) */
         .glass-nav {
             background: rgba(255, 255, 255, 0.9);
@@ -386,17 +430,41 @@
             </div>
         </div>
 
-        <div class="mt-3 relative">
-            <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input type="text" id="search-input" placeholder="ابحث عن منتج، مطعم، أو خدمة..." inputmode="search"
-                enterkeyhint="search"
-                class="w-full bg-gray-100 text-gray-800 rounded-2xl py-3 pr-11 pl-12 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner">
+        <div class="mt-3 relative flex gap-2 items-center">
+            <div class="relative flex-grow">
+                <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="search-input" placeholder="ابحث عن منتج، متجر، أو خدمة..." inputmode="search"
+                    enterkeyhint="search"
+                    class="w-full bg-gray-100 text-gray-800 rounded-2xl py-3 pr-11 pl-12 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner">
 
-            <!-- Voice Search Button -->
-            <button id="voice-search-btn"
-                class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-indigo-500 hover:bg-indigo-50 rounded-full transition">
-                <i class="fas fa-microphone"></i>
+                <!-- Voice Search Button -->
+                <button id="voice-search-btn"
+                    class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-indigo-500 hover:bg-indigo-50 rounded-full transition">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </div>
+
+            <button id="filter-toggle-btn"
+                class="w-12 h-11 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition shadow-inner">
+                <i class="fas fa-sliders-h"></i>
             </button>
+        </div>
+
+        <!-- Filter Panel -->
+        <div id="header-filters" class="px-1">
+            <div class="bg-gray-50 border border-gray-100 rounded-xl p-3 mt-2">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold text-gray-500">نطاق السعر (د.ج)</span>
+                    <span class="text-[10px] text-indigo-500 cursor-pointer" onclick="resetSearchFilters()">مسح</span>
+                </div>
+                <div class="flex gap-2 items-center">
+                    <input type="number" id="filter-min-price" placeholder="من"
+                        class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-center focus:border-indigo-500 focus:outline-none">
+                    <span class="text-gray-400 text-xs">-</span>
+                    <input type="number" id="filter-max-price" placeholder="إلى"
+                        class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-center focus:border-indigo-500 focus:outline-none">
+                </div>
+            </div>
         </div>
     </header>
 
@@ -466,6 +534,17 @@
                         <i class="fas fa-gavel"></i>
                     </div>
                 </a>
+            </div>
+        </section>
+
+        <!-- Stores Section -->
+        <section class="px-4 hidden" id="stores-section">
+            <div class="flex justify-between items-end mb-3">
+                <h2 class="font-bold text-gray-800 text-lg">المتاجر المميزة</h2>
+                <a href="classproductindex.html?showStores=true" class="text-xs text-indigo-600 font-bold">عرض الكل</a>
+            </div>
+            <div class="stores-slider no-scrollbar" id="stores-container">
+                <!-- Stores Loaded Here -->
             </div>
         </section>
 
@@ -955,9 +1034,31 @@
         const menuBtn = document.getElementById('menu-btn');
         const productsGrid = document.getElementById('products-grid');
         const categoriesContainer = document.getElementById('categories-container');
+        const storeSection = document.getElementById('stores-section');
+        const storesContainer = document.getElementById('stores-container');
         const heroWrapper = document.getElementById('hero-slider-wrapper');
         const searchInput = document.getElementById('search-input');
         const header = document.getElementById('main-header');
+
+        // Filter Elements
+        const filterToggleBtn = document.getElementById('filter-toggle-btn');
+        const headerFilters = document.getElementById('header-filters');
+        const filterMin = document.getElementById('filter-min-price');
+        const filterMax = document.getElementById('filter-max-price');
+
+        // Filter Toggle Logic
+        if (filterToggleBtn) {
+            filterToggleBtn.addEventListener('click', () => {
+                headerFilters.classList.toggle('open');
+                filterToggleBtn.classList.toggle('bg-indigo-50');
+                filterToggleBtn.classList.toggle('text-indigo-600');
+            });
+        }
+
+        window.resetSearchFilters = () => {
+            filterMin.value = '';
+            filterMax.value = '';
+        };
 
         // --- 3. UI Interactions ---
 
@@ -1061,16 +1162,32 @@
         });
 
         // Search Redirect
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && searchInput.value.trim()) {
-                window.location.href = `classproductindex.html?search=${encodeURIComponent(searchInput.value.trim())}`;
+        // Search Redirect with Params
+        const handleSearch = () => {
+            const query = searchInput.value.trim();
+            const min = filterMin ? filterMin.value : '';
+            const max = filterMax ? filterMax.value : '';
+
+            if (query || min || max) {
+                let url = `classproductindex.html?search=${encodeURIComponent(query)}`;
+                if (min) url += `&minPrice=${min}`;
+                if (max) url += `&maxPrice=${max}`;
+                window.location.href = url;
             }
+        };
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSearch();
         });
+
+        // Also allow updating search live from filters if needed? No, just keep standard behavior.
 
         // --- 4. Data Fetching Functions ---
 
         async function initHome() {
-            // A. Load Dynamic Sections (Custom Home Layout)
+            // A. Load Featured Stores
+            loadFeaturedStores();
+            // B. Load Dynamic Sections (Custom Home Layout)
             await loadHomeSections();
 
             // B. Load Categories (Independent)
@@ -1137,6 +1254,43 @@
 
             // C. Load Recent Products (Logic moved to loadHomeSections to prevent double fetching)
             // Legacy code removed.
+        }
+
+        async function loadFeaturedStores() {
+            try {
+                // Fetch Vendors and Restaurants
+                // Note: For Scalability, should use a limit and maybe a 'isFeatured' flag
+                // For now, we fetch a batch of sellers
+                const q = query(collection(db, "users"), where("role", "in", ["vendor", "restaurant"]), limit(10));
+                const snap = await getDocs(q);
+
+                if (!snap.empty) {
+                    let html = '';
+                    snap.forEach(doc => {
+                        const s = doc.data();
+                        const name = s.storeName || s.displayName || 'متجر';
+                        const avatar = s.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=128`;
+
+                        // Exclude admin or invalid
+                        if (!s.role) return;
+
+                        html += `
+                            <div class="store-card-mini" onclick="location.href='classproductindex.html?sellerId=${doc.id}'">
+                                <img src="${avatar}" class="store-avatar-mini" loading="lazy">
+                                <span class="text-[10px] font-bold text-gray-700 truncate w-16 text-center">${name}</span>
+                            </div>
+                        `;
+                    });
+
+                    if (html) {
+                        storesContainer.innerHTML = html;
+                        storeSection.classList.remove('hidden');
+                    }
+                }
+            } catch (e) {
+                console.error("Error loading stores:", e);
+                // Fail silently for UI
+            }
         }
 
         // --- Dynamic Sections Logic ---
@@ -1400,7 +1554,15 @@
             if (existing) {
                 existing.quantity++;
             } else {
-                cart.push({ id, name, price, quantity: 1, image: img, sellerId: 'unknown' }); // Basic info
+                cart.push({
+                    id: id,
+                    name: name,
+                    price: price,
+                    image: img,
+                    quantity: 1,
+                    itemType: 'market', // Default for homepage items
+                    storeName: 'S22 Market' // Default or fetch if available
+                });
             }
             localStorage.setItem('s22market_cart', JSON.stringify(cart));
 
