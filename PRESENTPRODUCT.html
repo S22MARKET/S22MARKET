@@ -646,7 +646,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, runTransaction, updateDoc, arrayUnion, arrayRemove, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
@@ -665,6 +665,19 @@
         let currentProduct = null;
         let currentSeller = null;
         let currentUser = null;
+        let activeGlobalLogo = 'https://placehold.co/100/1f2937/ffffff?text=Logo'; // Fallback
+
+        // Fetch Global Config
+        async function fetchGlobalConfig() {
+            try {
+                const globalSettingsSnap = await getDoc(doc(db, "settings", "storeConfig"));
+                if (globalSettingsSnap.exists()) {
+                    const gData = globalSettingsSnap.data();
+                    if (gData.logoUrl) activeGlobalLogo = gData.logoUrl;
+                }
+            } catch (err) { console.log("Global logo fetch error", err); }
+        }
+        fetchGlobalConfig();
 
         const elements = {
             modalContainer: document.getElementById('modal-container'),
@@ -803,9 +816,289 @@
             } catch (e) { console.error("Error loading seller info:", e); }
         }
 
+        // --- نظام التقييمات ---
+
+        function openAddReviewModal() {
+            if (!currentUser) {
+                localStorage.setItem('redirectToAfterLogin', location.href);
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const content = `
+                <div class="text-center space-y-4">
+                    <p class="text-gray-600">كيف كانت تجربتك مع هذا المنتج؟</p>
+                    
+                    <div class="flex flex-row-reverse justify-center gap-2 text-3xl" id="star-rating-input">
+                        <i class="far fa-star cursor-pointer hover:text-yellow-400 text-gray-300 transition" data-value="5"></i>
+                        <i class="far fa-star cursor-pointer hover:text-yellow-400 text-gray-300 transition" data-value="4"></i>
+                        <i class="far fa-star cursor-pointer hover:text-yellow-400 text-gray-300 transition" data-value="3"></i>
+                        <i class="far fa-star cursor-pointer hover:text-yellow-400 text-gray-300 transition" data-value="2"></i>
+                        <i class="far fa-star cursor-pointer hover:text-yellow-400 text-gray-300 transition" data-value="1"></i>
+                    </div>
+                    
+                    <textarea id="review-comment" 
+                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+                        placeholder="اكتب تعليقك هنا... (اختياري)"></textarea>
+                    
+                    <button id="submit-review-btn" onclick="submitReview()" 
+                        class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                        نشر التقييم
+                    </button>
+                </div>
+            `;
+            showModal('أضف تقييمك', content);
+
+            // Star Logic
+            const stars = document.querySelectorAll('#star-rating-input i');
+            let selectedRating = 0;
+
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    selectedRating = parseInt(star.dataset.value);
+                    updateStarsVisual(selectedRating);
+                    document.getElementById('submit-review-btn').dataset.rating = selectedRating;
+                });
+
+                star.addEventListener('mouseover', () => {
+                    updateStarsVisual(parseInt(star.dataset.value), true);
+                });
+
+                star.addEventListener('mouseleave', () => {
+                    updateStarsVisual(selectedRating);
+                });
+            });
+
+            function updateStarsVisual(rating, isHover = false) {
+                stars.forEach(s => {
+                    const val = parseInt(s.dataset.value);
+                    if (val <= rating) {
+                        s.classList.remove('far', 'text-gray-300');
+                        s.classList.add('fas', 'text-yellow-400');
+                    } else {
+                        s.classList.remove('fas', 'text-yellow-400');
+                        s.classList.add('far', 'text-gray-300');
+                    }
+                });
+            }
+        }
+
+        window.submitReview = async function () {
+            const btn = document.getElementById('submit-review-btn');
+            const rating = parseInt(btn.dataset.rating) || 0;
+            const comment = document.getElementById('review-comment').value.trim();
+
+            if (rating === 0) {
+                showToast('يرجى اختيار عدد النجوم', 'error');
+                return;
+            }
+
+            if (!currentProduct || !currentUser) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<div class="small-loader mx-auto"></div>';
+
+            try {
+                // Safe Product Name/Image extraction
+                const pName = currentProduct.name ? (typeof currentProduct.name === 'object' ? (currentProduct.name.ar || currentProduct.name.en) : currentProduct.name) : 'منتج';
+                const pImg = currentProduct.imageUrl || (currentProduct.imageUrls && currentProduct.imageUrls[0]) || null;
+
+                await addDoc(collection(db, 'reviews'), {
+                    productId: currentProduct.id,
+                    productName: pName,
+                    productImage: pImg,
+                    sellerId: currentProduct.sellerId || currentSeller?.id,
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName || 'مستخدم S22Market',
+                    userAvatar: currentUser.photoURL || null,
+                    rating: rating,
+                    comment: comment,
+                    likes: [],
+                    dislikes: [],
+                    createdAt: serverTimestamp()
+                });
+
+                // Update product aggregate using transaction
+                const productRef = doc(db, "products", currentProduct.id);
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const sfDoc = await transaction.get(productRef);
+                        if (!sfDoc.exists()) return; // Should not happen
+
+                        const data = sfDoc.data();
+                        const oldRating = data.rating || 0;
+                        const oldCount = data.reviewsCount || 0;
+
+                        const newCount = oldCount + 1;
+                        // Calculate new average: (oldAvg * oldCount + newRating) / newCount
+                        const newRating = ((oldRating * oldCount) + rating) / newCount;
+
+                        transaction.update(productRef, {
+                            rating: newRating,
+                            reviewsCount: newCount
+                        });
+                    });
+                } catch (txError) {
+                    console.log("Transaction failed, simplified update might be needed", txError);
+                }
+
+                showToast('تم نشر تقييمك بنجاح!');
+                closeModal();
+            } catch (error) {
+                console.error("Error submitting review:", error);
+                showToast('حدث خطأ، يرجى المحاولة لاحقاً', 'error');
+                btn.disabled = false;
+                btn.textContent = 'نشر التقييم';
+            }
+        };
+
+        function loadReviews(productId, productData) {
+            const section = document.getElementById('reviews-section');
+            const avgRatingDisplay = document.getElementById('avg-rating-display');
+            const avgStarsDisplay = document.getElementById('avg-stars-display');
+            const countDisplay = document.getElementById('reviews-count-display');
+            const reviewsList = document.getElementById('reviews-list');
+            const addReviewBtn = document.getElementById('add-review-btn');
+
+            section.classList.remove('hidden');
+
+            // Set initial summary from product data
+            const initialAvg = productData.rating || 0;
+            const initialCount = productData.reviewsCount || 0;
+
+            avgRatingDisplay.textContent = initialAvg.toFixed(1);
+            avgStarsDisplay.innerHTML = generateStars(initialAvg);
+            countDisplay.textContent = initialCount;
+
+            const q = query(
+                collection(db, 'reviews'),
+                where('productId', '==', productId),
+                orderBy('createdAt', 'desc')
+            );
+
+            onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    reviewsList.innerHTML = '<p class="text-gray-500 text-center py-4">لا توجد تقييمات بعد. كن أول من يقيم!</p>';
+                    return;
+                }
+
+                let totalRating = 0;
+                let html = '';
+
+                snapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    totalRating += data.rating;
+                    html += createReviewCard(doc.id, data);
+                });
+
+                reviewsList.innerHTML = html;
+
+                // Real-time summary update from actual reviews (more accurate than product doc sometimes)
+                if (snapshot.size > 0) {
+                    const avg = (totalRating / snapshot.size).toFixed(1);
+                    avgRatingDisplay.textContent = avg;
+                    avgStarsDisplay.innerHTML = generateStars(avg);
+                    countDisplay.textContent = snapshot.size;
+                }
+            });
+
+            addReviewBtn.onclick = openAddReviewModal;
+        }
+
+        function createReviewCard(reviewId, data) {
+            const date = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString('ar-EG') : '';
+            const isLiked = currentUser && data.likes && data.likes.includes(currentUser.uid);
+            const isDisliked = currentUser && data.dislikes && data.dislikes.includes(currentUser.uid);
+
+            return `
+            <div class="border-b border-gray-100 pb-4 last:border-0 animation: fadeIn 0.3s">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        ${data.userAvatar
+                    ? `<img src="${data.userAvatar}" class="w-full h-full object-cover">`
+                    : `<i class="fas fa-user text-gray-400"></i>`}
+                    </div>
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-sm text-gray-900">${data.userName || 'مستخدم'}</h4>
+                                <div class="flex text-yellow-400 text-xs mt-1">
+                                    ${generateStars(data.rating)}
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-400">${date}</span>
+                        </div>
+                        ${data.comment ? `<p class="text-gray-700 text-sm mt-2 leading-relaxed">${data.comment}</p>` : ''}
+                        
+                        <div class="flex items-center gap-4 mt-3">
+                            <button onclick="toggleReviewReaction('${reviewId}', 'like')" 
+                                class="flex items-center gap-1 text-xs ${isLiked ? 'text-blue-600 font-bold' : 'text-gray-500 hover:text-blue-600'} transition">
+                                <i class="${isLiked ? 'fas' : 'far'} fa-thumbs-up"></i>
+                                <span>${data.likes ? data.likes.length : 0}</span>
+                            </button>
+                            <button onclick="toggleReviewReaction('${reviewId}', 'dislike')" 
+                                class="flex items-center gap-1 text-xs ${isDisliked ? 'text-red-500 font-bold' : 'text-gray-500 hover:text-red-500'} transition">
+                                <i class="${isDisliked ? 'fas' : 'far'} fa-thumbs-down"></i>
+                                <span>${data.dislikes ? data.dislikes.length : 0}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        function generateStars(rating) {
+            let output = '';
+            for (let i = 1; i <= 5; i++) {
+                if (rating >= i) output += '<i class="fas fa-star"></i>';
+                else if (rating >= i - 0.5) output += '<i class="fas fa-star-half-alt"></i>';
+                else output += '<i class="far fa-star text-gray-300"></i>';
+            }
+            return output;
+        }
+
+        window.toggleReviewReaction = async function (reviewId, type) {
+            if (!currentUser) {
+                showToast('يجب تسجيل الدخول للتفاعل', 'error');
+                return;
+            }
+
+            const reviewRef = doc(db, 'reviews', reviewId);
+            const reviewSnap = await getDoc(reviewRef);
+            if (!reviewSnap.exists()) return;
+
+            const data = reviewSnap.data();
+            const uid = currentUser.uid;
+
+            try {
+                if (type === 'like') {
+                    if (data.likes && data.likes.includes(uid)) {
+                        await updateDoc(reviewRef, { likes: arrayRemove(uid) });
+                    } else {
+                        await updateDoc(reviewRef, {
+                            likes: arrayUnion(uid),
+                            dislikes: arrayRemove(uid)
+                        });
+                    }
+                } else {
+                    if (data.dislikes && data.dislikes.includes(uid)) {
+                        await updateDoc(reviewRef, { dislikes: arrayRemove(uid) });
+                    } else {
+                        await updateDoc(reviewRef, {
+                            dislikes: arrayUnion(uid),
+                            likes: arrayRemove(uid)
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Reaction error:", err);
+            }
+        };
+
         function renderRestaurantProductView() {
             // Enhanced Restaurant View
-            const logo = currentSeller.photoURL || currentSeller.logoUrl || 'https://placehold.co/100?text=Logo';
+            const logo = currentSeller.storeLogo || currentSeller.logoUrl || currentSeller.photoURL || activeGlobalLogo;
             const name = currentSeller.displayName || currentSeller.storeName || 'مطعم';
             const rating = currentSeller.rating || '4.5';
             const deliveryTime = currentSeller.deliveryTime || '30-45';
@@ -855,7 +1148,9 @@
             elements.sellerInfoCard.innerHTML = `
                 <h2 class="text-2xl font-bold mb-4 border-b pb-3 text-slate-800">عن البائع</h2>
                 <div class="flex items-center gap-4">
-                    <i class="fas fa-user-tie fa-3x text-gray-400"></i>
+                    <img src="${currentSeller.storeLogo || currentSeller.logoUrl || currentSeller.photoURL || activeGlobalLogo}" 
+                         class="w-16 h-16 rounded-full object-cover border border-gray-200 shadow-sm"
+                         onerror="this.onerror=null;this.parentElement.innerHTML='<i class=\'fas fa-user-tie fa-3x text-gray-400\'></i>'">
                     <div>
                         <h3 class="text-xl font-bold">${currentSeller.displayName || 'بائع معتمد'}</h3>
                         <p class="text-sm text-gray-500">متجر: ${currentSeller.storeName || 'غير محدد'}</p>
@@ -1115,174 +1410,7 @@
             loadReviews(product.id, product);
         }
 
-        function loadReviews(productId, productData) {
-            const section = document.getElementById('reviews-section');
-            const summaryAvg = document.getElementById('avg-rating-display');
-            const summaryStars = document.getElementById('avg-stars-display');
-            const summaryCount = document.getElementById('reviews-count-display');
-            const list = document.getElementById('reviews-list');
-            const addBtn = document.getElementById('add-review-btn');
 
-            section.classList.remove('hidden');
-
-            // Init Summary from Product Data
-            const avg = productData.rating || 0;
-            const count = productData.reviewsCount || 0;
-            updateSummaryUI(avg, count);
-
-            // Listen to reviews
-            const q = query(collection(db, `products/${productId}/reviews`), orderBy('createdAt', 'desc'));
-
-            onSnapshot(q, (snapshot) => {
-                if (snapshot.empty) {
-                    list.innerHTML = '<p class="text-gray-500 text-center py-4">لا توجد تقييمات بعد. كن أول من يقيم!</p>';
-                    return;
-                }
-
-                list.innerHTML = snapshot.docs.map(doc => {
-                    const r = doc.data();
-                    const stars = Array(5).fill(0).map((_, i) => `<i class="fas fa-star ${i < r.rating ? 'text-yellow-400' : 'text-gray-300'}"></i>`).join('');
-                    const date = r.createdAt ? new Date(r.createdAt.toDate()).toLocaleDateString('ar-EG') : '';
-
-                    return `
-                    <div class="border-b last:border-0 pb-4 last:pb-0">
-                        <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500"><i class="fas fa-user"></i></div>
-                                <span class="font-bold text-gray-800">${r.userName || 'مستخدم'}</span>
-                            </div>
-                            <span class="text-xs text-gray-400">${date}</span>
-                        </div>
-                        <div class="flex text-yellow-400 text-sm mb-2">${stars}</div>
-                        <p class="text-gray-700 text-sm leading-relaxed">${r.text}</p>
-                    </div>`;
-                }).join('');
-            });
-
-            addBtn.onclick = () => showReviewModal(productId);
-        }
-
-        function updateSummaryUI(avg, count) {
-            document.getElementById('avg-rating-display').textContent = avg.toFixed(1);
-            document.getElementById('reviews-count-display').textContent = count;
-            document.getElementById('avg-stars-display').innerHTML = Array(5).fill(0).map((_, i) => `<i class="fas fa-star ${i < Math.round(avg) ? 'text-yellow-500' : 'text-gray-300'}"></i>`).join('');
-        }
-
-        function showReviewModal(productId) {
-            if (!currentUser) {
-                localStorage.setItem('redirectToAfterLogin', location.href);
-                return showToast('يرجى تسجيل الدخول للتقييم', false);
-            }
-
-            const content = `
-                <form id="review-form" class="space-y-4">
-                    <div class="flex flex-col items-center gap-2 mb-4">
-                         <span class="text-gray-700 font-semibold">قيم المنتج</span>
-                         <div class="flex gap-2 text-3xl text-gray-300 cursor-pointer" id="star-rating-input">
-                            <i class="fas fa-star hover:text-yellow-400 transition" data-val="1"></i>
-                            <i class="fas fa-star hover:text-yellow-400 transition" data-val="2"></i>
-                            <i class="fas fa-star hover:text-yellow-400 transition" data-val="3"></i>
-                            <i class="fas fa-star hover:text-yellow-400 transition" data-val="4"></i>
-                            <i class="fas fa-star hover:text-yellow-400 transition" data-val="5"></i>
-                         </div>
-                         <input type="hidden" id="rating-value" required>
-                    </div>
-                    
-                    <div>
-                        <label class="font-semibold text-sm">رأيك في المنتج</label>
-                        <textarea id="review-text" rows="3" class="mt-1 w-full p-2 border rounded bg-gray-50" placeholder="اكتب تجربتك هنا..." required></textarea>
-                    </div>
-
-                    <div class="text-left">
-                        <button type="submit" id="submit-review-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 w-full">
-                            نشر التقييم
-                        </button>
-                    </div>
-                </form>
-            `;
-
-            showModal('إضافة تقييم', content);
-
-            // Star Interaction
-            const stars = document.querySelectorAll('#star-rating-input i');
-            const input = document.getElementById('rating-value');
-
-            stars.forEach(star => {
-                star.onclick = function () {
-                    const val = this.dataset.val;
-                    input.value = val;
-                    stars.forEach(s => {
-                        s.classList.toggle('text-yellow-400', s.dataset.val <= val);
-                        s.classList.toggle('text-gray-300', s.dataset.val > val);
-                    });
-                };
-            });
-
-            document.getElementById('review-form').onsubmit = (e) => submitReview(e, productId);
-        }
-
-        async function submitReview(e, productId) {
-            e.preventDefault();
-            const rating = parseInt(document.getElementById('rating-value').value);
-            const text = document.getElementById('review-text').value;
-
-            if (!rating) return showToast('يرجى اختيار عدد النجوم', false);
-
-            const btn = document.getElementById('submit-review-btn');
-            btn.disabled = true;
-            btn.textContent = 'جاري النشر...';
-
-            try {
-                const reviewData = {
-                    rating,
-                    text,
-                    userId: currentUser.uid,
-                    userName: currentUser.displayName || 'مستخدم',
-                    createdAt: serverTimestamp()
-                };
-
-                await addDoc(collection(db, `products/${productId}/reviews`), reviewData);
-
-                // Update Aggregates Transaction
-                const productRef = doc(db, "products", productId);
-                await runTransaction(db, async (transaction) => {
-                    const sfDoc = await transaction.get(productRef);
-                    if (!sfDoc.exists()) throw "Product does not exist!";
-
-                    const data = sfDoc.data();
-                    const newCount = (data.reviewsCount || 0) + 1;
-                    const oldTotal = (data.rating || 0) * (data.reviewsCount || 0);
-                    const newAvg = (oldTotal + rating) / newCount;
-
-                    transaction.update(productRef, {
-                        rating: newAvg,
-                        reviewsCount: newCount
-                    });
-                });
-
-                closeModal();
-                showToast('شكراً لتقييمك! ❤️');
-
-                // Update Local UI display immediately (snapshot will also catch it)
-                // updateSummaryUI is handled by reloading page? No, snapshot handles list, but summary header might need valid listeners or just wait for product reload. 
-                // Since I passed productData to `loadReviews`, that's stale. I should listen to product doc too? 
-                // For now, I will just manually update UI here for speed.
-                const newCount = (currentProduct.reviewsCount || 0) + 1;
-                const oldTotal = (currentProduct.rating || 0) * (currentProduct.reviewsCount || 0);
-                const newAvg = (oldTotal + rating) / newCount;
-                updateSummaryUI(newAvg, newCount);
-
-                // Update global Cache
-                currentProduct.rating = newAvg;
-                currentProduct.reviewsCount = newCount;
-
-            } catch (error) {
-                console.error(error);
-                showToast('حدث خطأ أثناء النشر', false);
-            } finally {
-                if (btn) { btn.disabled = false; btn.textContent = 'نشر التقييم'; }
-            }
-        }
 
         async function fetchItem(collectionName, itemId) {
             try {
@@ -1374,11 +1502,11 @@
             if (currentSeller && (currentSeller.role === 'restaurant' || currentSeller.accountType === 'restaurant')) {
                 itemType = 'food';
                 storeName = currentSeller.storeName || currentSeller.displayName || 'المطعم';
-                storeLogo = currentSeller.logoUrl || currentSeller.photoURL || 'https://placehold.co/50';
+                storeLogo = currentSeller.storeLogo || currentSeller.logoUrl || currentSeller.photoURL || activeGlobalLogo;
             } else if (sellerId && currentSeller) {
                 // Market Seller
                 storeName = currentSeller.storeName || currentSeller.displayName || 'متجر';
-                storeLogo = currentSeller.logoUrl || currentSeller.photoURL || 'https://placehold.co/50';
+                storeLogo = currentSeller.storeLogo || currentSeller.logoUrl || currentSeller.photoURL || activeGlobalLogo;
             }
 
             cart.push({
@@ -1450,7 +1578,7 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        async function startApp() {
             const params = new URLSearchParams(window.location.search);
             const productId = params.get('product');
             const offerId = params.get('offer');
@@ -1538,6 +1666,21 @@
                 }
             });
 
+        }
+
+        // Strict Auth Entry Point
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', startApp);
+                } else {
+                    startApp();
+                }
+            } else {
+                const returnUrl = encodeURIComponent(window.location.href);
+                window.location.href = `login.html?redirect=${returnUrl}`;
+            }
         });
 
 

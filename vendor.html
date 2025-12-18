@@ -215,21 +215,21 @@
                     <!-- Static placeholders for now, will be dynamic later -->
                     <div class="flex flex-col items-center gap-1 min-w-[70px] cursor-pointer group">
                         <div class="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-pink-500 to-purple-600">
-                            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=150"
+                            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=150"
                                 class="w-full h-full rounded-full border-2 border-white object-cover group-hover:scale-95 transition-transform">
                         </div>
                         <span class="text-[10px] font-bold text-gray-600 truncate w-14 text-center">أحمد</span>
                     </div>
                     <div class="flex flex-col items-center gap-1 min-w-[70px] cursor-pointer group">
                         <div class="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-pink-500 to-purple-600">
-                            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=150"
+                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150"
                                 class="w-full h-full rounded-full border-2 border-white object-cover group-hover:scale-95 transition-transform">
                         </div>
                         <span class="text-[10px] font-bold text-gray-600 truncate w-14 text-center">سارة</span>
                     </div>
                     <div class="flex flex-col items-center gap-1 min-w-[70px] cursor-pointer group">
                         <div class="w-16 h-16 rounded-full p-[2px] bg-gray-200">
-                            <img src="https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&q=80&w=150"
+                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150"
                                 class="w-full h-full rounded-full border-2 border-white object-cover group-hover:scale-95 transition-transform">
                         </div>
                         <span class="text-[10px] font-bold text-gray-600 truncate w-14 text-center">علي</span>
@@ -376,8 +376,14 @@
         // --- Core Functions ---
 
         onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            initPage();
+            if (user) {
+                currentUser = user;
+                initPage();
+            } else {
+                // Strict Auth Redirect
+                const returnUrl = encodeURIComponent(window.location.href);
+                window.location.href = `login.html?redirect=${returnUrl}`;
+            }
         });
 
         async function initPage() {
@@ -412,14 +418,26 @@
 
                 const reqData = vendor.storeRequest || {};
 
+                // Fetch Global Settings for Fallback Logo
+                let globalLogo = 'https://placehold.co/100/1f2937/ffffff?text=Logo';
+                try {
+                    const globalSettingsSnap = await getDoc(doc(db, "settings", "storeConfig"));
+                    if (globalSettingsSnap.exists()) {
+                        const gData = globalSettingsSnap.data();
+                        if (gData.logoUrl) globalLogo = gData.logoUrl;
+                    }
+                } catch (err) {
+                    console.log("Could not fetch global logo fallback", err);
+                }
+
                 // Update UI
                 document.title = vendor.storeName || vendor.displayName;
                 document.getElementById('vendor-name').textContent = vendor.storeName || vendor.displayName;
                 document.getElementById('vendor-desc').textContent = vendor.description || reqData.description || 'مرحباً بكم في متجرنا';
                 document.getElementById('vendor-cover').src = vendor.coverUrl || reqData.coverUrl || 'https://placehold.co/600x200/1f2937/ffffff?text=Cover';
 
-                // Fix: Check storeLogo (saved by restaurant settings) first, then logoUrl, then photoURL
-                document.getElementById('vendor-logo').src = vendor.storeLogo || vendor.logoUrl || vendor.photoURL || 'https://placehold.co/100/1f2937/ffffff?text=Logo';
+                // Fix: Check storeLogo (saved by restaurant settings) first, then logoUrl, then photoURL, THEN fallback to global
+                document.getElementById('vendor-logo').src = vendor.storeLogo || vendor.logoUrl || vendor.photoURL || globalLogo;
 
                 const roleText = vendor.role === 'restaurant' ? 'مطعم' : 'متجر';
                 document.getElementById('vendor-category').textContent = roleText;
@@ -650,6 +668,7 @@
                             <div class="flex flex-col">
                                 ${product.oldPrice && product.oldPrice > product.price ? `<span class="text-xs text-gray-400 line-through Decoration-red-500">${product.oldPrice.toLocaleString()}</span>` : ''}
                                 <span class="font-black text-indigo-600 text-lg ">${product.price.toLocaleString()} <span class="text-xs font-normal text-gray-500">د.ج</span></span>
+                                ${product.rating ? `<div class="flex items-center gap-1 mt-0.5"><i class="fas fa-star text-yellow-400 text-xs"></i><span class="text-xs text-gray-500 font-bold">${parseFloat(product.rating).toFixed(1)}</span></div>` : ''}
                             </div>
                         </div>
                     </div>

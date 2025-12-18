@@ -444,12 +444,14 @@
             }
 
             // تجميع تفاصيل الوجبات
-            const itemsHtml = order.items.map(item => `
+            const itemsHtml = order.items.map(item => {
+                const itemName = typeof item.name === 'object' ? (item.name.ar || item.name.en || 'منتج') : item.name;
+                return `
                 <li class="flex justify-between items-center text-sm">
-                    <span>${item.quantity} x ${item.name}</span>
+                    <span>${item.quantity} x ${itemName}</span>
                     <span class="font-mono">${formatCurrency(item.price * item.quantity)}</span>
                 </li>
-            `).join('');
+            `}).join('');
 
             card.innerHTML = `
                 <div class="p-5 border-b flex flex-col md:flex-row justify-between md:items-center gap-2">

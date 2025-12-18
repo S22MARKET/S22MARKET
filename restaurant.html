@@ -326,6 +326,16 @@
         async function init() {
             if (!vendorId) { alert("رابط المتجر غير صالح"); window.location.href = 'index.html'; return; }
 
+            // Global Settings
+            let activeGlobalLogo = null;
+            try {
+                const globalSettingsSnap = await getDoc(doc(db, "settings", "storeConfig"));
+                if (globalSettingsSnap.exists()) {
+                    const gData = globalSettingsSnap.data();
+                    if (gData.logoUrl) activeGlobalLogo = gData.logoUrl;
+                }
+            } catch (err) { console.warn("Global logo fetch error", err); }
+
             try {
                 // 1. Fetch Vendor
                 const userDoc = await getDoc(doc(db, "users", vendorId));
@@ -337,7 +347,7 @@
                 els.storeName.textContent = vendor.storeName;
                 document.getElementById('footer-store-name').textContent = vendor.storeName;
                 document.getElementById('footer-desc').textContent = vendor.description || '';
-                if (vendor.storeLogo || vendor.logoUrl || vendor.photoURL) els.logo.src = vendor.storeLogo || vendor.logoUrl || vendor.photoURL;
+                if (vendor.storeLogo || vendor.logoUrl || vendor.photoURL || activeGlobalLogo) els.logo.src = vendor.storeLogo || vendor.logoUrl || vendor.photoURL || activeGlobalLogo;
 
                 // Social Links
                 const social = vendor.socialLinks || {};

@@ -503,12 +503,15 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
         // State
         let currentSellerId = null;
         let sellerInfo = null;
         let currentProducts = [];
+        let activeGlobalLogo = null; // Will start null, then fallback
         let currentUser = null;
         let userWishlist = new Set();
         let priceSlider = document.getElementById('price-slider');
@@ -599,6 +602,8 @@
             currentSellerId = params.get('sellerId');
 
             if (currentSellerId) {
+                // Fetch Global Logo Parallel
+                fetchGlobalSettings();
                 await fetchSellerInfo(currentSellerId);
                 // Hide main header or styling adjustments could be done here
             } else {
@@ -663,13 +668,23 @@
             }
         }
 
+        async function fetchGlobalSettings() {
+            try {
+                const globalSettingsSnap = await getDoc(doc(db, "settings", "storeConfig"));
+                if (globalSettingsSnap.exists()) {
+                    const gData = globalSettingsSnap.data();
+                    if (gData.logoUrl) activeGlobalLogo = gData.logoUrl;
+                }
+            } catch (err) { console.warn("Global logo fetch error", err); }
+        }
+
         function renderStoreHeader(seller) {
             const storeName = seller.storeName || seller.displayName || "متجر";
             const role = seller.role || 'vendor';
             const type = role === 'restaurant' ? 'مطعم' : 'متجر';
 
-            // Avatar logic
-            const avatar = seller.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(storeName)}&background=random&color=fff&size=128`;
+            // Avatar logic: Default Global -> Generated
+            const avatar = seller.storeLogo || seller.logoUrl || seller.photoURL || activeGlobalLogo || `https://ui-avatars.com/api/?name=${encodeURIComponent(storeName)}&background=random&color=fff&size=128`;
 
             // Description logic
             const description = (seller.storeRequest && seller.storeRequest.description) ?
@@ -782,7 +797,7 @@
                 if (matches.length > 0) {
                     grid.innerHTML = matches.map(s => {
                         const name = s.storeName || s.displayName || 'متجر';
-                        const avatar = s.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=128`;
+                        const avatar = s.storeLogo || s.logoUrl || s.photoURL || activeGlobalLogo || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=128`;
                         const type = s.role === 'restaurant' ? 'مطعم' : 'متجر';
 
                         return `

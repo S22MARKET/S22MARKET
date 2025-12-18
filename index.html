@@ -1202,13 +1202,22 @@
 
         // --- 4. Data Fetching Functions ---
 
-        async function initHome() {
-            // A. Load Featured Stores
-            loadFeaturedStores();
-            // B. Load Dynamic Sections (Custom Home Layout)
-            await loadHomeSections();
+        // --- CACHE FOR CATEGORIES & STORES ---
+        const categoriesMap = new Map();
+        const storesCache = new Map();
+        let activeGlobalLogo = 'https://placehold.co/100/1f2937/ffffff?text=Logo'; // Fallback
 
-            // B. Load Categories (Independent)
+        async function initHome() {
+            // A. Fetch Global Logo First
+            try {
+                const globalSettingsSnap = await getDoc(doc(db, "settings", "storeConfig"));
+                if (globalSettingsSnap.exists()) {
+                    const gData = globalSettingsSnap.data();
+                    if (gData.logoUrl) activeGlobalLogo = gData.logoUrl;
+                }
+            } catch (err) { console.log("Global logo fetch error", err); }
+
+            // B. Load Categories (Independent) & Build Map
             try {
                 const catSnap = await getDocs(query(collection(db, "categories"), orderBy("orderIndex")));
                 let catHTML = `
@@ -1219,6 +1228,7 @@
 
                 catSnap.forEach(doc => {
                     const c = doc.data();
+                    categoriesMap.set(doc.id, c.name); // Cache Name
                     const icon = c.icon || 'fa-box';
                     catHTML += `
                         <a href="classproductindex.html?category=${doc.id}" class="cat-item">
@@ -1229,7 +1239,14 @@
                 categoriesContainer.innerHTML = catHTML;
             } catch (e) { console.error("Categories failed", e); }
 
-            // B. Load Hero Slider (Offers)
+            // B. Load Featured Stores
+            loadFeaturedStores();
+
+            // C. Load Dynamic Sections (Custom Home Layout)
+            await loadHomeSections();
+
+            // D. Load Hero Slider (Offers)
+
             try {
                 const offerSnap = await getDocs(query(collection(db, "offers"), orderBy("createdAt", "desc"), limit(5)));
                 if (!offerSnap.empty) {
@@ -1287,7 +1304,8 @@
                     snap.forEach(doc => {
                         const s = doc.data();
                         const name = s.storeName || s.displayName || 'متجر';
-                        const avatar = s.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=128`;
+                        // Logo Fallback Logic: storeLogo -> photoURL -> globalLogo
+                        const avatar = s.storeLogo || s.logoUrl || s.photoURL || activeGlobalLogo;
 
                         // Exclude admin or invalid
                         if (!s.role) return;
@@ -1448,30 +1466,29 @@
             const isDirect = p.productType === 'direct';
             const price = p.price ? p.price.toLocaleString() : '0';
 
+            // Resolve Category Name
+            let catName = p.categoryName;
+            if (!catName || catName === 'General' || catName === 'عام') {
+                if (p.categoryId && categoriesMap.has(p.categoryId)) {
+                    catName = categoriesMap.get(p.categoryId);
+                } else {
+                    catName = 'متجر';
+                }
+            }
+            // Sanitize
+            if (String(catName).includes('object')) catName = 'متجر';
+
+
+            // Resolve Store Name (Async fetch if missing, but for sync render we try best effort)
+            // If we really want store name, we might need to fetch it if it's critical. 
+            // For now, let's look for storeName field.
+            let storeNameDisplay = p.storeName || '';
+            // If missing, we could try to fetch user... but that causes layout shifts.
+            // Let's rely on data fix for storeName.
+
+
             // Badge Logic
             let badgesHTML = '';
-
-            // 1. New Badge (Top Left, below wishlist if needed, or Top Right stacked)
-            // Logic: Created within last 7 days
-            if (p.createdAt) {
-                const createdDate = p.createdAt.seconds ? new Date(p.createdAt.seconds * 1000) : new Date(p.createdAt);
-                const diffTime = Math.abs(new Date() - createdDate);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                if (diffDays <= 7) {
-                    badgesHTML += `<span class="badge-new absolute top-2 right-2 z-10">جديد</span>`;
-                }
-            }
-
-            // 2. Discount Badge (If originalPrice exists and is higher)
-            if (p.originalPrice && p.originalPrice > p.price) {
-                const discount = Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100);
-                if (discount > 0) {
-                    // Position: Top Right (Stacked if New exists, we'll use a flex container there ideally)
-                    // For simplicity, let's put it top right but offset if 'New' exists? 
-                    // Or better: Just put absolute.
-                    // Let's wrap badges in a container.
-                }
-            }
 
             // Refined Badge Container
             let badgesContainer = '<div class="absolute top-2 right-2 flex flex-col gap-1 items-end z-10">';
@@ -1505,26 +1522,27 @@
                         ${badgesContainer}
 
                         <!-- Wishlist Button -->
-                        <button class="wishlist-btn absolute top-2 left-2 w-9 h-9 bg-white/80 backdrop-blur text-slate-400 hover:text-red-500 hover:bg-white rounded-full flex items-center justify-center shadow-sm transition-all duration-300 z-20" data-id="${p.id}" onclick="event.stopPropagation()">
+                        <button class="wishlist-btn absolute top-2 left-2 w-9 h-9 bg-white/80 backdrop-blur text-slate-400 hover:text-red-500 hover:text-red-600 hover:bg-white rounded-full flex items-center justify-center shadow-sm transition-all duration-300 z-20" data-id="${p.id}" onclick="event.stopPropagation()">
                             <i class="far fa-heart"></i>
                         </button>
-                        
-                        <!-- Quick Add Overlay (Mobile Friendly) -->
-                        <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex justify-end">
-                            <!-- Maybe quick view icon here? -->
-                        </div>
+
+                         <!-- Optional: Store Name Badge on Image if available -->
+                         ${storeNameDisplay ? `<div class="absolute bottom-2 right-2 bg-black/60 backdrop-blur text-white text-[9px] px-2 py-1 rounded-lg font-bold shadow-sm">${storeNameDisplay}</div>` : ''}
                     </div>
 
                     <div class="p-4">
                         <div class="mb-2">
-                             <a href="classproductindex.html?category=${p.categoryId || 'all'}" class="text-[10px] text-slate-400 hover:text-indigo-500 transition-colors" onclick="event.stopPropagation()">${p.categoryName || 'عام'}</a>
-                             <h3 class="text-sm font-bold text-slate-800 line-clamp-2 leading-relaxed h-[2.5rem]">${p.name}</h3>
+                             <a href="classproductindex.html?category=${p.categoryId || 'all'}" class="text-[10px] text-slate-400 hover:text-indigo-500 transition-colors flex items-center gap-1" onclick="event.stopPropagation()">
+                                <i class="fas fa-tag text-[9px]"></i> ${catName}
+                             </a>
+                             <h3 class="text-sm font-bold text-slate-800 line-clamp-2 leading-relaxed h-[2.5rem] mt-1">${p.name}</h3>
                         </div>
 
                         <div class="flex justify-between items-end border-t border-slate-50 pt-3 mt-1">
                             <div class="flex flex-col">
                                 ${p.originalPrice && p.originalPrice > p.price ? `<span class="text-[10px] text-slate-400 line-through decoration-red-400">${p.originalPrice.toLocaleString()} د.ج</span>` : ''}
                                 <span class="text-indigo-600 font-extrabold text-base">${price} <span class="text-[10px] font-normal text-slate-500">د.ج</span></span>
+                                ${p.rating ? `<div class="flex items-center gap-1 mt-0.5"><i class="fas fa-star text-yellow-400 text-[10px]"></i><span class="text-[10px] text-gray-500 font-bold">${parseFloat(p.rating).toFixed(1)}</span></div>` : ''}
                             </div>
                             
                             <button class="add-to-cart-btn w-9 h-9 rounded-xl bg-orange-50 text-orange-500 hover:bg-orange-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:shadow-orange-200 active:scale-90" 

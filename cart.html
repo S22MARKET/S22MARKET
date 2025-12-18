@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
+
+
+
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -918,6 +922,22 @@
         let cart = [];
         let currentDiscount = null;
         let activeTab = 'market'; // 'market' or 'food'
+        let activeGlobalLogo = 'https://placehold.co/100/1f2937/ffffff?text=Logo'; // Fallback
+
+        // Fetch Global Config
+        async function fetchGlobalConfig() {
+            try {
+                const globalSettingsSnap = await getDoc(doc(db, "settings", "storeConfig"));
+                if (globalSettingsSnap.exists()) {
+                    const gData = globalSettingsSnap.data();
+                    if (gData.logoUrl) {
+                        activeGlobalLogo = gData.logoUrl;
+                        renderCartItems(); // Re-render to update logos if cart is already loaded
+                    }
+                }
+            } catch (err) { console.log("Global logo fetch error", err); }
+        }
+        fetchGlobalConfig();
 
         const elements = {
             loader: document.getElementById('cart-loader'),
@@ -1036,6 +1056,7 @@
         }
 
         function getFilteredItems() {
+            // Updated: Return ONLY active tab items for Checkout and logic coherence
             if (activeTab === 'market') {
                 return cart.filter(i => i.itemType === 'market' || !i.itemType);
             } else {
@@ -1044,12 +1065,12 @@
         }
 
         function renderCartItems() {
-            const items = getFilteredItems();
+            const allItems = cart;
             const container = elements.itemsList;
 
             elements.loader.classList.add('hidden');
 
-            if (items.length === 0) {
+            if (allItems.length === 0) {
                 elements.emptyMsg.classList.remove('hidden');
                 elements.content.classList.add('hidden');
                 elements.mobileCheckoutBar.classList.add('hidden');
@@ -1063,59 +1084,154 @@
             container.innerHTML = '';
             let subtotal = 0;
 
-            if (activeTab === 'food') {
-                // Group by Restaurant
-                const groups = {};
-                items.forEach(item => {
-                    const storeId = item.sellerId || 'unknown';
-                    if (!groups[storeId]) {
-                        groups[storeId] = {
-                            name: item.storeName || 'مطعم غير معروف',
-                            logo: item.storeLogo || 'https://placehold.co/50',
-                            items: []
-                        };
-                    }
-                    groups[storeId].items.push(item);
-                });
+            // 1. Separate Items by Tab focus
+            const mainItems = allItems.filter(i => activeTab === 'market' ? (i.itemType === 'market' || !i.itemType) : i.itemType === 'food');
+            const otherItems = allItems.filter(i => activeTab === 'market' ? i.itemType === 'food' : (i.itemType === 'market' || !i.itemType));
 
-                // Render Groups
+            // 2. Group Main Items
+            const groups = {};
+            mainItems.forEach(item => {
+                const storeId = item.sellerId || 'unknown';
+                if (!groups[storeId]) {
+                    groups[storeId] = {
+                        name: item.storeName || (activeTab === 'market' ? 'متجر عام' : 'مطعم غير معروف'),
+                        logo: item.storeLogo || item.logoUrl || item.photoURL || activeGlobalLogo,
+                        items: [],
+                        totalValue: 0,
+                        itemCount: 0
+                    };
+                }
+                groups[storeId].items.push(item);
+                groups[storeId].totalValue += (item.price * item.quantity);
+                groups[storeId].itemCount += item.quantity;
+            });
+
+            // 3. Render Groups (Vitality System)
+            if (Object.keys(groups).length > 0) {
                 Object.values(groups).forEach(group => {
-                    const groupTotal = group.items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-                    subtotal += groupTotal;
+                    subtotal += group.totalValue;
+
+                    // Vitality / Progress Logic
+                    // Example: Level 1 (0-5000), Level 2 (5000-10000), etc.
+                    const progressPercent = Math.min(100, (group.totalValue / 5000) * 100);
+                    const level = Math.floor(group.totalValue / 5000) + 1;
 
                     const groupEl = document.createElement('div');
-                    groupEl.className = 'bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4 fade-in-up';
+                    groupEl.className = 'bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-6 relative overflow-hidden group-card';
                     groupEl.innerHTML = `
-    <div class="flex items-center gap-3 mb-4 pb-3 border-b border-dashed">
-        <img src="${group.logo}" class="w-8 h-8 rounded-full bg-gray-100 object-cover">
-        <h3 class="font-bold text-gray-800">${group.name}</h3>
-    </div>
-    <div class="space-y-4">
-        ${group.items.map(item => createItemHTML(item)).join('')}
-    </div>
-    `;
+                        <!-- Vitality Header -->
+                        <div class="flex flex-col gap-2 mb-4 pb-3 border-b border-dashed relative z-10">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="relative">
+                                        <img src="${group.logo}" class="w-10 h-10 rounded-full bg-gray-100 object-cover border-2 border-white shadow-sm">
+                                        <div class="absolute -bottom-1 -right-1 bg-green-500 text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full border border-white">
+                                            ${group.items.length}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-gray-800 text-base">${group.name}</h3>
+                                        <p class="text-[10px] text-gray-400 font-bold">بائع موثوق</p>
+                                    </div>
+                                </div>
+                                <div class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">
+                                    المستوى ${level}
+                                </div>
+                            </div>
+
+                            <!-- Progress Bar (Vitality) -->
+                            <div class="w-full bg-gray-100 rounded-full h-1.5 mt-1 overflow-hidden">
+                                <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-1.5 rounded-full transition-all duration-1000" style="width: ${progressPercent}%"></div>
+                            </div>
+                            <p class="text-[10px] text-gray-400 text-left w-full pl-1">متبقي ${Math.max(0, (level * 5000) - group.totalValue)} د.ج للمستوى التالي</p>
+                        </div>
+
+                        <!-- Items -->
+                        <div class="space-y-4 relative z-10">
+                            ${group.items.map(item => createItemHTML(item)).join('')}
+                        </div>
+
+                        <!-- Decorative Background (Vitality) -->
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent"></div>
+                    `;
                     container.appendChild(groupEl);
                 });
-
             } else {
-                // Market - Flat List
-                items.forEach(item => {
-                    subtotal += (item.price * item.quantity);
-                    container.innerHTML += createItemHTML(item, true); // true = wrapper div
-                });
+                if (activeTab === 'market') {
+                    container.innerHTML = `<div class="text-center py-10 text-gray-400">لا توجد منتجات تسوق في السلة</div>`;
+                } else {
+                    container.innerHTML = `<div class="text-center py-10 text-gray-400">لا توجد طلبات طعام في السلة</div>`;
+                }
+            }
+
+
+            // 4. "Next to the old one" - Cross Category Alert
+            if (otherItems.length > 0) {
+                const otherType = activeTab === 'market' ? 'طعام' : 'تسوق';
+                const otherIcon = activeTab === 'market' ? 'fa-utensils' : 'fa-shopping-bag';
+                const otherColor = activeTab === 'market' ? 'orange' : 'indigo'; // Tailwinds colors
+
+                const alertEl = document.createElement('div');
+                alertEl.className = `mt-6 bg-${otherColor}-50 border border-${otherColor}-100 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:bg-${otherColor}-100 transition-colors`;
+                alertEl.onclick = () => switchCartTab(activeTab === 'market' ? 'food' : 'market');
+                alertEl.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-${otherColor}-600 shadow-sm text-xl">
+                            <i class="fas ${otherIcon} animate-pulse"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-800 text-sm">لديك سلة ${otherType} جانبية!</h4>
+                            <p class="text-xs text-gray-500">${otherItems.length} عنصر ينتظرك هناك</p>
+                        </div>
+                    </div>
+                    <div class="bg-white px-4 py-2 rounded-lg text-xs font-bold text-${otherColor}-600 shadow-sm">
+                        عرض السلة
+                    </div>
+                `;
+                container.appendChild(alertEl);
+            }
+
+            // 5. Food Upsell (Specific Request)
+            if (activeTab === 'food' && mainItems.length > 0) {
+                const upsellEl = document.createElement('div');
+                upsellEl.className = 'mt-8 border-t pt-4';
+                upsellEl.innerHTML = `
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-magic text-yellow-500"></i> اقتراحات Dr. S22
+                    </h3>
+                    <div class="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
+                         <!-- Static Examples for Visuals -->
+                         ${createUpsellCard('بيبسي', '150', 'https://images.unsplash.com/photo-1629203851122-3726ecdf080c?auto=format&fit=crop&q=80&w=100')}
+                         ${createUpsellCard('بطاطس إضافية', '200', 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&q=80&w=100')}
+                         ${createUpsellCard('صوص ثوم', '50', 'https://images.unsplash.com/photo-1472476443507-c7a392dd6182?auto=format&fit=crop&q=80&w=100')}
+                    </div>
+                 `;
+                container.appendChild(upsellEl);
             }
 
             updateSummary(subtotal);
         }
 
+        function createUpsellCard(name, price, img) {
+            return `
+                <div class="min-w-[100px] bg-white rounded-xl p-2 border border-gray-100 shadow-sm flex flex-col items-center gap-2 cursor-pointer hover:border-indigo-300 transition-colors">
+                    <img src="${img}" class="w-12 h-12 rounded-full object-cover bg-gray-50">
+                    <span class="text-[10px] font-bold text-gray-700 text-center truncate w-full">${name}</span>
+                    <span class="text-xs font-black text-indigo-600">${price} د.ج</span>
+                    <button class="w-full bg-indigo-50 text-indigo-600 text-[10px] font-bold py-1 rounded hover:bg-indigo-600 hover:text-white transition-colors">إضافة</button>
+                </div>
+            `;
+        }
+
         function createItemHTML(item, wrap = false) {
             const img = (item.imageUrls && item.imageUrls[0]) || item.image || 'https://placehold.co/100';
+            const itemName = typeof item.name === 'object' ? (item.name.ar || item.name.en || 'منتج') : item.name;
             const html = `
     <div
         class="flex items-center gap-4 ${wrap ? 'bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-4' : ''}">
         <img src="${img}" class="w-20 h-20 rounded-xl bg-gray-50 object-cover border border-gray-100">
         <div class="flex-grow">
-            <h4 class="font-bold text-gray-800 text-sm line-clamp-2">${item.name}</h4>
+            <h4 class="font-bold text-gray-800 text-sm line-clamp-2">${itemName}</h4>
             <p class="text-indigo-600 font-mono font-bold mt-1">${item.price.toLocaleString()} د.ج</p>
         </div>
         <div class="flex flex-col items-end gap-2">
@@ -1156,6 +1272,16 @@
                 elements.couponMsg.classList.remove('hidden');
             } else {
                 elements.couponMsg.classList.add('hidden');
+            }
+
+            // Context Awareness for Checkout
+            const activeCount = cart.filter(i => activeTab === 'market' ? (i.itemType === 'market' || !i.itemType) : i.itemType === 'food').length;
+            if (activeCount === 0) {
+                elements.mobileCheckoutBar.classList.add('hidden');
+                elements.content.classList.add('hidden');
+                elements.emptyMsg.classList.remove('hidden');
+            } else {
+                elements.mobileCheckoutBar.classList.remove('hidden');
             }
         }
 

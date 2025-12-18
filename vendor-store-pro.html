@@ -124,10 +124,20 @@
 
         let productsMap = {};
         let currentVendor = {};
+        let activeGlobalLogo = null;
         let cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
 
         async function initPage() {
             if (!vendorId) return;
+
+            // Fetch Global Settings
+            try {
+                const globalSettingsSnap = await getDoc(doc(db, "settings", "storeConfig"));
+                if (globalSettingsSnap.exists()) {
+                    const gData = globalSettingsSnap.data();
+                    if (gData.logoUrl) activeGlobalLogo = gData.logoUrl;
+                }
+            } catch (err) { console.warn("Global logo fetch error", err); }
 
             // 1. جلب بيانات المطعم
             const vendorRef = doc(db, 'vendors', vendorId);
@@ -138,7 +148,7 @@
                 currentVendor = { id: vendorSnap.id, ...data };
                 document.getElementById('vendor-name').textContent = data.name;
                 document.getElementById('vendor-desc').textContent = data.description || 'أفضل المنتجات لدينا';
-                document.getElementById('vendor-logo').src = data.logo || 'https://via.placeholder.com/150';
+                document.getElementById('vendor-logo').src = data.logo || activeGlobalLogo || 'https://via.placeholder.com/150';
                 document.getElementById('rating-val').textContent = data.rating || 'جديد';
                 document.getElementById('likes-val').textContent = data.likes || 0;
 
@@ -204,7 +214,7 @@
                     // if we can't distinguish. However, line 167 in original file has "restaurant-status-banner".
                     // This strongly suggests it's a restaurant page.
                     storeName: currentVendor.name || 'Store',
-                    storeLogo: currentVendor.logo || 'https://via.placeholder.com/50'
+                    storeLogo: currentVendor.logo || activeGlobalLogo || 'https://via.placeholder.com/50'
                 });
             }
             // Check if cart has mixed items? 
