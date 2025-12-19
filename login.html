@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="app-style.css">
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
@@ -389,11 +390,11 @@
         // Import helper functions - assuming auth-helper.js is in the same directory or accessible
         // Since we are in a module script, we can dynamically import or just paste logic if needed for simplicity in this file.
         // But let's stick to the plan: modify logic to check localStorage.
-        
+
         function handleSuccessfulAuth() {
             // Check for return URL from auth-helper or direct localStorage
             const returnUrl = localStorage.getItem('s22_return_url') || localStorage.getItem('redirectToAfterLogin');
-            
+
             // Clear both keys to be safe
             localStorage.removeItem('s22_return_url');
             localStorage.removeItem('redirectToAfterLogin');
@@ -402,7 +403,7 @@
                 window.location.href = returnUrl;
             } else {
                 // Default fallback if no return URL is found
-                window.location.href = 'index.html'; 
+                window.location.href = 'index.html';
             }
         }
 

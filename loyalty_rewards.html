@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,71 +8,196 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="app-style.css">
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; }
-        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        .small-loader { border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; translateY(0); } }
-        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f1f5f9;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4f46e5;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        .small-loader {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         #user-menu-dropdown.show {
             display: block;
             animation: slideInUp 0.2s ease-out;
         }
-        
-        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 40; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
-        .modal-backdrop.active { opacity: 1; pointer-events: all; }
-        .modal-content { background-color: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 500px; z-index: 50; transform: scale(0.95); opacity: 0; transition: all 0.3s ease; }
-        .modal-backdrop.active .modal-content { transform: scale(1); opacity: 1; }
 
-        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10001; }
-        .toast { background-color: #2d3748; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards; }
-        .toast.error { background-color: #c53030; }
-        @keyframes fadeOut { from { opacity: 1; } to: { opacity: 0; } }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .modal-backdrop.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+            z-index: 50;
+            transform: scale(0.95);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .modal-backdrop.active .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10001;
+        }
+
+        .toast {
+            background-color: #2d3748;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+        }
+
+        .toast.error {
+            background-color: #c53030;
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
     </style>
 </head>
+
 <body>
 
     <header class="bg-white shadow-sm sticky top-0 z-30">
         <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-             <a href="index.html" class="flex items-center gap-3">
+            <a href="index.html" class="flex items-center gap-3">
                 <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
                     S22<span class="text-blue-600">MARKET</span>
                 </h1>
             </a>
             <div id="header-actions" class="flex items-center gap-4 relative">
-                <a href="index.html" id="store-btn" class="relative text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 shadow-lg">
+                <a href="index.html" id="store-btn"
+                    class="relative text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 shadow-lg">
                     <i class="fas fa-store"></i>
                     <span>المتجر</span>
                 </a>
-                <a href="login.html" id="login-btn" class="hidden relative text-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-full transition-colors items-center gap-2 sm:flex">
+                <a href="login.html" id="login-btn"
+                    class="hidden relative text-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-full transition-colors items-center gap-2 sm:flex">
                     <i class="fas fa-sign-in-alt"></i>
                     <span>دخول / تسجيل</span>
                 </a>
                 <div id="user-menu" class="hidden">
-                    <button id="user-menu-button" class="flex items-center gap-2 text-lg font-semibold text-gray-700 bg-green-100 hover:bg-green-200 px-5 py-2.5 rounded-full transition-colors">
+                    <button id="user-menu-button"
+                        class="flex items-center gap-2 text-lg font-semibold text-gray-700 bg-green-100 hover:bg-green-200 px-5 py-2.5 rounded-full transition-colors">
                         <i class="fas fa-user-check text-green-700"></i>
                         <span id="user-menu-name">...</span>
                         <i class="fas fa-chevron-down text-xs"></i>
                     </button>
-                    <div id="user-menu-dropdown" class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
+                    <div id="user-menu-dropdown"
+                        class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
                         <div class="p-3 border-b">
                             <p class="text-sm text-gray-500">مرحباً بك،</p>
                             <p class="font-bold text-gray-800" id="user-menu-displayname">...</p>
                         </div>
-                        <a href="profile.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي ومحافطي</a>
-                        
+                        <a href="profile.html"
+                            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي ومحافطي</a>
+
                         <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</div>
-                        <a href="dawarat_learning_dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-graduation-cap fa-fw ml-2 text-indigo-400"></i> بذلوراتي المسجلة</a>
+                        <a href="dawarat_learning_dashboard.html"
+                            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                class="fas fa-graduation-cap fa-fw ml-2 text-indigo-400"></i> بذلوراتي المسجلة</a>
 
                         <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">المتجر</div>
-                        <a href="seller-dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
-                        <a href="order_history.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
-                        <a href="loyalty_card.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء (الجواهر)</a>
-                        <a href="loyalty_tasks.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-tasks fa-fw ml-2 text-purple-400"></i> كسب الجواهر (المهام)</a>
-                        <a href="loyalty_rewards.html" class="block px-4 py-3 text-gray-700 bg-gray-100 font-bold transition-colors"><i class="fas fa-gift fa-fw ml-2 text-yellow-400"></i> استبدال الجواهر</a>
+                        <a href="seller-dashboard.html"
+                            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
+                        <a href="order_history.html"
+                            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
+                        <a href="loyalty_card.html"
+                            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء (الجواهر)</a>
+                        <a href="loyalty_tasks.html"
+                            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                class="fas fa-tasks fa-fw ml-2 text-purple-400"></i> كسب الجواهر (المهام)</a>
+                        <a href="loyalty_rewards.html"
+                            class="block px-4 py-3 text-gray-700 bg-gray-100 font-bold transition-colors"><i
+                                class="fas fa-gift fa-fw ml-2 text-yellow-400"></i> استبدال الجواهر</a>
 
-                        <button id="logout-btn" class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
+                        <button id="logout-btn"
+                            class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i
+                                class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
                     </div>
                 </div>
             </div>
@@ -79,7 +205,7 @@
     </header>
 
     <main class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        
+
         <div id="auth-loader" class="text-center py-20">
             <div class="loader mx-auto"></div>
             <p class="mt-4 text-gray-600 text-lg">جاري جلب المكافآت المتاحة...</p>
@@ -89,7 +215,8 @@
             <div class="text-center mb-8">
                 <i class="fas fa-gem text-5xl text-blue-500 mb-3"></i>
                 <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900">متجر المكافآت (بالجواهر 💎)</h1>
-                <p class="mt-3 text-lg text-gray-600">استخدم "الجواهر" التي كسبتها من المتجر لاستبدالها بهذه المكافآت القيمة.</p>
+                <p class="mt-3 text-lg text-gray-600">استخدم "الجواهر" التي كسبتها من المتجر لاستبدالها بهذه المكافآت
+                    القيمة.</p>
             </div>
 
             <div class="mb-8 p-6 bg-white rounded-xl shadow-md flex justify-between items-center">
@@ -100,7 +227,7 @@
             </div>
 
             <div id="rewards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                </div>
+            </div>
 
             <div id="no-rewards-msg" class="hidden text-center py-20 bg-white rounded-xl shadow-md">
                 <i class="fas fa-box-open text-5xl text-gray-400"></i>
@@ -108,37 +235,39 @@
             </div>
         </div>
     </main>
-    
+
     <div id="claim-reward-modal" class="modal-backdrop">
         <div class="modal-content">
-             <div class="flex justify-between items-center mb-4 border-b pb-3">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
                 <h3 class="text-xl font-bold">تأكيد الاستبدال</h3>
                 <button id="close-claim-modal-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button>
             </div>
-            
+
             <p id="claim-confirm-text" class="text-lg text-gray-700 text-center my-6">
                 هل أنت متأكد أنك تريد استبدال...؟
             </p>
 
             <div class="flex justify-end gap-4 mt-6 border-t pt-4">
-                <button id="cancel-claim-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300">
+                <button id="cancel-claim-btn"
+                    class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300">
                     إلغاء
                 </button>
-                <button id="confirm-claim-btn" class="w-40 flex justify-center items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg disabled:bg-green-400">
+                <button id="confirm-claim-btn"
+                    class="w-40 flex justify-center items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg disabled:bg-green-400">
                     <span class="button-text">نعم، استبدال</span>
                     <div class="small-loader button-loader hidden"></div>
                 </button>
             </div>
         </div>
     </div>
-    
+
     <div id="toast-container"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, collection, getDocs, addDoc, query, where, serverTimestamp, orderBy, increment, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
+
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
             authDomain: "s22market-4e3e6.firebaseapp.com",
@@ -159,7 +288,7 @@
         const rewardsGrid = document.getElementById('rewards-grid');
         const noRewardsMsg = document.getElementById('no-rewards-msg');
         // (خاص بالمتجر)
-        const userJewelsBalance = document.getElementById('user-jewels-balance'); 
+        const userJewelsBalance = document.getElementById('user-jewels-balance');
 
         // --- عناصر الهيدر ---
         const loginBtn = document.getElementById('login-btn');
@@ -167,19 +296,19 @@
         const userMenuButton = document.getElementById('user-menu-button');
         const userMenuDropdown = document.getElementById('user-menu-dropdown');
         const logoutBtn = document.getElementById('logout-btn');
-        
+
         // --- عناصر نافذة التأكيد ---
         const claimModal = document.getElementById('claim-reward-modal');
         const closeClaimModalBtn = document.getElementById('close-claim-modal-btn');
         const cancelClaimBtn = document.getElementById('cancel-claim-btn');
         const confirmClaimBtn = document.getElementById('confirm-claim-btn');
         const claimConfirmText = document.getElementById('claim-confirm-text');
-        
+
         // --- متغيرات الحالة ---
         let currentUser = null;
         let currentUserData = {};
-        let currentClaimData = {}; 
-        
+        let currentClaimData = {};
+
         // --- (خاص بالمتجر) أسماء الإعدادات والمجموعات ---
         const LOYALTY_SETTINGS_DOC_ID = "loyalty"; // (يقرأ من إعدادات المتجر)
         const REWARDS_COLLECTION_ID = "rewards"; // (يقرأ من مجموعة المتجر)
@@ -207,7 +336,7 @@
                 if (loader) loader.classList.add('hidden');
             }
         }
-        
+
         // --- (خاص بالمتجر) دالة تحميل المكافآت ---
         async function loadRewards(user) {
             try {
@@ -233,18 +362,18 @@
                         rewardsGrid.appendChild(createRewardCard(reward));
                     });
                 }
-                
+
             } catch (error) {
                 console.error("Error loading rewards: ", error);
                 rewardsGrid.innerHTML = '<p class="text-red-500 col-span-full text-center">حدث خطأ أثناء جلب المكافآت.</p>';
             }
         }
-        
+
         // --- (خاص بالمتجر) دالة إنشاء كرت المكافأة ---
         function createRewardCard(reward) {
             const card = document.createElement('div');
             card.className = 'bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center';
-            
+
             // (خاص بالمتجر) التحقق من رصيد الجواهر
             const userBalance = currentUserData.loyaltyPoints || 0;
             const canAfford = userBalance >= reward.points;
@@ -273,7 +402,7 @@
             const claimBtn = e.target.closest('.claim-reward-btn');
             if (claimBtn) {
                 const { rewardId, rewardTitle, rewardPoints } = claimBtn.dataset;
-                
+
                 currentClaimData = {
                     id: rewardId,
                     title: rewardTitle,
@@ -285,26 +414,26 @@
                     <strong class="text-blue-600">${currentClaimData.points} جوهرة 💎</strong>
                     مقابل 
                     <strong class="text-indigo-600">${currentClaimData.title}</strong>؟`;
-                
+
                 claimModal.classList.add('active');
             }
         });
 
         closeClaimModalBtn.onclick = () => claimModal.classList.remove('active');
         cancelClaimBtn.onclick = () => claimModal.classList.remove('active');
-        
+
         // --- (خاص بالمتجر) دالة تنفيذ الاستبدال ---
         confirmClaimBtn.addEventListener('click', async () => {
             toggleButtonState(confirmClaimBtn, true);
 
             try {
                 const userDocRef = doc(db, "users", currentUser.uid);
-                
+
                 // 1. استخدام Transaction لضمان الأمان
                 await runTransaction(db, async (transaction) => {
                     const userDoc = await transaction.get(userDocRef);
                     if (!userDoc.exists()) { throw new Error("لم يتم العثور على بيانات المستخدم."); }
-                    
+
                     const data = userDoc.data();
                     // (خاص بالمتجر) التحقق من رصيد الجواهر
                     const currentPoints = data.loyaltyPoints || 0;
@@ -312,7 +441,7 @@
                     if (currentPoints < currentClaimData.points) {
                         throw new Error("رصيدك من الجواهر غير كافٍ لإتمام العملية.");
                     }
-                    
+
                     // 2. خصم الجواهر
                     const newPoints = currentPoints - currentClaimData.points;
                     transaction.update(userDocRef, { loyaltyPoints: newPoints });
@@ -321,7 +450,7 @@
                     const logRef = doc(collection(db, `users/${currentUser.uid}/loyaltyChanges`));
                     transaction.set(logRef, {
                         type: 'reward_spent',
-                        pointsSubtracted: currentClaimData.points, 
+                        pointsSubtracted: currentClaimData.points,
                         reason: `استبدال مكافأة: ${currentClaimData.title}`,
                         timestamp: serverTimestamp()
                     });
@@ -342,9 +471,9 @@
                 const newBalance = (currentUserData.loyaltyPoints || 0) - currentClaimData.points;
                 currentUserData.loyaltyPoints = newBalance;
                 userJewelsBalance.textContent = `${newBalance.toLocaleString()} 💎`;
-                
-                await loadRewards(currentUser); 
-                
+
+                await loadRewards(currentUser);
+
                 claimModal.classList.remove('active');
                 showToast('تم استبدال المكافأة بنجاح!', 'success');
 
@@ -362,27 +491,26 @@
                 currentUser = user;
                 loginBtn.classList.add('hidden');
                 userMenu.classList.remove('hidden');
-                
+
                 const displayName = user.displayName || "عميلنا";
                 const userMenuName = document.getElementById('user-menu-name');
                 const userMenuDisplayName = document.getElementById('user-menu-displayname');
-                
+
                 if (userMenuName) userMenuName.textContent = displayName.split(' ')[0];
                 if (userMenuDisplayName) userMenuDisplayName.textContent = displayName;
 
                 authLoader.classList.add('hidden');
                 rewardsContent.classList.remove('hidden');
-                loadRewards(user); 
+                loadRewards(user);
 
             } else {
-                window.location.href = 'login.html'; 
+                window.location.href = 'login.html';
             }
         });
 
         // --- معالجات القائمة وتسجيل الخروج (لـ S22 Market) ---
-        const userMenuButton = document.getElementById('user-menu-button');
-        const userMenuDropdown = document.getElementById('user-menu-dropdown');
-        
+        // (Variables already declared above at line 296-297)
+
         if (userMenuButton) {
             userMenuButton.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -401,4 +529,5 @@
         }
     </script>
 </body>
+
 </html>

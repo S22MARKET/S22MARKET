@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 
@@ -8,146 +8,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S22 Market - سلة المشتريات</title>
+    <title>S22 Market - ط³ظ„ط© ط§ظ„ظ…ط´طھط±ظٹط§طھ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="app-style.css">
     <style>
-        :root {
-            --primary-color: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-body: #f1f5f9;
-            --bg-card: #ffffff;
-            --text-primary: #1e293b;
-            --border-color: #e2e8f0;
-        }
-
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-primary);
-        }
-
-        .loader {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary-color);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-        }
-
-        .small-loader {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes fadeOut {
-            to {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-        }
-
-        /* Skeleton Loading */
-        .skeleton {
-            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 0.5rem;
-        }
-
-        @keyframes shimmer {
-            0% {
-                background-position: 200% 0;
-            }
-
-            100% {
-                background-position: -200% 0;
-            }
-        }
-
-        .fade-in-up {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        #toast-container {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10001;
-            width: calc(100% - 2rem);
-            max-width: 400px;
-        }
-
-        @media (min-width: 640px) {
-            #toast-container {
-                bottom: 20px;
-            }
-        }
-
-        .toast {
-            padding: 1rem 1.5rem;
-            border-radius: 0.75rem;
-            color: white;
-            background-color: #10b981;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            animation: slideInUp 0.5s, fadeOut 0.5s 4.5s forwards;
-        }
-
-        .toast.error {
-            background-color: #ef4444;
-        }
-
+        /* Cart Specific Overrides */
         .quantity-btn {
             width: 30px;
             height: 30px;
@@ -161,42 +28,6 @@
             background-color: #e2e8f0;
         }
 
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: var(--bg-card);
-            border-top: 1px solid var(--border-color);
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-            display: flex;
-            justify-content: space-around;
-            padding: 0.5rem 0;
-            z-index: 900;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #64748b;
-            text-decoration: none;
-            flex-grow: 1;
-            padding: 0.25rem 0;
-        }
-
-        .nav-item i {
-            font-size: 1.25rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .nav-item.active {
-            color: var(--primary-color);
-        }
-
         #user-menu-dropdown.show {
             display: block;
             animation: slideInUp 0.2s ease-out;
@@ -208,6 +39,7 @@
 
         body {
             padding-bottom: 168px;
+            /* Mobile Sticky bar space */
         }
 
         @media (min-width: 1024px) {
@@ -215,76 +47,6 @@
                 padding-bottom: 0;
             }
         }
-
-        /* === (بداية الكود المعدل: ستايل نافذة الدفع) === */
-        .modal-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            z-index: 950;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-            backdrop-filter: blur(5px);
-            /* Added blur */
-        }
-
-        .modal-backdrop.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .modal-content {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: white;
-            box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-height: 90vh;
-            /* (جديد) أقصى ارتفاع 90% من الشاشة */
-            overflow-y: auto;
-            /* (جديد) إضافة سكرول داخلي */
-            z-index: 1000;
-            transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            border-top-left-radius: 1.5rem;
-            /* rounded-t-3xl */
-            border-top-right-radius: 1.5rem;
-        }
-
-        .modal-backdrop.active .modal-content {
-            transform: translateY(0);
-        }
-
-        /* (جديد) على الكمبيوتر، تظهر في المنتصف */
-        @media (min-width: 640px) {
-            .modal-content {
-                top: 50%;
-                left: 50%;
-                bottom: auto;
-                right: auto;
-                transform: translate(-50%, -50%) scale(0.9);
-                opacity: 0;
-                width: 90%;
-                max-width: 500px;
-                max-height: 90vh;
-                border-radius: 1rem;
-                /* rounded-lg */
-                transition: all 0.3s ease;
-            }
-
-            .modal-backdrop.active .modal-content {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 1;
-            }
-        }
-
-        /* === (نهاية الكود المعدل) === */
     </style>
 </head>
 
@@ -301,7 +63,7 @@
                 <a href="login.html" id="login-btn"
                     class="hidden relative text-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-full transition-colors items-center gap-2 sm:flex">
                     <i class="fas fa-sign-in-alt"></i>
-                    <span>دخول / تسجيل</span>
+                    <span>ط¯ط®ظˆظ„ / طھط³ط¬ظٹظ„</span>
                 </a>
 
                 <div id="user-menu" class="hidden">
@@ -314,24 +76,26 @@
                     <div id="user-menu-dropdown"
                         class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
                         <div class="p-3 border-b">
-                            <p class="text-sm text-gray-500">مرحباً بك،</p>
+                            <p class="text-sm text-gray-500">ظ…ط±ط­ط¨ط§ظ‹ ط¨ظƒطŒ</p>
                             <p class="font-bold text-gray-800" id="user-menu-displayname">...</p>
                         </div>
                         <a href="profile.html"
                             class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
-                                class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي ومحافطي</a>
+                                class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ظ…ظ„ظپظٹ ط§ظ„ط´ط®طµظٹ
+                            ظˆظ…ط­ط§ظپط·ظٹ</a>
                         <a href="seller-dashboard.html"
                             class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
-                                class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
+                                class="fas fa-store fa-fw ml-2 text-blue-400"></i> ظ„ظˆط­ط© طھط­ظƒظ… ط§ظ„ط¨ط§ط¦ط¹</a>
                         <a href="order_history.html"
                             class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
-                                class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
+                                class="fas fa-archive fa-fw ml-2 text-gray-400"></i> ط£ط±ط´ظٹظپ ط·ظ„ط¨ط§طھظٹ</a>
                         <a href="loyalty_card.html"
                             class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
-                                class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء (الجواهر)</a>
+                                class="fas fa-star fa-fw ml-2 text-orange-400"></i> ط¨ط·ط§ظ‚ط© ط§ظ„ظˆظپط§ط،
+                            (ط§ظ„ط¬ظˆط§ظ‡ط±)</a>
                         <button id="logout-btn"
                             class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i
-                                class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
+                                class="fas fa-sign-out-alt fa-fw ml-2"></i> طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬</button>
                     </div>
                 </div>
             </div>
@@ -348,11 +112,11 @@
                 </div>
                 <button onclick="switchCartTab('market')" id="tab-market"
                     class="flex-1 py-3 rounded-xl font-bold text-sm relative z-10 transition-colors text-indigo-600">
-                    <i class="fas fa-shopping-bag mr-2"></i> تسوق منتجات
+                    <i class="fas fa-shopping-bag mr-2"></i> طھط³ظˆظ‚ ظ…ظ†طھط¬ط§طھ
                 </button>
                 <button onclick="switchCartTab('food')" id="tab-food"
                     class="flex-1 py-3 rounded-xl font-bold text-sm relative z-10 transition-colors text-gray-500">
-                    <i class="fas fa-utensils mr-2"></i> طلبات طعام
+                    <i class="fas fa-utensils mr-2"></i> ط·ظ„ط¨ط§طھ ط·ط¹ط§ظ…
                 </button>
             </div>
         </div>
@@ -375,11 +139,12 @@
             <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-shopping-basket text-4xl text-gray-300"></i>
             </div>
-            <h1 class="text-2xl font-extrabold text-gray-900 mb-2">سلتك فارغة!</h1>
-            <p class="text-gray-500 mb-8 max-w-xs mx-auto">لم تقم بإضافة أي منتجات في هذا القسم بعد.</p>
+            <h1 class="text-2xl font-extrabold text-gray-900 mb-2">ط³ظ„طھظƒ ظپط§ط±ط؛ط©!</h1>
+            <p class="text-gray-500 mb-8 max-w-xs mx-auto">ظ„ظ… طھظ‚ظ… ط¨ط¥ط¶ط§ظپط© ط£ظٹ ظ…ظ†طھط¬ط§طھ ظپظٹ ظ‡ط°ط§
+                ط§ظ„ظ‚ط³ظ… ط¨ط¹ط¯.</p>
             <a href="index.html"
                 class="inline-flex items-center gap-2 bg-indigo-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
-                ابدأ التسوق
+                ط§ط¨ط¯ط£ ط§ظ„طھط³ظˆظ‚
             </a>
         </div>
 
@@ -396,43 +161,43 @@
                 <div class="lg:col-span-1">
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:sticky lg:top-28">
                         <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                            <i class="fas fa-receipt text-gray-400"></i> ملخص الطلب
+                            <i class="fas fa-receipt text-gray-400"></i> ظ…ظ„ط®طµ ط§ظ„ط·ظ„ط¨
                         </h2>
 
                         <div id="order-summary" class="space-y-4 mb-6">
                             <div class="flex justify-between font-medium text-gray-600">
-                                <span>المجموع الفرعي</span>
-                                <span id="summary-subtotal" class="font-mono text-gray-900">0 د.ج</span>
+                                <span>ط§ظ„ظ…ط¬ظ…ظˆط¹ ط§ظ„ظپط±ط¹ظٹ</span>
+                                <span id="summary-subtotal" class="font-mono text-gray-900">0 ط¯.ط¬</span>
                             </div>
 
                             <!-- Coupon -->
                             <div class="pt-4 border-t border-dashed">
                                 <div class="flex gap-2">
-                                    <input type="text" id="coupon-code" placeholder="كود خصم؟"
+                                    <input type="text" id="coupon-code" placeholder="ظƒظˆط¯ ط®طµظ…طں"
                                         class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono uppercase focus:ring-2 focus:ring-indigo-500 outline-none">
                                     <button type="button" id="apply-coupon-btn"
                                         class="w-20 bg-gray-900 text-white font-bold rounded-xl text-sm hover:bg-gray-800 transition">
-                                        تطبيق
+                                        طھط·ط¨ظٹظ‚
                                     </button>
                                 </div>
                                 <p id="coupon-msg" class="text-xs mt-2 hidden"></p>
                             </div>
 
                             <div class="flex justify-between font-medium text-gray-600 pt-2">
-                                <span>التوصيل</span>
-                                <span id="summary-shipping" class="font-mono text-gray-900 text-sm">يحدد عند
-                                    الطلب</span>
+                                <span>ط§ظ„طھظˆطµظٹظ„</span>
+                                <span id="summary-shipping" class="font-mono text-gray-900 text-sm">ظٹط­ط¯ط¯ ط¹ظ†ط¯
+                                    ط§ظ„ط·ظ„ط¨</span>
                             </div>
 
                             <div class="flex justify-between text-xl font-black border-t pt-4 mt-2">
-                                <span>الإجمالي</span>
-                                <span id="summary-total" class="font-mono text-indigo-600">0 د.ج</span>
+                                <span>ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ</span>
+                                <span id="summary-total" class="font-mono text-indigo-600">0 ط¯.ط¬</span>
                             </div>
                         </div>
 
                         <button type="button" id="desktop-checkout-btn"
                             class="hidden lg:flex w-full justify-center items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-4 rounded-xl shadow-lg shadow-indigo-200 transition-all hover:scale-[1.02]">
-                            <span>إتمام الطلب</span>
+                            <span>ط¥طھظ…ط§ظ… ط§ظ„ط·ظ„ط¨</span>
                             <i class="fas fa-arrow-left"></i>
                         </button>
                     </div>
@@ -447,12 +212,12 @@
         class="fixed bottom-[70px] left-4 right-4 bg-white/90 backdrop-blur-md border border-gray-100 p-4 rounded-2xl shadow-2xl z-40 lg:hidden transform transition-transform duration-300 translate-y-full">
         <div class="flex justify-between items-center gap-4">
             <div class="flex flex-col">
-                <span class="text-xs text-gray-500 font-bold">الإجمالي</span>
-                <p id="mobile-sticky-total" class="text-xl font-black text-indigo-600 font-mono">0 د.ج</p>
+                <span class="text-xs text-gray-500 font-bold">ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ</span>
+                <p id="mobile-sticky-total" class="text-xl font-black text-indigo-600 font-mono">0 ط¯.ط¬</p>
             </div>
             <button id="mobile-checkout-btn"
                 class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-200">
-                <span>إتمام الطلب</span>
+                <span>ط¥طھظ…ط§ظ… ط§ظ„ط·ظ„ط¨</span>
                 <i class="fas fa-arrow-left"></i>
             </button>
         </div>
@@ -463,7 +228,7 @@
         <div class="modal-content overflow-hidden flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center p-5 border-b bg-gray-50">
                 <h3 class="text-xl font-black text-gray-800 flex items-center gap-2">
-                    <i class="fas fa-shield-alt text-green-500"></i> إتمام الطلب
+                    <i class="fas fa-shield-alt text-green-500"></i> ط¥طھظ…ط§ظ… ط§ظ„ط·ظ„ط¨
                 </h3>
                 <button id="close-checkout-modal-btn"
                     class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-300 hover:text-red-500 transition">
@@ -477,20 +242,20 @@
                     <!-- Type Specific Notice -->
                     <div id="checkout-type-notice"
                         class="bg-blue-50 text-blue-800 p-3 rounded-xl text-sm font-bold flex items-center gap-2">
-                        <i class="fas fa-info-circle"></i> <span>جاري إتمام طلب تسوق</span>
+                        <i class="fas fa-info-circle"></i> <span>ط¬ط§ط±ظٹ ط¥طھظ…ط§ظ… ط·ظ„ط¨ طھط³ظˆظ‚</span>
                     </div>
 
-                    <h3 class="font-bold text-gray-700 border-b pb-2">معلومات الاستلام</h3>
+                    <h3 class="font-bold text-gray-700 border-b pb-2">ظ…ط¹ظ„ظˆظ…ط§طھ ط§ظ„ط§ط³طھظ„ط§ظ…</h3>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-1">الاسم</label>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">ط§ظ„ط§ط³ظ…</label>
                             <input type="text" id="q-customer-name"
                                 class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
                                 required>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-1">رقم الهاتف</label>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">ط±ظ‚ظ… ط§ظ„ظ‡ط§طھظپ</label>
                             <input type="tel" id="q-customer-phone"
                                 class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
                                 dir="ltr" required>
@@ -498,12 +263,13 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1">الولاية & البلدية</label>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">ط§ظ„ظˆظ„ط§ظٹط© &
+                            ط§ظ„ط¨ظ„ط¯ظٹط©</label>
                         <div class="grid grid-cols-2 gap-4">
-                            <input type="text" id="q-customer-wilaya" placeholder="الولاية"
+                            <input type="text" id="q-customer-wilaya" placeholder="ط§ظ„ظˆظ„ط§ظٹط©"
                                 class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
                                 required>
-                            <input type="text" id="q-customer-baladiya" placeholder="البلدية"
+                            <input type="text" id="q-customer-baladiya" placeholder="ط§ظ„ط¨ظ„ط¯ظٹط©"
                                 class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
                                 required>
                         </div>
@@ -512,25 +278,27 @@
                     <!-- GPS Field (Enhanced for Food) -->
                     <div id="gps-field-container">
                         <label class="block text-xs font-bold text-gray-500 mb-1 flex justify-between">
-                            <span>العنوان / الموقع</span>
-                            <span class="text-orange-500 text-[10px]" id="gps-required-hint">* يفضل GPS لطعام</span>
+                            <span>ط§ظ„ط¹ظ†ظˆط§ظ† / ط§ظ„ظ…ظˆظ‚ط¹</span>
+                            <span class="text-orange-500 text-[10px]" id="gps-required-hint">* ظٹظپط¶ظ„ GPS
+                                ظ„ط·ط¹ط§ظ…</span>
                         </label>
                         <div class="relative">
                             <i class="fas fa-map-marker-alt absolute right-3 top-3.5 text-gray-400"></i>
-                            <input type="url" id="q-customer-gps" placeholder="رابط موقعك من Maps (اختياري)"
+                            <input type="url" id="q-customer-gps"
+                                placeholder="ط±ط§ط¨ط· ظ…ظˆظ‚ط¹ظƒ ظ…ظ† Maps (ط§ط®طھظٹط§ط±ظٹ)"
                                 class="w-full p-3 pr-10 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
                                 dir="ltr">
                         </div>
                         <textarea id="q-customer-address"
                             class="mt-2 w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm"
-                            rows="2" placeholder="وصف دقيق للمنزل/المكان..." required></textarea>
+                            rows="2" placeholder="ظˆطµظپ ط¯ظ‚ظٹظ‚ ظ„ظ„ظ…ظ†ط²ظ„/ط§ظ„ظ…ظƒط§ظ†..." required></textarea>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1">ملاحظات</label>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">ظ…ظ„ط§ط­ط¸ط§طھ</label>
                         <textarea id="q-customer-notes"
                             class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm"
-                            rows="1" placeholder="أي تفاصيل إضافية..."></textarea>
+                            rows="1" placeholder="ط£ظٹ طھظپط§طµظٹظ„ ط¥ط¶ط§ظپظٹط©..."></textarea>
                     </div>
 
                     <!-- Extra Features (Hidden by default, toggleable) -->
@@ -541,19 +309,19 @@
                                 onclick="document.getElementById('schedule-options').classList.toggle('hidden')"
                                 class="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition">
                                 <span class="text-sm font-bold text-gray-700"><i
-                                        class="fas fa-clock text-indigo-500 ml-2"></i> جدولة التوصيل</span>
+                                        class="fas fa-clock text-indigo-500 ml-2"></i> ط¬ط¯ظˆظ„ط© ط§ظ„طھظˆطµظٹظ„</span>
                                 <i class="fas fa-chevron-down text-xs text-gray-400"></i>
                             </button>
                             <div id="schedule-options" class="hidden p-4 bg-white">
                                 <label class="flex items-center gap-2 mb-2 cursor-pointer">
                                     <input type="checkbox" id="is-scheduled-checkbox" class="accent-indigo-600 w-4 h-4">
-                                    <span class="text-sm">تفعيل الجدولة</span>
+                                    <span class="text-sm">طھظپط¹ظٹظ„ ط§ظ„ط¬ط¯ظˆظ„ط©</span>
                                 </label>
                                 <select id="schedule-frequency"
                                     class="w-full p-2 bg-gray-50 rounded-lg text-sm border border-gray-200">
-                                    <option value="daily">يومياً</option>
-                                    <option value="weekly">أسبوعياً</option>
-                                    <option value="monthly">شهرياً</option>
+                                    <option value="daily">ظٹظˆظ…ظٹط§ظ‹</option>
+                                    <option value="weekly">ط£ط³ط¨ظˆط¹ظٹط§ظ‹</option>
+                                    <option value="monthly">ط´ظ‡ط±ظٹط§ظ‹</option>
                                 </select>
                             </div>
                         </div>
@@ -564,12 +332,12 @@
 
             <div class="p-5 border-t bg-gray-50">
                 <div class="flex justify-between items-center mb-4">
-                    <span class="text-gray-600 font-bold">المجموع الكلي</span>
-                    <span id="modal-summary-total" class="text-2xl font-black text-indigo-600 font-mono">0 د.ج</span>
+                    <span class="text-gray-600 font-bold">ط§ظ„ظ…ط¬ظ…ظˆط¹ ط§ظ„ظƒظ„ظٹ</span>
+                    <span id="modal-summary-total" class="text-2xl font-black text-indigo-600 font-mono">0 ط¯.ط¬</span>
                 </div>
                 <button type="submit" form="checkout-form" id="submit-quick-checkout-btn"
                     class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-green-200 transition transform active:scale-95 flex justify-center items-center gap-2">
-                    <span>تأكيد الطلب</span>
+                    <span>طھط£ظƒظٹط¯ ط§ظ„ط·ظ„ط¨</span>
                     <i class="fas fa-check-circle"></i>
                 </button>
             </div>
@@ -578,345 +346,15 @@
 
     <div id="toast-container"></div>
 
-    <!-- Mobile Enhancements -->
-    <script>
-        /**
-         * Mobile Enhancements Script
-         * Handles back button for overlays, pull-to-refresh, and page transitions.
-         */
-
-        class MobileEnhancements {
-            constructor() {
-                this.overlayStack = []; // Stack to track open overlays (sidebar, modals)
-                this.touchStartY = 0;
-                this.refreshThreshold = 150; // Pull distance to trigger refresh
-                this.isPulling = false;
-                this.spinner = null;
-
-                this.init();
-            }
-
-            init() {
-                this.setupBackButton();
-                this.setupPullToRefresh();
-                this.setupPageTransitions();
-                this.setupAutoHidingNavbar();
-                this.setupPWAInstall();
-                this.injectStyles();
-            }
-
-            // --- Back Button Logic ---
-
-            setupBackButton() {
-                // Push initial state to handle the first back press
-                window.history.replaceState({ overlay: null }, document.title, window.location.href);
-
-                window.addEventListener('popstate', (event) => {
-                    if (this.overlayStack.length > 0) {
-                        // If overlays are open, close the top one
-                        const topOverlay = this.overlayStack.pop();
-                        if (topOverlay && typeof topOverlay.close === 'function') {
-                            topOverlay.close();
-                            // Prevent default back navigation by pushing state again ONLY if we closed something
-                            // However, popstate already happened, effectively "going back".
-                            // If we want to stay on page, we need to push state again.
-                            // But standard pattern:
-                            // Open Overlay -> Push State
-                            // Back Press -> Pop State -> Close Overlay
-
-                            // So we don't need to push state here. The "Back" action removed the state we added when opening.
-                        }
-                    } else {
-                        // Normal back navigation matches browser behavior
-                    }
-                });
-            }
-
-            /**
-             * Call this when opening an overlay (Sidebar, Modal)
-             * @param {Function} closeCallback - Function to actually close the UI element
-             * @param {string} name - Name for debugging
-             */
-            pushOverlay(closeCallback, name = 'overlay') {
-                this.overlayStack.push({ close: closeCallback, name });
-                window.history.pushState({ overlay: name }, document.title, window.location.href);
-            }
-
-            /**
-             * Call this when closing an overlay Programmatically (e.g. clicking 'X' button)
-             * This ensures the history state is kept in sync (removes the state we added)
-             */
-            closeOverlay() {
-                if (this.overlayStack.length > 0) {
-                    // We do NOT pop here. We let the popstate event handler do it.
-                    // This ensures consistent behavior whether the user presses Back or clicks 'X'.
-                    window.history.back();
-                }
-            }
-
-            // --- Pull to Refresh Logic ---
-
-            setupPullToRefresh() {
-                // Create Spinner
-                this.spinner = document.createElement('div');
-                this.spinner.className = 'ptr-spinner';
-                this.spinner.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>';
-                document.body.prepend(this.spinner);
-
-                window.addEventListener('touchstart', (e) => {
-                    if (window.scrollY === 0) {
-                        this.touchStartY = e.touches[0].clientY;
-                    }
-                }, { passive: true });
-
-                window.addEventListener('touchmove', (e) => {
-                    if (window.scrollY === 0 && this.touchStartY > 0) {
-                        const touchY = e.touches[0].clientY;
-                        const pullDistance = touchY - this.touchStartY;
-
-                        if (pullDistance > 0) {
-                            this.isPulling = true;
-                            // Visual feedback
-                            this.spinner.style.transform = `translateY(${Math.min(pullDistance / 2, 80)}px) translateX(-50%) rotate(${pullDistance}deg)`;
-                            this.spinner.style.opacity = Math.min(pullDistance / 100, 1);
-                        }
-                    }
-                }, { passive: true });
-
-                window.addEventListener('touchend', (e) => {
-                    if (this.isPulling) {
-                        const touchY = e.changedTouches[0].clientY;
-                        const pullDistance = touchY - this.touchStartY;
-
-                        if (pullDistance > this.refreshThreshold) {
-                            this.triggerRefresh();
-                        } else {
-                            this.resetSpinner();
-                        }
-                        this.isPulling = false;
-                        this.touchStartY = 0;
-                    }
-                });
-            }
-
-            triggerRefresh() {
-                this.spinner.style.transition = '0.3s';
-                this.spinner.style.transform = 'translateY(60px) translateX(-50%) rotate(360deg)';
-                setTimeout(() => {
-                    window.location.reload();
-                }, 500);
-            }
-
-            resetSpinner() {
-                this.spinner.style.transition = '0.3s';
-                this.spinner.style.transform = 'translateY(-50px) translateX(-50%)';
-                this.spinner.style.opacity = '0';
-            }
-
-            // --- Page Transitions ---
-
-            setupPageTransitions() {
-                document.body.classList.add('page-enter');
-
-                // Hijack internal links for exit animation (optional, can be disabled if buggy)
-                // document.addEventListener('click', (e) => {
-                //     const link = e.target.closest('a');
-                //     if (link && link.href && link.href.startsWith(window.location.origin) && !link.target) {
-                //         e.preventDefault();
-                //         document.body.classList.add('page-exit');
-                //         setTimeout(() => {
-                //             window.location.href = link.href;
-                //         }, 300);
-                //     }
-                // });
-            }
-
-            injectStyles() {
-                const style = document.createElement('style');
-                style.textContent = `
-            /* Pull to Refresh Spinner */
-            .ptr-spinner {
-                position: fixed;
-                top: -50px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 40px;
-                height: 40px;
-                background: white;
-                border-radius: 50%;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 1000;
-                color: var(--primary, #4f46e5);
-                opacity: 0;
-                pointer-events: none;
-            }
-
-            /* Page Transitions */
-            .page-enter {
-                animation: fadeEnter 0.4s ease-out forwards;
-            }
-            @keyframes fadeEnter {
-                from { opacity: 0; transform: translateY(10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            
-            .page-exit {
-                opacity: 0;
-                transform: scale(0.98);
-                transition: 0.3s;
-            }
-
-            /* Auto Hide Navbar */
-            .bottom-nav {
-                transition: transform 0.3s ease-in-out;
-            }
-            .bottom-nav.nav-hidden {
-                transform: translateY(100%);
-            }
-
-            /* PWA Modal */
-            .pwa-modal {
-                position: fixed;
-                bottom: 20px;
-                left: 20px;
-                right: 20px;
-                background: white;
-                border-radius: 16px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-                z-index: 9999;
-                transform: translateY(150%);
-                transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                max-width: 400px;
-                margin: 0 auto;
-                border: 1px solid rgba(0,0,0,0.05);
-            }
-            
-            .pwa-modal.active {
-                transform: translateY(0);
-            }
-
-            .pwa-content {
-                padding: 20px;
-            }
-        `;
-                document.head.appendChild(style);
-            }
-
-
-
-            setupAutoHidingNavbar() {
-                let lastScrollY = window.scrollY;
-                const bottomNav = document.querySelector('.bottom-nav');
-                if (!bottomNav) return;
-
-                window.addEventListener('scroll', () => {
-                    const currentScrollY = window.scrollY;
-                    if (Math.abs(currentScrollY - lastScrollY) < 10) return;
-                    if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                        bottomNav.classList.add('nav-hidden');
-                    } else {
-                        bottomNav.classList.remove('nav-hidden');
-                    }
-                    lastScrollY = currentScrollY;
-                }, { passive: true });
-            }
-
-            // --- PWA Install Logic 📲 ---
-            setupPWAInstall() {
-                let deferredPrompt;
-
-                window.addEventListener('beforeinstallprompt', (e) => {
-                    e.preventDefault();
-                    deferredPrompt = e;
-
-                    // Check if user already dismissed it recently (optional: use localStorage)
-                    if (localStorage.getItem('pwa-dismissed')) return;
-
-                    // Show Custom Modal
-                    this.showInstallModal(deferredPrompt);
-                });
-            }
-
-            showInstallModal(deferredPrompt) {
-                // Create Modal HTML
-                const modal = document.createElement('div');
-                modal.className = 'pwa-modal';
-                modal.innerHTML = `
-            <div class="pwa-content">
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 text-2xl">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-lg text-gray-800">تثبيت التطبيق</h3>
-                        <p class="text-xs text-gray-500">تجربة أسرع وأفضل بدون إنترنت!</p>
-                    </div>
-                </div>
-                <div class="flex gap-3">
-                    <button id="pwa-dismiss" class="flex-1 py-2 text-gray-500 font-bold bg-gray-50 rounded-lg">ليس الآن</button>
-                    <button id="pwa-install" class="flex-1 py-2 text-white font-bold bg-indigo-600 rounded-lg shadow-lg shadow-indigo-200">تثبيت</button>
-                </div>
-            </div>
-        `;
-                document.body.appendChild(modal);
-
-                // Animate In
-                setTimeout(() => modal.classList.add('active'), 100);
-
-                // Handlers
-                document.getElementById('pwa-dismiss').onclick = () => {
-                    modal.classList.remove('active');
-                    setTimeout(() => modal.remove(), 300);
-                    localStorage.setItem('pwa-dismissed', 'true');
-                };
-
-                document.getElementById('pwa-install').onclick = async () => {
-                    if (deferredPrompt) {
-                        deferredPrompt.prompt();
-                        const { outcome } = await deferredPrompt.userChoice;
-                        if (outcome === 'accepted') {
-                            console.log('User accepted the install prompt');
-                        }
-                        deferredPrompt = null;
-                    }
-                    modal.classList.remove('active');
-                    setTimeout(() => modal.remove(), 300);
-                };
-            }
-        }
-
-        // Initialize
-        const mobileApp = new MobileEnhancements();
-
-        // Global Helper for existing code to call
-        window.openMobileOverlay = (closeCallback, name) => mobileApp.pushOverlay(closeCallback, name);
-        window.closeMobileOverlay = () => mobileApp.closeOverlay();
-    </script>
+    <!-- Mobile Enhancements moved to app-core.js -->
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { db, auth } from './app-core.js';
         import {
-            getFirestore, collection, addDoc, doc, getDoc, serverTimestamp, query, where, limit, getDocs, updateDoc,
+            collection, addDoc, doc, getDoc, serverTimestamp, query, where, limit, getDocs, updateDoc,
             increment
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
-            authDomain: "s22market-4e3e6.firebaseapp.com",
-            projectId: "s22market-4e3e6",
-            storageBucket: "s22market-4e3e6.appspot.com",
-            messagingSenderId: "119186699901",
-            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
-            measurementId: "G-MWYNCVP4WQ"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         let currentUser = null;
         let cart = [];
@@ -943,15 +381,14 @@
             loader: document.getElementById('cart-loader'),
             emptyMsg: document.getElementById('empty-cart-msg'),
             content: document.getElementById('cart-content'),
-            itemsList: document.getElementById('cart-items-container'), // Note: ID changed in HTML
+            itemsList: document.getElementById('cart-items-container'),
             subtotal: document.getElementById('summary-subtotal'),
             total: document.getElementById('summary-total'),
 
             couponInput: document.getElementById('coupon-code'),
             couponBtn: document.getElementById('apply-coupon-btn'),
             couponMsg: document.getElementById('coupon-msg'),
-            discountRow: document.getElementById('discount-row'), // Might not exist in new HTML, check
-            // discountSummary: ... handled dynamically
+            discountRow: document.getElementById('discount-row'),
 
             checkoutModal: document.getElementById('checkout-modal'),
             closeCheckoutModalBtn: document.getElementById('close-checkout-modal-btn'),
@@ -967,13 +404,11 @@
             desktopCheckoutBtn: document.getElementById('desktop-checkout-btn'),
 
             loginBtn: document.getElementById('login-btn'),
-            // userMenu... (Standard Auth UI)
             logoutBtn: document.getElementById('logout-btn'),
             bottomProfileBtn: document.getElementById('bottom-profile-btn'),
             bottomLoginBtn: document.getElementById('bottom-login-btn'),
             toastContainer: document.getElementById('toast-container'),
 
-            // Tabs
             tabIndicator: document.getElementById('tab-indicator'),
             tabMarket: document.getElementById('tab-market'),
             tabFood: document.getElementById('tab-food'),
@@ -1011,7 +446,7 @@
             setTimeout(() => toast.remove(), 3000);
         };
 
-        const toggleButtonState = (btn, isLoading, originalText = 'تأكيد') => {
+        const toggleButtonState = (btn, isLoading, originalText = 'طھط£ظƒظٹط¯') => {
             if (!btn) return;
             if (isLoading) {
                 btn.disabled = true;
@@ -1094,7 +529,7 @@
                 const storeId = item.sellerId || 'unknown';
                 if (!groups[storeId]) {
                     groups[storeId] = {
-                        name: item.storeName || (activeTab === 'market' ? 'متجر عام' : 'مطعم غير معروف'),
+                        name: item.storeName || (activeTab === 'market' ? 'ظ…طھط¬ط± ط¹ط§ظ…' : 'ظ…ط·ط¹ظ… ط؛ظٹط± ظ…ط¹ط±ظˆظپ'),
                         logo: item.storeLogo || item.logoUrl || item.photoURL || activeGlobalLogo,
                         items: [],
                         totalValue: 0,
@@ -1131,11 +566,11 @@
                                     </div>
                                     <div>
                                         <h3 class="font-bold text-gray-800 text-base">${group.name}</h3>
-                                        <p class="text-[10px] text-gray-400 font-bold">بائع موثوق</p>
+                                        <p class="text-[10px] text-gray-400 font-bold">ط¨ط§ط¦ط¹ ظ…ظˆط«ظˆظ‚</p>
                                     </div>
                                 </div>
                                 <div class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">
-                                    المستوى ${level}
+                                    ط§ظ„ظ…ط³طھظˆظ‰ ${level}
                                 </div>
                             </div>
 
@@ -1143,7 +578,7 @@
                             <div class="w-full bg-gray-100 rounded-full h-1.5 mt-1 overflow-hidden">
                                 <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-1.5 rounded-full transition-all duration-1000" style="width: ${progressPercent}%"></div>
                             </div>
-                            <p class="text-[10px] text-gray-400 text-left w-full pl-1">متبقي ${Math.max(0, (level * 5000) - group.totalValue)} د.ج للمستوى التالي</p>
+                            <p class="text-[10px] text-gray-400 text-left w-full pl-1">ظ…طھط¨ظ‚ظٹ ${Math.max(0, (level * 5000) - group.totalValue)} ط¯.ط¬ ظ„ظ„ظ…ط³طھظˆظ‰ ط§ظ„طھط§ظ„ظٹ</p>
                         </div>
 
                         <!-- Items -->
@@ -1158,20 +593,20 @@
                 });
             } else {
                 if (activeTab === 'market') {
-                    container.innerHTML = `<div class="text-center py-10 text-gray-400">لا توجد منتجات تسوق في السلة</div>`;
+                    container.innerHTML = `<div class="text-center py-10 text-gray-400">ظ„ط§ طھظˆط¬ط¯ ظ…ظ†طھط¬ط§طھ طھط³ظˆظ‚ ظپظٹ ط§ظ„ط³ظ„ط©</div>`;
                 } else {
-                    container.innerHTML = `<div class="text-center py-10 text-gray-400">لا توجد طلبات طعام في السلة</div>`;
+                    container.innerHTML = `<div class="text-center py-10 text-gray-400">ظ„ط§ طھظˆط¬ط¯ ط·ظ„ط¨ط§طھ ط·ط¹ط§ظ… ظپظٹ ط§ظ„ط³ظ„ط©</div>`;
                 }
             }
 
 
             // 4. "Next to the old one" - Cross Category Alert
             if (otherItems.length > 0) {
-                const otherType = activeTab === 'market' ? 'طعام' : 'تسوق';
+                const otherType = activeTab === 'market' ? 'ط·ط¹ط§ظ…' : 'طھط³ظˆظ‚';
                 const otherIcon = activeTab === 'market' ? 'fa-utensils' : 'fa-shopping-bag';
                 const otherColor = activeTab === 'market' ? 'orange' : 'indigo'; // Tailwinds colors
 
-                const alertEl = document.createElement('div');
+      ment.createElement('div');
                 alertEl.className = `mt-6 bg-${otherColor}-50 border border-${otherColor}-100 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:bg-${otherColor}-100 transition-colors`;
                 alertEl.onclick = () => switchCartTab(activeTab === 'market' ? 'food' : 'market');
                 alertEl.innerHTML = `
@@ -1180,12 +615,12 @@
                             <i class="fas ${otherIcon} animate-pulse"></i>
                         </div>
                         <div>
-                            <h4 class="font-bold text-gray-800 text-sm">لديك سلة ${otherType} جانبية!</h4>
-                            <p class="text-xs text-gray-500">${otherItems.length} عنصر ينتظرك هناك</p>
+                            <h4 class="font-bold text-gray-800 text-sm">ظ„ط¯ظٹظƒ ط³ظ„ط© ${otherType} ط¬ط§ظ†ط¨ظٹط©!</h4>
+                            <p class="text-xs text-gray-500">${otherItems.length} ط¹ظ†طµط± ظٹظ†طھط¸ط±ظƒ ظ‡ظ†ط§ظƒ</p>
                         </div>
                     </div>
                     <div class="bg-white px-4 py-2 rounded-lg text-xs font-bold text-${otherColor}-600 shadow-sm">
-                        عرض السلة
+                        ط¹ط±ط¶ ط§ظ„ط³ظ„ط©
                     </div>
                 `;
                 container.appendChild(alertEl);
@@ -1197,13 +632,13 @@
                 upsellEl.className = 'mt-8 border-t pt-4';
                 upsellEl.innerHTML = `
                     <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                        <i class="fas fa-magic text-yellow-500"></i> اقتراحات Dr. S22
+                        <i class="fas fa-magic text-yellow-500"></i> ط§ظ‚طھط±ط§ط­ط§طھ Dr. S22
                     </h3>
                     <div class="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
                          <!-- Static Examples for Visuals -->
-                         ${createUpsellCard('بيبسي', '150', 'https://images.unsplash.com/photo-1629203851122-3726ecdf080c?auto=format&fit=crop&q=80&w=100')}
-                         ${createUpsellCard('بطاطس إضافية', '200', 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&q=80&w=100')}
-                         ${createUpsellCard('صوص ثوم', '50', 'https://images.unsplash.com/photo-1472476443507-c7a392dd6182?auto=format&fit=crop&q=80&w=100')}
+                         ${createUpsellCard('ط¨ظٹط¨ط³ظٹ', '150', 'https://images.unsplash.com/photo-1629203851122-3726ecdf080c?auto=format&fit=crop&q=80&w=100')}
+                         ${createUpsellCard('ط¨ط·ط§ط·ط³ ط¥ط¶ط§ظپظٹط©', '200', 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&q=80&w=100')}
+                         ${createUpsellCard('طµظˆطµ ط«ظˆظ…', '50', 'https://images.unsplash.com/photo-1472476443507-c7a392dd6182?auto=format&fit=crop&q=80&w=100')}
                     </div>
                  `;
                 container.appendChild(upsellEl);
@@ -1217,22 +652,22 @@
                 <div class="min-w-[100px] bg-white rounded-xl p-2 border border-gray-100 shadow-sm flex flex-col items-center gap-2 cursor-pointer hover:border-indigo-300 transition-colors">
                     <img src="${img}" class="w-12 h-12 rounded-full object-cover bg-gray-50">
                     <span class="text-[10px] font-bold text-gray-700 text-center truncate w-full">${name}</span>
-                    <span class="text-xs font-black text-indigo-600">${price} د.ج</span>
-                    <button class="w-full bg-indigo-50 text-indigo-600 text-[10px] font-bold py-1 rounded hover:bg-indigo-600 hover:text-white transition-colors">إضافة</button>
+                    <span class="text-xs font-black text-indigo-600">${price} ط¯.ط¬</span>
+                    <button class="w-full bg-indigo-50 text-indigo-600 text-[10px] font-bold py-1 rounded hover:bg-indigo-600 hover:text-white transition-colors">ط¥ط¶ط§ظپط©</button>
                 </div>
             `;
         }
 
         function createItemHTML(item, wrap = false) {
             const img = (item.imageUrls && item.imageUrls[0]) || item.image || 'https://placehold.co/100';
-            const itemName = typeof item.name === 'object' ? (item.name.ar || item.name.en || 'منتج') : item.name;
+            const itemName = typeof item.name === 'object' ? (item.name.ar || item.name.en || 'ظ…ظ†طھط¬') : item.name;
             const html = `
     <div
         class="flex items-center gap-4 ${wrap ? 'bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-4' : ''}">
         <img src="${img}" class="w-20 h-20 rounded-xl bg-gray-50 object-cover border border-gray-100">
         <div class="flex-grow">
             <h4 class="font-bold text-gray-800 text-sm line-clamp-2">${itemName}</h4>
-            <p class="text-indigo-600 font-mono font-bold mt-1">${item.price.toLocaleString()} د.ج</p>
+            <p class="text-indigo-600 font-mono font-bold mt-1">${item.price.toLocaleString()} ط¯.ط¬</p>
         </div>
         <div class="flex flex-col items-end gap-2">
             <div class="flex items-center bg-gray-50 rounded-lg border border-gray-200 h-8">
@@ -1244,7 +679,7 @@
             </div>
             <button onclick="removeItem('${item.id}')"
                 class="text-gray-400 hover:text-red-500 text-xs transition-colors">
-                <i class="fas fa-trash"></i> حذف
+                <i class="fas fa-trash"></i> ط­ط°ظپ
             </button>
         </div>
     </div>
@@ -1261,13 +696,13 @@
 
             const total = Math.max(0, subtotal - discount);
 
-            elements.subtotal.textContent = `${subtotal.toLocaleString()} د.ج`;
-            elements.total.textContent = `${total.toLocaleString()} د.ج`;
-            elements.mobileStickyTotal.textContent = `${total.toLocaleString()} د.ج`;
-            elements.modalTotal.textContent = `${total.toLocaleString()} د.ج`;
+            elements.subtotal.textContent = `${subtotal.toLocaleString()} ط¯.ط¬`;
+            elements.total.textContent = `${total.toLocaleString()} ط¯.ط¬`;
+            elements.mobileStickyTotal.textContent = `${total.toLocaleString()} ط¯.ط¬`;
+            elements.modalTotal.textContent = `${total.toLocaleString()} ط¯.ط¬`;
 
             if (currentDiscount) {
-                elements.couponMsg.textContent = `تم تطبيق خصم ${discount.toLocaleString()} د.ج`;
+                elements.couponMsg.textContent = `طھظ… طھط·ط¨ظٹظ‚ ط®طµظ… ${discount.toLocaleString()} ط¯.ط¬`;
                 elements.couponMsg.className = 'text-xs mt-2 text-green-600 font-bold';
                 elements.couponMsg.classList.remove('hidden');
             } else {
@@ -1305,7 +740,7 @@
                     const q = query(collection(db, 'coupons'), where('code', '==', code), where('isActive', '==', true), limit(1));
                     const snap = await getDocs(q);
 
-                    if (snap.empty) throw new Error('الكود غير صحيح');
+                    if (snap.empty) throw new Error('ط§ظ„ظƒظˆط¯ ط؛ظٹط± طµط­ظٹط­');
                     const data = snap.docs[0].data();
 
                     currentDiscount = { id: snap.docs[0].id, ...data };
@@ -1316,7 +751,7 @@
                     elements.couponMsg.classList.remove('hidden');
                     currentDiscount = null;
                 }
-                toggleButtonState(elements.couponBtn, false, 'تطبيق');
+                toggleButtonState(elements.couponBtn, false, 'طھط·ط¨ظٹظ‚');
             };
         }
 
@@ -1330,11 +765,11 @@
             // Context Update
             if (activeTab === 'market') {
                 elements.checkoutTypeNotice.className = 'bg-indigo-50 text-indigo-800 p-3 rounded-xl text-sm font-bold flex items-center gap-2';
-                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-shopping-bag"></i> <span>جاري إتمام طلب <b>تسوق</b></span>';
+                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-shopping-bag"></i> <span>ط¬ط§ط±ظٹ ط¥طھظ…ط§ظ… ط·ظ„ط¨ <b>طھط³ظˆظ‚</b></span>';
                 document.getElementById('gps-field-container').classList.add('opacity-50'); // Dim GPS for market
             } else {
                 elements.checkoutTypeNotice.className = 'bg-orange-50 text-orange-800 p-3 rounded-xl text-sm font-bold flex items-center gap-2';
-                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-utensils"></i> <span>جاري إتمام طلب <b>طعام</b></span>';
+                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-utensils"></i> <span>ط¬ط§ط±ظٹ ط¥طھظ…ط§ظ… ط·ظ„ط¨ <b>ط·ط¹ط§ظ…</b></span>';
                 document.getElementById('gps-field-container').classList.remove('opacity-50');
             }
 
@@ -1358,7 +793,7 @@
 
             try {
                 const checkoutItems = getFilteredItems();
-                if (checkoutItems.length === 0) throw new Error('لا توجد عناصر لإتمام الطلب');
+                if (checkoutItems.length === 0) throw new Error('ظ„ط§ طھظˆط¬ط¯ ط¹ظ†ط§طµط± ظ„ط¥طھظ…ط§ظ… ط§ظ„ط·ظ„ط¨');
 
                 const subtotal = checkoutItems.reduce((sum, i) => sum + (Number(i.price) * Number(i.quantity)), 0);
                 const discount = currentDiscount ? (currentDiscount.discountType === 'percentage' ? subtotal *
@@ -1415,11 +850,11 @@
             <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-check text-4xl text-green-600"></i>
             </div>
-            <h2 class="text-3xl font-extrabold text-gray-900 mb-2">تم الطلب بنجاح!</h2>
-            <p class="text-gray-500 mb-8">رقم الطلب: <span
+            <h2 class="text-3xl font-extrabold text-gray-900 mb-2">طھظ… ط§ظ„ط·ظ„ط¨ ط¨ظ†ط¬ط§ط­!</h2>
+            <p class="text-gray-500 mb-8">ط±ظ‚ظ… ط§ظ„ط·ظ„ط¨: <span
                     class="font-mono font-bold text-gray-800">#${ref.id.slice(0, 6)}</span></p>
-            <a href="index.html" class="inline-block bg-gray-900 text-white font-bold py-3 px-8 rounded-xl">العودة
-                للرئيسية</a>
+            <a href="index.html" class="inline-block bg-gray-900 text-white font-bold py-3 px-8 rounded-xl">ط§ظ„ط¹ظˆط¯ط©
+                ظ„ظ„ط±ط¦ظٹط³ظٹط©</a>
         </div>
         `;
                 elements.mobileCheckoutBar.classList.add('hidden');
