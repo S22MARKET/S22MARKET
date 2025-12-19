@@ -1,3 +1,226 @@
+<div id="splash-screen">
+    <div class="splash-content">
+        <div class="splash-icon">🚧</div>
+        <h2>نحن نعمل على تطوير الموقع</h2>
+        <p>نسعى لتقديم تجربة أفضل لكم في <strong>S22MARKET</strong></p>
+        
+        <div class="loader"></div>
+        
+        <div id="countdown-container">
+            <p style="margin-top: 20px; font-size: 14px; color: #f59e0b;">سيعود الموقع للعمل خلال:</p>
+            <div id="timer">12:00:00</div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* التنسيق الإضافي للعداد */
+#timer {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #f1f5f9;
+    margin-top: 10px;
+    letter-spacing: 2px;
+    font-family: 'Courier New', Courier, monospace; /* خط رقمي */
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px 20px;
+    border-radius: 8px;
+    display: inline-block;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+#splash-screen {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(-45deg, #0b1120, #1e293b, #0f172a, #334155);
+    background-size: 400% 400%;
+    animation: gradientBG 10s ease infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.splash-content {
+    text-align: center;
+    color: #f1f5f9;
+    padding: 30px;
+    max-width: 400px;
+}
+
+.splash-icon {
+    font-size: 64px;
+    margin-bottom: 15px;
+}
+
+.splash-content h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #f59e0b;
+}
+
+.loader {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255,255,255,0.2);
+    border-top-color: #10b981;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+</style>
+
+<script>
+    function startTimer() {
+        const timerDisplay = document.getElementById('timer');
+        const TWELVE_HOURS = 12 * 60 * 60 * 1000; // 12 ساعة بالملي ثانية
+        
+        // جلب وقت الانتهاء من التخزين المحلي أو إنشاء وقت جديد
+        let endTime = localStorage.getItem('s22_endtime');
+        
+        if (!endTime || Date.now() > endTime) {
+            endTime = Date.now() + TWELVE_HOURS;
+            localStorage.setItem('s22_endtime', endTime);
+        }
+
+        function updateDisplay() {
+            const now = Date.now();
+            const distance = endTime - now;
+
+            if (distance < 0) {
+                // إعادة ضبط العداد فور انتهائه لخلق حلقة لا نهائية
+                endTime = Date.now() + TWELVE_HOURS;
+                localStorage.setItem('s22_endtime', endTime);
+                return;
+            }
+
+            const hours = Math.floor((distance / (1000 * 60 * 60)));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // إضافة صفر على اليسار إذا كان الرقم أقل من 10
+            timerDisplay.innerHTML = 
+                (hours < 10 ? "0" + hours : hours) + ":" + 
+                (minutes < 10 ? "0" + minutes : minutes) + ":" + 
+                (seconds < 10 ? "0" + seconds : seconds);
+        }
+
+        updateDisplay(); // تشغيل فوري
+        setInterval(updateDisplay, 1000); // تحديث كل ثانية
+    }
+
+    // تشغيل العداد عند تحميل الصفحة
+    window.addEventListener("load", () => {
+        startTimer();
+        
+        // ملاحظة: إذا كنت تريد للسبلاش أن تختفي بعد وقت معين، فعل سطر setTimeout أدناه
+        // حالياً ستبقى ظاهرة لأنك طلبت "لانهاية"
+        /*
+        setTimeout(() => {
+             document.getElementById("splash-screen").style.display = "none";
+        }, 5000); 
+        */
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
