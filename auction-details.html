@@ -9,52 +9,135 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="app-style.css">
 
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; padding-bottom: 90px; }
-        
-        .auction-image-container {
-            position: relative; height: 300px; background-color: #1f2937; overflow: hidden;
-            border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f8fafc;
+            padding-bottom: 90px;
         }
-        .auction-image { width: 100%; height: 100%; object-fit: contain; }
-        
+
+        .auction-image-container {
+            position: relative;
+            height: 300px;
+            background-color: #1f2937;
+            overflow: hidden;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .auction-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
         .live-badge {
-            position: absolute; top: 20px; right: 20px;
-            background: rgba(220, 38, 38, 0.9); color: white;
-            padding: 5px 15px; border-radius: 20px; font-weight: bold;
-            display: flex; align-items: center; gap: 8px; backdrop-filter: blur(4px);
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(220, 38, 38, 0.9);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(4px);
             animation: pulse 2s infinite;
         }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
 
         .timer-card {
-            background: white; border-radius: 16px; padding: 15px; text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: -40px 20px 20px; position: relative; z-index: 10;
+            background: white;
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin: -40px 20px 20px;
+            position: relative;
+            z-index: 10;
             border: 1px solid #f1f5f9;
         }
-        .countdown { font-family: monospace; font-size: 1.8rem; font-weight: 800; color: #dc2626; letter-spacing: 2px; }
+
+        .countdown {
+            font-family: monospace;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #dc2626;
+            letter-spacing: 2px;
+        }
 
         .bid-card {
-            background: white; border-radius: 16px; padding: 20px; margin: 0 20px 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #f1f5f9;
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 0 20px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f1f5f9;
         }
 
         .bid-history-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid #f1f5f9; animation: slideIn 0.3s ease-out;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+            animation: slideIn 0.3s ease-out;
         }
-        .bid-history-item:last-child { border-bottom: none; }
-        .top-bidder { background-color: #f0fdf4; padding: 10px; border-radius: 8px; border: 1px solid #bbf7d0; }
 
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .bid-history-item:last-child {
+            border-bottom: none;
+        }
+
+        .top-bidder {
+            background-color: #f0fdf4;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #bbf7d0;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         /* Floating Action Bar */
         .bid-bar {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: white; padding: 15px 20px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 50;
-            display: flex; gap: 10px; align-items: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            display: flex;
+            gap: 10px;
+            align-items: center;
             padding-bottom: max(15px, env(safe-area-inset-bottom));
         }
     </style>
@@ -62,7 +145,8 @@
 
 <body>
 
-    <a href="auctions.html" class="fixed top-4 left-4 z-30 w-10 h-10 bg-white/80 backdrop-blur rounded-full flex items-center justify-center text-gray-800 shadow-lg hover:bg-white">
+    <a href="auctions.html"
+        class="fixed top-4 left-4 z-30 w-10 h-10 bg-white/80 backdrop-blur rounded-full flex items-center justify-center text-gray-800 shadow-lg hover:bg-white">
         <i class="fas fa-arrow-left"></i>
     </a>
 
@@ -71,7 +155,7 @@
     </div>
 
     <main id="main-content" class="hidden">
-        
+
         <div class="auction-image-container">
             <img id="auction-img" src="" class="auction-image" alt="Product">
             <div class="live-badge"><span class="w-2 h-2 bg-white rounded-full animate-ping"></span> مباشر</div>
@@ -120,24 +204,34 @@
     <div class="bid-bar" id="bid-bar">
         <div class="flex-1">
             <div class="flex gap-2 mb-2 overflow-x-auto no-scrollbar pb-1">
-                <button onclick="setBidAmount(100)" class="bg-gray-100 px-3 py-1 rounded-full text-xs font-bold text-gray-600 hover:bg-gray-200">+100</button>
-                <button onclick="setBidAmount(500)" class="bg-gray-100 px-3 py-1 rounded-full text-xs font-bold text-gray-600 hover:bg-gray-200">+500</button>
-                <button onclick="setBidAmount(1000)" class="bg-gray-100 px-3 py-1 rounded-full text-xs font-bold text-gray-600 hover:bg-gray-200">+1000</button>
+                <button onclick="setBidAmount(100)"
+                    class="bg-gray-100 px-3 py-1 rounded-full text-xs font-bold text-gray-600 hover:bg-gray-200">+100</button>
+                <button onclick="setBidAmount(500)"
+                    class="bg-gray-100 px-3 py-1 rounded-full text-xs font-bold text-gray-600 hover:bg-gray-200">+500</button>
+                <button onclick="setBidAmount(1000)"
+                    class="bg-gray-100 px-3 py-1 rounded-full text-xs font-bold text-gray-600 hover:bg-gray-200">+1000</button>
             </div>
-            <input type="number" id="bid-amount" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 font-bold" placeholder="أدخل المبلغ...">
+            <input type="number" id="bid-amount"
+                class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 font-bold"
+                placeholder="أدخل المبلغ...">
         </div>
-        <button id="place-bid-btn" class="bg-red-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-red-200 hover:bg-red-700 transition transform hover:scale-105 active:scale-95">
+        <button id="place-bid-btn"
+            class="bg-red-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-red-200 hover:bg-red-700 transition transform hover:scale-105 active:scale-95">
             <i class="fas fa-gavel text-xl"></i>
         </button>
     </div>
 
-    <div id="auth-modal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center backdrop-blur-sm">
+    <div id="auth-modal"
+        class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center backdrop-blur-sm">
         <div class="bg-white p-6 rounded-2xl w-[90%] max-w-sm text-center shadow-2xl">
             <i class="fas fa-lock text-4xl text-gray-300 mb-4"></i>
             <h3 class="text-xl font-bold mb-2">سجل دخولك للمزايدة</h3>
             <p class="text-gray-500 text-sm mb-6">يجب أن تكون عضواً مسجلاً للمشاركة في المزادات.</p>
-            <a href="login.html" class="block w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700">تسجيل الدخول</a>
-            <button onclick="document.getElementById('auth-modal').classList.add('hidden')" class="mt-4 text-gray-400 text-sm">إلغاء</button>
+            <a href="login.html"
+                class="block w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700">تسجيل
+                الدخول</a>
+            <button onclick="document.getElementById('auth-modal').classList.add('hidden')"
+                class="mt-4 text-gray-400 text-sm">إلغاء</button>
         </div>
     </div>
 
@@ -165,7 +259,7 @@
 
         let currentUser = null;
         let auctionId = new URLSearchParams(window.location.search).get('product'); // using 'product' param as per logic
-        if(!auctionId) auctionId = new URLSearchParams(window.location.search).get('id'); // fallback
+        if (!auctionId) auctionId = new URLSearchParams(window.location.search).get('id'); // fallback
 
         let auctionData = null;
         let currentHighest = 0;
@@ -184,18 +278,18 @@
             // Or 'products' where type is auction. Based on previous code, let's assume 'auctions' collection for active auctions logic.
             // If you created auction in 'products' collection, change this to 'products'.
             // In seller-dashboard, we saved to 'auctions' collection. So we listen there.
-            
+
             const auctionRef = doc(db, "auctions", auctionId);
-            
+
             onSnapshot(auctionRef, (docSnap) => {
                 if (!docSnap.exists()) {
                     // Try products fallback just in case
-                    return; 
+                    return;
                 }
-                
+
                 auctionData = docSnap.data();
                 renderAuctionInfo(auctionData);
-                
+
                 // If auction ended
                 const endTime = auctionData.endTime?.toDate();
                 if (endTime && new Date() > endTime) {
@@ -206,24 +300,24 @@
             // 2. Listen to Bids
             const bidsRef = collection(db, "auctions", auctionId, "bids");
             const q = query(bidsRef, orderBy("amount", "desc"));
-            
+
             onSnapshot(q, (snapshot) => {
                 const bidsList = document.getElementById('bids-list');
                 bidsList.innerHTML = '';
-                
+
                 const bids = snapshot.docs.map(d => d.data());
                 document.getElementById('bids-count').textContent = bids.length;
 
                 if (bids.length > 0) {
                     currentHighest = bids[0].amount;
                     document.getElementById('current-price').textContent = currentHighest.toLocaleString();
-                    
+
                     bids.forEach((bid, index) => {
                         const isTop = index === 0;
                         const row = document.createElement('div');
                         row.className = `bid-history-item ${isTop ? 'top-bidder' : ''}`;
-                        const time = bid.timestamp?.toDate().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) || '';
-                        
+                        const time = bid.timestamp?.toDate().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) || '';
+
                         row.innerHTML = `
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
@@ -256,14 +350,14 @@
             document.getElementById('auction-title').textContent = data.title;
             document.getElementById('auction-desc').textContent = data.description;
             document.getElementById('auction-img').src = data.imageUrl || 'https://placehold.co/400';
-            
+
             // Timer Logic
             const endTime = data.endTime?.toDate();
             if (endTime) {
                 const timerInterval = setInterval(() => {
                     const now = new Date();
                     const diff = endTime - now;
-                    
+
                     if (diff <= 0) {
                         clearInterval(timerInterval);
                         document.getElementById('countdown').textContent = "انتهى المزاد";
@@ -273,7 +367,7 @@
                         const h = Math.floor(diff / (1000 * 60 * 60));
                         const m = Math.floor((diff / (1000 * 60)) % 60);
                         const s = Math.floor((diff / 1000) % 60);
-                        document.getElementById('countdown').textContent = `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                        document.getElementById('countdown').textContent = `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
                     }
                 }, 1000);
             }
@@ -285,7 +379,7 @@
         }
 
         // --- Bidding Logic ---
-        
+
         window.setBidAmount = (amount) => {
             const input = document.getElementById('bid-amount');
             input.value = currentHighest + amount;
@@ -314,7 +408,7 @@
                 await runTransaction(db, async (transaction) => {
                     const sfDoc = await transaction.get(doc(db, "auctions", auctionId));
                     if (!sfDoc.exists()) throw "المزاد غير موجود!";
-                    
+
                     const data = sfDoc.data();
                     const liveHighest = data.currentPrice || data.startPrice || 0;
 
@@ -332,7 +426,7 @@
                     });
 
                     // 2. Update Auction Price
-                    transaction.update(doc(db, "auctions", auctionId), { 
+                    transaction.update(doc(db, "auctions", auctionId), {
                         currentPrice: amount,
                         lastBidderId: currentUser.uid
                     });
@@ -362,4 +456,5 @@
 
     </script>
 </body>
+
 </html>

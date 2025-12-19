@@ -67,7 +67,14 @@
                 <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                 <!-- Search Input -->
                 <input type="text" id="search-input" placeholder="ابحث عن منتج..." enterkeyhint="search"
+                    autocomplete="off"
                     class="w-full bg-gray-100 text-gray-800 rounded-2xl py-3 pr-11 pl-12 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner">
+
+                <!-- Search Suggestions Dropdown -->
+                <div id="search-suggestions"
+                    class="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-100 max-h-64 overflow-y-auto z-50 hidden">
+                    <!-- Suggestions will be injected here -->
+                </div>
 
                 <!-- Voice Search Button -->
                 <button id="voice-search-btn"
@@ -678,33 +685,120 @@
         let currentUserProfile = null;
 
         const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
         // --- DOM Elements ---
-        const searchInput = document.getElementById('main-search'); // Updated ID
+        const searchInput = document.getElementById('search-input'); // Fixed ID
+        const searchSuggestions = document.getElementById('search-suggestions');
         const productsGrid = document.getElementById('products-grid');
-        const storesSlider = document.getElementById('stores-slider');
+        const categoriesContainer = document.getElementById('categories-container');
+        const heroWrapper = document.getElementById('hero-slider-wrapper');
+        const storesContainer = document.getElementById('stores-container');
+        const storeSection = document.getElementById('stores-section');
         const themeToggle = document.getElementById('theme-toggle');
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn'); // Handles Sidebar
+        const mobileMenuBtn = document.getElementById('menu-btn'); // Fixed ID
+        const filterMin = document.getElementById('filter-min-price');
+        const filterMax = document.getElementById('filter-max-price');
         // No explicit filter toggle in new header yet - simplified for Phase 1
 
-        // --- Theme Toggle Logic ---
-        themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            const icon = themeToggle.querySelector('i');
-            if (document.body.classList.contains('dark-mode')) {
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-                localStorage.setItem('theme', 'dark');
-            } else {
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
-                localStorage.setItem('theme', 'light');
-            }
-        });
+        // --- Search Suggestions Logic ---
+        let allProductsCache = []; // Cache for search suggestions
 
-        // Initialize Theme
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
-            themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+        async function loadProductsForSuggestions() {
+            try {
+                const q = query(collection(db, "products"), limit(100));
+                const snap = await getDocs(q);
+                allProductsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            } catch (e) { console.log('Cache load error', e); }
+        }
+        loadProductsForSuggestions();
+
+        function showSearchSuggestions(queryText) {
+            if (!queryText || queryText.length < 2) {
+                searchSuggestions.classList.add('hidden');
+                return;
+            }
+
+            const q = queryText.toLowerCase();
+            const matches = allProductsCache.filter(p => {
+                const name = typeof p.name === 'string' ? p.name.toLowerCase() : '';
+                const desc = (p.description || '').toLowerCase();
+                return name.includes(q) || desc.includes(q);
+            }).slice(0, 6); // Limit to 6
+
+            if (matches.length === 0) {
+                searchSuggestions.classList.add('hidden');
+                return;
+            }
+
+            let html = '';
+            matches.forEach(p => {
+                const img = (p.imageUrls && p.imageUrls[0]) ? p.imageUrls[0] : (p.imageUrl || 'https://placehold.co/50');
+                const name = typeof p.name === 'string' ? p.name : 'منتج';
+                const price = p.price ? Number(p.price).toLocaleString() + ' د.ج' : '';
+
+                html += `
+                    <a href="PRESENTPRODUCT.html?product=${p.id}" class="flex items-center gap-3 p-3 hover:bg-gray-50 border-b border-gray-50 last:border-0 transition">
+                        <img src="${img}" class="w-10 h-10 rounded-lg object-cover bg-gray-100">
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-bold text-gray-800 truncate">${name}</div>
+                            <div class="text-xs text-indigo-600 font-bold">${price}</div>
+                        </div>
+                        <i class="fas fa-chevron-left text-gray-300 text-xs"></i>
+                    </a>
+                `;
+            });
+
+            // Add "View All" link
+            html += `
+                <a href="classproductindex.html?search=${encodeURIComponent(queryText)}" class="block text-center py-3 text-indigo-600 font-bold text-sm hover:bg-indigo-50 transition">
+                    <i class="fas fa-search ml-1"></i> عرض كل النتائج
+                </a>
+            `;
+
+            searchSuggestions.innerHTML = html;
+            searchSuggestions.classList.remove('hidden');
+        }
+
+        // Listen for input
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                showSearchSuggestions(e.target.value.trim());
+            });
+
+            // Hide on blur (with delay to allow click)
+            searchInput.addEventListener('blur', () => {
+                setTimeout(() => searchSuggestions.classList.add('hidden'), 200);
+            });
+
+            // Show on focus if has value
+            searchInput.addEventListener('focus', (e) => {
+                if (e.target.value.trim().length >= 2) {
+                    showSearchSuggestions(e.target.value.trim());
+                }
+            });
+        }
+
+        // --- Theme Toggle Logic ---
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                const icon = themeToggle.querySelector('i');
+                if (document.body.classList.contains('dark-mode')) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+
+            // Initialize Theme
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.querySelector('i')?.classList.replace('fa-moon', 'fa-sun');
+            }
         }
 
         // --- Auth Logic (Inline or Helper) ---
@@ -819,6 +913,7 @@
         // Sidebar Toggle
         // Initialize Mobile Features
         const toggleSidebar = () => {
+            if (!sidebar || !backdrop) return;
             const isActive = sidebar.classList.toggle('active');
             backdrop.classList.toggle('active');
             document.body.style.overflow = isActive ? 'hidden' : '';
@@ -834,18 +929,21 @@
             }
         };
 
-        const menuBtn = mobileMenuBtn; // Alias for existing code
-        menuBtn.addEventListener('click', toggleSidebar);
-        backdrop.addEventListener('click', () => {
-            // If user clicks backdrop manually, we should also sync history if possible.
-            // But simplest is to just toggle, and if we added state, we just go back.
-            // Ideally: if open, backing out handles it. 
-            // If clicking backdrop to close: we should call closeMobileOverlay() to pop the history state.
-            if (sidebar.classList.contains('active')) {
-                if (window.closeMobileOverlay) window.closeMobileOverlay();
-                else toggleSidebar(); // Fallback
-            }
-        });
+        // Menu Button Click Handler
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', toggleSidebar);
+        }
+
+        // Backdrop Click Handler  
+        if (backdrop) {
+            backdrop.addEventListener('click', () => {
+                // If user clicks backdrop manually, we should also sync history if possible.
+                if (sidebar && sidebar.classList.contains('active')) {
+                    if (window.closeMobileOverlay) window.closeMobileOverlay();
+                    else toggleSidebar(); // Fallback
+                }
+            });
+        }
 
         // Search Redirect
         // Search Redirect with Params
@@ -862,9 +960,11 @@
             }
         };
 
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleSearch();
-        });
+        if (searchInput) {
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleSearch();
+            });
+        }
 
         // Also allow updating search live from filters if needed? No, just keep standard behavior.
 

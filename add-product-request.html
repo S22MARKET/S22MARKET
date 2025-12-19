@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,15 +10,32 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="app-style.css">
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f1f5f9;
+        }
+
         .loader {
-            border: 5px solid #f3f3f3; border-top: 5px solid #3b82f6;
-            border-radius: 50%; width: 50px; height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3b82f6;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
         /* === (بداية التعديل: ستايل معالج الخطوات) === */
         #wizard-progress {
             display: flex;
@@ -28,6 +46,7 @@
             margin-left: auto;
             margin-right: auto;
         }
+
         .progress-step {
             display: flex;
             flex-direction: column;
@@ -35,12 +54,15 @@
             position: relative;
             flex-grow: 1;
         }
+
         .step-circle {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: #e2e8f0; /* bg-gray-200 */
-            color: #64748b; /* text-gray-500 */
+            background-color: #e2e8f0;
+            /* bg-gray-200 */
+            color: #64748b;
+            /* text-gray-500 */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -50,40 +72,50 @@
             transition: all 0.3s ease;
             z-index: 10;
         }
+
         .step-label {
             font-size: 0.875rem;
             color: #64748b;
             margin-top: 0.5rem;
             font-weight: 500;
         }
+
         .progress-step.active .step-circle {
-            background-color: #dbeafe; /* bg-blue-100 */
-            color: #3b82f6; /* text-blue-600 */
+            background-color: #dbeafe;
+            /* bg-blue-100 */
+            color: #3b82f6;
+            /* text-blue-600 */
             border-color: #3b82f6;
         }
+
         .progress-step.active .step-label {
             color: #3b82f6;
             font-weight: 700;
         }
+
         .progress-step.completed .step-circle {
             background-color: #3b82f6;
             color: white;
             border-color: #3b82f6;
         }
+
         .progress-step.completed .step-label {
             color: #1e293b;
         }
+
         /* الخط الرابط بين الدوائر */
         .progress-step:not(:last-child)::after {
             content: '';
             position: absolute;
-            top: 20px; /* منتصف الدائرة */
+            top: 20px;
+            /* منتصف الدائرة */
             right: -50%;
             width: 100%;
             height: 3px;
             background-color: #e2e8f0;
             z-index: 1;
         }
+
         .progress-step.completed:not(:last-child)::after {
             background-color: #3b82f6;
         }
@@ -91,10 +123,19 @@
         .wizard-step {
             animation: fadeIn 0.4s ease-out;
         }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+
         /* === (نهاية التعديل) === */
 
         .form-section {
@@ -104,6 +145,7 @@
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             margin-bottom: 2rem;
         }
+
         .form-section h2 {
             font-size: 1.25rem;
             font-weight: 800;
@@ -114,10 +156,12 @@
             display: flex;
             align-items: center;
         }
+
         .form-section h2 i {
             margin-left: 0.75rem;
             color: #3b82f6;
         }
+
         .input-field {
             margin-top: 1rem;
             display: block;
@@ -129,15 +173,20 @@
             box-shadow: inset 0 1px 2px 0 rgb(0 0 0 / 0.05);
             transition: border-color 0.2s, box-shadow 0.2s;
         }
+
         .input-field.invalid {
-            border-color: #ef4444; /* red-500 */
-            background-color: #fee2e2; /* red-50 */
+            border-color: #ef4444;
+            /* red-500 */
+            background-color: #fee2e2;
+            /* red-50 */
         }
+
         .input-field:focus {
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 2px #bfdbfe;
         }
+
         .image-preview-container {
             display: flex;
             flex-wrap: wrap;
@@ -148,11 +197,13 @@
             border-radius: 0.5rem;
             min-height: 100px;
         }
+
         .image-preview-item {
             position: relative;
             width: 100px;
             height: 100px;
         }
+
         .image-preview-item img {
             width: 100%;
             height: 100%;
@@ -160,6 +211,7 @@
             border-radius: 0.5rem;
             border: 2px solid #e2e8f0;
         }
+
         .remove-image-btn {
             position: absolute;
             top: -8px;
@@ -175,14 +227,16 @@
             align-items: center;
             justify-content: center;
             font-size: 14px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             transition: transform 0.2s;
         }
+
         .remove-image-btn:hover {
             transform: scale(1.1);
         }
     </style>
 </head>
+
 <body>
     <header class="bg-white shadow-sm">
         <div class="max-w-5xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
@@ -217,29 +271,35 @@
             </div>
         </div>
         <form id="request-form">
-            
+
             <div id="step-1" class="wizard-step">
                 <div class="form-section">
                     <h2><i class="fas fa-box-open"></i>الخطوة 1: تفاصيل المنتج</h2>
                     <div class="space-y-6">
                         <div>
-                            <label for="product-name" class="block text-sm font-bold text-gray-700">اسم المنتج <span class="text-red-500">*</span></label>
+                            <label for="product-name" class="block text-sm font-bold text-gray-700">اسم المنتج <span
+                                    class="text-red-500">*</span></label>
                             <input type="text" id="product-name" required class="input-field">
                         </div>
                         <div>
-                            <label for="product-description" class="block text-sm font-bold text-gray-700">وصف المنتج <span class="text-red-500">*</span></label>
-                            <textarea id="product-description" rows="5" required class="input-field" placeholder="اذكر جميع التفاصيل المهمة حول منتجك..."></textarea>
+                            <label for="product-description" class="block text-sm font-bold text-gray-700">وصف المنتج
+                                <span class="text-red-500">*</span></label>
+                            <textarea id="product-description" rows="5" required class="input-field"
+                                placeholder="اذكر جميع التفاصيل المهمة حول منتجك..."></textarea>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="product-category" class="block text-sm font-bold text-gray-700">اختر القسم <span class="text-red-500">*</span></label>
+                                <label for="product-category" class="block text-sm font-bold text-gray-700">اختر القسم
+                                    <span class="text-red-500">*</span></label>
                                 <select id="product-category" required class="input-field">
                                     <option value="">جاري تحميل الأقسام...</option>
                                 </select>
                             </div>
                             <div id="suggested-category-container" class="hidden">
-                                <label for="suggested-category" class="block text-sm font-bold text-gray-700">اقتراح قسم جديد</label>
-                                <input type="text" id="suggested-category" class="input-field" placeholder="مثال: إلكترونيات">
+                                <label for="suggested-category" class="block text-sm font-bold text-gray-700">اقتراح قسم
+                                    جديد</label>
+                                <input type="text" id="suggested-category" class="input-field"
+                                    placeholder="مثال: إلكترونيات">
                             </div>
                         </div>
                     </div>
@@ -248,9 +308,11 @@
             <div id="step-2" class="wizard-step hidden">
                 <div class="form-section">
                     <h2><i class="fas fa-camera"></i>الخطوة 2: الوسائط والتوريد</h2>
-                     <div>
-                        <label for="product-images" class="block text-sm font-bold text-gray-700">صور المنتج (يمكنك اختيار عدة صور) <span class="text-red-500">*</span></label>
-                        <input type="file" id="product-images" accept="image/*" multiple class="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"/>
+                    <div>
+                        <label for="product-images" class="block text-sm font-bold text-gray-700">صور المنتج (يمكنك
+                            اختيار عدة صور) <span class="text-red-500">*</span></label>
+                        <input type="file" id="product-images" accept="image/*" multiple
+                            class="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" />
                         <div id="image-preview-container" class="image-preview-container"></div>
                     </div>
                 </div>
@@ -259,16 +321,21 @@
                     <h2><i class="fas fa-truck-loading"></i>التوريد والتوصيل</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="product-quantity" class="block text-sm font-bold text-gray-700">الكمية المتوفرة لديك <span class="text-red-500">*</span></label>
-                            <input type="number" id="product-quantity" required class="input-field" placeholder="مثال: 50">
+                            <label for="product-quantity" class="block text-sm font-bold text-gray-700">الكمية المتوفرة
+                                لديك <span class="text-red-500">*</span></label>
+                            <input type="number" id="product-quantity" required class="input-field"
+                                placeholder="مثال: 50">
                         </div>
                         <div>
-                            <label for="selling-area" class="block text-sm font-bold text-gray-700">أين تنوي بيعها في محيط تواجدك؟ <span class="text-red-500">*</span></label>
-                            <input type="text" id="selling-area" required class="input-field" placeholder="مثال: مدينة عنابة وضواحيها">
+                            <label for="selling-area" class="block text-sm font-bold text-gray-700">أين تنوي بيعها في
+                                محيط تواجدك؟ <span class="text-red-500">*</span></label>
+                            <input type="text" id="selling-area" required class="input-field"
+                                placeholder="مثال: مدينة عنابة وضواحيها">
                         </div>
                     </div>
                     <div class="mt-6">
-                        <label class="block text-sm font-bold text-gray-700">فيما يخص خدمة التوصيل <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-bold text-gray-700">فيما يخص خدمة التوصيل <span
+                                class="text-red-500">*</span></label>
                         <select id="delivery-option" required class="input-field">
                             <option value="">-- اختر خيارًا --</option>
                             <option value="self_delivery">أنا أوفر خدمة التوصيل بنفسي</option>
@@ -283,20 +350,26 @@
                     <h2><i class="fas fa-user-circle"></i>الخطوة 3: معلومات التواصل الخاصة بك</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="user-name" class="block text-sm font-bold text-gray-700">اسمك الكامل <span class="text-red-500">*</span></label>
+                            <label for="user-name" class="block text-sm font-bold text-gray-700">اسمك الكامل <span
+                                    class="text-red-500">*</span></label>
                             <input type="text" id="user-name" required class="input-field">
                         </div>
                         <div>
-                            <label for="user-phone" class="block text-sm font-bold text-gray-700">رقم الهاتف <span class="text-red-500">*</span></label>
+                            <label for="user-phone" class="block text-sm font-bold text-gray-700">رقم الهاتف <span
+                                    class="text-red-500">*</span></label>
                             <input type="tel" id="user-phone" required class="input-field" dir="ltr">
                         </div>
                         <div>
-                            <label for="user-email" class="block text-sm font-bold text-gray-700">البريد الإلكتروني <span class="text-red-500">*</span></label>
-                            <input type="email" id="user-email" required class="input-field" placeholder="example@gmail.com">
+                            <label for="user-email" class="block text-sm font-bold text-gray-700">البريد الإلكتروني
+                                <span class="text-red-500">*</span></label>
+                            <input type="email" id="user-email" required class="input-field"
+                                placeholder="example@gmail.com">
                         </div>
                         <div>
-                            <label for="user-specialty" class="block text-sm font-bold text-gray-700">تخصصك أو مهنتك (اختياري)</label>
-                            <input type="text" id="user-specialty" class="input-field" placeholder="مثال: تاجر ملابس، مبرمج...">
+                            <label for="user-specialty" class="block text-sm font-bold text-gray-700">تخصصك أو مهنتك
+                                (اختياري)</label>
+                            <input type="text" id="user-specialty" class="input-field"
+                                placeholder="مثال: تاجر ملابس، مبرمج...">
                         </div>
                     </div>
                 </div>
@@ -305,38 +378,46 @@
                     <h2><i class="fas fa-share-alt"></i>روابط التواصل الاجتماعي (اختياري)</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="user-facebook" class="block text-sm font-bold text-gray-700">رابط حساب فيسبوك</label>
-                            <input type="url" id="user-facebook" class="input-field" placeholder="https://facebook.com/username">
+                            <label for="user-facebook" class="block text-sm font-bold text-gray-700">رابط حساب
+                                فيسبوك</label>
+                            <input type="url" id="user-facebook" class="input-field"
+                                placeholder="https://facebook.com/username">
                         </div>
                         <div>
-                            <label for="user-instagram" class="block text-sm font-bold text-gray-700">معرف حساب انستغرام</label>
+                            <label for="user-instagram" class="block text-sm font-bold text-gray-700">معرف حساب
+                                انستغرام</label>
                             <input type="text" id="user-instagram" class="input-field" placeholder="@username">
                         </div>
                         <div>
-                            <label for="user-telegram" class="block text-sm font-bold text-gray-700">معرف حساب تيليجرام</label>
+                            <label for="user-telegram" class="block text-sm font-bold text-gray-700">معرف حساب
+                                تيليجرام</label>
                             <input type="text" id="user-telegram" class="input-field" placeholder="@username">
                         </div>
                         <div>
                             <label for="user-whatsapp" class="block text-sm font-bold text-gray-700">رقم واتساب</label>
-                            <input type="tel" id="user-whatsapp" class="input-field" dir="ltr" placeholder="+213xxxxxxxxx">
+                            <input type="tel" id="user-whatsapp" class="input-field" dir="ltr"
+                                placeholder="+213xxxxxxxxx">
                         </div>
                     </div>
                 </div>
             </div>
             <div id="wizard-navigation" class="pt-5 flex justify-between items-center">
-                <button type="button" id="prev-btn" class="hidden py-3 px-8 border border-gray-400 rounded-md shadow-sm text-lg font-bold text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                <button type="button" id="prev-btn"
+                    class="hidden py-3 px-8 border border-gray-400 rounded-md shadow-sm text-lg font-bold text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                     <i class="fas fa-arrow-right ml-2"></i> السابق
                 </button>
-                
-                <button type="button" id="next-btn" class="py-3 px-8 border border-transparent rounded-md shadow-sm text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+
+                <button type="button" id="next-btn"
+                    class="py-3 px-8 border border-transparent rounded-md shadow-sm text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                     التالي <i class="fas fa-arrow-left mr-2"></i>
                 </button>
 
-                <button type="submit" id="submit-btn" class="hidden w-full flex justify-center items-center gap-3 py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-bold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                <button type="submit" id="submit-btn"
+                    class="hidden w-full flex justify-center items-center gap-3 py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-bold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
                     <span id="submit-btn-text">إرسال الطلب للمراجعة</span>
                 </button>
             </div>
-            </form>
+        </form>
 
         <div id="success-message" class="hidden text-center mt-6 p-6 bg-green-100 text-green-800 rounded-2xl shadow-lg">
             <i class="fas fa-check-circle text-5xl text-green-500 mb-3"></i>
@@ -348,7 +429,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, getDocs, addDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
+
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
             authDomain: "s22market-4e3e6.firebaseapp.com",
@@ -358,7 +439,7 @@
             appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
             measurementId: "G-MWYNCVP4WQ"
         };
-        
+
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
@@ -392,7 +473,7 @@
             if (result.success) return result.data.url;
             else throw new Error(`ImgBB Error: ${result.error.message}`);
         }
-        
+
         function resizeAndCompressImage(file, maxWidth = 800, quality = 0.85) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -411,9 +492,9 @@
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-                        canvas.toBlob(blob => { 
+                        canvas.toBlob(blob => {
                             if (!blob) return reject(new Error("Canvas to Blob conversion failed"));
-                            resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() })); 
+                            resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() }));
                         }, 'image/jpeg', quality);
                     };
                     img.onerror = reject;
@@ -421,7 +502,7 @@
                 reader.onerror = error => reject(error);
             });
         }
-        
+
         // --- دوال الأقسام والصور (تبقى كما هي) ---
         async function fetchCategories() {
             try {
@@ -478,7 +559,7 @@
         });
 
         // === (بداية التعديل: منطق معالج الخطوات) ===
-        
+
         function showStep(stepNumber) {
             steps.forEach((step, index) => {
                 step.classList.toggle('hidden', index !== stepNumber - 1);
@@ -496,7 +577,7 @@
             prevBtn.classList.toggle('hidden', stepNumber === 1);
             nextBtn.classList.toggle('hidden', stepNumber === 3);
             submitBtn.classList.toggle('hidden', stepNumber !== 3);
-            
+
             // جعل الزر "التالي" في المنتصف إذا كان "السابق" مخفياً
             navContainer.classList.toggle('justify-between', stepNumber > 1);
             navContainer.classList.toggle('justify-end', stepNumber === 1);
@@ -542,7 +623,7 @@
             showStep(currentStep);
             window.scrollTo(0, 0); // الانتقال لأعلى الصفحة
         });
-        
+
         // === (نهاية التعديل) ===
 
 
@@ -590,7 +671,7 @@
                 };
 
                 await addDoc(collection(db, "productRequests"), requestData);
-                
+
                 form.classList.add('hidden');
                 navContainer.classList.add('hidden'); // إخفاء أزرار التنقل
                 document.getElementById('wizard-progress').classList.add('hidden'); // إخفاء شريط التقدم
@@ -609,38 +690,5 @@
         showStep(currentStep); // إظهار الخطوة الأولى عند تحميل الصفحة
     </script>
 </body>
+
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
