@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سلة المشتريات | S22 Market</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        
+        /* إخفاء شريط التمرير ولكن السماح بالتمرير */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* تنسيق زر الكمية */
+        .qty-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: all 0.2s; }
+        .qty-btn:active { transform: scale(0.9); }
+
+        /* تأثير الزجاج */
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #e2e8f0; }
+        
+        /* مودال الدفع */
+        dialog { border: none; border-radius: 1.5rem 1.5rem 0 0; padding: 0; width: 100%; max-width: 100%; margin: 0; position: fixed; bottom: 0; left: 0; right: 0; background: transparent; transition: transform 0.3s ease-out; transform: translateY(100%); outline: none; }
+        dialog[open] { transform: translateY(0); }
+        dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
+        @media (min-width: 640px) {
+            dialog { border-radius: 1rem; width: 90%; max-width: 500px; top: 50%; left: 50%; bottom: auto; transform: translate(-50%, -50%) scale(0.9); position: fixed; margin: 0; }
+            dialog[open] { transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+
+<body class="pb-32 text-slate-800">
+
+    <header class="bg-white shadow-sm sticky top-0 z-20">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-extrabold tracking-tight">سلة <span class="text-indigo-600">S22</span></h1>
+            <a href="index.html" class="text-sm font-medium text-gray-500 hover:text-indigo-600">
+                <i class="fas fa-arrow-right ml-1"></i> عودة
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 py-6">
+        
+        <div class="bg-gray-200 p-1 rounded-xl flex mb-6 relative">
+            <div id="active-bg" class="absolute w-[49%] h-[calc(100%-8px)] bg-white rounded-lg shadow-sm transition-all duration-300 top-1 right-1"></div>
+            <button onclick="setTab('market')" class="flex-1 py-2.5 text-sm font-bold relative z-10 transition-colors text-indigo-600" id="btn-market">
+                <i class="fas fa-shopping-bag ml-1"></i> تسوق
+            </button>
+            <button onclick="setTab('food')" class="flex-1 py-2.5 text-sm font-bold relative z-10 transition-colors text-gray-500" id="btn-food">
+                <i class="fas fa-hamburger ml-1"></i> مطاعم
+            </button>
+        </div>
+
+        <div id="cart-container" class="space-y-4 min-h-[300px]">
+            <div class="flex flex-col items-center justify-center py-20 text-gray-400 opacity-50">
+                <i class="fas fa-circle-notch fa-spin text-3xl mb-4"></i>
+                <p>جاري تحميل السلة...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="bottom-bar" class="fixed bottom-0 left-0 right-0 glass z-30 px-4 py-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] hidden">
+        <div class="max-w-3xl mx-auto flex items-center justify-between gap-4">
+            <div class="flex flex-col">
+                <span class="text-xs text-gray-500 font-bold">الإجمالي</span>
+                <span id="total-price" class="text-xl font-black text-indigo-600">0 د.ج</span>
+            </div>
+            <button onclick="openCheckout()" class="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 active:scale-95 transition flex-1 shadow-lg shadow-indigo-200">
+                إتمام الطلب <i class="fas fa-check-circle mr-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <dialog id="checkout-dialog">
+        <div class="bg-white h-full flex flex-col max-h-[85vh] overflow-hidden">
+            <div class="p-4 border-b flex justify-between items-center bg-gray-50">
+                <h3 class="font-bold text-lg"><i class="fas fa-shield-alt text-green-500 ml-2"></i>تأكيد الطلب</h3>
+                <button onclick="document.getElementById('checkout-dialog').close()" class="w-8 h-8 rounded-full bg-gray-200 text-gray-600"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <form id="checkout-form" class="flex-1 overflow-y-auto p-5 space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="text" id="c-name" placeholder="الاسم الكريم" required class="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 ring-indigo-500 outline-none">
+                    <input type="tel" id="c-phone" placeholder="رقم الهاتف" required class="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 ring-indigo-500 outline-none text-left" dir="ltr">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="text" id="c-wilaya" placeholder="الولاية" required class="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm">
+                    <input type="text" id="c-baladiya" placeholder="البلدية" required class="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm">
+                </div>
+                <textarea id="c-address" rows="2" placeholder="العنوان بالتفصيل (حي، منزل...)" required class="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm"></textarea>
+                
+                <div id="gps-box" class="relative hidden">
+                    <i class="fas fa-map-marker-alt absolute left-3 top-3 text-red-500"></i>
+                    <input type="url" id="c-gps" placeholder="رابط الموقع (GPS) - مفضل للطعام" class="w-full bg-orange-50 border border-orange-200 p-3 rounded-xl text-sm pl-10">
+                </div>
+
+                <div class="bg-indigo-50 p-3 rounded-xl flex justify-between items-center">
+                    <span class="text-sm font-bold text-indigo-900">المجموع للدفع:</span>
+                    <span id="modal-total" class="text-lg font-black text-indigo-600">0 د.ج</span>
+                </div>
+            </form>
+
+            <div class="p-4 border-t">
+                <button form="checkout-form" id="confirm-btn" class="w-full bg-green-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-green-200 hover:bg-green-700 active:scale-95 transition">
+                    تأكيد نهائي
+                </button>
+            </div>
+        </div>
+    </dialog>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        
+        let cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
+        let activeTab = 'market';
+        let currentUser = null;
+
+        // --- واجهة المستخدم ---
+        window.setTab = (tab) => {
+            activeTab = tab;
+            const isMarket = tab === 'market';
+            
+            // تحريك الخلفية البيضاء
+            document.getElementById('active-bg').style.transform = isMarket ? 'translateX(0)' : 'translateX(-100%)';
+            
+            // تغيير الألوان
+            document.getElementById('btn-market').className = `flex-1 py-2.5 text-sm font-bold relative z-10 transition-colors ${isMarket ? 'text-indigo-600' : 'text-gray-500'}`;
+            document.getElementById('btn-food').className = `flex-1 py-2.5 text-sm font-bold relative z-10 transition-colors ${!isMarket ? 'text-indigo-600' : 'text-gray-500'}`;
+            
+            renderCart();
+        };
+
+        function getFilteredItems() {
+            return cart.filter(item => activeTab === 'market' 
+                ? (item.itemType === 'market' || !item.itemType) 
+                : item.itemType === 'food');
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-container');
+            const items = getFilteredItems();
+            const bottomBar = document.getElementById('bottom-bar');
+
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16">
+                        <div class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-shopping-basket text-3xl text-gray-300"></i>
+                        </div>
+                        <h2 class="text-lg font-bold text-gray-700">السلة فارغة</h2>
+                        <p class="text-sm text-gray-400 mb-6">لم تضف شيئاً في قسم ${activeTab === 'market' ? 'التسوق' : 'المطاعم'}</p>
+                        <a href="index.html" class="text-indigo-600 font-bold text-sm hover:underline">تصفح المنتجات</a>
+                    </div>
+                `;
+                bottomBar.classList.add('hidden');
+                return;
+            }
+
+            let html = '';
+            let total = 0;
+
+            items.forEach((item, index) => {
+                const price = Number(item.price);
+                const qty = Number(item.quantity);
+                total += price * qty;
+                const img = (item.imageUrls && item.imageUrls[0]) || item.image || 'https://placehold.co/100';
+
+                html += `
+                <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex gap-3 items-center">
+                    <img src="${img}" class="w-20 h-20 rounded-xl object-cover bg-gray-50 flex-shrink-0">
+                    <div class="flex-grow min-w-0">
+                        <h4 class="font-bold text-gray-800 text-sm truncate">${item.name?.ar || item.name}</h4>
+                        <div class="text-xs text-gray-400 mt-1 mb-2 truncate">${item.storeName || 'متجر عام'}</div>
+                        <div class="text-indigo-600 font-bold font-mono">${price} د.ج</div>
+                    </div>
+                    <div class="flex flex-col items-end gap-2">
+                        <div class="flex items-center bg-gray-50 rounded-lg border border-gray-200">
+                            <button onclick="window.updateQty('${item.id}', ${qty + 1})" class="qty-btn text-gray-600 hover:bg-gray-200">+</button>
+                            <span class="w-6 text-center font-bold text-sm">${qty}</span>
+                            <button onclick="window.updateQty('${item.id}', ${qty - 1})" class="qty-btn text-gray-600 hover:bg-gray-200">-</button>
+                        </div>
+                        <button onclick="window.removeItem('${item.id}')" class="text-xs text-red-400 p-1"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            
+            // تحديث الشريط السفلي
+            document.getElementById('total-price').textContent = total.toLocaleString() + ' د.ج';
+            document.getElementById('modal-total').textContent = total.toLocaleString() + ' د.ج';
+            bottomBar.classList.remove('hidden');
+        }
+
+        // --- منطق السلة ---
+        window.updateQty = (id, newQty) => {
+            const idx = cart.findIndex(i => i.id === id);
+            if (idx > -1) {
+                if (newQty <= 0) cart.splice(idx, 1);
+                else cart[idx].quantity = newQty;
+                localStorage.setItem('s22market_cart', JSON.stringify(cart));
+                renderCart();
+            }
+        };
+
+        window.removeItem = (id) => window.updateQty(id, 0);
+
+        // --- الدفع ---
+        window.openCheckout = () => {
+            const dialog = document.getElementById('checkout-dialog');
+            // تخصيص حسب النوع
+            const gpsBox = document.getElementById('gps-box');
+            if (activeTab === 'food') gpsBox.classList.remove('hidden');
+            else gpsBox.classList.add('hidden');
+            
+            dialog.showModal();
+        };
+
+        document.getElementById('checkout-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('confirm-btn');
+            const originalText = btn.innerText;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> جاري الطلب...';
+
+            try {
+                const orderItems = getFilteredItems();
+                const total = orderItems.reduce((acc, i) => acc + (i.price * i.quantity), 0);
+                
+                const orderData = {
+                    items: orderItems,
+                    totalPrice: total,
+                    status: 'new',
+                    createdAt: serverTimestamp(),
+                    customer: {
+                        name: document.getElementById('c-name').value,
+                        phone: document.getElementById('c-phone').value,
+                        wilaya: document.getElementById('c-wilaya').value,
+                        baladiya: document.getElementById('c-baladiya').value,
+                        address: document.getElementById('c-address').value,
+                        gps: document.getElementById('c-gps').value || ''
+                    },
+                    orderType: activeTab,
+                    userId: currentUser ? currentUser.uid : 'guest'
+                };
+
+                const ref = await addDoc(collection(db, 'orders'), orderData);
+                
+                // تنظيف السلة (فقط العناصر التي تم شراؤها)
+                cart = cart.filter(item => activeTab === 'market' ? item.itemType === 'food' : (item.itemType === 'market' || !item.itemType));
+                localStorage.setItem('s22market_cart', JSON.stringify(cart));
+                
+                // نجاح
+                document.getElementById('checkout-dialog').close();
+                document.getElementById('cart-container').innerHTML = `
+                    <div class="bg-green-50 border border-green-200 rounded-2xl p-6 text-center animate-bounce mt-10">
+                        <i class="fas fa-check-circle text-5xl text-green-500 mb-3"></i>
+                        <h2 class="text-xl font-bold text-green-700">تم استلام طلبك!</h2>
+                        <p class="text-sm text-green-600 mt-1">رقم الطلب: #${ref.id.slice(0,6)}</p>
+                        <a href="index.html" class="block mt-4 bg-green-600 text-white py-2 rounded-lg font-bold">العودة للرئيسية</a>
+                    </div>
+                `;
+                document.getElementById('bottom-bar').classList.add('hidden');
+
+            } catch (err) {
+                alert('حدث خطأ: ' + err.message);
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        };
+
+        // --- تهيئة ---
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            // تعبئة البيانات تلقائياً إذا مسجل
+            if(user) { /* يمكن جلب بيانات المستخدم هنا */ }
+        });
+        
+        // التحميل الأولي
+        renderCart();
+
+    </script>
+</body>
+</html>

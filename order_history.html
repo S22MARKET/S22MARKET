@@ -482,18 +482,24 @@
         }
 
         // --- منطق المصادقة والتحكم بالصفحة ---
-        import { requireAuth } from './auth-helper.js';
+        // --- منطق المصادقة والتحكم بالصفحة ---
+        // Replacing deleted auth-helper with inline logic
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // المستخدم قام بتسجيل الدخول
+                loginBtn.classList.add('hidden');
+                userMenu.classList.remove('hidden');
 
-        requireAuth(auth).then((user) => {
-            // المستخدم قام بتسجيل الدخول
-            loginBtn.classList.add('hidden');
-            userMenu.classList.remove('hidden');
+                const displayName = user.displayName || "زبوننا";
+                userMenuName.textContent = displayName.split(' ')[0];
+                userMenuDisplayName.textContent = displayName;
 
-            const displayName = user.displayName || "زبوننا";
-            userMenuName.textContent = displayName.split(' ')[0];
-            userMenuDisplayName.textContent = displayName;
-
-            loadOrderHistory(user);
+                loadOrderHistory(user);
+            } else {
+                // Not logged in - redirect to login or show empty state? 
+                // For order history, they must be logged in.
+                window.location.href = 'login.html';
+            }
         });
 
         // --- معالجات القائمة وتسجيل الخروج ---

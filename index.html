@@ -2420,6 +2420,10 @@
         // Start
         initHome();
 
+        // Offline Detection
+        window.addEventListener('offline', () => showToast('انقطع الاتصال بالإنترنت ⚠️', 'error'));
+        window.addEventListener('online', () => showToast('عاد الاتصال بالإنترنت ✅'));
+
     </script>
     <script>
         // Unregister Service Worker to ensure fresh content

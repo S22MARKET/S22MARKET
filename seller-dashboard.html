@@ -1178,7 +1178,26 @@
                 }
 
                 // Update Chart
-                updateChart(salesData);
+                const last7Days = Array(7).fill(0).map((_, i) => {
+                    const d = new Date();
+                    d.setDate(d.getDate() - (6 - i));
+                    return d.toLocaleDateString('en-CA'); // YYYY-MM-DD
+                });
+
+                const chartData = Array(7).fill(0);
+
+                ordersCache.forEach(o => {
+                    if (o.status !== 'canceled' && o.createdAt) {
+                        const d = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
+                        const dateStr = d.toLocaleDateString('en-CA');
+                        const index = last7Days.indexOf(dateStr);
+                        if (index !== -1) {
+                            chartData[index] += (o.totalPrice || 0);
+                        }
+                    }
+                });
+
+                updateChart(chartData);
                 updateTopProducts(ordersCache);
             });
         }

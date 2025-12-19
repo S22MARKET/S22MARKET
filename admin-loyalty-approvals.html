@@ -131,17 +131,6 @@
             }
         }
 
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-            }
-
-            to {
-                opacity: 0;
-            }
-        }
-
-        /* Skeleton & Animation */
         .skeleton {
             background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
             background-size: 200% 100%;
@@ -175,152 +164,216 @@
                 transform: translateY(0);
             }
         }
+    </style>
+</head>
 
-        </head><body><div id="login-page" class="hidden min-h-screen flex items-center justify-center bg-gray-100 p-4"><div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl space-y-6"><h2 class="text-3xl font-extrabold text-center text-gray-900">يرجى تسجيل الدخول</h2><p class="text-center text-red-500">تم تسجيل خروجك. يرجى العودة إلى <a href="dashboard.html" class="font-bold underline">صفحة الدخول الرئيسية</a>.</p></div></div><div id="dashboard-page" class="hidden"><div class="relative min-h-screen md:flex"><aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30"><div class="p-3 text-center border-b border-gray-700"><h2 class="text-2xl font-bold">S22 Market</h2><p id="admin-welcome-name" class="text-sm text-indigo-300"></p></div><nav class="flex-1 p-2 space-y-2"><a href="dashboard.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chart-line fa-fw mr-3"></i>لوحة التحكم</a><a href="admin-sellers.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-users-cog fa-fw mr-3"></i>إدارة البائعين</a><a href="admin-reports.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-flag fa-fw mr-3 text-red-400"></i>الإبلاغات</a><a href="admin-products.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-boxes fa-fw mr-3"></i>المنتجات</a><a href="admin-offers.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-star fa-fw mr-3"></i>العروض</a><a href="admin-product-requests.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-user-plus fa-fw mr-3"></i>طلبات الزوار</a><a href="admin-categories.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-sitemap fa-fw mr-3"></i>الأقسام</a><a href="admin-orders.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-clipboard-list fa-fw mr-3"></i>الطلبات</a><a href="admin-coupons.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-tags fa-fw mr-3"></i>الكوبونات</a><a href="admin-inquiries.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-envelope-open-text fa-fw mr-3"></i>الرسائل الواردة</a><a href="admin-applications.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fab fa-google-play fa-fw mr-3"></i>التطبيقات</a><a href="admin-notepad.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-book fa-fw mr-3"></i>المفكرة</a><hr class="border-gray-700 my-2"><h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">نظام الولاء (المتجر)</h6><a href="admin-loyalty-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-gem fa-fw mr-3 text-yellow-400"></i>إعدادات الجواهر 💎</a><a href="admin-loyalty-approvals.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i>موافقات المهام</a><a href="admin-referrals-pending.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-check-double fa-fw mr-3 text-blue-400"></i>موافقات الدعوات</a><hr class="border-gray-700 my-2"><a href="admin-settings.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-cogs fa-fw mr-3"></i>إعدادات المتجر</a><hr class="border-gray-700 my-2"><h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</h6><a href="dawarat_admin_manager.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700" target="_blank"><i class="fas fa-graduation-cap fa-fw mr-3 text-gray-400"></i><span>إدارة البذلورات</span><i class="fas fa-external-link-alt fa-xs ml-auto"></i></a></nav><div class="p-4 border-t border-gray-700"><button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i>تسجيل الخروج</button></div></aside><main class="flex-1 p-4 md:p-8 overflow-y-auto"><div id="approvals-panel" class="dashboard-panel"><div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold text-gray-800">موافقات مهام (الجواهر 💎)</h1><button id="refresh-approvals" class="text-gray-500 hover:text-blue-500 text-2xl"><i class="fas fa-sync-alt"></i></button></div><p class="text-sm text-gray-600 mb-4 bg-yellow-50 p-3 rounded-lg"><i class="fas fa-info-circle ml-2"></i>هنا تظهر الطلبات المرسلة من العملاء لإثبات إكمالهم لمهام المتجر. قم بمراجعة الصورة والموافقة لمنحهم (الجواهر 💎).</p><p class="text-sm text-gray-600 mb-4 bg-blue-50 p-3 rounded-lg"><i class="fas fa-info-circle ml-2"></i>ملاحظة: طلبات إثبات دفع البذلورات ومهام الأكاديمية (العملات 🪙) موجودة في <a href="dawarat_admin_approvals.html" class="font-bold underline" target="_blank">لوحة تحكم الأكاديمية</a>.</p><div id="approvals-loader" class="text-center py-10"><div class="loader mx-auto"></div><p class="mt-4 text-gray-600">جاري تحميل طلبات الموافقة...</p></div><div id="no-approvals-msg" class="hidden text-center py-20 bg-white rounded-xl shadow-md"><i class="fas fa-check-circle fa-4x text-green-400"></i><p class="mt-4 text-xl font-semibold text-gray-500">لا توجد طلبات موافقة بانتظار المراجعة.</p></div><div id="approvals-list" class="space-y-4"></div></div></main></div></div><div id="toast-container"></div><script type="module">import {
-            initializeApp
+<body>
+    <div id="login-page" class="hidden min-h-screen flex items-center justify-center bg-gray-100 p-4">
+        <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl space-y-6">
+            <h2 class="text-3xl font-extrabold text-center text-gray-900">يرجى تسجيل الدخول</h2>
+            <p class="text-center text-red-500">تم تسجيل خروجك. يرجى العودة إلى <a href="dashboard.html"
+                    class="font-bold underline">صفحة الدخول الرئيسية</a>.</p>
+        </div>
+    </div>
+
+    <div id="dashboard-page" class="hidden">
+        <div class="relative min-h-screen md:flex">
+            <aside id="sidebar"
+                class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
+                <div class="p-3 text-center border-b border-gray-700">
+                    <h2 class="text-2xl font-bold">S22 Market</h2>
+                    <p id="admin-welcome-name" class="text-sm text-indigo-300"></p>
+                </div>
+                <nav class="flex-1 p-2 space-y-2">
+                    <a href="dashboard.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-chart-line fa-fw mr-3"></i>لوحة التحكم</a>
+                    <a href="admin-sellers.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-users-cog fa-fw mr-3"></i>إدارة البائعين</a>
+                    <a href="admin-reports.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-flag fa-fw mr-3 text-red-400"></i>الإبلاغات</a>
+                    <a href="admin-products.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-boxes fa-fw mr-3"></i>المنتجات</a>
+                    <a href="admin-offers.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-star fa-fw mr-3"></i>العروض</a>
+                    <a href="admin-product-requests.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-user-plus fa-fw mr-3"></i>طلبات الزوار</a>
+                    <a href="admin-categories.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-sitemap fa-fw mr-3"></i>الأقسام</a>
+                    <a href="admin-orders.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-clipboard-list fa-fw mr-3"></i>الطلبات</a>
+                    <a href="admin-coupons.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-tags fa-fw mr-3"></i>الكوبونات</a>
+                    <a href="admin-inquiries.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-envelope-open-text fa-fw mr-3"></i>الرسائل الواردة</a>
+                    <a href="admin-applications.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fab fa-google-play fa-fw mr-3"></i>التطبيقات</a>
+                    <a href="admin-notepad.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-book fa-fw mr-3"></i>المفكرة</a>
+                    <hr class="border-gray-700 my-2">
+                    <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">نظام الولاء (المتجر)</h6>
+                    <a href="admin-loyalty-settings.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-gem fa-fw mr-3 text-yellow-400"></i>إعدادات الجواهر 💎</a>
+                    <a href="admin-loyalty-approvals.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-check-to-slot fa-fw mr-3 text-green-400"></i>موافقات المهام</a>
+                    <a href="admin-referrals-pending.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-check-double fa-fw mr-3 text-blue-400"></i>موافقات الدعوات</a>
+                    <hr class="border-gray-700 my-2">
+                    <a href="admin-settings.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-cogs fa-fw mr-3"></i>إعدادات المتجر</a>
+                    <hr class="border-gray-700 my-2">
+                    <h6 class="px-4 text-xs font-semibold text-gray-400 uppercase">الأكاديمية</h6>
+                    <a href="dawarat_admin_manager.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"
+                        target="_blank"><i class="fas fa-graduation-cap fa-fw mr-3 text-gray-400"></i><span>إدارة
+                            البذلورات</span><i class="fas fa-external-link-alt fa-xs ml-auto"></i></a>
+                </nav>
+                <div class="p-4 border-t border-gray-700">
+                    <button id="logout-btn"
+                        class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i
+                            class="fas fa-sign-out-alt mr-2"></i>تسجيل الخروج</button>
+                </div>
+            </aside>
+            <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+                <div id="approvals-panel" class="dashboard-panel">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-3xl font-bold text-gray-800">موافقات مهام (الجواهر 💎)</h1>
+                        <button id="refresh-approvals" class="text-gray-500 hover:text-blue-500 text-2xl"><i
+                                class="fas fa-sync-alt"></i></button>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4 bg-yellow-50 p-3 rounded-lg"><i
+                            class="fas fa-info-circle ml-2"></i>هنا تظهر الطلبات المرسلة من العملاء لإثبات إكمالهم لمهام
+                        المتجر. قم بمراجعة الصورة والموافقة لمنحهم (الجواهر 💎).</p>
+                    <p class="text-sm text-gray-600 mb-4 bg-blue-50 p-3 rounded-lg"><i
+                            class="fas fa-info-circle ml-2"></i>ملاحظة: طلبات إثبات دفع البذلورات ومهام الأكاديمية
+                        (العملات 🪙) موجودة في <a href="dawarat_admin_approvals.html" class="font-bold underline"
+                            target="_blank">لوحة تحكم الأكاديمية</a>.</p>
+                    <div id="approvals-loader" class="text-center py-10">
+                        <div class="loader mx-auto"></div>
+                        <p class="mt-4 text-gray-600">جاري تحميل طلبات الموافقة...</p>
+                    </div>
+                    <div id="no-approvals-msg" class="hidden text-center py-20 bg-white rounded-xl shadow-md"><i
+                            class="fas fa-check-circle fa-4x text-green-400"></i>
+                        <p class="mt-4 text-xl font-semibold text-gray-500">لا توجد طلبات موافقة بانتظار المراجعة.</p>
+                    </div>
+                    <div id="approvals-list" class="space-y-4"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <div id="toast-container"></div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, title, addDoc, doc, updateDoc, onSnapshot, query, serverTimestamp, orderBy, getDocs, getDoc, where, increment, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // --- INLINED AUTH (Self-Contained) ---
+        async function requireAuth(authInstance) {
+            await setPersistence(authInstance, browserLocalPersistence);
+            return new Promise((resolve) => {
+                const unsubscribe = onAuthStateChanged(authInstance, (user) => {
+                    if (!user) {
+                        try { window.location.href = 'admin-login.html'; } catch (e) { console.error(e); }
+                        resolve(null);
+                    } else {
+                        resolve(user);
+                    }
+                    unsubscribe();
+                });
+            });
         }
 
-        from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-
-        import {
-            getFirestore,
-            collection,
-            addDoc,
-            doc,
-            updateDoc,
-            onSnapshot,
-            query,
-            serverTimestamp,
-            orderBy,
-            getDocs,
-            getDoc,
-            where,
-            increment,
-            writeBatch
-        }
-
-        from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        import {
-            getAuth,
-            onAuthStateChanged,
-            signOut
-        }
-
-        from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-        import {
-            requireAuth
-        }
-
-        from "./auth-helper.js";
-
-        const firebaseConfig= {
+        const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
-                authDomain: "s22market-4e3e6.firebaseapp.com",
-                projectId: "s22market-4e3e6",
-                storageBucket: "s22market-4e3e6.appspot.com",
-                messagingSenderId: "119186699901",
-                appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
-                measurementId: "G-MWYNCVP4WQ"
-        }
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
 
-        ;
-
-        const app=initializeApp(firebaseConfig);
-        const db=getFirestore(app);
-        const auth=getAuth(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
 
         // Keep for reference
-        const ADMIN_EMAILS=[ 's22market@gmail.com',
-        'yacinee474474@gmail.com',
-        'nourmt01@gmail.com'
-        ];
+        const ADMIN_EMAILS = ['s22market@gmail.com', 'yacinee474474@gmail.com', 'nourmt01@gmail.com'];
 
-        const loginPage=document.getElementById('login-page');
-        const dashboardPage=document.getElementById('dashboard-page');
-        const logoutBtn=document.getElementById('logout-btn');
-        const getEl=(id)=>document.getElementById(id);
+        const loginPage = document.getElementById('login-page');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const logoutBtn = document.getElementById('logout-btn');
+        const getEl = (id) => document.getElementById(id);
 
         // --- (الدوال المساعدة: showToast, setButtonLoading) ---
-        const showToast=(message, type='success')=> {
-            const container=getEl('toast-container');
-            const toast=document.createElement('div');
+        const showToast = (message, type = 'success') => {
+            const container = getEl('toast-container');
+            const toast = document.createElement('div');
 
-            toast.className=`toast $ {
-                type==='error' ? 'error': ''
-            }
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
 
-            `;
-            const icon=type==='success' ? 'fa-check-circle' : 'fa-times-circle';
-
-            toast.innerHTML=`<i class="fas ${icon}"></i><span>$ {
-                message
-            }
-
-            </span>`;
+            toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
             container.appendChild(toast);
-            setTimeout(()=> toast.remove(), 3000);
-        }
+            setTimeout(() => toast.remove(), 3000);
+        };
 
-        ;
-
-        const setButtonLoading=(btn, isLoading, text)=> {
-            const btnText=btn.querySelector('span');
-
+        const setButtonLoading = (btn, isLoading, text) => {
             if (isLoading) {
-                btn.disabled=true;
-                btn.innerHTML=`<div class="small-spinner mx-auto"></div>`;
+                btn.disabled = true;
+                btn.innerHTML = `<div class="small-spinner mx-auto"></div>`;
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = text; // إعادة النص الأصلي
             }
-
-            else {
-                btn.disabled=false;
-                btn.innerHTML=text; // إعادة النص الأصلي
-            }
-        }
-
-        ;
+        };
         // --- (نهاية الدوال المساعدة) ---
 
-        requireAuth(auth).then(async (user)=> {
-                const userDoc=await getDoc(doc(db, "users", user.uid));
+        requireAuth(auth).then(async (user) => {
+            const userDoc = await getDoc(doc(db, "users", user.uid));
 
-                if (userDoc.exists() && userDoc.data().role==='admin') {
-                    if (loginPage) loginPage.classList.add('hidden');
-                    if (dashboardPage) dashboardPage.classList.remove('hidden');
+            if (userDoc.exists() && userDoc.data().role === 'admin') {
+                if (loginPage) loginPage.classList.add('hidden');
+                if (dashboardPage) dashboardPage.classList.remove('hidden');
 
-                    if (getEl('admin-welcome-name')) getEl('admin-welcome-name').textContent=`مرحباً، $ {
-                        user.displayName || user.email.split('@')[0]
-                    }
+                if (getEl('admin-welcome-name')) getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
+                initializeDashboard();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
 
-                    `;
-                    initializeDashboard();
-                }
-
-                else {
-                    window.location.href='index.html';
-                }
-            });
-
-        logoutBtn.addEventListener('click', async ()=> {
-                await signOut(auth);
-            });
+        logoutBtn.addEventListener('click', async () => {
+            await signOut(auth);
+        });
 
         function setActiveTab() {
-            const currentPage=window.location.pathname.split('/').pop();
-            const tabs=document.querySelectorAll('.dashboard-tab');
+            const currentPage = window.location.pathname.split('/').pop();
+            const tabs = document.querySelectorAll('.dashboard-tab');
 
-            tabs.forEach(tab=> {
-                    const tabHref=tab.getAttribute('href').split('/').pop();
-
-                    if (tabHref===currentPage) {
-                        tab.classList.add('active-tab');
-                    }
-
-                    else {
-                        tab.classList.remove('active-tab');
-                    }
-                });
+            tabs.forEach(tab => {
+                const tabHref = tab.getAttribute('href').split('/').pop();
+                if (tabHref === currentPage) {
+                    tab.classList.add('active-tab');
+                } else {
+                    tab.classList.remove('active-tab');
+                }
+            });
         }
 
         // --- (الدالة الرئيسية) ---
@@ -328,103 +381,71 @@
             setActiveTab();
 
             loadPendingApprovals();
-            getEl('refresh-approvals').onclick=loadPendingApprovals;
+            getEl('refresh-approvals').onclick = loadPendingApprovals;
 
-            getEl('approvals-list').addEventListener('click', (e)=> {
-                    const approveBtn=e.target.closest('.approve-btn');
-                    const rejectBtn=e.target.closest('.reject-btn');
-                    if (approveBtn) handleApproval(approveBtn, true);
-                    if (rejectBtn) handleApproval(rejectBtn, false);
-                });
+            getEl('approvals-list').addEventListener('click', (e) => {
+                const approveBtn = e.target.closest('.approve-btn');
+                const rejectBtn = e.target.closest('.reject-btn');
+                if (approveBtn) handleApproval(approveBtn, true);
+                if (rejectBtn) handleApproval(rejectBtn, false);
+            });
         }
 
         // --- (*** الكود الأساسي لهذه الصفحة - معدل ***) ---
 
         async function loadPendingApprovals() {
-            const loader=getEl('approvals-loader');
-            const listContainer=getEl('approvals-list');
-            const noMsg=getEl('no-approvals-msg');
+            const loader = getEl('approvals-loader');
+            const listContainer = getEl('approvals-list');
+            const noMsg = getEl('no-approvals-msg');
 
             loader.classList.add('hidden'); // Hide original generic loader
-            listContainer.innerHTML=Array(3).fill(0).map(()=> ` <div class="bg-white rounded-xl shadow-md p-5 grid grid-cols-1 md:grid-cols-3 gap-4 items-center animate-pulse" > <div class="space-y-2" > <div class="skeleton w-1/2 h-6" ></div> <div class="skeleton w-1/3 h-4" ></div> </div> <div class="space-y-2" > <div class="skeleton w-2/3 h-5" ></div> <div class="skeleton w-1/2 h-4" ></div> </div> <div class="flex justify-end gap-3" > <div class="skeleton w-20 h-10 rounded-lg" ></div> <div class="skeleton w-20 h-10 rounded-lg" ></div> </div> </div> `).join('');
+            listContainer.innerHTML = Array(3).fill(0).map(() => ` <div class="bg-white rounded-xl shadow-md p-5 grid grid-cols-1 md:grid-cols-3 gap-4 items-center animate-pulse" > <div class="space-y-2" > <div class="skeleton w-1/2 h-6" ></div> <div class="skeleton w-1/3 h-4" ></div> </div> <div class="space-y-2" > <div class="skeleton w-2/3 h-5" ></div> <div class="skeleton w-1/2 h-4" ></div> </div> <div class="flex justify-end gap-3" > <div class="skeleton w-20 h-10 rounded-lg" ></div> <div class="skeleton w-20 h-10 rounded-lg" ></div> </div> </div> `).join('');
 
             noMsg.classList.add('hidden');
 
             try {
                 // (*** تعديل هام: فلترة لجلب مهام المتجر فقط ***)
-                const q=query(collection(db, "loyalty_approvals"),
+                const q = query(collection(db, "loyalty_approvals"),
                     where("status", "==", "pending"),
                     where("type", "==", "task_reward"), // <-- هذا هو الفلتر
                     orderBy("submittedAt", "desc"));
-                const snapshot=await getDocs(q);
-                listContainer.innerHTML='';
+                const snapshot = await getDocs(q);
+                listContainer.innerHTML = '';
 
 
                 if (snapshot.empty) {
                     noMsg.classList.remove('hidden');
+                } else {
+                    snapshot.forEach((doc, index) => {
+                        const approval = {
+                            id: doc.id,
+                            ...doc.data()
+                        };
+                        listContainer.appendChild(createApprovalCard(approval, index));
+                    });
                 }
-
-                else {
-                    snapshot.forEach((doc, index)=> {
-                            const approval= {
-                                id: doc.id, ...doc.data()
-                            }
-
-                            ;
-                            listContainer.appendChild(createApprovalCard(approval, index));
-                        });
-                }
-            }
-
-            catch (error) {
+            } catch (error) {
                 console.error("Error loading approvals:", error);
-                listContainer.innerHTML=`<p class="text-red-500 p-4"><b>فشل جلب الطلبات.</b><br>تأكد من إنشاء الفهرس (Index) المطلوب في Firestore.</p>`;
-            }
-
-            finally {
+                listContainer.innerHTML = `<p class="text-red-500 p-4"><b>فشل جلب الطلبات.</b><br>تأكد من إنشاء الفهرس (Index) المطلوب في Firestore.</p>`;
+            } finally {
                 loader.classList.add('hidden');
             }
         }
 
-        function createApprovalCard(approval, index=0) {
-            const card=document.createElement('div');
+        function createApprovalCard(approval, index = 0) {
+            const card = document.createElement('div');
+            card.id = `approval-card-${approval.id}`;
+            card.className = 'bg-white rounded-xl shadow-md p-5 grid grid-cols-1 md:grid-cols-3 gap-4 items-center fade-in-up';
 
-            card.id=`approval-card-$ {
-                approval.id
-            }
+            card.style.animationDelay = `${index * 0.1}s`;
 
-            `;
-            card.className='bg-white rounded-xl shadow-md p-5 grid grid-cols-1 md:grid-cols-3 gap-4 items-center fade-in-up';
-
-            card.style.animationDelay=`$ {
-                index * 0.1
-            }
-
-            s`;
-
-            const date=approval.submittedAt?.toDate ? approval.submittedAt.toDate().toLocaleString('ar-EG') : '...';
+            const date = approval.submittedAt?.toDate ? approval.submittedAt.toDate().toLocaleString('ar-EG') : '...';
 
             // (تم تبسيط الكود لأنه سيعرض نوع واحد فقط)
-            const taskTitle=approval.taskTitle;
-            const taskColor='text-purple-600';
+            const taskTitle = approval.taskTitle;
+            const taskColor = 'text-purple-600';
 
-            card.innerHTML=` <div class="md:col-span-1"><p class="font-bold text-lg">$ {
-                approval.userName
-            }
-
-            </p><p class="text-sm text-gray-500">$ {
-                date
-            }
-
-            </p></div><div class="md:col-span-1"><p class="font-semibold ${taskColor}">$ {
-                taskTitle
-            }
-
-            </p><p class="font-bold text-green-600">+$ {
-                approval.points
-            }
-
-            جوهرة 💎</p><a href="${approval.proofImageUrl}" target="_blank" class="text-blue-500 hover:underline font-semibold"><i class="fas fa-image ml-1"></i>عرض الإثبات (الصورة) </a></div><div class="md:col-span-1 flex items-center justify-end gap-3"><button class="reject-btn bg-red-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-red-700"
+            card.innerHTML = ` <div class="md:col-span-1"><p class="font-bold text-lg">${approval.userName}</p><p class="text-sm text-gray-500">${date}</p></div><div class="md:col-span-1"><p class="font-semibold ${taskColor}">${taskTitle}</p><p class="font-bold text-green-600">+${approval.points} جوهرة 💎</p><a href="${approval.proofImageUrl}" target="_blank" class="text-blue-500 hover:underline font-semibold"><i class="fas fa-image ml-1"></i>عرض الإثبات (الصورة) </a></div><div class="md:col-span-1 flex items-center justify-end gap-3"><button class="reject-btn bg-red-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-red-700"
             data-id="${approval.id}" data-user-id="${approval.userId}" data-title="${taskTitle}"><span><i class="fas fa-times"></i>رفض</span></button><button class="approve-btn bg-green-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-green-700"
             data-id="${approval.id}" data-user-id="${approval.userId}"
             data-points="${approval.points}" data-title="${taskTitle}"
@@ -433,7 +454,7 @@
         }
 
         async function handleApproval(btn, isApproved) {
-            const card=btn.closest('.bg-white');
+            const card = btn.closest('.bg-white');
 
             const {
                 id,
@@ -441,111 +462,100 @@
                 points,
                 title,
                 type
-            }
+            } = btn.dataset;
 
-            =btn.dataset;
-
-            const approveBtn=card.querySelector('.approve-btn');
-            const rejectBtn=card.querySelector('.reject-btn');
-            const approveBtnText=approveBtn.innerHTML;
-            const rejectBtnText=rejectBtn.innerHTML;
+            const approveBtn = card.querySelector('.approve-btn');
+            const rejectBtn = card.querySelector('.reject-btn');
+            const approveBtnText = approveBtn.innerHTML;
+            const rejectBtnText = rejectBtn.innerHTML;
 
             setButtonLoading(approveBtn, true);
             setButtonLoading(rejectBtn, true);
 
             try {
-                const approvalDocRef=doc(db, "loyalty_approvals", id);
-                const userDocRef=doc(db, "users", userId);
+                const approvalDocRef = doc(db, "loyalty_approvals", id);
+                const userDocRef = doc(db, "users", userId);
 
-                const batch=writeBatch(db);
+                const batch = writeBatch(db);
 
                 if (isApproved) {
-                    const pointsToAward=parseInt(points, 10);
+                    const pointsToAward = parseInt(points, 10);
 
                     if (pointsToAward > 0) {
-
                         // (*** تعديل: هذا يمنح "جواهر" المتجر وهو الصحيح ***)
                         batch.update(userDocRef, {
                             loyaltyPoints: increment(pointsToAward)
                         });
+                    }
+
+                    // إضافة سجل في "تاريخ النقاط" للعميل
+                    const changeLogRef = doc(collection(db, 'users', userId, 'loyaltyChanges'));
+
+                    batch.set(changeLogRef, {
+                        type: "task_reward", // (تم التأكيد: هذا هو النوع الصحيح)
+                        pointsAdded: pointsToAward,
+                        reason: title,
+                        adminId: auth.currentUser.uid,
+                        timestamp: serverTimestamp()
+                    });
+
+                    // إرسال إشعار للعميل
+                    const notificationRef = doc(collection(db, 'users', userId, 'notifications'));
+
+                    batch.set(notificationRef, {
+                        title: "✅ تمت الموافقة على مهمتك!",
+                        body: `أحسنت ! تمت الموافقة على مهمتك: "${title}" . وتمت إضافة ${pointsToAward} جوهرة 💎 لرصيدك.`,
+                        timestamp: serverTimestamp(),
+                        isRead: false,
+                        type: "task_approved"
+                    });
+
+                    // تحديث حالة الطلب إلى "موافق عليه"
+                    batch.update(approvalDocRef, {
+                        status: "approved",
+                        processedAt: serverTimestamp()
+                    });
+
+                    await batch.commit();
+
+                    showToast('تمت الموافقة ومنح الجواهر!', 'success');
+
+                } else {
+                    // (رفض)
+                    const notificationRef = doc(collection(db, 'users', userId, 'notifications'));
+
+                    batch.set(notificationRef, {
+                        title: "❌ تم رفض مهمتك",
+                        body: `نعتذر، تم رفض طلبك لـ: "${title}" . يرجى المحاولة مجدداً بصورة أوضح.`,
+                        timestamp: serverTimestamp(),
+                        isRead: false,
+                        type: "task_rejected"
+                    });
+
+                    batch.update(approvalDocRef, {
+                        status: "rejected",
+                        processedAt: serverTimestamp()
+                    });
+
+                    await batch.commit();
+
+                    showToast('تم رفض الطلب بنجاح.', 'success');
                 }
 
-                // إضافة سجل في "تاريخ النقاط" للعميل
-                const changeLogRef=doc(collection(db, 'users', userId, 'loyaltyChanges'));
+                card.remove();
 
-                batch.set(changeLogRef, {
-                    type: "task_reward", // (تم التأكيد: هذا هو النوع الصحيح)
-                    pointsAdded: pointsToAward,
-                    reason: title,
-                    adminId: auth.currentUser.uid,
-                    timestamp: serverTimestamp()
-                });
-
-            // إرسال إشعار للعميل
-            const notificationRef=doc(collection(db, 'users', userId, 'notifications'));
-
-            batch.set(notificationRef, {
-
-                title: "✅ تمت الموافقة على مهمتك!",
-                body: `أحسنت ! تمت الموافقة على مهمتك: "${title}" . وتمت إضافة $ {
-                    pointsToAward
+                if (getEl('approvals-list').children.length === 0) {
+                    getEl('no-approvals-msg').classList.remove('hidden');
                 }
 
-                جوهرة 💎 لرصيدك.`,
-                timestamp: serverTimestamp(),
-                isRead: false,
-                type: "task_approved"
-            });
-
-        // (*** تعديل هام: تم حذف الكود الخاص بـ courseAccess ***)
-        // لم نعد بحاجة لهذا الكود هنا
-
-        // تحديث حالة الطلب إلى "موافق عليه"
-        batch.update(approvalDocRef, {
-            status: "approved", processedAt: serverTimestamp()
-        });
-
-        await batch.commit();
-
-        showToast('تمت الموافقة ومنح الجواهر!', 'success');
-
+            } catch (error) {
+                console.error("Error handling approval:", error);
+                showToast('حدث خطأ فادح: ' + error.message, 'error');
+                setButtonLoading(approveBtn, false, approveBtnText);
+                setButtonLoading(rejectBtn, false, rejectBtnText);
+            }
         }
+    </script>
+</body>
 
-        else {
-            // (رفض)
-            const notificationRef=doc(collection(db, 'users', userId, 'notifications'));
-
-            batch.set(notificationRef, {
-                title: "❌ تم رفض مهمتك",
-                body: `نعتذر، تم رفض طلبك لـ: "${title}" . يرجى المحاولة مجدداً بصورة أوضح.`,
-                timestamp: serverTimestamp(),
-                isRead: false,
-                type: "task_rejected"
-            });
-
-        batch.update(approvalDocRef, {
-            status: "rejected", processedAt: serverTimestamp()
-        });
-
-        await batch.commit();
-
-        showToast('تم رفض الطلب بنجاح.', 'success');
-        }
-
-        card.remove();
-
-        if (getEl('approvals-list').children.length===0) {
-            getEl('no-approvals-msg').classList.remove('hidden');
-        }
-
-        }
-
-        catch (error) {
-            console.error("Error handling approval:", error);
-            showToast('حدث خطأ فادح: ' + error.message, 'error');
-            setButtonLoading(approveBtn, false, approveBtnText);
-            setButtonLoading(rejectBtn, false, rejectBtnText);
-        }
-        }
-
-        </script></body></html>
+</html>
