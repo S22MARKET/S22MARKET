@@ -575,9 +575,10 @@
                 const addonsHtml = (item.selectedAddons && item.selectedAddons.length > 0)
                     ? `<ul class="text-sm text-gray-400 mr-7 list-disc list-inside">${item.selectedAddons.map(addon => `<li>${addon.name}</li>`).join('')}</ul>`
                     : '';
+                const itemName = typeof item.name === 'object' ? (item.name.ar || item.name.en || 'منتج') : item.name;
                 return `<div class="py-1">
                             <span class="font-bold text-white text-lg">${item.quantity} x</span>
-                            <span class="text-gray-200 text-lg">${item.name}</span>
+                            <span class="text-gray-200 text-lg">${itemName}</span>
                             ${addonsHtml}
                         </div>`;
             }).join('');
@@ -994,11 +995,12 @@
                     const currentStatus = statusConfig[order.status] || { text: order.status, color: 'bg-gray-600' };
 
                     const itemsHtml = (order.items || []).map(item => {
-                        let itemText = `<div><span class="font-semibold">${item.quantity} x ${item.name}</span> <span class="text-orange-400 font-mono">${(item.price || 0).toLocaleString()} دج</span>`;
+                        const itemName = typeof item.name === 'object' ? (item.name.ar || item.name.en || 'منتج') : item.name;
+                        let itemText = `<div><span class="font-semibold">${item.quantity} x ${itemName}</span> <span class="text-orange-400 font-mono">${(item.price || 0).toLocaleString()} دج</span>`;
 
                         // Smart Out-of-Stock Button (Only if productId exists)
                         if (item.productId) {
-                            itemText += `<button id="oos-btn-${item.productId}" onclick="window.markOutOfStock('${item.productId}', '${item.name.replace(/'/g, "\\'")}')" class="text-xs text-gray-500 hover:text-red-500 bg-gray-800 hover:bg-red-900/30 px-2 py-1 rounded ml-2 transition-colors" title="إبلاغ عن نفاذ الكمية"><i class="fas fa-ban"></i> نفذ؟</button>`;
+                            itemText += `<button id="oos-btn-${item.productId}" onclick="window.markOutOfStock('${item.productId}', '${itemName.replace(/'/g, "\\'")}')" class="text-xs text-gray-500 hover:text-red-500 bg-gray-800 hover:bg-red-900/30 px-2 py-1 rounded ml-2 transition-colors" title="إبلاغ عن نفاذ الكمية"><i class="fas fa-ban"></i> نفذ؟</button>`;
                         }
 
                         itemText += `</div>`;
@@ -1082,9 +1084,10 @@
                 if (item.cookingInstructions) {
                     note = `<div class="mt-1 mr-4 text-cyan-400 text-sm"><i class="fas fa-comment"></i> ${item.cookingInstructions}</div>`;
                 }
+                const itemName = typeof item.name === 'object' ? (item.name.ar || item.name.en || 'منتج') : item.name;
                 return `<div class="bg-gray-700/50 p-3 rounded-lg mb-2">
                     <div class="flex justify-between items-start">
-                        <span class="font-bold text-white text-lg">${item.quantity}x ${item.name}</span>
+                        <span class="font-bold text-white text-lg">${item.quantity}x ${itemName}</span>
                         <span class="text-orange-400 font-mono">${(item.price * item.quantity).toLocaleString()}</span>
                     </div>
                     ${addons}
@@ -1186,10 +1189,12 @@
                 if (addons) addons = `<ul class="addons-list">${addons}</ul>`;
                 let instructions = item.cookingInstructions ? `<div class="instructions">ملاحظة: ${item.cookingInstructions}</div>` : '';
 
+                const itemName = typeof item.name === 'object' ? (item.name.ar || item.name.en || 'منتج') : item.name;
+
                 return `<tr class="item-row">
                             <td class="quantity">${item.quantity}x</td>
                             <td class="item-details">
-                                <div class="item-name">${item.name}</div>
+                                <div class="item-name">${itemName}</div>
                                 ${addons}
                                 ${instructions}
                             </td>

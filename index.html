@@ -711,56 +711,9 @@
     <div id="toast-container"></div>
 
     <!-- Login Promotion Modal -->
-    <div id="login-promo-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="promo-backdrop"></div>
-        <div
-            class="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-3xl p-6 md:p-8 w-full max-w-sm text-center shadow-2xl transform scale-100 transition-all">
-            <button id="close-promo-btn"
-                class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-gray-500 hover:bg-gray-200 transition">
-                <i class="fas fa-times"></i>
-            </button>
-            <div
-                class="w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-indigo-500/30 text-white text-3xl animate-bounce">
-                <i class="fas fa-gift"></i>
-            </div>
-            <h3 class="text-2xl font-bold text-gray-800 mb-2">سجل دخولك واربح!</h3>
-            <p class="text-gray-600 mb-6 text-sm leading-relaxed">
-                سجل دخولك الآن للحصول على تخفيضات حصرية ومزايا خاصة للأعضاء فقط. لا تفوت الفرصة!
-            </p>
-            <div class="space-y-3">
-                <a href="login.html"
-                    class="block w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 transition-transform transform active:scale-95">
-                    تسجيل الدخول / إنشاء حساب
-                </a>
-                <button id="promo-later-btn"
-                    class="block w-full py-3 px-4 text-gray-500 hover:text-gray-700 font-medium text-sm transition">
-                    لاحقاً
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- Login Promotion Modal REMOVED -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const promoModal = document.getElementById('login-promo-modal');
-            const closeBtn = document.getElementById('close-promo-btn');
-            const backdrop = document.getElementById('promo-backdrop');
-            const laterBtn = document.getElementById('promo-later-btn');
-
-            if (!sessionStorage.getItem('loginPromoSeen')) {
-                setTimeout(() => {
-                    if (promoModal) promoModal.classList.remove('hidden');
-                }, 3000);
-            }
-
-            const closeModal = () => {
-                if (promoModal) promoModal.classList.add('hidden');
-                sessionStorage.setItem('loginPromoSeen', 'true');
-            };
-
-            if (closeBtn) closeBtn.addEventListener('click', closeModal);
-            if (backdrop) backdrop.addEventListener('click', closeModal);
-            if (laterBtn) laterBtn.addEventListener('click', closeModal);
-        });
+        // Login Promo Script Removed
     </script>
 
     <!-- Mobile Enhancements -->
@@ -1040,6 +993,15 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        
+        // --- PERSISTENCE SETUP ---
+        setPersistence(auth, browserLocalPersistence)
+            .then(() => {
+                // console.log("Session persistence enabled");
+            })
+            .catch((error) => {
+                console.error("Persistence Error:", error);
+            });
         // --- End Inlined Config ---
 
         // --- 2. Global State & UI Elements ---
@@ -1391,7 +1353,7 @@
                                 const snap = await getDocs(qProd);
                                 products = snap.docs
                                     .map(d => ({ id: d.id, ...d.data() }))
-                                    .filter(p => p.productType !== 'course')
+                                    .filter(p => p.productType !== 'course' && p.storeType !== 'restaurant' && p.categoryName !== 'Food' && p.categoryName !== 'مأكولات')
                                     .sort((a, b) => {
                                         // Sort desc by createdAt, handling missing dates safely
                                         const dateA = a.createdAt?.seconds || 0;
@@ -1686,7 +1648,7 @@
                 }
 
                 products.forEach(p => {
-                    if (p.productType !== 'course') {
+                    if (p.productType !== 'course' && p.storeType !== 'restaurant' && p.categoryName !== 'Food' && p.categoryName !== 'مأكولات') {
                         productsGrid.innerHTML += createProductCardHTML(p);
                     }
                 });
@@ -2141,3 +2103,5 @@
 </body>
 
 </html>
+
+
