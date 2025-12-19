@@ -454,7 +454,25 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot, query, orderBy, updateDoc, doc, where, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // --- INLINED AUTH (Self-Contained) ---
+        async function requireAuth(authInstance) {
+            await setPersistence(authInstance, browserLocalPersistence);
+            return new Promise((resolve) => {
+                const unsubscribe = onAuthStateChanged(authInstance, (user) => {
+                    if (!user) {
+                        try {
+                            localStorage.setItem('s22_return_url', window.location.href);
+                            window.location.href = 'login.html';
+                        } catch (e) { console.error(e); }
+                        resolve(null);
+                    } else {
+                        resolve(user);
+                    }
+                    unsubscribe();
+                });
+            });
+        }
 
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
@@ -725,25 +743,23 @@
 
             setupSoundActivation();
 
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    currentUser = user;
+            requireAuth(auth).then(async (user) => {
+                currentUser = user;
 
-                    // Fetch user details for customization
-                    try {
-                        const userDoc = await getDoc(doc(db, "users", user.uid));
-                        if (userDoc.exists()) {
-                            const userData = userDoc.data();
-                            updateInterfaceForUser(userData);
-                        }
-                    } catch (error) {
-                        console.error("Error fetching user data:", error);
+                // Fetch user details for customization
+                try {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        updateInterfaceForUser(userData);
                     }
-
-                    loadOrders();
-                } else {
-                    window.location.href = 'login.html';
+                } catch (error) {
+                    console.error("Error fetching user data:", error);
                 }
+
+                loadOrders();
+            }).catch(error => {
+                console.log("Auth check error:", error);
             });
 
             setInterval(renderOrdersTable, 15000);

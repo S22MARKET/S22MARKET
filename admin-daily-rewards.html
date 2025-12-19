@@ -254,8 +254,23 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // --- INLINED AUTH (Self-Contained) ---
+        async function requireAuth(authInstance) {
+            await setPersistence(authInstance, browserLocalPersistence);
+            return new Promise((resolve) => {
+                const unsubscribe = onAuthStateChanged(authInstance, (user) => {
+                    if (!user) {
+                        try { window.location.href = 'admin-login.html'; } catch (e) { console.error(e); }
+                        resolve(null);
+                    } else {
+                        resolve(user);
+                    }
+                    unsubscribe();
+                });
+            });
+        }
 
         // Firebase Config
         const firebaseConfig = {
@@ -270,16 +285,18 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Keep for reference
         const ADMIN_EMAILS = ['s22market@gmail.com', 'yacinee474474@gmail.com', 'nourmt01@gmail.com'];
         const DAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
         // --- Auth Check ---
-        onAuthStateChanged(auth, user => {
-            if (user && ADMIN_EMAILS.includes(user.email)) {
+        requireAuth(auth).then(async (user) => {
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists() && userDoc.data().role === 'admin') {
                 document.getElementById('login-overlay').classList.add('hidden');
                 initAdmin();
             } else {
-                location.href = 'admin-login.html';
+                window.location.href = 'index.html';
             }
         });
 

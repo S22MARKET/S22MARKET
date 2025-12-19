@@ -74,9 +74,9 @@
             <i class="fas fa-lock text-6xl text-gray-300 mb-4"></i>
             <h2 class="text-2xl font-bold text-gray-700">يرجى تسجيل الدخول</h2>
             <p class="text-gray-500 mb-6">يجب عليك تسجيل الدخول لعرض قائمة المفضلة.</p>
-            <a href="login.html"
+            <button onclick="window.location.href='login.html'"
                 class="bg-indigo-600 text-white px-6 py-2 rounded-full font-bold shadow-lg hover:bg-indigo-700">تسجيل
-                الدخول</a>
+                الدخول</button>
         </div>
 
         <div id="loader" class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -124,38 +124,66 @@
         const emptyState = document.getElementById('empty-wishlist');
         const authWarning = document.getElementById('auth-warning');
 
+        // Hide warning by default (we support guests now)
+        if (authWarning) authWarning.classList.add('hidden');
+
         let currentUser = null;
 
+        // Initialize: Check Auth state but load LS immediately if needed
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
                 document.getElementById('user-info').classList.remove('hidden');
                 document.getElementById('user-name').textContent = user.displayName || 'مستخدم';
-                loadWishlist();
+                // Potentially sync LS to Firestore here if we wanted to be fancy, 
+                // but for now just load User's Firestore wishlist
+                loadWishlist(true);
             } else {
-                loader.classList.add('hidden');
-                authWarning.classList.remove('hidden');
+                // Guest Mode
+                loadWishlist(false);
             }
         });
 
-        async function loadWishlist() {
-            try {
-                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-                const wishlist = userDoc.exists() ? (userDoc.data().wishlist || []) : [];
+        async function loadWishlist(isAuth) {
+            let wishlistIds = [];
 
-                if (wishlist.length === 0) {
+            try {
+                if (isAuth && currentUser) {
+                    const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                    wishlistIds = userDoc.exists() ? (userDoc.data().wishlist || []) : [];
+                } else {
+                    // LocalStorage
+                    const local = localStorage.getItem('s22_wishlist');
+                    wishlistIds = local ? JSON.parse(local) : [];
+                }
+
+                if (wishlistIds.length === 0) {
                     loader.classList.add('hidden');
+                    grid.classList.add('hidden');
                     emptyState.classList.remove('hidden');
                     return;
                 }
 
-                // Fetch all products in parallel
-                // Note: In production with many items, fetch in batches or use 'in' query if robust.
-                // For now, parallel getDoc is fine for reasonable wishlist size.
-                const productPromises = wishlist.map(id => getDoc(doc(db, 'products', id)));
+                // Hide empty state if we have items
+                emptyState.classList.add('hidden');
+
+                // Fetch Products
+                // Note: For guests, IDs are in LS. For users, in Firestore.
+                // We fetch product details from Firestore in both cases.
+                const productPromises = wishlistIds.map(id => getDoc(doc(db, 'products', id)));
                 const snapshots = await Promise.all(productPromises);
 
                 const products = snapshots.map(snap => snap.exists() ? { id: snap.id, ...snap.data() } : null).filter(p => p !== null);
+
+                // If some products were deleted from DB but existed in wishlist, we might want to clean them up?
+                // skipping for now.
+
+                if (products.length === 0) {
+                    // IDs existed but products don't (deleted products)
+                    loader.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
 
                 renderGrid(products);
                 loader.classList.add('hidden');
@@ -164,7 +192,6 @@
             } catch (error) {
                 console.error("Error loading wishlist:", error);
                 loader.classList.add('hidden');
-                // Could show error state
             }
         }
 
@@ -172,7 +199,7 @@
             grid.innerHTML = '';
             products.forEach((product, index) => {
                 const card = document.createElement('div');
-                card.className = 'bg-white rounded-xl shadow-md overflow-hidden relative fade-in-up flex flex-col';
+                card.className = 'bg-white rounded-xl shadow-md overflow-hidden relative fade-in-up flex flex-col group';
                 card.style.animationDelay = `${index * 0.05}s`;
 
                 const price = product.discount > 0
@@ -180,18 +207,19 @@
                     : `<span class="text-indigo-600 font-bold text-lg">${product.price} د.ج</span>`;
 
                 card.innerHTML = `
-                    <div class="relative h-48 bg-gray-100">
-                        <img src="${product.imageUrl || 'https://via.placeholder.com/150'}" class="w-full h-full object-cover" alt="${product.name}">
-                        <button class="absolute top-2 left-2 bg-white/90 p-2 rounded-full text-red-500 shadow-sm hover:scale-110 transition-transform remove-btn" data-id="${product.id}">
+                    <div class="relative h-48 bg-gray-100 overflow-hidden">
+                        <img src="${product.imageUrl || 'https://via.placeholder.com/150'}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="${product.name}">
+                        <button class="absolute top-2 left-2 bg-white/90 p-2 rounded-full text-red-500 shadow-sm hover:bg-red-50 transition-colors remove-btn" data-id="${product.id}" title="حذف من المفضلة">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
                     <div class="p-4 flex flex-col flex-1">
-                        <h3 class="font-bold text-gray-800 mb-1 truncate">${product.name}</h3>
-                        <div class="mt-auto flex justify-between items-center">
-                            ${price}
+                        <h3 class="font-bold text-gray-800 mb-1 truncate text-right">${product.name}</h3>
+                        <div class="mt-auto flex justify-between items-center dir-rtl">
+                             <!-- Price is already formatted -->
+                             <div class="flex items-center gap-2">${price}</div>
                         </div>
-                        <a href="PRESENTPRODUCT.html?id=${product.id}" class="mt-3 block text-center bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 text-sm font-semibold">عرض التفاصيل</a>
+                        <a href="PRESENTPRODUCT.html?id=${product.id}&product=${product.id}" class="mt-3 block text-center bg-indigo-50 text-indigo-700 py-2 rounded-lg hover:bg-indigo-600 hover:text-white transition-all text-sm font-bold">عرض التفاصيل</a>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -205,12 +233,21 @@
 
         async function removeFromWishlist(id) {
             if (!confirm('حذف من المفضلة؟')) return;
+
+            // Optimistic UI Update (Optional, but let's just reload for simplicity and consistency)
             try {
-                await updateDoc(doc(db, 'users', currentUser.uid), {
-                    wishlist: arrayRemove(id)
-                });
-                // Reload or remove element DOM
-                loadWishlist();
+                if (currentUser) {
+                    await updateDoc(doc(db, 'users', currentUser.uid), {
+                        wishlist: arrayRemove(id)
+                    });
+                } else {
+                    const local = JSON.parse(localStorage.getItem('s22_wishlist') || '[]');
+                    const newLocal = local.filter(item => item !== id);
+                    localStorage.setItem('s22_wishlist', JSON.stringify(newLocal));
+                }
+                // Reload
+                const isAuth = !!currentUser;
+                loadWishlist(isAuth);
             } catch (e) { console.error(e); }
         }
 

@@ -240,8 +240,23 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, doc, getDoc, updateDoc, deleteDoc, onSnapshot, query, serverTimestamp, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // --- INLINED AUTH (Self-Contained) ---
+        async function requireAuth(authInstance) {
+            await setPersistence(authInstance, browserLocalPersistence);
+            return new Promise((resolve) => {
+                const unsubscribe = onAuthStateChanged(authInstance, (user) => {
+                    if (!user) {
+                        try { window.location.href = 'admin-login.html'; } catch (e) { console.error(e); }
+                        resolve(null);
+                    } else {
+                        resolve(user);
+                    }
+                    unsubscribe();
+                });
+            });
+        }
 
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
@@ -257,6 +272,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Keep for reference
         const ADMIN_EMAILS = [
             's22market@gmail.com',
             'yacinee474474@gmail.com',
@@ -274,19 +290,17 @@
         const getChecked = (id) => getEl(id)?.checked || false;
 
 
-        function checkAdminPermissions(user) {
-            if (user && ADMIN_EMAILS.includes(user.email)) {
-                loginPage.classList.add('hidden');
-                dashboardPage.classList.remove('hidden');
-                getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
+        requireAuth(auth).then(async (user) => {
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists() && userDoc.data().role === 'admin') {
+                if (loginPage) loginPage.classList.add('hidden');
+                if (dashboardPage) dashboardPage.classList.remove('hidden');
+                if (getEl('admin-welcome-name')) getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
                 initializeDashboard();
             } else {
-                dashboardPage.classList.add('hidden');
-                loginPage.classList.remove('hidden');
-                if (user) signOut(auth);
+                window.location.href = 'index.html';
             }
-        }
-        onAuthStateChanged(auth, user => { checkAdminPermissions(user); });
+        });
         logoutBtn.addEventListener('click', async () => { await signOut(auth); });
 
         function setActiveTab() {

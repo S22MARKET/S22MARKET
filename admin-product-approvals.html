@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,12 +9,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 </head>
+
 <body class="bg-gray-100">
     <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6">
         <h1 class="text-2xl font-bold">موافقة المنتجات</h1>
         <p class="text-indigo-100 mt-1">مراجعة وموافقة منتجات البائعين</p>
     </div>
-    
+
     <div class="max-w-7xl mx-auto p-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div class="bg-white rounded-xl p-6 shadow">
@@ -29,14 +31,14 @@
                 <p id="rejected-count" class="text-3xl font-bold text-red-600">0</p>
             </div>
         </div>
-        
+
         <div id="pending-products"></div>
     </div>
-    
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
+
         const app = initializeApp({
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
             authDomain: "s22market-4e3e6.firebaseapp.com",
@@ -45,24 +47,52 @@
             messagingSenderId: "119186699901",
             appId: "1:119186699901:web:1b04100b5c5c40f5ca2314"
         });
-        
+
         const db = getFirestore(app);
-        
+        import { getAuth, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // --- INLINED AUTH (Self-Contained) ---
+        async function requireAuth(authInstance) {
+            await setPersistence(authInstance, browserLocalPersistence);
+            return new Promise((resolve) => {
+                const unsubscribe = onAuthStateChanged(authInstance, (user) => {
+                    if (!user) {
+                        try { window.location.href = 'admin-login.html'; } catch (e) { console.error(e); }
+                        resolve(null);
+                    } else {
+                        resolve(user);
+                    }
+                    unsubscribe();
+                });
+            });
+        }
+        import { getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const auth = getAuth(app);
+
+        requireAuth(auth).then(async (user) => {
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists() && userDoc.data().role === 'admin') {
+                // Admin confirmed
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
         const q = query(collection(db, 'products'), where('status', '==', 'pending'));
         onSnapshot(q, (snapshot) => {
-            const pending = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
+            const pending = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             renderPending(pending);
             document.getElementById('pending-count').textContent = pending.length;
         });
-        
+
         function renderPending(products) {
             const container = document.getElementById('pending-products');
-            
+
             if (products.length === 0) {
                 container.innerHTML = '<div class="bg-gray-50 p-8 rounded-lg text-center text-gray-500">لا توجد منتجات قيد الانتظار</div>';
                 return;
             }
-            
+
             container.innerHTML = products.map(p => `
                 <div class="bg-white rounded-xl p-6 shadow mb-4">
                     <div class="flex gap-4 items-start flex-wrap md:flex-nowrap">
@@ -88,8 +118,8 @@
                 </div>
             `).join('');
         }
-        
-        window.approveProduct = async function(productId) {
+
+        window.approveProduct = async function (productId) {
             if (!confirm('هل تريد الموافقة على هذا المنتج؟')) return;
             try {
                 await updateDoc(doc(db, 'products', productId), { status: 'approved' });
@@ -98,11 +128,11 @@
                 alert('حدث خطأ');
             }
         };
-        
-        window.rejectProduct = async function(productId) {
+
+        window.rejectProduct = async function (productId) {
             const reason = prompt('سبب الرفض (اختياري):');
             try {
-                await updateDoc(doc(db, 'products', productId), { 
+                await updateDoc(doc(db, 'products', productId), {
                     status: 'rejected',
                     rejectionReason: reason || 'لا يستوفي المعايير'
                 });
@@ -113,4 +143,5 @@
         };
     </script>
 </body>
+
 </html>

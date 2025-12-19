@@ -376,14 +376,8 @@
         // --- Core Functions ---
 
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                initPage();
-            } else {
-                // Strict Auth Redirect
-                const returnUrl = encodeURIComponent(window.location.href);
-                window.location.href = `login.html?redirect=${returnUrl}`;
-            }
+            currentUser = user;
+            initPage(); // Run for both guests and users
         });
 
         async function initPage() {

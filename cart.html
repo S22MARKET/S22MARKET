@@ -902,7 +902,7 @@
             getFirestore, collection, addDoc, doc, getDoc, serverTimestamp, query, where, limit, getDocs, updateDoc,
             increment
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
@@ -1321,21 +1321,20 @@
         }
 
         // --- Checkout Logic ---
-        function openCheckout() {
+        async function openCheckout() {
+            const user = await requireAuth(auth);
+            if (!user) return; // Should have redirected
+
             elements.checkoutModal.classList.add('active');
 
             // Context Update
             if (activeTab === 'market') {
-                elements.checkoutTypeNotice.className = 'bg-indigo-50 text-indigo-800 p-3 rounded-xl text-sm font-bold flex
-                items - center gap - 2';
-                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-shopping-bag"></i> <span>جاري إتمام طلب
-                    < b > تسوق</b ></span > ';
+                elements.checkoutTypeNotice.className = 'bg-indigo-50 text-indigo-800 p-3 rounded-xl text-sm font-bold flex items-center gap-2';
+                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-shopping-bag"></i> <span>جاري إتمام طلب <b>تسوق</b></span>';
                 document.getElementById('gps-field-container').classList.add('opacity-50'); // Dim GPS for market
             } else {
-                elements.checkoutTypeNotice.className = 'bg-orange-50 text-orange-800 p-3 rounded-xl text-sm font-bold flex
-                items - center gap - 2';
-                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-utensils"></i> <span>جاري إتمام طلب
-                    < b > طعام</b ></span > ';
+                elements.checkoutTypeNotice.className = 'bg-orange-50 text-orange-800 p-3 rounded-xl text-sm font-bold flex items-center gap-2';
+                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-utensils"></i> <span>جاري إتمام طلب <b>طعام</b></span>';
                 document.getElementById('gps-field-container').classList.remove('opacity-50');
             }
 
@@ -1434,25 +1433,60 @@
         };
 
         // --- Init ---
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            loadCart();
-            // Pre-fill
-            if (user) {
-                elements.loginBtn?.classList.add('hidden');
-                elements.bottomLoginBtn?.classList.add('hidden');
-                elements.bottomProfileBtn?.classList.remove('hidden');
+        // Initialize
+        // --- INLINED AUTH LOGIN (Self-Contained) ---
+        // requireAuth definition is kept here, imports and const declarations removed to avoid duplicates
+        async function requireAuth(authInstance) {
+            await setPersistence(authInstance, browserLocalPersistence);
 
-                getDoc(doc(db, 'users', user.uid)).then(s => {
-                    if (s.exists()) {
-                        const d = s.data();
-                        document.getElementById('q-customer-name').value = d.displayName || '';
-                        document.getElementById('q-customer-phone').value = d.phoneNumber || ''; // Check field name in DB
-                        // Auto-fill address if saved?
+            return new Promise((resolve) => {
+                const unsubscribe = onAuthStateChanged(authInstance, async (user) => {
+                    if (!user) {
+                        // Not logged in -> Redirect to Login
+                        // Save return URL manually since we removed helper
+                        localStorage.setItem('s22_return_url', window.location.href);
+                        window.location.href = 'login.html';
+                        resolve(null);
+                    } else {
+                        // Logged in
+                        resolve(user);
                     }
+                    unsubscribe();
                 });
+            });
+        }
+        // auth and db are already defined at the top
+
+        // Check Auth on Load for Cart
+        // We use a hybrid approach here: loading the cart doesn't Strictly require auth until checkout
+        // But the previous code might have enforced it. The user wants "Persistent Auth".
+        // Let's keep the existing flow but use the new function if called.
+
+        // Global User var
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loadCart();
+                // Pre-fill
+                if (user) {
+                    elements.loginBtn?.classList.add('hidden');
+                    elements.bottomLoginBtn?.classList.add('hidden');
+                    elements.bottomProfileBtn?.classList.remove('hidden');
+
+                    getDoc(doc(db, 'users', user.uid)).then(s => {
+                        if (s.exists()) {
+                            const d = s.data();
+                            if (document.getElementById('q-customer-name')) document.getElementById('q-customer-name').value = d.displayName || '';
+                            if (document.getElementById('q-customer-phone')) document.getElementById('q-customer-phone').value = d.phoneNumber || '';
+                        }
+                    });
+                }
             }
         });
+
+        // We need to protect CHECKOUT action then.
+        // Let's modify openCheckout to check auth
+
 
 
     </script>

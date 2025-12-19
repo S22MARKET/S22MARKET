@@ -152,7 +152,7 @@
                 opacity: 1;
             }
 
-            to: {
+            to {
                 opacity: 0;
             }
         }
@@ -312,7 +312,22 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, query, serverTimestamp, orderBy, getDoc, setDoc, getDocs, where, Timestamp, increment, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // --- INLINED AUTH (Self-Contained) ---
+        async function requireAuth(authInstance) {
+            await setPersistence(authInstance, browserLocalPersistence);
+            return new Promise((resolve) => {
+                const unsubscribe = onAuthStateChanged(authInstance, (user) => {
+                    if (!user) {
+                        try { window.location.href = 'admin-login.html'; } catch (e) { console.error(e); }
+                        resolve(null);
+                    } else {
+                        resolve(user);
+                    }
+                    unsubscribe();
+                });
+            });
+        }
 
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
@@ -328,6 +343,7 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        // Keep for reference
         const ADMIN_EMAILS = [
             's22market@gmail.com',
             'yacinee474474@gmail.com',
@@ -366,20 +382,17 @@
         };
         // --- (نهاية الدوال المساعدة) ---
 
-        // --- (دوال المصادقة والتنقل) ---
-        function checkAdminPermissions(user) {
-            if (user && ADMIN_EMAILS.includes(user.email)) {
-                loginPage.classList.add('hidden');
-                dashboardPage.classList.remove('hidden');
-                getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
+        requireAuth(auth).then(async (user) => {
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists() && userDoc.data().role === 'admin') {
+                if (loginPage) loginPage.classList.add('hidden');
+                if (dashboardPage) dashboardPage.classList.remove('hidden');
+                if (getEl('admin-welcome-name')) getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
                 initializeDashboard();
             } else {
-                dashboardPage.classList.add('hidden');
-                loginPage.classList.remove('hidden');
-                if (user) signOut(auth);
+                window.location.href = 'index.html';
             }
-        }
-        onAuthStateChanged(auth, user => { checkAdminPermissions(user); });
+        });
         logoutBtn.addEventListener('click', async () => { await signOut(auth); });
 
         function setActiveTab() {

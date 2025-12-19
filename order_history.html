@@ -482,26 +482,18 @@
         }
 
         // --- منطق المصادقة والتحكم بالصفحة ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // المستخدم قام بتسجيل الدخول
-                loginBtn.classList.add('hidden');
-                userMenu.classList.remove('hidden');
+        import { requireAuth } from './auth-helper.js';
 
-                const displayName = user.displayName || "زبوننا";
-                userMenuName.textContent = displayName.split(' ')[0];
-                userMenuDisplayName.textContent = displayName;
+        requireAuth(auth).then((user) => {
+            // المستخدم قام بتسجيل الدخول
+            loginBtn.classList.add('hidden');
+            userMenu.classList.remove('hidden');
 
-                // جلب بيانات الأرشيف
-                // ملاحظة: هذا سيبحث عن الطلبات المرتبطة بـ user.uid
-                // طلبات S22 Market الحالية غير مرتبطة بـ uid، لذلك ستظهر القائمة فارغة
-                // هذا هو السلوك الصحيح للمستقبل
-                loadOrderHistory(user);
+            const displayName = user.displayName || "زبوننا";
+            userMenuName.textContent = displayName.split(' ')[0];
+            userMenuDisplayName.textContent = displayName;
 
-            } else {
-                // المستخدم زائر، قم بإعادته لصفحة التسجيل
-                window.location.href = 'login.html';
-            }
+            loadOrderHistory(user);
         });
 
         // --- معالجات القائمة وتسجيل الخروج ---

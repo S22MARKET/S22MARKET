@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,65 +14,145 @@
             --primary-color: #3b82f6;
             --bg-body: #f1f5f9;
         }
-        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-body); }
-        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; translateY(0); } }
-        
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-body);
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         #user-menu-dropdown.show {
             display: block;
             animation: slideInUp 0.2s ease-out;
         }
-        
-        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 100; }
-        .toast { background-color: #2d3748; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards; }
-        .toast.success { background-color: #2f855a; }
-        .toast.error { background-color: #c53030; }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+        }
+
+        .toast {
+            background-color: #2d3748;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+        }
+
+        .toast.success {
+            background-color: #2f855a;
+        }
+
+        .toast.error {
+            background-color: #c53030;
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
     </style>
 </head>
+
 <body>
 
     <header class="bg-white shadow-sm sticky top-0 z-30">
         <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-             <a href="index.html" class="flex items-center gap-3">
+            <a href="index.html" class="flex items-center gap-3">
                 <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
                     S22<span class="text-blue-600">MARKET</span>
                 </h1>
             </a>
-            
+
             <div id="header-actions" class="flex items-center gap-4 relative">
-                <a href="index.html" id="store-btn" class="relative text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 shadow-lg">
+                <a href="index.html" id="store-btn"
+                    class="relative text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 shadow-lg">
                     <i class="fas fa-store"></i>
                     <span>المتجر</span>
                 </a>
-                <a href="login.html" id="login-btn" class="hidden relative text-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-full transition-colors items-center gap-2 sm:flex">
+                <a href="login.html" id="login-btn"
+                    class="hidden relative text-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-full transition-colors items-center gap-2 sm:flex">
                     <i class="fas fa-sign-in-alt"></i>
                     <span>دخول / تسجيل</span>
                 </a>
                 <div id="user-menu" class="hidden">
-                    <button id="user-menu-button" class="flex items-center gap-2 text-lg font-semibold text-gray-700 bg-green-100 hover:bg-green-200 px-5 py-2.5 rounded-full transition-colors">
+                    <button id="user-menu-button"
+                        class="flex items-center gap-2 text-lg font-semibold text-gray-700 bg-green-100 hover:bg-green-200 px-5 py-2.5 rounded-full transition-colors">
                         <i class="fas fa-user-check text-green-700"></i>
                         <span id="user-menu-name">...</span>
                         <i class="fas fa-chevron-down text-xs"></i>
                     </button>
-                    <div id="user-menu-dropdown" class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
+                    <div id="user-menu-dropdown"
+                        class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
                         <div class="p-3 border-b">
                             <p class="text-sm text-gray-500">مرحباً بك،</p>
                             <p class="font-bold text-gray-800" id="user-menu-displayname">...</p>
                         </div>
-                        <a href="seller-dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
-                        <a href="profile.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي</a>
-                        <a href="order_history.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
-                        <a href="loyalty_card.html" class="block px-4 py-3 text-gray-700 bg-gray-100 font-bold transition-colors"><i class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء</a>
-                        <button id="logout-btn" class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
+                        <a href="seller-dashboard.html"
+                            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
+                        <a href="profile.html"
+                            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي</a>
+                        <a href="order_history.html"
+                            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
+                                class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
+                        <a href="loyalty_card.html"
+                            class="block px-4 py-3 text-gray-700 bg-gray-100 font-bold transition-colors"><i
+                                class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء</a>
+                        <button id="logout-btn"
+                            class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i
+                                class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
                     </div>
                 </div>
             </div>
         </div>
     </header>
     <main class="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        
+
         <div id="auth-loader" class="text-center py-20">
             <div class="loader mx-auto"></div>
             <p class="mt-4 text-gray-600 text-lg">جاري التحقق من هويتك...</p>
@@ -92,10 +173,11 @@
                 </div>
                 <div class="p-8 space-y-6">
                     <div>
-                        <p class="text-lg text-gray-600">أهلاً بك، <strong id="card-user-name" class="text-gray-900">...</strong></p>
+                        <p class="text-lg text-gray-600">أهلاً بك، <strong id="card-user-name"
+                                class="text-gray-900">...</strong></p>
                         <p class="text-sm text-gray-500">أنت على بعد خطوات من هديتك القادمة!</p>
                     </div>
-                    
+
                     <div class="text-center">
                         <p class="text-lg font-semibold text-gray-700">مجموع نقاطك الحالية:</p>
                         <p id="card-points" class="text-7xl font-extrabold text-orange-500 my-2">0</p>
@@ -108,28 +190,30 @@
                             <span id="progress-text" class="text-sm font-bold text-orange-600">0 / 10</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden border">
-                            <div id="progress-bar" class="bg-blue-500 h-full rounded-full transition-all duration-500" style="width: 0%;"></div>
+                            <div id="progress-bar" class="bg-blue-500 h-full rounded-full transition-all duration-500"
+                                style="width: 0%;"></div>
                         </div>
                     </div>
 
                 </div>
-                 <div class="bg-gray-50 p-5 border-t text-center">
-                    <p class="text-gray-600"><i class="fas fa-info-circle ml-1"></i> سيقوم المدير بتحديد عدد النقاط المطلوبة لكل مكافأة. استمر في الطلب لجمع المزيد!</p>
+                <div class="bg-gray-50 p-5 border-t text-center">
+                    <p class="text-gray-600"><i class="fas fa-info-circle ml-1"></i> سيقوم المدير بتحديد عدد النقاط
+                        المطلوبة لكل مكافأة. استمر في الطلب لجمع المزيد!</p>
                 </div>
             </div>
 
         </div>
 
     </main>
-    
+
     <div id="toast-container"></div>
 
     <script type="module">
         // --- إعدادات Firebase ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
+
         // === (بداية التعديل: إعدادات Firebase) ===
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
@@ -184,7 +268,7 @@
                 // جلب إعدادات المكافأة التي حددها المدير (من LocalStorage)
                 // نفترض أن المدير قام بضبطها في لوحة التحكم
                 const rewardThreshold = parseInt(localStorage.getItem('rewardThreshold')) || 10;
-                
+
                 // حساب التقدم
                 const pointsModThreshold = loyaltyPoints % rewardThreshold;
                 const progressPercent = (pointsModThreshold / rewardThreshold) * 100;
@@ -206,23 +290,37 @@
         }
 
         // --- منطق المصادقة والتحكم بالصفحة ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // المستخدم قام بتسجيل الدخول
-                loginBtn.classList.add('hidden');
-                userMenu.classList.remove('hidden');
-                
-                const displayName = user.displayName || "زبوننا";
-                userMenuName.textContent = displayName.split(' ')[0];
-                userMenuDisplayName.textContent = displayName;
+        // --- INLINED AUTH (Self-Contained) ---
+        async function requireAuth(authInstance) {
+            await setPersistence(authInstance, browserLocalPersistence);
+            return new Promise((resolve) => {
+                const unsubscribe = onAuthStateChanged(authInstance, (user) => {
+                    if (!user) {
+                        try {
+                            localStorage.setItem('s22_return_url', window.location.href);
+                            window.location.href = 'login.html';
+                        } catch (e) { console.error(e); }
+                        resolve(null);
+                    } else {
+                        resolve(user);
+                    }
+                    unsubscribe();
+                });
+            });
+        }
 
-                // جلب بيانات البطاقة
-                loadLoyaltyData(user);
+        // --- منطق المصادقة والتحكم بالصفحة ---
+        requireAuth(auth).then((user) => {
+            // المستخدم قام بتسجيل الدخول
+            loginBtn.classList.add('hidden');
+            userMenu.classList.remove('hidden');
 
-            } else {
-                // المستخدم زائر، قم بإعادته لصفحة التسجيل
-                window.location.href = 'login.html';
-            }
+            const displayName = user.displayName || "زبوننا";
+            userMenuName.textContent = displayName.split(' ')[0];
+            userMenuDisplayName.textContent = displayName;
+
+            // جلب بيانات البطاقة
+            loadLoyaltyData(user);
         });
 
         // --- معالجات القائمة وتسجيل الخروج ---
@@ -243,6 +341,5 @@
         });
     </script>
 </body>
-</html>
 
- 
+</html>

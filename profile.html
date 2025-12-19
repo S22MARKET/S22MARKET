@@ -998,13 +998,28 @@
         let currentUser = null;
         let userData = {};
 
-        // --- Auth Logic ---
-        onAuthStateChanged(auth, async (user) => {
+        // Initialize
+        // --- INLINED AUTH (Self-Contained) ---
+        async function requireAuth(authInstance) {
+            await setPersistence(authInstance, browserLocalPersistence);
+            return new Promise((resolve) => {
+                const unsubscribe = onAuthStateChanged(authInstance, (user) => {
+                    if (!user) {
+                        localStorage.setItem('s22_return_url', window.location.href);
+                        window.location.href = 'login.html';
+                        resolve(null);
+                    } else {
+                        resolve(user);
+                    }
+                    unsubscribe();
+                });
+            });
+        }
+
+        requireAuth(auth).then(user => {
             if (user) {
                 currentUser = user;
-                await loadUserProfile(user.uid);
-            } else {
-                window.location.href = 'login.html';
+                loadUserProfile(currentUser.uid); // Pass uid to loadUserProfile
             }
         });
 

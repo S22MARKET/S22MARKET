@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مقارنة المنتجات - S22 Market</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg-body: #f8fafc;
+            --text-main: #0f172a;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="pb-20">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <button onclick="history.back()"
+                class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 transition">
+                <i class="fas fa-arrow-right text-xl text-slate-700"></i>
+            </button>
+            <h1 class="text-xl font-bold text-slate-800">مقارنة المنتجات</h1>
+            <div class="w-10"></div> <!-- Spacer -->
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+
+        <div id="loader" class="flex justify-center items-center py-20">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        </div>
+
+        <div id="empty-state" class="hidden text-center py-20">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-slate-100 rounded-full mb-4">
+                <i class="fas fa-balance-scale text-3xl text-slate-400"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800 mb-2">لا توجد منتجات للمقارنة</h2>
+            <p class="text-slate-500 mb-6">أضف منتجات من الصفحة الرئيسية للمقارنة بينها.</p>
+            <a href="index.html"
+                class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-indigo-700 transition">تصفح
+                المنتجات</a>
+        </div>
+
+        <div id="comparison-container" class="hidden overflow-x-auto pb-6">
+            <div class="min-w-[600px]"> <!-- Force width for scrolling on mobile -->
+                <div class="grid grid-cols-4 gap-4" id="comparison-grid">
+                    <!-- Labels Column -->
+                    <div class="space-y-4 pt-40 font-semibold text-slate-500 text-sm">
+                        <div class="h-10 flex items-center">السعر</div>
+                        <div class="h-10 flex items-center">البائع</div>
+                        <div class="h-10 flex items-center">الحالة</div>
+                        <div class="h-10 flex items-center">النوع</div>
+                        <div class="h-auto min-h-[60px] flex items-center">الوصف</div>
+                        <div class="h-10 flex items-center">الإجراء</div>
+                    </div>
+
+                    <!-- Products Columns will be injected here -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.appspot.com",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // State
+        let compareList = new Set(JSON.parse(localStorage.getItem('s22_compare') || '[]'));
+
+        async function loadComparison() {
+            const container = document.getElementById('comparison-container');
+            const emptyState = document.getElementById('empty-state');
+            const loader = document.getElementById('loader');
+            const grid = document.getElementById('comparison-grid');
+
+            if (compareList.size === 0) {
+                loader.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const productPromises = [...compareList].map(id => getDoc(doc(db, "products", id)));
+                const snapshots = await Promise.all(productPromises);
+                const products = snapshots.map(s => s.exists() ? { id: s.id, ...s.data() } : null).filter(p => p);
+
+                if (products.length === 0) {
+                    loader.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
+
+                // Render Labels Column again (to reset grid if needed)
+                let html = `
+                    <div class="hidden md:block space-y-4 pt-60 font-bold text-slate-500 text-sm">
+                        <div class="h-8 flex items-center border-b border-transparent"></div> <!-- Spacer for Img/Name -->
+                        <div class="h-10 flex items-center border-b border-slate-100">السعر</div>
+                        <div class="h-10 flex items-center border-b border-slate-100">البائع</div>
+                        <div class="h-10 flex items-center border-b border-slate-100">الحالة</div>
+                        <div class="h-10 flex items-center border-b border-slate-100">النوع</div>
+                        <div class="h-24 flex items-center border-b border-slate-100">الوصف</div>
+                        <div class="h-14 flex items-center"></div>
+                    </div>
+                `;
+
+                products.forEach(p => {
+                    const price = p.price ? p.price.toLocaleString() : '0';
+                    const img = p.imageUrl || 'https://placehold.co/150';
+                    const safeName = (typeof p.name === 'object' ? (p.name.ar || p.name.en) : p.name) || 'منتج';
+                    const storeName = p.storeName || 'غير معروف';
+                    const availability = p.availability === 'sold_out' ? '<span class="text-red-500">نفذ</span>' : '<span class="text-green-500">متوفر</span>';
+                    const desc = p.description ? p.description.substring(0, 50) + '...' : '-';
+
+                    html += `
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col gap-4 relative min-w-[160px] fade-in">
+                            <button onclick="removeFromCompare('${p.id}')" class="absolute top-2 left-2 text-slate-300 hover:text-red-500 transition">
+                                <i class="fas fa-times-circle text-xl"></i>
+                            </button>
+                            
+                            <!-- Header Info -->
+                            <div class="text-center h-48 flex flex-col items-center justify-end pb-2">
+                                <a href="PRESENTPRODUCT.html?product=${p.id}" class="block">
+                                    <img src="${img}" class="h-28 w-28 object-cover rounded-lg mb-3 mx-auto shadow-sm">
+                                </a>
+                                <h3 class="font-bold text-slate-800 text-sm line-clamp-2 h-10 leading-tight">${safeName}</h3>
+                            </div>
+
+                            <!-- Specs -->
+                            <div class="h-10 flex items-center justify-center font-bold text-indigo-600 border-b border-slate-50 text-lg">${price} د.ج</div>
+                            <div class="h-10 flex items-center justify-center text-sm text-slate-600 border-b border-slate-50">${storeName}</div>
+                            <div class="h-10 flex items-center justify-center text-sm border-b border-slate-50">${availability}</div>
+                            <div class="h-10 flex items-center justify-center text-sm text-slate-500 border-b border-slate-50 capitalize">${p.productType || 'Regular'}</div>
+                            <div class="h-24 flex items-center justify-center text-xs text-slate-400 text-center leading-relaxed border-b border-slate-50 px-1 overflow-hidden">${desc}</div>
+                            
+                            <!-- Action -->
+                            <div class="h-14 flex items-center justify-center pt-2">
+                                <a href="PRESENTPRODUCT.html?product=${p.id}" class="w-full bg-indigo-600 text-white text-sm font-bold py-2 rounded-lg hover:bg-indigo-700 transition flex items-center justify-center gap-2">
+                                    <i class="fas fa-eye"></i> عرض
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                grid.className = `grid grid-cols-${products.length + 1} gap-4`; // Adjust cols
+                grid.innerHTML = html;
+
+                // Adjustment for Mobile: If 1 col, use block
+                if (window.innerWidth < 768) {
+                    grid.className = `flex gap-4`;
+                    // Hide labels on mobile to save space? Or stick them?
+                    // For now, simpler flex view
+                }
+
+                loader.classList.add('hidden');
+                container.classList.remove('hidden');
+
+            } catch (err) {
+                console.error(err);
+                loader.classList.add('hidden');
+                emptyState.innerHTML = '<p class="text-red-500">حدث خطأ أثناء تحميل البيانات.</p>';
+                emptyState.classList.remove('hidden');
+            }
+        }
+
+        window.removeFromCompare = (id) => {
+            compareList.delete(id);
+            localStorage.setItem('s22_compare', JSON.stringify([...compareList]));
+            if (compareList.size === 0) {
+                location.reload();
+            } else {
+                loadComparison(); // Re-render
+            }
+        };
+
+        loadComparison();
+
+        // Handle Back Navigation logic
+        // If referred from index, generic history.back is fine.
+    </script>
+</body>
+
+</html>

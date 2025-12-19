@@ -193,6 +193,7 @@
             serverTimestamp,
             orderBy,
             getDocs,
+            getDoc,
             where,
             increment,
             writeBatch
@@ -207,6 +208,12 @@
         }
 
         from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        import {
+            requireAuth
+        }
+
+        from "./auth-helper.js";
 
         const firebaseConfig= {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
@@ -224,6 +231,7 @@
         const db=getFirestore(app);
         const auth=getAuth(app);
 
+        // Keep for reference
         const ADMIN_EMAILS=[ 's22market@gmail.com',
         'yacinee474474@gmail.com',
         'nourmt01@gmail.com'
@@ -274,29 +282,24 @@
         ;
         // --- (نهاية الدوال المساعدة) ---
 
-        // --- (دوال المصادقة والتنقل) ---
-        function checkAdminPermissions(user) {
-            if (user && ADMIN_EMAILS.includes(user.email)) {
-                loginPage.classList.add('hidden');
-                dashboardPage.classList.remove('hidden');
+        requireAuth(auth).then(async (user)=> {
+                const userDoc=await getDoc(doc(db, "users", user.uid));
 
-                getEl('admin-welcome-name').textContent=`مرحباً، $ {
-                    user.displayName || user.email.split('@')[0]
+                if (userDoc.exists() && userDoc.data().role==='admin') {
+                    if (loginPage) loginPage.classList.add('hidden');
+                    if (dashboardPage) dashboardPage.classList.remove('hidden');
+
+                    if (getEl('admin-welcome-name')) getEl('admin-welcome-name').textContent=`مرحباً، $ {
+                        user.displayName || user.email.split('@')[0]
+                    }
+
+                    `;
+                    initializeDashboard();
                 }
 
-                `;
-                initializeDashboard();
-            }
-
-            else {
-                dashboardPage.classList.add('hidden');
-                loginPage.classList.remove('hidden');
-                if (user) signOut(auth);
-            }
-        }
-
-        onAuthStateChanged(auth, user=> {
-                checkAdminPermissions(user);
+                else {
+                    window.location.href='index.html';
+                }
             });
 
         logoutBtn.addEventListener('click', async ()=> {
