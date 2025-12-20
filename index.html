@@ -1317,24 +1317,24 @@
                 const createdDate = p.createdAt.seconds ? new Date(p.createdAt.seconds * 1000) : new Date(p.createdAt);
                 const diffDays = Math.ceil(Math.abs(new Date() - createdDate) / (1000 * 60 * 60 * 24));
                 if (diffDays <= 7) {
-                    badgesContainer += `< span class="badge-new" > جديد</span > `;
+                    badgesContainer += `<span class="badge-new">جديد</span>`;
                 }
             }
 
             if (p.originalPrice && p.originalPrice > p.price) {
                 const discount = Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100);
-                if (discount > 0) badgesContainer += `< span class="badge-discount bg-red-500 text-white" > -${discount}%</span > `;
+                if (discount > 0) badgesContainer += `<span class="badge-discount bg-red-500 text-white">-${discount}%</span>`;
             }
 
             if (isDirect) {
-                badgesContainer += `< span class="bg-indigo-600 text-white text-[10px] px-2 py-1 rounded-md font-bold shadow-sm backdrop-blur" > مباشر</span > `;
+                badgesContainer += `<span class="bg-indigo-600 text-white text-[10px] px-2 py-1 rounded-md font-bold shadow-sm backdrop-blur">مباشر</span>`;
             }
 
             badgesContainer += '</div>';
 
             // --- S22 High-Density Product Card ---
             return `
-            < div class="s22-card group flex flex-col h-full bg-white border border-gray-100 hover:border-[var(--primary)]" onclick = "location.href='PRESENTPRODUCT.html?product=${p.id}${p.isOffer ? '&offer=true' : ''}'" >
+            <div class="s22-card group flex flex-col h-full bg-white border border-gray-100 hover:border-[var(--primary)]" onclick="location.href='PRESENTPRODUCT.html?product=${p.id}${p.isOffer ? '&offer=true' : ''}'">
 
                     <!-- Image Area -->
                     <div class="relative w-full aspect-[4/5] bg-gray-50 overflow-hidden">
@@ -1458,7 +1458,7 @@
                 productsGrid.innerHTML = '';
 
                 if (prodSnap.empty) {
-                    productsGrid.innerHTML = `< div class="col-span-full text-center py-10 text-gray-400" > لا توجد منتجات في قاعدة البيانات.</div > `;
+                    productsGrid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">لا توجد منتجات في قاعدة البيانات.</div>`;
                     return;
                 }
 
@@ -1527,8 +1527,7 @@
 
             } catch (e) {
                 console.error("فشل الجلب:", e);
-                productsGrid.innerHTML = `< div class="col-span-full text-center py-4 text-red-500" dir = "ltr" > Error: ${e.message}
-        </div > `;
+                productsGrid.innerHTML = `<div class="col-span-full text-center py-4 text-red-500" dir="ltr">Error: ${e.message}</div>`;
                 productsGrid.classList.remove('hidden');
             }
         }
@@ -1549,10 +1548,10 @@
                 floatBtn.href = 'compare.html';
                 floatBtn.className = 'fixed bottom-24 left-4 z-40 bg-indigo-600 text-white p-3 rounded-full shadow-lg flex items-center justify-center gap-2 transform transition-all duration-300 scale-0 origin-bottom-left hover:scale-105 hover:bg-indigo-700';
                 floatBtn.innerHTML = `
-            < div class="relative" >
+            <div class="relative">
                         <i class="fas fa-balance-scale text-xl"></i>
                         <span id="compare-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-indigo-600">0</span>
-                    </div >
+                    </div>
             <span class="font-bold text-sm hidden group-hover:block pr-1">مقارنة</span>
         `;
                 document.body.appendChild(floatBtn);
@@ -1840,7 +1839,7 @@
                 btn.id = 'spin-fab';
                 btn.className = 'fixed bottom-24 left-4 z-40 animate-bounce cursor-pointer';
                 btn.innerHTML = `
-            < div class="relative group" >
+            <div class="relative group">
                 <div
                     class="absolute -inset-1 bg-gradient-to-r from-pink-600 to-purple-600 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200">
                 </div>
@@ -1852,7 +1851,7 @@
                     class="absolute -top-10 left-1/2 -translate-x-1/2 w-max bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition">
                     جرب حظك اليوم!
                 </div>
-            </div >
+            </div>
             `;
                 btn.onclick = () => this.openModal();
                 document.body.appendChild(btn);
@@ -1897,7 +1896,7 @@
                 modal.id = 'spin-modal';
                 modal.className = 'fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm';
                 modal.innerHTML = `
-            < div class="bg-white rounded-3xl p-6 max-w-sm w-full relative text-center shadow-2xl overflow-hidden" >
+            <div class="bg-white rounded-3xl p-6 max-w-sm w-full relative text-center shadow-2xl overflow-hidden">
                     <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-indigo-100 to-white -z-10"></div>
 
                     <h2 class="text-2xl font-extrabold text-indigo-900 mb-1">عجلة الحظ اليومية 🎡</h2>
@@ -1920,7 +1919,7 @@
                         class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                         <i class="fas fa-times text-xl"></i>
                     </button>
-                </div >
+                </div>
             `;
                 document.body.appendChild(modal);
 
@@ -1967,7 +1966,7 @@
         padding - right: 15px;
         text - shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         `;
-                    label.innerHTML = `< span style = "display:inline-block; transform: rotate(90deg)" > ${seg.label}</span > `;
+                    label.innerHTML = `<span style="display:inline-block; transform: rotate(90deg)">${seg.label}</span>`;
                     currentDeg = endDeg;
                 });
                 gradientStr += ')';
@@ -2085,7 +2084,7 @@
                         class="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition">
                         حسناً
                     </button>
-                </div >
+                </div>
                 `;
                 document.getElementById('spin-fab')?.remove();
             }
