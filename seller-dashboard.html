@@ -439,6 +439,28 @@
                         </div>
                     </div>
 
+                    <!-- Subscription Card (New) -->
+                    <div class="stat-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-md transition-all duration-300 relative overflow-hidden hidden"
+                        id="sub-card">
+                        <div class="flex justify-between items-start z-10 relative">
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">اشتراك المتجر</p>
+                                <h3 class="text-2xl font-black text-gray-800 mt-2" id="sub-days-remain">---</h3>
+                                <p class="text-[10px] text-gray-400 mt-1 font-bold" id="sub-status-text">جاري التحقق...
+                                </p>
+                            </div>
+                            <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform"
+                                id="sub-icon-bg">
+                                <i class="fas fa-calendar-alt text-xl"></i>
+                            </div>
+                        </div>
+                        <!-- Progress Bar -->
+                        <div class="absolute bottom-0 left-0 h-1 bg-gray-100 w-full">
+                            <div id="sub-progress" class="h-full bg-indigo-500 transition-all duration-1000"
+                                style="width: 0%"></div>
+                        </div>
+                    </div>
+
                     <!-- Sales Card -->
                     <div
                         class="stat-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-md transition-all duration-300">
@@ -1327,6 +1349,9 @@
             const shopNameEl = document.getElementById('shop-name');
             if (shopNameEl) shopNameEl.textContent = userData.storeName || userData.displayName || 'المتجر';
 
+            // Subscription Check
+            checkSubscription(userData);
+
             // Update Link Display inside the new Share Card
             const linkDisplay = document.getElementById('store-link-display');
             if (linkDisplay) {
@@ -1346,7 +1371,89 @@
             }).catch(err => console.error("Copy failed", err));
         };
 
-        // --- Products Logic ---
+        // --- Subscription Logic ---
+        function checkSubscription(userData) {
+            const subCard = document.getElementById('sub-card');
+            if (subCard) subCard.classList.remove('hidden');
+
+            const sub = userData.subscription || {};
+            const endDate = sub.endDate ? sub.endDate.toDate() : null;
+            const isActive = sub.isActive !== false;
+
+            const daysEl = document.getElementById('sub-days-remain');
+            const textEl = document.getElementById('sub-status-text');
+            const progressEl = document.getElementById('sub-progress');
+            const iconBg = document.getElementById('sub-icon-bg');
+
+            if (!endDate) {
+                // No subscription
+                daysEl.textContent = "غير مشترك";
+                textEl.textContent = "يرجى تفعيل الاشتراك";
+                textEl.className = "text-[10px] text-red-500 font-bold mt-1";
+                progressEl.style.width = "0%";
+                progressEl.className = "h-full bg-gray-300";
+
+                showExpirationBanner("لم يتم تفعيل اشتراك المتجر بعد. يرجى التواصل مع الإدارة.");
+                return;
+            }
+
+            const now = new Date();
+            const diffTime = endDate - now;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays <= 0 || !isActive) {
+                // Expired
+                daysEl.textContent = "0 يوم";
+                textEl.textContent = "الاشتراك منتهي";
+                textEl.className = "text-[10px] text-red-600 font-bold mt-1";
+                progressEl.style.width = "100%";
+                progressEl.className = "h-full bg-red-600";
+                iconBg.className = "w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-red-500";
+
+                showExpirationBanner("انتهت صلاحية اشتراك المتجر! يرجى تجديد الاشتراك للاستمرار في استقبال الطلبات.");
+            } else {
+                // Active
+                daysEl.textContent = `${diffDays} يوم`;
+                textEl.textContent = "متبقي للاشتراك";
+
+                // Color Logic
+                if (diffDays > 30) {
+                    textEl.className = "text-[10px] text-green-600 font-bold mt-1";
+                    progressEl.className = "h-full bg-green-500";
+                    iconBg.className = "w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-green-500";
+                } else if (diffDays <= 7) {
+                    textEl.className = "text-[10px] text-orange-600 font-bold mt-1";
+                    progressEl.className = "h-full bg-orange-500";
+                    iconBg.className = "w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500";
+                    showExpirationBanner(`تنبيه: سينتهي اشتراكك خلال ${diffDays} أيام.`);
+                } else {
+                    textEl.className = "text-[10px] text-indigo-600 font-bold mt-1";
+                    progressEl.className = "h-full bg-indigo-500";
+                }
+
+                // Progress Width (Assume 30 days max for bar visual, or 365? Let's simply fill it)
+                progressEl.style.width = "100%";
+            }
+        }
+
+        function showExpirationBanner(msg) {
+            // Check if banner exists
+            let banner = document.getElementById('sub-alert-banner');
+            if (!banner) {
+                banner = document.createElement('div');
+                banner.id = 'sub-alert-banner';
+                banner.className = "bg-red-600 text-white text-center py-2 px-4 shadow-md font-bold text-sm fixed top-16 w-full z-30 animate-pulse";
+                document.body.prepend(banner);
+
+                // Insert after header
+                const header = document.querySelector('header');
+                if (header) {
+                    header.insertAdjacentElement('afterend', banner);
+                }
+            }
+            banner.textContent = msg;
+            banner.classList.remove('hidden');
+        }
         async function loadProducts() {
             const q = query(collection(db, "products"), where("sellerId", "==", currentUser.uid), orderBy("createdAt", "desc"));
             onSnapshot(q, (snap) => {

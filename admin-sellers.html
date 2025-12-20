@@ -281,12 +281,12 @@
     <div id="modal-container"></div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, deleteDoc, onSnapshot, query, where, orderBy, getDocs, updateDoc, Timestamp, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { auth, db } from './app-core.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { collection, doc, deleteDoc, onSnapshot, query, where, orderBy, getDocs, updateDoc, Timestamp, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         // --- INLINED AUTH (Self-Contained) ---
         async function requireAuth(authInstance) {
-            await setPersistence(authInstance, browserLocalPersistence);
             return new Promise((resolve) => {
                 const unsubscribe = onAuthStateChanged(authInstance, (user) => {
                     if (!user) {
@@ -299,20 +299,6 @@
                 });
             });
         }
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
-            authDomain: "s22market-4e3e6.firebaseapp.com",
-            projectId: "s22market-4e3e6",
-            storageBucket: "s22market-4e3e6.appspot.com",
-            messagingSenderId: "119186699901",
-            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
-            measurementId: "G-MWYNCVP4WQ"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
 
         // Keep for reference
         const ADMIN_EMAILS = [
@@ -532,6 +518,9 @@
                     <button class="text-red-600 hover:text-red-800" onclick="deleteUser('${user.id}')" title="حذف نهائي">
                         <i class="fas fa-trash"></i>
                     </button>
+                    <button class="text-blue-600 hover:text-blue-800" onclick="openSubscriptionModal('${user.id}', '${user.displayName}')" title="إدارة الاشتراك">
+                        <i class="fas fa-calendar-check lg:text-lg"></i>
+                    </button>
                 </td>
              `;
             });
@@ -658,16 +647,118 @@
                 // 2. Delete User Document (and ideally subcollections if we could list them, 
                 // but we rely on client-side known paths if strictly needed. 
                 // For now, deleting parent allows cleanup).
-                await deleteDoc(doc(db, "users", uid));
-
-                alert("تم حذف المستخدم وكافة بياناته بنجاح.");
-
             } catch (e) {
                 console.error("Cascade Delete Error:", e);
                 alert("حدث خطأ أثناء الحذف: " + e.message);
                 if (row) row.style.opacity = '1';
             }
         };
+
+        // --- Subscription Management ---
+        window.openSubscriptionModal = async (uid, name) => {
+            // Get current subscription status
+            let userDoc;
+            try {
+                userDoc = await getDoc(doc(db, "users", uid));
+            } catch (e) { console.error(e); alert("خطأ في جلب البيانات"); return; }
+
+            const userData = userDoc.data();
+            const sub = userData.subscription || {};
+            const endDate = sub.endDate ? sub.endDate.toDate() : null;
+            const now = new Date();
+            const isValid = endDate && endDate > now;
+
+            const formatDate = (date) => {
+                if (!date) return '---';
+                return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+            };
+
+            const content = `
+                <div class="space-y-4">
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+                        <p class="text-sm text-gray-500">حالة الاشتراك الحالية للمتجر:</p>
+                        <h4 class="font-bold text-lg ${isValid ? 'text-green-600' : 'text-red-600'}">
+                            ${isValid ? 'نشط' : 'منتهي / غير مشترك'}
+                        </h4>
+                        <p class="text-xs text-gray-600 mt-1">ينتهي في: <span class="font-bold font-mono dir-ltr">${formatDate(endDate)}</span></p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">تمديد / تعيين الاشتراك</label>
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <button onclick="setSubDuration('${uid}', 30)" class="bg-indigo-50 text-indigo-700 py-2 rounded border border-indigo-200 hover:bg-indigo-100 font-bold text-sm">شهر (30 يوم)</button>
+                            <button onclick="setSubDuration('${uid}', 90)" class="bg-indigo-50 text-indigo-700 py-2 rounded border border-indigo-200 hover:bg-indigo-100 font-bold text-sm">3 أشهر</button>
+                            <button onclick="setSubDuration('${uid}', 180)" class="bg-indigo-50 text-indigo-700 py-2 rounded border border-indigo-200 hover:bg-indigo-100 font-bold text-sm">6 أشهر</button>
+                            <button onclick="setSubDuration('${uid}', 365)" class="bg-indigo-50 text-indigo-700 py-2 rounded border border-indigo-200 hover:bg-indigo-100 font-bold text-sm">سنة (365 يوم)</button>
+                        </div>
+                        
+                        <div class="relative flex py-2 items-center">
+                            <div class="flex-grow border-t border-gray-300"></div>
+                            <span class="flex-shrink-0 mx-4 text-gray-400 text-xs">أو تحديد تاريخ مخصص</span>
+                            <div class="flex-grow border-t border-gray-300"></div>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <input type="date" id="custom-sub-date" class="flex-1 p-2 border rounded text-sm">
+                            <button onclick="setSubCustomDate('${uid}')" class="bg-gray-800 text-white px-4 rounded text-sm hover:bg-gray-900">حفظ</button>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t mt-2">
+                        <button onclick="cancelSubscription('${uid}')" class="w-full text-red-600 border border-red-200 bg-red-50 p-2 rounded hover:bg-red-100 text-sm font-bold">
+                            <i class="fas fa-ban ml-1"></i> إلغاء / إيقاف الاشتراك
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            showModal(`إدارة اشتراك: ${name}`, content, null, '', false); // No default confirm button, custom actions
+        };
+
+        window.setSubDuration = async (uid, days) => {
+            const date = new Date();
+            date.setDate(date.getDate() + days); // Add days to NOW. Alternatively, add to existing endDate if we want to extend. For now, reset/set from now is safer/simpler logic.
+            // Requirement: "عداد اشتراك" - usually implies extending or setting a period. Let's assume setting from NOW for simplicity unless requested otherwise.
+            // actually better: if active, add to existing? No, start simple: Set new expiry.
+
+            await updateSubscription(uid, date);
+        };
+
+        window.setSubCustomDate = async (uid) => {
+            const dateInput = document.getElementById('custom-sub-date').value;
+            if (!dateInput) return alert('يرجى اختيار تاريخ');
+            const date = new Date(dateInput);
+            await updateSubscription(uid, date);
+        };
+
+        window.cancelSubscription = async (uid) => {
+            if (!confirm('هل أنت متأكد من تعطيل اشتراك هذا المتجر؟')) return;
+            // Set to yesterday
+            const date = new Date();
+            date.setDate(date.getDate() - 1);
+            await updateSubscription(uid, date, false);
+        };
+
+        async function updateSubscription(uid, endDate, isActive = true) {
+            showLoadingModal('جاري تحديث الاشتراك...');
+            try {
+                await updateDoc(doc(db, "users", uid), {
+                    subscription: {
+                        endDate: Timestamp.fromDate(endDate),
+                        updatedAt: Timestamp.now(),
+                        isActive: isActive
+                    }
+                });
+                closeModal();
+                alert('تم حدثت البيانات بنجاح!');
+                // The onSnapshot will update the list/UI if we display subscription info there, 
+                // but currently we don't display it in the table. That's fine.
+            } catch (e) {
+                console.error(e);
+                closeModal();
+                alert('حدث خطأ: ' + e.message);
+            }
+        }
 
 
         // --- (دوال المساعدة العامة) ---

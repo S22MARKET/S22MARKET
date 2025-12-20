@@ -571,13 +571,17 @@
     </div>
 
     <!-- Mobile Enhancements -->
-    <script>
+    <script type="module">
+        import { auth, db, MobileEnhancements } from './app-core.js';
+        import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, orderBy, limit, getDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         /**
          * Mobile Enhancements Script
          * Handles back button for overlays, pull-to-refresh, and page transitions.
          */
 
-        class MobileEnhancements {
+        class MobileEnhancements_Check_Legacy {
             constructor() {
                 this.overlayStack = []; // Stack to track open overlays (sidebar, modals)
                 this.touchStartY = 0;
@@ -881,13 +885,12 @@
         }
 
         // Initialize
-        const mobileApp = new MobileEnhancements();
+        // const mobileApp = new MobileEnhancements(); // Use imported version from app-core.js
 
         // Global Helper for existing code to call
-        window.openMobileOverlay = (closeCallback, name) => mobileApp.pushOverlay(closeCallback, name);
-        window.closeMobileOverlay = () => mobileApp.closeOverlay();
-        window.openMobileOverlay = (closeCallback, name) => mobileApp.pushOverlay(closeCallback, name);
-        window.closeMobileOverlay = () => mobileApp.closeOverlay();
+        // window.openMobileOverlay = (closeCallback, name) => mobileApp.pushOverlay(closeCallback, name); // Handled by app-core
+        // window.closeMobileOverlay = () => mobileApp.closeOverlay(); // Handled by app-core
+
 
         // Canvas Generation Logic
         window.generateCredentialCard = (name, email, password) => {
@@ -1097,7 +1100,7 @@
                 dashboardBtn.classList.remove('hidden');
                 shareContainer.classList.remove('hidden'); // NEW
             } else if (data.role === 'restaurant') {
-                dashboardBtn.href = 'restaurant-dashboard.html';
+                dashboardBtn.href = 'seller-dashboard.html';
                 dashboardBtn.classList.remove('hidden');
                 shareContainer.classList.remove('hidden'); // NEW
             } else if (data.storeRequest?.status === 'pending') {
@@ -1415,6 +1418,27 @@
             };
         }
     </script>
+    <!-- Missing Bottom Nav Injected -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="s22marketfood.html" class="nav-item">
+            <i class="fas fa-utensils"></i>
+            <span>طعام</span>
+        </a>
+        <a href="cart.html" class="nav-item">
+            <div class="relative">
+                <i class="fas fa-shopping-basket"></i>
+            </div>
+            <span>السلة</span>
+        </a>
+        <div class="nav-item active">
+            <i class="fas fa-user mb-1 text-lg"></i>
+            <span>حسابي</span>
+        </div>
+    </nav>
 </body>
 
 </html>
