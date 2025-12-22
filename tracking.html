@@ -148,7 +148,7 @@
                 <p class="text-sm text-gray-500">سيصل خلال 15-20 دقيقة</p>
             </div>
             <div class="text-right">
-                <p class="font-bold text-lg text-indigo-600">#REQ-8291</p>
+                <p id="REQ-ID" class="font-bold text-lg text-indigo-600">#REQ-loading</p>
             </div>
         </div>
 
@@ -197,107 +197,137 @@
         </div>
     </div>
 
-    <script>
-        // Simulation Logic
-        const statuses = [
-            { id: 1, title: "تم التأكيد", desc: "استلم المطعم طلبك", time: 0 },
-            { id: 2, title: "جاري التحضير", desc: "الشيف يجهز وجبتك اللذيذة 👨‍🍳", time: 3000 },
-            { id: 3, title: "في الطريق", desc: "الكابتن استلم الطلب وجاي لك 🚀", time: 8000 },
-            { id: 4, title: "وصل", desc: "بالعافية عليك! 😋", time: 15000 }
+    <script type="module">
+        import { db, auth } from './app-core.js';
+        import { doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const orderId = new URLSearchParams(window.location.search).get('orderId');
+
+        // Status Map: Firestore Status -> Step Index
+        const statusMap = {
+            'pending': 0,
+            'accepted': 1,
+            'preparing': 1,
+            'ready': 2,
+            'shipping': 2,
+            'completed': 3,
+            'delivered': 3,
+            'cancelled': -1
+        };
+
+        const stepsInfo = [
+            { title: "تم التأكيد", desc: "استلم المطعم طلبك" },
+            { title: "جاري التحضير", desc: "الشيف يجهز وجبتك اللذيذة 👨‍🍳" },
+            { title: "في الطريق", desc: "الكابتن استلم الطلب وجاي لك 🚀" },
+            { title: "وصل", desc: "بالعافية عليك! 😋" }
         ];
 
-        let currentStep = 0;
-        const totalTime = 15; // Minutes (simulated)
-        let timeLeft = totalTime * 60;
+        async function initTracking() {
+            if (!orderId) {
+                alert('لا يوجد رقم طلب للتتبع!');
+                window.location.href = 'order_history.html';
+                return;
+            }
 
-        function updateStatusUI(stepIndex) {
+            document.querySelector('#REQ-ID').textContent = `#${orderId.slice(0, 8)}`;
+
+            // Listen to order updates
+            onSnapshot(doc(db, "orders", orderId), (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    updateUI(data);
+                } else {
+                    console.log("No such order!");
+                }
+            });
+        }
+
+        function updateUI(order) {
+            let stepIndex = statusMap[order.status] !== undefined ? statusMap[order.status] : 0;
+
+            // Handle Cancelled
+            if (order.status === 'cancelled' || order.status === 'rejected') {
+                document.querySelector('h2').textContent = "تم إلغاء الطلب ❌";
+                document.querySelector('h2 + p').textContent = "نأسف، تم إلغاء هذا الطلب.";
+                document.querySelectorAll('.flex.flex-col.items-center div').forEach(div => div.classList.add('grayscale'));
+                return;
+            }
+
             const steps = document.querySelectorAll('.flex.flex-col.items-center');
-            const bars = [
-                document.querySelector('.absolute.top-1\\/2.left-0.right-1\\/4'), // Green bar
-                // We will dynamically adjust widths or classes if needed, 
-                // but for this simple sim, we'll just light up icons.
-            ];
 
-            // Reset all to gray/default first if needed, or just add active classes simulating progress
             steps.forEach((step, index) => {
                 const iconContainer = step.querySelector('div');
                 const text = step.querySelector('span');
 
                 if (index <= stepIndex) {
-                    // Active Status
+                    // Active or Past
                     if (index === stepIndex && stepIndex < 3) {
                         iconContainer.classList.add('animate-pulse', 'ring', 'ring-green-300');
+                        iconContainer.classList.remove('bg-gray-200', 'text-gray-400');
+
                         if (index === 2) { // Bike
-                            iconContainer.classList.remove('bg-gray-200', 'text-gray-400');
                             iconContainer.classList.add('bg-orange-500', 'text-white');
                         } else {
-                            iconContainer.classList.remove('bg-gray-200', 'text-gray-400');
                             iconContainer.classList.add('bg-green-500', 'text-white');
                         }
+
                         text.classList.remove('text-gray-400');
                         text.classList.add('text-gray-800', 'font-black');
                     } else {
-                        // Completed Status
+                        // Completed Past Steps
                         iconContainer.classList.remove('animate-pulse', 'ring', 'ring-green-300', 'bg-gray-200', 'text-gray-400');
                         iconContainer.classList.add('bg-green-500', 'text-white');
                         text.classList.remove('text-gray-400');
                         text.classList.add('text-gray-600');
                     }
+                } else {
+                    // Future Steps
+                    iconContainer.classList.remove('bg-green-500', 'text-white', 'bg-orange-500');
+                    iconContainer.classList.add('bg-gray-200', 'text-gray-400');
+                    text.classList.remove('text-gray-800', 'font-black', 'text-gray-600');
+                    text.classList.add('text-gray-400');
                 }
             });
 
-            // Update Progress Bar Width
-            const progressLine = document.querySelector('.bg-green-500.absolute'); // The active line
-            // Total 3 gaps between 4 items. 
-            // 0 -> 0%, 1 -> 33%, 2 -> 66%, 3 -> 100%
-            let width = '0%';
-            if (stepIndex === 0) width = '10%';
-            if (stepIndex === 1) width = '40%';
-            if (stepIndex === 2) width = '75%';
-            if (stepIndex === 3) width = '100%';
+            // Update Progress Bar
+            const progressLine = document.querySelector('.absolute.top-1\\/2.left-0.right-1\\/4');
+            // Tailwind class is tricky to animate purely with width inlinestyle on a div that might rely on right-1/4. 
+            // The HTML structure used right-1/4 which complicates dynamic width. 
+            // Let's assume the green bar is the one with bg-green-500
 
-            progressLine.style.width = width;
+            // Re-selecting specifically
+            const progressBar = document.querySelector('.bg-green-500.absolute.h-1'); // This is the one
+            if (progressBar) {
+                let width = '10%';
+                if (stepIndex === 1) width = '40%';
+                if (stepIndex === 2) width = '75%';
+                if (stepIndex === 3) width = '100%';
+                progressBar.style.width = width;
+            }
 
-            // Update Header Text
+            // Update Text
             const titleEl = document.querySelector('h2');
             const descEl = document.querySelector('h2 + p');
 
-            titleEl.textContent = statuses[stepIndex].title + (stepIndex === 2 ? ' 🛵' : '..');
-            descEl.textContent = statuses[stepIndex].desc;
+            if (stepsInfo[stepIndex]) {
+                titleEl.textContent = stepsInfo[stepIndex].title + (stepIndex === 2 ? ' 🛵' : '');
+                descEl.textContent = stepsInfo[stepIndex].desc;
+            }
 
-            // Stop Bike animation if delivered
+            // Bike Animation logic
             const bike = document.getElementById('delivery-bike');
-            if (stepIndex === 3) {
-                bike.style.left = '82%';
-                bike.style.top = '60%';
+            if (stepIndex === 2) { // In delivery
+                bike.classList.add('animating-bike');
+            } else {
                 bike.classList.remove('animating-bike');
-                titleEl.textContent = "طلبك وصل!";
-                titleEl.classList.add('text-green-600');
+                if (stepIndex === 3) {
+                    bike.style.left = '82%';
+                    bike.style.top = '60%';
+                }
             }
         }
 
-        // Timer Simulation
-        function startTimer() {
-            const timerEl = document.querySelector('h2 + p'); // reusing the desc element for timer sometimes or just separate
-
-            // For this demo, we just advance the steps automatically
-            let step = 0;
-            updateStatusUI(0);
-
-            statuses.forEach((s, i) => {
-                if (i === 0) return;
-                setTimeout(() => {
-                    updateStatusUI(i);
-                }, s.time);
-            });
-        }
-
-        // Init
-        window.addEventListener('DOMContentLoaded', () => {
-            // Check params for fast forward if needed
-            startTimer();
-        });
-
+        window.addEventListener('DOMContentLoaded', initTracking);
     </script>
 </body>
 

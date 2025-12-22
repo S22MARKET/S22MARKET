@@ -100,25 +100,34 @@
         <div id="wishlist-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 hidden"></div>
     </main>
 
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="s22marketfood.html" class="nav-item">
+            <i class="fas fa-utensils"></i>
+            <span>طعام</span>
+        </a>
+        <a href="cart.html" class="nav-item">
+            <div class="relative">
+                <i class="fas fa-shopping-basket"></i>
+                <span id="cart-badge"
+                    class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center hidden">0</span>
+            </div>
+            <span>السلة</span>
+        </a>
+        <a href="profile.html" class="nav-item active">
+            <i class="fas fa-user mb-1 text-lg"></i>
+            <span>حسابي</span>
+        </a>
+    </nav>
+
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, updateDoc, arrayRemove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Config (Same as others)
-        const firebaseConfig = {
-            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
-            authDomain: "s22market-4e3e6.firebaseapp.com",
-            projectId: "s22market-4e3e6",
-            storageBucket: "s22market-4e3e6.appspot.com",
-            messagingSenderId: "119186699901",
-            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
-            measurementId: "G-MWYNCVP4WQ"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        import { auth, db } from './app-core.js';
+        import { doc, getDoc, updateDoc, arrayRemove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const grid = document.getElementById('wishlist-grid');
         const loader = document.getElementById('loader');
@@ -134,8 +143,8 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                document.getElementById('user-info').classList.remove('hidden');
-                document.getElementById('user-name').textContent = user.displayName || 'مستخدم';
+                if (document.getElementById('user-info')) document.getElementById('user-info').classList.remove('hidden');
+                if (document.getElementById('user-name')) document.getElementById('user-name').textContent = user.displayName || 'مستخدم';
                 // Potentially sync LS to Firestore here if we wanted to be fancy, 
                 // but for now just load User's Firestore wishlist
                 loadWishlist(true);

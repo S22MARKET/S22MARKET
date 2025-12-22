@@ -228,7 +228,7 @@
         <div class="header-pattern"></div>
         <div class="relative z-10 px-6 pt-8 pb-4 flex justify-between items-center text-white">
             <h1 class="text-xl font-bold">الملف الشخصي</h1>
-            <button onclick="auth.signOut()"
+            <button onclick="handleSignOut()"
                 class="bg-white/20 backdrop-blur px-3 py-1.5 rounded-lg text-sm hover:bg-white/30 transition">
                 <i class="fas fa-sign-out-alt ml-1"></i> خروج
             </button>
@@ -570,460 +570,30 @@
         </div>
     </div>
 
-    <!-- Mobile Enhancements -->
     <script type="module">
-        import { auth, db, MobileEnhancements } from './app-core.js';
-        import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, query, where, getDocs, orderBy, limit, getDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { auth, db } from './app-core.js';
+        import { signOut, onAuthStateChanged, updateProfile, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { collection, query, where, getDocs, orderBy, limit, getDoc, doc, updateDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        /**
-         * Mobile Enhancements Script
-         * Handles back button for overlays, pull-to-refresh, and page transitions.
-         */
+        // Expose auth to window for inline onclick logic
+        window.auth = auth;
 
-        class MobileEnhancements_Check_Legacy {
-            constructor() {
-                this.overlayStack = []; // Stack to track open overlays (sidebar, modals)
-                this.touchStartY = 0;
-                this.refreshThreshold = 150; // Pull distance to trigger refresh
-                this.isPulling = false;
-                this.spinner = null;
-
-                this.init();
-            }
-
-            init() {
-                this.setupBackButton();
-                this.setupPullToRefresh();
-                this.setupPageTransitions();
-                this.setupAutoHidingNavbar();
-                this.setupPWAInstall();
-                this.injectStyles();
-            }
-
-            // --- Back Button Logic ---
-
-            setupBackButton() {
-                // Push initial state to handle the first back press
-                window.history.replaceState({ overlay: null }, document.title, window.location.href);
-
-                window.addEventListener('popstate', (event) => {
-                    if (this.overlayStack.length > 0) {
-                        // If overlays are open, close the top one
-                        const topOverlay = this.overlayStack.pop();
-                        if (topOverlay && typeof topOverlay.close === 'function') {
-                            topOverlay.close();
-                            // Prevent default back navigation by pushing state again ONLY if we closed something
-                            // However, popstate already happened, effectively "going back".
-                            // If we want to stay on page, we need to push state again.
-                            // But standard pattern:
-                            // Open Overlay -> Push State
-                            // Back Press -> Pop State -> Close Overlay
-
-                            // So we don't need to push state here. The "Back" action removed the state we added when opening.
-                        }
-                    } else {
-                        // Normal back navigation matches browser behavior
-                    }
-                });
-            }
-
-            /**
-             * Call this when opening an overlay (Sidebar, Modal)
-             * @param {Function} closeCallback - Function to actually close the UI element
-             * @param {string} name - Name for debugging
-             */
-            pushOverlay(closeCallback, name = 'overlay') {
-                this.overlayStack.push({ close: closeCallback, name });
-                window.history.pushState({ overlay: name }, document.title, window.location.href);
-            }
-
-            /**
-             * Call this when closing an overlay Programmatically (e.g. clicking 'X' button)
-             * This ensures the history state is kept in sync (removes the state we added)
-             */
-            closeOverlay() {
-                if (this.overlayStack.length > 0) {
-                    // We do NOT pop here. We let the popstate event handler do it.
-                    // This ensures consistent behavior whether the user presses Back or clicks 'X'.
-                    window.history.back();
-                }
-            }
-
-            // --- Pull to Refresh Logic ---
-
-            setupPullToRefresh() {
-                // Create Spinner
-                this.spinner = document.createElement('div');
-                this.spinner.className = 'ptr-spinner';
-                this.spinner.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>';
-                document.body.prepend(this.spinner);
-
-                window.addEventListener('touchstart', (e) => {
-                    if (window.scrollY === 0) {
-                        this.touchStartY = e.touches[0].clientY;
-                    }
-                }, { passive: true });
-
-                window.addEventListener('touchmove', (e) => {
-                    if (window.scrollY === 0 && this.touchStartY > 0) {
-                        const touchY = e.touches[0].clientY;
-                        const pullDistance = touchY - this.touchStartY;
-
-                        if (pullDistance > 0) {
-                            this.isPulling = true;
-                            // Visual feedback
-                            this.spinner.style.transform = `translateY(${Math.min(pullDistance / 2, 80)}px) translateX(-50%) rotate(${pullDistance}deg)`;
-                            this.spinner.style.opacity = Math.min(pullDistance / 100, 1);
-                        }
-                    }
-                }, { passive: true });
-
-                window.addEventListener('touchend', (e) => {
-                    if (this.isPulling) {
-                        const touchY = e.changedTouches[0].clientY;
-                        const pullDistance = touchY - this.touchStartY;
-
-                        if (pullDistance > this.refreshThreshold) {
-                            this.triggerRefresh();
-                        } else {
-                            this.resetSpinner();
-                        }
-                        this.isPulling = false;
-                        this.touchStartY = 0;
-                    }
-                });
-            }
-
-            triggerRefresh() {
-                this.spinner.style.transition = '0.3s';
-                this.spinner.style.transform = 'translateY(60px) translateX(-50%) rotate(360deg)';
-                setTimeout(() => {
-                    window.location.reload();
-                }, 500);
-            }
-
-            resetSpinner() {
-                this.spinner.style.transition = '0.3s';
-                this.spinner.style.transform = 'translateY(-50px) translateX(-50%)';
-                this.spinner.style.opacity = '0';
-            }
-
-            // --- Page Transitions ---
-
-            setupPageTransitions() {
-                document.body.classList.add('page-enter');
-
-                // Hijack internal links for exit animation (optional, can be disabled if buggy)
-                // document.addEventListener('click', (e) => {
-                //     const link = e.target.closest('a');
-                //     if (link && link.href && link.href.startsWith(window.location.origin) && !link.target) {
-                //         e.preventDefault();
-                //         document.body.classList.add('page-exit');
-                //         setTimeout(() => {
-                //             window.location.href = link.href;
-                //         }, 300);
-                //     }
-                // });
-            }
-
-            injectStyles() {
-                const style = document.createElement('style');
-                style.textContent = `
-            /* Pull to Refresh Spinner */
-            .ptr-spinner {
-                position: fixed;
-                top: -50px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 40px;
-                height: 40px;
-                background: white;
-                border-radius: 50%;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 1000;
-                color: var(--primary, #4f46e5);
-                opacity: 0;
-                pointer-events: none;
-            }
-
-            /* Page Transitions */
-            .page-enter {
-                animation: fadeEnter 0.4s ease-out forwards;
-            }
-            @keyframes fadeEnter {
-                from { opacity: 0; transform: translateY(10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            
-            .page-exit {
-                opacity: 0;
-                transform: scale(0.98);
-                transition: 0.3s;
-            }
-
-            /* Auto Hide Navbar */
-            .bottom-nav {
-                transition: transform 0.3s ease-in-out;
-            }
-            .bottom-nav.nav-hidden {
-                transform: translateY(100%);
-            }
-
-            /* PWA Modal */
-            .pwa-modal {
-                position: fixed;
-                bottom: 20px;
-                left: 20px;
-                right: 20px;
-                background: white;
-                border-radius: 16px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-                z-index: 9999;
-                transform: translateY(150%);
-                transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                max-width: 400px;
-                margin: 0 auto;
-                border: 1px solid rgba(0,0,0,0.05);
-            }
-            
-            .pwa-modal.active {
-                transform: translateY(0);
-            }
-
-            .pwa-content {
-                padding: 20px;
-            }
-        `;
-                document.head.appendChild(style);
-            }
-
-
-
-            setupAutoHidingNavbar() {
-                let lastScrollY = window.scrollY;
-                const bottomNav = document.querySelector('.bottom-nav');
-                if (!bottomNav) return;
-
-                window.addEventListener('scroll', () => {
-                    const currentScrollY = window.scrollY;
-                    if (Math.abs(currentScrollY - lastScrollY) < 10) return;
-                    if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                        bottomNav.classList.add('nav-hidden');
-                    } else {
-                        bottomNav.classList.remove('nav-hidden');
-                    }
-                    lastScrollY = currentScrollY;
-                }, { passive: true });
-            }
-
-            // --- PWA Install Logic 📲 ---
-            setupPWAInstall() {
-                let deferredPrompt;
-
-                window.addEventListener('beforeinstallprompt', (e) => {
-                    e.preventDefault();
-                    deferredPrompt = e;
-
-                    // Check if user already dismissed it recently (optional: use localStorage)
-                    if (localStorage.getItem('pwa-dismissed')) return;
-
-                    // Show Custom Modal
-                    this.showInstallModal(deferredPrompt);
-                });
-            }
-
-            showInstallModal(deferredPrompt) {
-                // Create Modal HTML
-                const modal = document.createElement('div');
-                modal.className = 'pwa-modal';
-                modal.innerHTML = `
-            <div class="pwa-content">
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 text-2xl">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-lg text-gray-800">تثبيت التطبيق</h3>
-                        <p class="text-xs text-gray-500">تجربة أسرع وأفضل بدون إنترنت!</p>
-                    </div>
-                </div>
-                <div class="flex gap-3">
-                    <button id="pwa-dismiss" class="flex-1 py-2 text-gray-500 font-bold bg-gray-50 rounded-lg">ليس الآن</button>
-                    <button id="pwa-install" class="flex-1 py-2 text-white font-bold bg-indigo-600 rounded-lg shadow-lg shadow-indigo-200">تثبيت</button>
-                </div>
-            </div>
-        `;
-                document.body.appendChild(modal);
-
-                // Animate In
-                setTimeout(() => modal.classList.add('active'), 100);
-
-                // Handlers
-                document.getElementById('pwa-dismiss').onclick = () => {
-                    modal.classList.remove('active');
-                    setTimeout(() => modal.remove(), 300);
-                    localStorage.setItem('pwa-dismissed', 'true');
-                };
-
-                document.getElementById('pwa-install').onclick = async () => {
-                    if (deferredPrompt) {
-                        deferredPrompt.prompt();
-                        const { outcome } = await deferredPrompt.userChoice;
-                        if (outcome === 'accepted') {
-                            console.log('User accepted the install prompt');
-                        }
-                        deferredPrompt = null;
-                    }
-                    modal.classList.remove('active');
-                    setTimeout(() => modal.remove(), 300);
-                };
-            }
-        }
-
-        // Initialize
-        // const mobileApp = new MobileEnhancements(); // Use imported version from app-core.js
-
-        // Global Helper for existing code to call
-        // window.openMobileOverlay = (closeCallback, name) => mobileApp.pushOverlay(closeCallback, name); // Handled by app-core
-        // window.closeMobileOverlay = () => mobileApp.closeOverlay(); // Handled by app-core
-
-
-        // Canvas Generation Logic
-        window.generateCredentialCard = (name, email, password) => {
-            const canvas = document.getElementById('cred-canvas');
-            const ctx = canvas.getContext('2d');
-
-            // High Resolution
-            canvas.width = 1080;
-            canvas.height = 1920; // Story format
-
-            // 1. Background (Gradient)
-            const grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            grd.addColorStop(0, '#4f46e5');
-            grd.addColorStop(1, '#7c3aed');
-            ctx.fillStyle = grd;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // 2. Pattern Overlay
-            ctx.globalAlpha = 0.05;
-            for (let i = 0; i < canvas.width; i += 40) {
-                for (let j = 0; j < canvas.height; j += 40) {
-                    ctx.beginPath();
-                    ctx.arc(i, j, 2, 0, Math.PI * 2);
-                    ctx.fillStyle = 'white';
-                    ctx.fill();
-                }
-            }
-            ctx.globalAlpha = 1.0;
-
-            // 3. Glass Card
-            const cardX = 100, cardY = 500, cardW = 880, cardH = 920;
-            ctx.save();
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
-            ctx.shadowBlur = 40;
-            ctx.shadowOffsetY = 20;
-            ctx.roundRect(cardX, cardY, cardW, cardH, 40);
-            ctx.fill();
-
-            // Glass Border
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-            ctx.lineWidth = 4;
-            ctx.stroke();
-            ctx.restore();
-
-            // 4. Content
-            ctx.textAlign = 'center';
-            ctx.fillStyle = 'white';
-
-            // Logo/Title
-            ctx.font = 'bold 80px Tajawal';
-            ctx.fillText('S22 MARKET', canvas.width / 2, cardY + 150);
-
-            ctx.font = '50px Tajawal';
-            ctx.globalAlpha = 0.8;
-            ctx.fillText('بطاقة الوصول الخاصة بك', canvas.width / 2, cardY + 230);
-            ctx.globalAlpha = 1.0;
-
-            // Fields
-            const startY = cardY + 400;
-            const gap = 180;
-
-            const drawField = (label, value, y) => {
-                ctx.fillStyle = 'rgba(255,255,255,0.6)';
-                ctx.font = '40px Tajawal';
-                ctx.fillText(label, canvas.width / 2, y);
-
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 60px Tajawal';
-                ctx.fillText(value, canvas.width / 2, y + 70);
-            };
-
-            drawField('الاسم', name, startY);
-            drawField('البريد الإلكتروني', email, startY + gap);
-            drawField('كلمة المرور', password, startY + (gap * 2));
-
-            // Warning
-            ctx.fillStyle = '#fca5a5';
-            ctx.font = '30px Tajawal';
-            ctx.fillText('⚠️ يرجى حفظ هذه الصورة في مكان آمن', canvas.width / 2, cardY + cardH - 60);
-
-            // Footer
-            ctx.fillStyle = 'rgba(255,255,255,0.5)';
-            ctx.font = '30px Tajawal';
-            ctx.fillText('s22market.com', canvas.width / 2, canvas.height - 100);
-
-            return canvas.toDataURL('image/png');
+        window.handleSignOut = () => {
+            signOut(auth).then(() => window.location.href = 'index.html');
         };
-    </script>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, getDoc, addDoc, query, orderBy, serverTimestamp, where, limit, updateDoc, onSnapshot, arrayUnion, arrayRemove, setDoc, writeBatch, Timestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
-            authDomain: "s22market-4e3e6.firebaseapp.com",
-            projectId: "s22market-4e3e6",
-            storageBucket: "s22market-4e3e6.appspot.com",
-            messagingSenderId: "119186699901",
-            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
-            measurementId: "G-MWYNCVP4WQ"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
 
         let currentUser = null;
         let userData = {};
 
-        // Initialize
-        // --- INLINED AUTH (Self-Contained) ---
-        async function requireAuth(authInstance) {
-            await setPersistence(authInstance, browserLocalPersistence);
-            return new Promise((resolve) => {
-                const unsubscribe = onAuthStateChanged(authInstance, (user) => {
-                    if (!user) {
-                        localStorage.setItem('s22_return_url', window.location.href);
-                        window.location.href = 'login.html';
-                        resolve(null);
-                    } else {
-                        resolve(user);
-                    }
-                    unsubscribe();
-                });
-            });
-        }
-
-        requireAuth(auth).then(user => {
+        // Auth Logic
+        onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
-                loadUserProfile(currentUser.uid); // Pass uid to loadUserProfile
+                loadUserProfile(user.uid);
+            } else {
+                // Save return URL and redirect
+                localStorage.setItem('s22_return_url', window.location.href);
+                window.location.href = 'login.html';
             }
         });
 
@@ -1036,16 +606,15 @@
                     renderProfile(userData);
                     checkStoreStatus(userData);
 
-                    // Generate Referral if missing
                     if (!userData.referralCode) {
                         const code = uid.substring(0, 6).toUpperCase();
                         await updateDoc(doc(db, "users", uid), { referralCode: code });
-                        document.getElementById('ref-code').textContent = code;
+                        document.getElementById('ref-code').innerText = code;
                     } else {
-                        document.getElementById('ref-code').textContent = userData.referralCode;
+                        document.getElementById('ref-code').innerText = userData.referralCode;
                     }
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error('Error loading profile:', e); }
         }
 
         // --- Wilaya List ---
@@ -1053,9 +622,10 @@
             "أدرار", "الشلف", "الأغواط", "أم البواقي", "باتنة", "بجاية", "بسكرة", "بشار", "البليدة", "البويرة", "تمنراست", "تبسة", "تلمسان", "تيارت", "تيزي وزو", "الجزائر", "الجلفة", "جيجل", "سطيف", "سعيدة", "سكيكدة", "سيدي بلعباس", "عنابة", "قالمة", "قسنطينة", "المدية", "مستغانم", "المسيلة", "معسكر", "ورقلة", "وهران", "البيض", "إليزي", "برج بوعريريج", "بومرداس", "الطارق", "تندوف", "تيسمسيلت", "الوادي", "خنشلة", "سوق أهراس", "تيبازة", "ميلة", "عين الدفلى", "النعامة", "عين تموشنت", "غرداية", "غليزان", "تيميمون", "برج باجي مختار", "أولاد جلال", "بني عباس", "عين صالح", "عين قزام", "تقرت", "جانوت", "المغير", "المنيعة"
         ];
 
-        // Populate
         const wSelect = document.getElementById('edit-wilaya');
         if (wSelect) {
+            // Clear existing options to prevent duplicates if any
+            wSelect.innerHTML = '<option value="" disabled selected>اختر الولاية</option>';
             WILAYAS.forEach((w, i) => {
                 const opt = document.createElement('option');
                 opt.value = w;
@@ -1065,52 +635,53 @@
         }
 
         function renderProfile(data) {
-            document.getElementById('user-name').textContent = data.displayName || 'مستخدم';
-            document.getElementById('user-email').textContent = data.email;
+            document.getElementById('user-name').innerText = data.displayName || 'مستخدم';
+            document.getElementById('user-email').innerText = data.email;
 
-            document.getElementById('coins-val').textContent = (data.dawarat_coins || 0);
+            document.getElementById('coins-val').innerText = (data.dawarat_coins || 0);
+
             // Badge
             const badge = document.getElementById('user-role-badge');
-            if (data.role === 'vendor') { badge.textContent = 'تاجر'; badge.className = 'bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold'; }
-            else if (data.role === 'restaurant') { badge.textContent = 'مطعم'; badge.className = 'bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold'; }
+            if (data.role === 'vendor') {
+                badge.innerText = 'تاجر';
+                badge.className = 'bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold';
+            } else if (data.role === 'restaurant') {
+                badge.innerText = 'مطعم';
+                badge.className = 'bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold';
+            } else {
+                badge.innerText = 'عضو';
+                badge.className = 'bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold';
+            }
 
             // Edit Inputs
             document.getElementById('edit-name').value = data.displayName || '';
             document.getElementById('edit-phone').value = data.phone || '';
-            if (data.wilaya) document.getElementById('edit-wilaya').value = data.wilaya; // Set selected wilaya
+            if (data.wilaya) document.getElementById('edit-wilaya').value = data.wilaya;
         }
 
-        // --- Store Request Logic ---
         function checkStoreStatus(data) {
             const dashboardBtn = document.getElementById('dashboard-btn');
-            const shareContainer = document.getElementById('store-share-container'); // NEW
+            const shareContainer = document.getElementById('store-share-container');
             const startBanner = document.getElementById('start-selling-banner');
             const pendingBanner = document.getElementById('pending-banner');
             const rejectedBanner = document.getElementById('rejected-banner');
 
-            // Reset
             dashboardBtn.classList.add('hidden');
-            shareContainer.classList.add('hidden'); // NEW
+            shareContainer.classList.add('hidden');
             startBanner.classList.add('hidden');
             pendingBanner.classList.add('hidden');
             rejectedBanner.classList.add('hidden');
 
-            if (data.role === 'vendor') {
-                dashboardBtn.href = 'seller-dashboard.html';
+            if (data.role === 'vendor' || data.role === 'restaurant') {
                 dashboardBtn.classList.remove('hidden');
-                shareContainer.classList.remove('hidden'); // NEW
-            } else if (data.role === 'restaurant') {
-                dashboardBtn.href = 'seller-dashboard.html';
-                dashboardBtn.classList.remove('hidden');
-                shareContainer.classList.remove('hidden'); // NEW
+                shareContainer.classList.remove('hidden');
             } else if (data.storeRequest?.status === 'pending') {
                 pendingBanner.classList.remove('hidden');
             } else if (data.storeRequest?.status === 'rejected') {
                 rejectedBanner.classList.remove('hidden');
-                document.getElementById('reject-reason').textContent = data.storeRequest.rejectionReason || 'لم يتم ذكر سبب.';
+                document.getElementById('reject-reason').innerText = data.storeRequest.rejectionReason || 'لم يتم ذكر سبب.';
             } else {
                 startBanner.classList.remove('hidden');
-                // Open modal if url has action param
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('action') === 'open_store') {
                     openStoreModal();
@@ -1119,184 +690,13 @@
             }
         }
 
-        // --- Modal Functions ---
-        window.openStoreModal = () => {
-            const modal = document.getElementById('store-modal');
-            modal.classList.add('active');
-
-            // Mobile Overlay Hook
-            if (window.openMobileOverlay) {
-                window.openMobileOverlay(() => {
-                    modal.classList.remove('active');
-                }, 'store-modal');
-            }
-
-            // Pre-fill phone
-            if (userData.phone) document.getElementById('req-phone').value = userData.phone;
-        };
-
-        window.openEditProfileModal = () => {
-            const modal = document.getElementById('edit-profile-modal');
-            modal.classList.add('active');
-
-            // Mobile Overlay Hook
-            if (window.openMobileOverlay) {
-                window.openMobileOverlay(() => {
-                    modal.classList.remove('active');
-                }, 'edit-profile-modal');
-            }
-        };
-
-        window.closeModal = (id) => {
-            // Check if we are closing via button, we should sync history
-            if (window.closeMobileOverlay) {
-                // This triggers the callback passed in openMobileOverlay, effectively closing the modal
-                window.closeMobileOverlay();
-            } else {
-                document.getElementById(id).classList.remove('active');
-            }
-        };
-
-        // --- Form Submissions ---
-
-        // --- Form Submissions ---
-
-        // Helper: Toggle Wilaya Input
-        window.toggleWilayaInput = () => {
-            const type = document.getElementById('req-region-type').value;
-            const container = document.getElementById('wilaya-input-container');
-            if (type === 'local') {
-                container.classList.remove('hidden');
-            } else {
-                container.classList.add('hidden');
-            }
-        };
-
-        // Terms Agreement Logic
-        const termsCheck = document.getElementById('terms-agree-check');
-        const confirmTermsBtn = document.getElementById('confirm-terms-btn');
-        if (termsCheck) {
-            termsCheck.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    confirmTermsBtn.disabled = false;
-                    confirmTermsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                } else {
-                    confirmTermsBtn.disabled = true;
-                    confirmTermsBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                }
-            });
-        }
-
-        let pendingStoreRequestData = null;
-
-        // 1. Submit Store Request (Step 1: Validation & Show Terms)
-        document.getElementById('store-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submit-req-btn');
-
-            // Collect Data
-            const regionType = document.getElementById('req-region-type').value;
-            const regionSpecific = document.getElementById('req-region-specific').value;
-            const regionText = regionType === 'national' ? 'كامل التراب الوطني' : (regionSpecific || 'منطقة محددة');
-
-            pendingStoreRequestData = {
-                applicantName: document.getElementById('req-applicant-name').value,
-                storeName: document.getElementById('req-name').value,
-                storeType: document.getElementById('req-type').value,
-                specialty: document.getElementById('req-specialty').value,
-                description: document.getElementById('req-desc').value,
-                phone: document.getElementById('req-phone').value,
-                region: regionText,
-                facebook: document.getElementById('req-fb').value,
-                instagram: document.getElementById('req-insta').value,
-                additionalInfo: document.getElementById('req-extra').value,
-                status: 'pending',
-                requestedAt: serverTimestamp()
-            };
-
-            // Loading Terms
-            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المعالجة...';
-
-            try {
-                // Fetch Terms from Settings
-                const settingsSnap = await getDoc(doc(db, "settings", "storeConfig"));
-                let termsText = "الشروط والأحكام غير متوفرة حالياً. يرجى التواصل مع الإدارة.";
-                if (settingsSnap.exists() && settingsSnap.data().termsAndConditions) {
-                    termsText = settingsSnap.data().termsAndConditions;
-                }
-
-                // Show Terms Modal
-                document.getElementById('terms-content').textContent = termsText;
-                document.getElementById('terms-modal').classList.add('active');
-
-            } catch (error) {
-                console.error("Error fetching terms:", error);
-                alert("حدث خطأ أثناء تحميل الشروط.");
-            } finally {
-                btn.disabled = false; btn.textContent = 'متابعة';
-            }
-        });
-
-        // 2. Confirm & Send Request
-        document.getElementById('confirm-terms-btn').addEventListener('click', async () => {
-            if (!pendingStoreRequestData) return;
-            const btn = document.getElementById('confirm-terms-btn');
-            btn.disabled = true; btn.textContent = 'جاري الإرسال...';
-
-            try {
-                await updateDoc(doc(db, "users", currentUser.uid), {
-                    storeRequest: pendingStoreRequestData,
-                    phone: pendingStoreRequestData.phone // Update user phone too
-                });
-
-                closeModal('terms-modal');
-                closeModal('store-modal');
-
-                // Reload profile logic locally
-                userData.storeRequest = pendingStoreRequestData;
-                checkStoreStatus(userData);
-
-                // Confetti
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                showToast('تم إرسال طلبك بنجاح! سنقوم بمراجعته قريباً.');
-
-            } catch (err) {
-                console.error(err);
-                alert('حدث خطأ أثناء إرسال الطلب: ' + err.message);
-            } finally {
-                btn.disabled = false; btn.textContent = 'موافق وإرسال الطلب';
-            }
-        });
-
-        // 2. Edit Profile
-        document.getElementById('profile-edit-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('edit-name').value;
-            const phone = document.getElementById('edit-phone').value;
-            const wilaya = document.getElementById('edit-wilaya').value;
-
-            try {
-                await updateProfile(currentUser, { displayName: name });
-                await updateDoc(doc(db, "users", currentUser.uid), {
-                    displayName: name,
-                    phone: phone,
-                    wilaya: wilaya // Save Wilaya
-                });
-
-                document.getElementById('user-name').textContent = name;
-                closeModal('edit-profile-modal');
-                showToast('تم حفظ التغييرات');
-            } catch (e) { console.error(e); }
-        });
-
         // --- Utils ---
         window.copyRef = () => {
-            const code = document.getElementById('ref-code').textContent;
+            const code = document.getElementById('ref-code').innerText;
             navigator.clipboard.writeText(code);
             showToast('تم نسخ الكود!');
         };
 
-        // --- Store Sharing Logic ---
         window.getStoreLink = () => {
             if (!userData) return '';
             const type = userData.role === 'restaurant' ? 'restaurant' : 'vendor';
@@ -1308,17 +708,10 @@
             if (link) {
                 try {
                     await navigator.clipboard.writeText(link);
-                    showToast('تم نسخ رابط المتجر! 🔗');
-                } catch (err) {
-                    console.error('Clipboard API failed, trying fallback: ', err);
-                    // Fallback
-                    const textArea = document.createElement("textarea");
-                    textArea.value = link;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    document.execCommand("copy");
-                    document.body.removeChild(textArea);
-                    showToast('تم نسخ رابط المتجر! 🔗');
+                    showToast('تم نسخ رابط المتجر!');
+                } catch (e) {
+                    const t = document.createElement("textarea"); t.value = link; document.body.appendChild(t); t.select(); document.execCommand("copy"); document.body.removeChild(t);
+                    showToast('تم نسخ رابط المتجر!');
                 }
             }
         };
@@ -1326,99 +719,240 @@
         window.shareStoreLink = async () => {
             const link = getStoreLink();
             if (!link) return;
-
-            const shareData = {
-                title: userData.displayName || 'S22 Market Store',
-                text: `تفضل بزيارة متجري ${userData.displayName} على S22 Market!`,
-                url: link
-            };
-
-            if (navigator.share) {
-                try {
-                    await navigator.share(shareData);
-                } catch (err) {
-                    console.log('Error sharing:', err);
-                }
-            } else {
-                copyStoreLink();
-            }
+            try {
+                await navigator.share({ title: userData.displayName, text: 'زوروا متجري على S22 Market', url: link });
+            } catch (e) { copyStoreLink(); }
         };
 
         function showToast(msg) {
             const container = document.getElementById('toast-container');
             const el = document.createElement('div');
             el.className = 'bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg text-sm mb-2 animate-bounce';
-            el.textContent = msg;
+            el.innerText = msg;
             container.appendChild(el);
             setTimeout(() => el.remove(), 2000);
         }
 
-        window.auth = auth; // For HTML access
+        // --- Store Request Form Logic ---
 
-        // Credential Modal Logic
-        window.openCredentialModal = () => {
-            const modal = document.getElementById('credential-modal');
-            if (modal) {
-                modal.classList.add('active');
-                if (window.openMobileOverlay) window.openMobileOverlay(() => closeModal('credential-modal'), 'credentialModal');
+        let pendingStoreRequestData = null;
 
-                // Reset State
-                document.getElementById('credential-form').reset();
-                document.getElementById('card-preview-container').classList.add('hidden');
-                document.getElementById('credential-form').classList.remove('hidden');
-
-                // Ensure canvas is visible for drawing (even if hidden by container initially)
-                const canvas = document.getElementById('cred-canvas');
-                if (canvas) canvas.style.display = 'block';
+        // Toggle Wilaya Input
+        window.toggleWilayaInput = () => {
+            const type = document.getElementById('req-region-type').value;
+            const container = document.getElementById('wilaya-input-container');
+            if (type === 'local') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
             }
         };
 
-        if (document.getElementById('credential-form')) {
-            document.getElementById('credential-form').onsubmit = async (e) => {
+        // Terms Check
+        const termsCheck = document.getElementById('terms-agree-check');
+        const confirmTermsBtn = document.getElementById('confirm-terms-btn');
+        if (termsCheck) {
+            termsCheck.addEventListener('change', (e) => {
+                confirmTermsBtn.disabled = !e.target.checked;
+                if (e.target.checked) confirmTermsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                else confirmTermsBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+        }
+
+        // Submit Store Request
+        const storeForm = document.getElementById('store-form');
+        if (storeForm) {
+            storeForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('submit-req-btn');
+
+                // Collect Data
+                const regionType = document.getElementById('req-region-type').value;
+                const regionSpecific = document.getElementById('req-region-specific').value;
+                const regionText = regionType === 'national' ? 'كامل التراب الوطني' : (regionSpecific || 'منطقة محددة');
+
+                pendingStoreRequestData = {
+                    applicantName: document.getElementById('req-applicant-name').value,
+                    storeName: document.getElementById('req-name').value,
+                    storeType: document.getElementById('req-type').value,
+                    specialty: document.getElementById('req-specialty').value,
+                    description: document.getElementById('req-desc').value,
+                    phone: document.getElementById('req-phone').value,
+                    region: regionText,
+                    facebook: document.getElementById('req-fb').value,
+                    instagram: document.getElementById('req-insta').value,
+                    additionalInfo: document.getElementById('req-extra').value,
+                    status: 'pending',
+                    requestedAt: serverTimestamp()
+                };
+
+                btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المعالجة...';
+
+                try {
+                    const settingsSnap = await getDoc(doc(db, "settings", "storeConfig"));
+                    let termsText = "الشروط والأحكام غير متوفرة حالياً.";
+                    if (settingsSnap.exists() && settingsSnap.data().termsAndConditions) {
+                        termsText = settingsSnap.data().termsAndConditions;
+                    }
+                    document.getElementById('terms-content').innerText = termsText;
+                    document.getElementById('terms-modal').classList.add('active');
+                } catch (error) {
+                    console.error("Error fetching terms:", error);
+                    alert("حدث خطأ أثناء تحميل الشروط.");
+                } finally {
+                    btn.disabled = false; btn.innerText = 'متابعة';
+                }
+            });
+        }
+
+        // Confirm Terms
+        if (confirmTermsBtn) {
+            confirmTermsBtn.addEventListener('click', async () => {
+                if (!pendingStoreRequestData) return;
+                confirmTermsBtn.disabled = true; confirmTermsBtn.innerText = 'جاري الإرسال...';
+
+                try {
+                    await updateDoc(doc(db, "users", currentUser.uid), {
+                        storeRequest: pendingStoreRequestData,
+                        phone: pendingStoreRequestData.phone
+                    });
+
+                    closeModal('terms-modal');
+                    closeModal('store-modal');
+
+                    userData.storeRequest = pendingStoreRequestData;
+                    checkStoreStatus(userData);
+
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                    showToast('تم إرسال طلبك بنجاح!');
+                } catch (err) {
+                    console.error(err);
+                    alert('خطأ: ' + err.message);
+                } finally {
+                    confirmTermsBtn.disabled = false; confirmTermsBtn.innerText = 'موافق وإرسال الطلب';
+                }
+            });
+        }
+
+        // Edit Profile
+        const profileEditForm = document.getElementById('profile-edit-form');
+        if (profileEditForm) {
+            profileEditForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('edit-name').value;
+                const phone = document.getElementById('edit-phone').value;
+                const wilaya = document.getElementById('edit-wilaya').value;
+
+                try {
+                    await updateProfile(currentUser, { displayName: name });
+                    await updateDoc(doc(db, "users", currentUser.uid), {
+                        displayName: name,
+                        phone: phone,
+                        wilaya: wilaya
+                    });
+
+                    document.getElementById('user-name').innerText = name;
+                    closeModal('edit-profile-modal');
+                    showToast('تم حفظ التغييرات');
+                } catch (e) { console.error(e); }
+            });
+        }
+
+        // --- Credential Generation ---
+        const credentialForm = document.getElementById('credential-form');
+        if (credentialForm) {
+            credentialForm.onsubmit = async (e) => {
                 e.preventDefault();
                 const btn = document.getElementById('gen-card-btn');
                 const password = document.getElementById('confirm-pass').value;
-
-                btn.disabled = true;
-                btn.innerText = 'جاري التحقق...';
+                btn.disabled = true; btn.innerText = 'جاري التحقق...';
 
                 try {
-                    // Verify password by re-authenticating
-                    // Note: This requires the user to know their password. If Google Sign-In, this flow might error (no password).
-                    // We assume Email/Password auth here as per request.
                     const credential = await signInWithEmailAndPassword(auth, currentUser.email, password);
                     if (credential.user) {
-                        // Success: Generate Card
-                        btn.innerText = 'جاري التوليد...';
-
                         if (window.generateCredentialCard) {
                             const imgData = window.generateCredentialCard(
                                 userData.displayName || 'مستخدم',
                                 currentUser.email,
                                 password
                             );
-
-                            document.getElementById('credential-form').classList.add('hidden');
-                            const previewContainer = document.getElementById('card-preview-container');
-                            previewContainer.classList.remove('hidden');
-                            previewContainer.style.display = 'flex';
-
+                            credentialForm.classList.add('hidden');
+                            const preview = document.getElementById('card-preview-container');
+                            preview.classList.remove('hidden'); preview.style.display = 'flex';
                             document.getElementById('download-card-link').href = imgData;
-                        } else {
-                            alert("خطأ: دالة التوليد غير موجودة.");
-                        }
+                        } else { alert("خطأ في توليد البطاقة"); }
                     }
-                } catch (error) {
-                    console.error(error);
-                    alert('كلمة المرور غير صحيحة!');
-                } finally {
-                    btn.disabled = false;
-                    btn.innerText = 'توليد';
-                }
+                } catch (e) { alert('كلمة المرور غير صحيحة!'); }
+                finally { btn.disabled = false; btn.innerText = 'توليد'; }
             };
         }
+
+        // --- Modal Helpers ---
+        window.openStoreModal = () => {
+            const modal = document.getElementById('store-modal');
+            modal.classList.add('active');
+            if (userData.phone) document.getElementById('req-phone').value = userData.phone;
+        };
+
+        window.openEditProfileModal = () => document.getElementById('edit-profile-modal').classList.add('active');
+        window.openCredentialModal = () => {
+            const modal = document.getElementById('credential-modal');
+            modal.classList.add('active');
+            document.getElementById('credential-form').reset();
+            document.getElementById('card-preview-container').classList.add('hidden');
+            document.getElementById('credential-form').classList.remove('hidden');
+        };
+        window.closeModal = (id) => document.getElementById(id).classList.remove('active');
+
+        // Canvas Generator (Helper)
+        window.generateCredentialCard = (name, email, password) => {
+            const canvas = document.getElementById('cred-canvas');
+            if (!canvas) return null;
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1080; canvas.height = 1920;
+
+            const grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grd.addColorStop(0, '#4f46e5'); grd.addColorStop(1, '#7c3aed');
+            ctx.fillStyle = grd; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Simple pattern
+            ctx.globalAlpha = 0.05;
+            for (let i = 0; i < canvas.width; i += 40) {
+                for (let j = 0; j < canvas.height; j += 40) {
+                    ctx.beginPath(); ctx.arc(i, j, 2, 0, Math.PI * 2); ctx.fillStyle = 'white'; ctx.fill();
+                }
+            }
+            ctx.globalAlpha = 1.0;
+
+            // Content
+            const cardX = 100, cardY = 500, cardW = 880, cardH = 920;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.2)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 20;
+            ctx.roundRect(cardX, cardY, cardW, cardH, 40); ctx.fill();
+
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'; ctx.lineWidth = 4; ctx.stroke();
+
+            ctx.textAlign = 'center'; ctx.fillStyle = 'white';
+            ctx.font = 'bold 80px Tajawal'; ctx.fillText('S22 MARKET', canvas.width / 2, cardY + 150);
+            ctx.font = '50px Tajawal'; ctx.globalAlpha = 0.8; ctx.fillText('بطاقة الوصول الخاصة بك', canvas.width / 2, cardY + 230); ctx.globalAlpha = 1.0;
+
+            const startY = cardY + 400; const gap = 180;
+            const drawField = (label, value, y) => {
+                ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '40px Tajawal'; ctx.fillText(label, canvas.width / 2, y);
+                ctx.fillStyle = 'white'; ctx.font = 'bold 60px Tajawal'; ctx.fillText(value, canvas.width / 2, y + 70);
+            };
+            drawField('الاسم', name, startY);
+            drawField('البريد الإلكتروني', email, startY + gap);
+            drawField('كلمة المرور', password, startY + (gap * 2));
+
+            ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '30px Tajawal';
+            ctx.fillText('s22market.com', canvas.width / 2, canvas.height - 100);
+
+            return canvas.toDataURL('image/png');
+        };
     </script>
-    <!-- Missing Bottom Nav Injected -->
+
+    <!-- Bottom Navigation -->
     <nav class="bottom-nav">
         <a href="index.html" class="nav-item">
             <i class="fas fa-home"></i>
@@ -1431,6 +965,8 @@
         <a href="cart.html" class="nav-item">
             <div class="relative">
                 <i class="fas fa-shopping-basket"></i>
+                <span id="cart-badge"
+                    class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center hidden">0</span>
             </div>
             <span>السلة</span>
         </a>

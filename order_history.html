@@ -339,29 +339,36 @@
         </div>
     </main>
 
-    <div id="toast-container"></div>
+    <div class="h-20 md:hidden"></div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="s22marketfood.html" class="nav-item">
+            <i class="fas fa-utensils"></i>
+            <span>طعام</span>
+        </a>
+        <a href="cart.html" class="nav-item">
+            <div class="relative">
+                <i class="fas fa-shopping-basket"></i>
+                <span id="cart-badge"
+                    class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center hidden">0</span>
+            </div>
+            <span>السلة</span>
+        </a>
+        <div class="nav-item active">
+            <i class="fas fa-archive mb-1 text-lg"></i>
+            <span>طلباتي</span>
+        </div>
+    </nav>
 
     <script type="module">
-        // --- إعدادات Firebase ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // === (بداية التعديل: إعدادات Firebase) ===
-        const firebaseConfig = {
-            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
-            authDomain: "s22market-4e3e6.firebaseapp.com",
-            projectId: "s22market-4e3e6",
-            storageBucket: "s22market-4e3e6.appspot.com",
-            messagingSenderId: "119186699901",
-            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
-            measurementId: "G-MWYNCVP4WQ"
-        };
-        // === (نهاية التعديل: إعدادات Firebase) ===
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        import { auth, db } from './app-core.js';
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- عناصر واجهة المستخدم ---
         const loginBtn = document.getElementById('login-btn');

@@ -29,28 +29,51 @@ setPersistence(auth, browserLocalPersistence)
 window.currentUser = null;
 
 onAuthStateChanged(auth, (user) => {
+    window.currentUser = user;
     if (user) {
-        window.currentUser = user;
         console.log("مرحباً بك مجدداً:", user.displayName);
-        // تحديث واجهة المستخدم في كل الصفحات تلقائياً إذا كان هناك عناصر محددة
         document.body.classList.add('user-logged-in');
     } else {
-        window.currentUser = null;
-        // إذا كانت الصفحة تتطلب تسجيلاً (مثل لوحة التحكم) وجهه لصفحة الدخول
-        if (window.location.pathname.includes('admin') || window.location.pathname.includes('dashboard')) {
-            window.location.href = 'login.html';
+        document.body.classList.remove('user-logged-in');
+        // Only redirect if explicitly on a protected page
+        if (window.location.pathname.includes('admin') ||
+            window.location.pathname.includes('dashboard') ||
+            window.location.pathname.includes('profile')) {
+            // Profile usually requires auth, but let's be careful about auto-redirects loops
+            // window.location.href = 'login.html'; // Let the specific page handle the redirect if needed to avoid loops
         }
     }
+
+    // Dispatch Global Event for UI Updates
+    const event = new CustomEvent('user-auth-state-changed', { detail: { user } });
+    window.dispatchEvent(event);
 });
 
 // 4. دوال مساعدة عالمية (لتجنب تكرار الكود)
 window.showToast = (msg, type = 'success') => {
     const toast = document.createElement('div');
-    toast.className = `fixed bottom-20 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full text-white font-bold z-50 animate-bounce ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
+    toast.className = `fixed bottom-24 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full text-white font-bold z-[100] animate-bounce ${type === 'success' ? 'bg-green-600' : 'bg-red-600'} shadow-lg`;
     toast.innerText = msg;
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
 };
+
+window.requireAuth = (authInstance) => {
+    return new Promise((resolve) => {
+        const unsubscribe = authInstance.onAuthStateChanged((user) => {
+            unsubscribe();
+            if (user) {
+                resolve(user);
+            } else {
+                window.showToast("يجب تسجيل الدخول للمتابعة", "error");
+                localStorage.setItem('s22_return_url', window.location.href);
+                setTimeout(() => window.location.href = 'login.html', 1500);
+                resolve(null);
+            }
+        });
+    });
+};
+
 // 5. Mobile Enhancements (PWA, Pull-to-Refresh, Transitions)
 export class MobileEnhancements {
     constructor() {
@@ -199,7 +222,7 @@ window.MobileEnhancements = MobileEnhancements;
 import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
 // Save cart to Firebase for logged-in users
-window.syncCartToFirebase = async function() {
+window.syncCartToFirebase = async function () {
     if (!window.currentUser) return;
     const cart = JSON.parse(localStorage.getItem('s22market_cart') || '[]');
     try {
@@ -208,7 +231,7 @@ window.syncCartToFirebase = async function() {
 };
 
 // Load cart from Firebase for logged-in users
-window.loadCartFromFirebase = async function() {
+window.loadCartFromFirebase = async function () {
     if (!window.currentUser) return;
     try {
         const snap = await getDoc(doc(db, 'userCarts', window.currentUser.uid));
@@ -226,7 +249,7 @@ window.loadCartFromFirebase = async function() {
 };
 
 // 7. Checkout Auto-fill Utilities
-window.getUserCheckoutData = async function() {
+window.getUserCheckoutData = async function () {
     if (!window.currentUser) return null;
     try {
         const snap = await getDoc(doc(db, 'users', window.currentUser.uid));
@@ -237,18 +260,19 @@ window.getUserCheckoutData = async function() {
     return null;
 };
 
-window.autoFillCheckout = async function(formPrefix = '') {
+window.autoFillCheckout = async function (formPrefix = '') {
     const data = await window.getUserCheckoutData();
     if (!data) return;
     const fields = ['name', 'phone', 'address', 'city'];
     fields.forEach(f => {
-        const el = document.getElementById(\\\\) || document.getElementById(f);
+        // Try getting element by ID matching the field name or a common prefix
+        const el = document.getElementById(`q-customer-${f}`) || document.getElementById(f);
         if (el && data[f]) el.value = data[f];
     });
 };
 
 // Haptic Feedback Utility
-window.haptic = function(duration = 50) {
+window.haptic = function (duration = 50) {
     if ('vibrate' in navigator) navigator.vibrate(duration);
 };
 
@@ -263,7 +287,7 @@ try {
 } catch (e) { console.log('FCM not supported in this environment'); }
 
 // Request permission and get FCM token
-window.requestNotificationPermission = async function() {
+window.requestNotificationPermission = async function () {
     if (!messaging) return null;
     try {
         const permission = await Notification.requestPermission();
@@ -275,7 +299,7 @@ window.requestNotificationPermission = async function() {
             vapidKey: 'YOUR_VAPID_KEY_HERE' // Replace with actual VAPID key from Firebase Console
         });
         console.log('FCM Token:', token);
-        
+
         // Save token to user's document if logged in
         if (window.currentUser) {
             await setDoc(doc(db, 'users', window.currentUser.uid), { fcmToken: token }, { merge: true });
@@ -300,7 +324,7 @@ if (messaging) {
 }
 
 // Show browser notification
-window.showBrowserNotification = function(title, body, icon = '/LOGO.jpg') {
+window.showBrowserNotification = function (title, body, icon = '/LOGO.jpg') {
     if ('Notification' in window && Notification.permission === 'granted') {
         new Notification(title, { body, icon });
     }
@@ -309,7 +333,7 @@ window.showBrowserNotification = function(title, body, icon = '/LOGO.jpg') {
 // 9. In-App Notification System (Firestore-based)
 import { collection, onSnapshot, query as fsQuery, orderBy as fsOrderBy, where as fsWhere, limit as fsLimit } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
-window.listenToUserNotifications = function(callback) {
+window.listenToUserNotifications = function (callback) {
     if (!window.currentUser) return null;
     const q = fsQuery(
         collection(db, 'users', window.currentUser.uid, 'notifications'),
@@ -324,7 +348,7 @@ window.listenToUserNotifications = function(callback) {
     });
 };
 
-window.markNotificationRead = async function(notificationId) {
+window.markNotificationRead = async function (notificationId) {
     if (!window.currentUser) return;
     const { updateDoc } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
     await updateDoc(doc(db, 'users', window.currentUser.uid, 'notifications', notificationId), { isRead: true });

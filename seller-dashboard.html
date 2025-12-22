@@ -952,23 +952,9 @@
     <div id="toast-container" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-50"></div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, getDoc, addDoc, query, orderBy, serverTimestamp, where, limit, updateDoc, onSnapshot, arrayUnion, arrayRemove, setDoc, writeBatch, Timestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
-            authDomain: "s22market-4e3e6.firebaseapp.com",
-            projectId: "s22market-4e3e6",
-            storageBucket: "s22market-4e3e6.appspot.com",
-            messagingSenderId: "119186699901",
-            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
-            measurementId: "G-MWYNCVP4WQ"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+        import { auth, db } from './app-core.js';
+        import { collection, getDocs, doc, getDoc, addDoc, query, orderBy, serverTimestamp, where, limit, updateDoc, onSnapshot, arrayUnion, arrayRemove, setDoc, writeBatch, Timestamp, deleteDoc, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         let currentUser = null;
         let quill;
@@ -979,67 +965,39 @@
             initApp();
         });
 
-        // --- INLINED AUTH (Self-Contained) ---
-        async function requireAuth(authInstance) {
-            await setPersistence(authInstance, browserLocalPersistence);
-            return new Promise((resolve) => {
-                const unsubscribe = onAuthStateChanged(authInstance, (user) => {
-                    if (!user) {
-                        try {
-                            localStorage.setItem('s22_return_url', window.location.href);
-                            window.location.href = 'login.html';
-                        } catch (e) { console.error(e); }
-                        resolve(null);
-                    } else {
-                        resolve(user);
-                    }
-                    unsubscribe();
-                });
-            });
-        }
+        async function initApp() {
+            // Use global requireAuth
+            const user = await window.requireAuth(auth);
+            if (!user) return; // requireAuth handles redirect
 
-        function initApp() {
-            // Use requireAuth to ensure user is logged in AND handle return URL
-            requireAuth(auth).then(async (user) => {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists()) {
-                    const data = userDoc.data();
-                    if (data.role === 'vendor' || data.role === 'restaurant') {
-                        if (data.isSuspended) {
-                            document.body.innerHTML = `
-                                <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-                                    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md text-center">
-                                        <div class="text-red-500 text-5xl mb-4"><i class="fas fa-store-slash"></i></div>
-                                        <h1 class="text-2xl font-bold text-gray-800 mb-2">تم تجميد حساب المتجر</h1>
-                                        <p class="text-gray-600 mb-6">نأسف، تم إيقاف حساب متجرك مؤقتاً من قبل الإدارة. يرجى التواصل مع الدعم الفني لمزيد من التفاصيل.</p>
-                                        <button onclick="window.location.reload()" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300">تحديث الصفحة</button>
-                                        <button onclick="auth.signOut().then(() => window.location.href='index.html')" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 mt-2 block w-full">تسجيل الخروج</button>
-                                    </div>
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                if (data.role === 'vendor' || data.role === 'restaurant') {
+                    if (data.isSuspended) {
+                        document.body.innerHTML = `
+                            <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
+                                <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md text-center">
+                                    <div class="text-red-500 text-5xl mb-4"><i class="fas fa-store-slash"></i></div>
+                                    <h1 class="text-2xl font-bold text-gray-800 mb-2">تم تجميد حساب المتجر</h1>
+                                    <p class="text-gray-600 mb-6">نأسف، تم إيقاف حساب متجرك مؤقتاً من قبل الإدارة. يرجى التواصل مع الدعم الفني لمزيد من التفاصيل.</p>
+                                    <button onclick="window.location.reload()" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300">تحديث الصفحة</button>
+                                    <button onclick="auth.signOut().then(() => window.location.href='index.html')" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 mt-2 block w-full">تسجيل الخروج</button>
                                 </div>
-                            `;
-                            await signOut(authInstance);
-                            // No need to redirect here, the UI handles it.
-                            resolve(null);
-                            return;
-                        }
-                        if (data.role === 'restaurant' || data.role === 'admin' || data.role === 'vendor') {
-                            currentUser = user;
-                            initDashboardComponents(data);
-                            resolve(user);
-                        } else {
-                            alert('غير مصرح لك بالدخول لهذه الصفحة');
-                            window.location.href = 'index.html';
-                            resolve(null);
-                        }
-                    } else {
-                        // No doc?
-                        window.location.href = 'index.html';
-                        resolve(null);
+                            </div>
+                        `;
+                        await signOut(auth);
+                        return;
                     }
+                    currentUser = user;
+                    initDashboardComponents(data);
+                } else {
+                    alert('غير مصرح لك بالدخول لهذه الصفحة');
+                    window.location.href = 'index.html';
                 }
-                unsubscribe();
-            });
-        });
+            } else {
+                window.location.href = 'index.html';
+            }
         }
 
         function initDashboardComponents(data) {

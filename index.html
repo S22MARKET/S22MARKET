@@ -3,14 +3,13 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>S22 Market - الرئيسية</title>
     <meta name="theme-color" content="#4f46e5">
     <meta name="description" content="متجر S22 Market - أفضل المنتجات والعروض">
 
-    <link rel="apple-touch-icon" href="LOGO.jpg">
-    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="LOGO.jpg">
+    <!-- Removed manifest and sw.js as requested -->
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -19,1827 +18,540 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <link rel="stylesheet" href="app-style.css">
 
-    <!-- Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW registered:', reg.scope))
-                    .catch(err => console.log('SW registration failed:', err));
-            });
+    <style>
+        /* Custom Styles specific to Index if needed */
+        .search-results-dropdown {
+            max-height: 60vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
         }
-    </script>
+        .header-glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .dark-mode .header-glass {
+            background: rgba(31, 41, 55, 0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .product-card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 
-<body>
+<body class="bg-gray-50 text-gray-800 transition-colors duration-300">
 
-    <header
-        class="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md z-40 px-4 py-3 shadow-sm transition-all duration-300"
-        id="main-header">
-        <div class="flex items-center justify-between gap-4">
-            <button id="menu-btn"
-                class="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-50 rounded-full transition">
-                <i class="fas fa-bars text-xl"></i>
-            </button>
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 header-glass transition-all duration-300" id="main-header">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between gap-4 mb-3">
+                <!-- Logo & Menu -->
+                <div class="flex items-center gap-3">
+                    <button id="menu-btn" class="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-full transition dark:text-gray-200 dark:hover:bg-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <a href="index.html" class="flex items-center gap-2">
+                        <img src="LOGO.jpg" class="w-8 h-8 rounded-full shadow-sm" alt="S22 Logo">
+                        <h1 class="text-xl font-extrabold text-gray-800 tracking-tight dark:text-white">
+                            S22<span class="text-indigo-600">MARKET</span>
+                        </h1>
+                    </a>
+                </div>
 
-            <h1 class="text-xl font-extrabold text-gray-800 tracking-tight cursor-pointer"
-                onclick="location.href='index.html'">
-                S22<span class="text-indigo-600">MARKET</span>
-            </h1>
-
-            <div class="flex items-center gap-1">
-                <a id="header-user-icon" href="login.html"
-                    class="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-50 rounded-full transition">
-                    <i class="fas fa-user text-xl"></i>
-                </a>
-
-                <a href="cart.html"
-                    class="w-10 h-10 flex items-center justify-center text-gray-700 relative hover:bg-gray-50 rounded-full transition">
-                    <i class="fas fa-shopping-bag text-xl"></i>
-                    <span id="header-cart-badge"
-                        class="absolute top-1 right-0 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden border-2 border-white">0</span>
-                </a>
+                <!-- Auth & Cart -->
+                <div class="flex items-center gap-2">
+                    <div id="auth-area" class="flex items-center">
+                        <a href="login.html" class="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-full transition dark:text-gray-200 dark:hover:bg-gray-700">
+                            <i class="far fa-user text-xl"></i>
+                        </a>
+                    </div>
+                    
+                    <a href="cart.html" class="w-10 h-10 flex items-center justify-center text-gray-700 relative hover:bg-gray-100 rounded-full transition dark:text-gray-200 dark:hover:bg-gray-700">
+                        <i class="fas fa-shopping-bag text-xl"></i>
+                        <span id="cart-badge" class="absolute top-1 right-0 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden border-2 border-white dark:border-gray-800">0</span>
+                    </a>
+                </div>
             </div>
-        </div>
 
-        <div class="mt-3 relative flex gap-2 items-center">
-            <div class="relative flex-grow">
-                <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <!-- Search Input -->
-                <input type="text" id="search-input" placeholder="ابحث عن منتج..." enterkeyhint="search"
-                    autocomplete="off"
-                    class="w-full bg-gray-100 text-gray-800 rounded-2xl py-3 pr-11 pl-12 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner">
+            <!-- Enhanced Search Bar -->
+            <div class="relative max-w-2xl mx-auto">
+                <div class="relative">
+                    <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
+                    <input type="text" id="smart-search-input" 
+                        placeholder="ابحث عن منتج، ماركة، أو فئة..." 
+                        class="w-full bg-gray-100 text-gray-800 rounded-2xl py-3.5 pr-11 pl-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                        autocomplete="off">
+                    <!-- Removed Voice Search Button -->
+                </div>
 
                 <!-- Search Suggestions Dropdown -->
-                <div id="search-suggestions"
-                    class="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-100 max-h-64 overflow-y-auto z-50 hidden">
-                    <!-- Suggestions will be injected here -->
-                </div>
-
-                <!-- Voice Search Button -->
-                <button id="voice-search-btn"
-                    class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-indigo-500 hover:bg-indigo-50 rounded-full transition">
-                    <i class="fas fa-microphone"></i>
-                </button>
-            </div>
-
-            <!-- Mobile Sidebar -->
-            <div id="sidebar-backdrop"
-                class="fixed inset-0 bg-black/60 z-50 hidden opacity-0 transition-opacity duration-300"></div>
-            <aside id="mobile-sidebar"
-                class="fixed top-0 right-0 h-full w-[85%] max-w-[320px] bg-white z-[60] transform translate-x-full transition-transform duration-300 overflow-y-auto shadow-2xl rounded-l-2xl">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-8 border-b border-indigo-50 pb-4">
-                        <h2 class="text-2xl font-black text-indigo-900 flex items-center gap-2">
-                            <span class="text-3xl">🛍️</span> متجر 22
-                        </h2>
-                        <button id="close-sidebar-btn"
-                            class="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 hover:bg-indigo-100 transition shadow-inner">
-                            <i class="fas fa-times text-xl"></i>
-                        </button>
-                    </div>
-
-                    <!-- Enhanced Filters Section -->
-                    <div id="filter-section" class="mb-8">
-                        <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
-                            <i class="fas fa-filter text-indigo-500"></i> تصفية المنتجات
-                        </h3>
-
-                        <!-- Price Range -->
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-4">
-                            <label class="block text-xs font-bold text-slate-500 mb-3">نطاق السعر (د.ج)</label>
-                            <div class="flex items-center gap-2">
-                                <input type="number" id="min-price" placeholder="من"
-                                    class="w-full p-2 text-center rounded-lg border-2 border-slate-200 focus:border-indigo-500 outline-none text-sm transition">
-                                <span class="text-slate-400 font-bold">:</span>
-                                <input type="number" id="max-price" placeholder="إلى"
-                                    class="w-full p-2 text-center rounded-lg border-2 border-slate-200 focus:border-indigo-500 outline-none text-sm transition">
-                            </div>
-                        </div>
-
-                        <!-- Apply Button -->
-                        <button onclick="applyFilters()"
-                            class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2">
-                            <i class="fas fa-check"></i> تطبيق التصفية
-                        </button>
-                    </div>
-
-                    <div id="sidebar-user-area" class="mb-6">
-                        <!-- User Info Injected Here -->
-                    </div>
-                </div>
-            </aside>
-
-            <!-- Voice Search Button -->
-            <button id="voice-search-btn"
-                class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-indigo-500 hover:bg-indigo-50 rounded-full transition">
-                <i class="fas fa-microphone"></i>
-            </button>
-        </div>
-
-        <button id="filter-toggle-btn"
-            class="w-12 h-11 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition shadow-inner">
-            <i class="fas fa-sliders-h"></i>
-        </button>
-        </div>
-
-        <!-- Filter Panel -->
-        <div id="header-filters" class="px-1">
-            <div class="bg-gray-50 border border-gray-100 rounded-xl p-3 mt-2">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-bold text-gray-500">نطاق السعر (د.ج)</span>
-                    <span class="text-[10px] text-indigo-500 cursor-pointer" onclick="resetSearchFilters()">مسح</span>
-                </div>
-                <div class="flex gap-2 items-center">
-                    <input type="number" id="filter-min-price" placeholder="من"
-                        class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-center focus:border-indigo-500 focus:outline-none">
-                    <span class="text-gray-400 text-xs">-</span>
-                    <input type="number" id="filter-max-price" placeholder="إلى"
-                        class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-center focus:border-indigo-500 focus:outline-none">
+                <div id="search-results" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 search-results-dropdown hidden z-50 dark:bg-gray-800 dark:border-gray-700">
+                    <!-- Dynamic Content -->
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="h-[120px]"></div>
+    <div class="h-[140px]"></div> <!-- Spacer for fixed header -->
 
-    <main class="space-y-8 pb-4">
+    <main class="container mx-auto px-4 space-y-8 pb-24">
 
-        <section class="px-4">
-            <div class="flex justify-between items-end mb-3">
-                <h2 class="font-bold text-gray-800 text-lg">الأقسام</h2>
-                <a href="classproductindex.html" class="text-xs text-indigo-600 font-bold">عرض الكل</a>
-            </div>
-            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2" id="categories-container">
-                <div class="cat-item">
-                    <div class="cat-icon skeleton"></div>
-                    <div class="h-3 w-10 skeleton rounded"></div>
-                </div>
-                <div class="cat-item">
-                    <div class="cat-icon skeleton"></div>
-                    <div class="h-3 w-10 skeleton rounded"></div>
-                </div>
-                <div class="cat-item">
-                    <div class="cat-icon skeleton"></div>
-                    <div class="h-3 w-10 skeleton rounded"></div>
-                </div>
-                <div class="cat-item">
-                    <div class="cat-icon skeleton"></div>
-                    <div class="h-3 w-10 skeleton rounded"></div>
-                </div>
-                <div class="cat-item">
-                    <div class="cat-icon skeleton"></div>
-                    <div class="h-3 w-10 skeleton rounded"></div>
-                </div>
-            </div>
-        </section>
-
-        <section class="px-4">
-            <div class="swiper main-slider rounded-2xl overflow-hidden shadow-lg h-44 sm:h-56 relative bg-gray-200">
+        <!-- Hero Section (Offers) -->
+        <section>
+            <div class="swiper main-slider rounded-2xl overflow-hidden shadow-lg h-44 sm:h-64 relative bg-gray-200 dark:bg-gray-700">
                 <div class="swiper-wrapper" id="hero-slider-wrapper">
+                    <!-- Slides injected via JS -->
                     <div class="swiper-slide skeleton w-full h-full"></div>
                 </div>
                 <div class="swiper-pagination"></div>
             </div>
         </section>
 
-        <section class="px-4">
-            <div class="grid grid-cols-2 gap-3">
-                <a href="s22marketfood.html"
-                    class="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-2xl border border-orange-200 flex items-center justify-between hover:shadow-md transition">
-                    <div>
-                        <h3 class="font-bold text-orange-800">المطاعم</h3>
-                        <p class="text-[10px] text-orange-600 mt-1">اطلب وجبتك 🍔</p>
-                    </div>
-                    <div
-                        class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-orange-500 shadow-sm">
-                        <i class="fas fa-utensils"></i>
-                    </div>
-                </a>
-                <a href="auctions.html"
-                    class="bg-gradient-to-br from-red-50 to-red-100 p-4 rounded-2xl border border-red-200 flex items-center justify-between hover:shadow-md transition">
-                    <div>
-                        <h3 class="font-bold text-red-800">المزادات</h3>
-                        <p class="text-[10px] text-red-600 mt-1">زايد واربح 🏆</p>
-                    </div>
-                    <div
-                        class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-red-500 shadow-sm">
-                        <i class="fas fa-gavel"></i>
-                    </div>
-                </a>
+        <!-- Categories -->
+        <section>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="font-bold text-gray-800 text-lg dark:text-white">الأقسام الرئيسية</h2>
+                <a href="classproductindex.html" class="text-xs text-indigo-600 font-bold hover:text-indigo-700 dark:text-indigo-400">عرض الكل <i class="fas fa-chevron-left"></i></a>
+            </div>
+            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2" id="categories-container">
+                <!-- Categories injected via JS -->
+                <div class="cat-item-skeleton"></div>
+                <div class="cat-item-skeleton"></div>
+                <div class="cat-item-skeleton"></div>
+                <div class="cat-item-skeleton"></div>
             </div>
         </section>
 
-        <!-- Stores Section -->
-        <section class="px-4 hidden" id="stores-section">
-            <div class="flex justify-between items-end mb-3">
-                <h2 class="font-bold text-gray-800 text-lg">المتاجر المميزة</h2>
-                <a href="classproductindex.html?showStores=true" class="text-xs text-indigo-600 font-bold">عرض الكل</a>
-            </div>
-            <div class="stores-slider no-scrollbar" id="stores-container">
-                <!-- Stores Loaded Here -->
-            </div>
-        </section>
+        <!-- Dynamic Featured Sections -->
+        <div id="dynamic-sections-container"></div>
 
-        <section class="px-4">
-            <div id="home-dynamic-sections" class="space-y-8 mb-8"></div>
-
-            <div class="flex justify-between items-center mb-4 hidden" id="default-recent-title">
-                <h2 class="font-bold text-gray-800 text-lg flex items-center gap-2">
-                    <i class="fas fa-fire text-orange-500"></i> وصل حديثاً
-                </h2>
+        <!-- Main Product Grid -->
+        <section id="main-products-section">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="font-bold text-gray-800 text-lg dark:text-white">وصل حديثاً</h2>
+                <!-- Filter Toggle could go here -->
+            </div>
+            
+            <div id="products-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+                <!-- Products injected via JS -->
             </div>
 
-            <div id="products-grid" class="grid grid-cols-2 gap-3 sm:gap-4 hidden">
-                <!-- Skeleton Loading Items -->
-                <div class="product-card">
-                    <div class="product-image skeleton h-full"></div>
-                    <div class="p-3">
-                        <div class="h-4 bg-gray-200 rounded w-3/4 mb-2 skeleton"></div>
-                        <div class="h-4 bg-gray-200 rounded w-1/4 skeleton"></div>
-                    </div>
-                </div>
-                <div class="product-card">
-                    <div class="product-image skeleton h-full"></div>
-                    <div class="p-3">
-                        <div class="h-4 bg-gray-200 rounded w-3/4 mb-2 skeleton"></div>
-                        <div class="h-4 bg-gray-200 rounded w-1/4 skeleton"></div>
-                    </div>
-                </div>
-                <div class="product-card">
-                    <div class="product-image skeleton h-full"></div>
-                    <div class="p-3">
-                        <div class="h-4 bg-gray-200 rounded w-3/4 mb-2 skeleton"></div>
-                        <div class="h-4 bg-gray-200 rounded w-1/4 skeleton"></div>
-                    </div>
-                </div>
-                <div class="product-card">
-                    <div class="product-image skeleton h-full"></div>
-                    <div class="p-3">
-                        <div class="h-4 bg-gray-200 rounded w-3/4 mb-2 skeleton"></div>
-                        <div class="h-4 bg-gray-200 rounded w-1/4 skeleton"></div>
-                    </div>
-                </div>
+            <div id="loading-spinner" class="py-12 text-center hidden">
+                <div class="inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
             </div>
-
-            <div id="loading-spinner" class="py-8 text-center hidden">
-                <div
-                    class="inline-block w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin">
-                </div>
+            
+            <div id="load-more-container" class="text-center mt-8 hidden">
+                <button id="load-more-btn" class="bg-indigo-50 text-indigo-600 px-6 py-2 rounded-full font-bold hover:bg-indigo-100 transition shadow-sm dark:bg-gray-700 dark:text-indigo-300">
+                    عرض المزيد
+                </button>
             </div>
         </section>
 
     </main>
 
-    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
-    <aside class="sidebar flex flex-col" id="sidebar">
-        <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-6 text-white">
-            <div class="flex items-center gap-3 mb-3">
-                <div
-                    class="w-14 h-14 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-2xl font-bold border-2 border-white/30">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div id="sidebar-user-info">
+    <!-- Sidebar Overlay -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-50 hidden opacity-0 transition-opacity"></div>
+    
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 right-0 h-full w-[80%] max-w-[300px] bg-white z-[60] transform translate-x-full transition-transform duration-300 shadow-2xl dark:bg-gray-800">
+        <div class="flex flex-col h-full">
+            <div class="bg-indigo-600 p-6 text-center text-white relative overflow-hidden">
+                <div class="absolute inset-0 bg-pattern opacity-10"></div>
+                <!-- User Info -->
+                <div id="sidebar-user-info" class="mb-4 relative z-10">
+                     <div class="w-16 h-16 bg-white/20 backdrop-blur rounded-full mx-auto flex items-center justify-center text-2xl font-bold border-2 border-white/30 mb-2">
+                        <i class="fas fa-user"></i>
+                    </div>
                     <h3 class="font-bold text-lg">زائر كريم</h3>
-                    <a href="login.html"
-                        class="text-xs bg-white/20 px-3 py-1 rounded-full hover:bg-white/30 transition inline-block mt-1">تسجيل
-                        الدخول</a>
+                    <a href="login.html" class="text-xs bg-white text-indigo-600 px-4 py-1 rounded-full font-bold mt-2 inline-block">تسجيل الدخول</a>
                 </div>
             </div>
-        </div>
 
-        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-            <a href="index.html"
-                class="flex items-center gap-4 px-4 py-3 text-gray-700 bg-indigo-50 rounded-xl font-bold">
-                <i class="fas fa-home w-5 text-center text-indigo-600"></i> الرئيسية
-            </a>
-            <a href="s22marketfood.html"
-                class="flex items-center gap-4 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
-                <i class="fas fa-utensils w-5 text-center text-orange-500"></i> المطاعم
-            </a>
-            <a href="auctions.html"
-                class="flex items-center gap-4 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
-                <i class="fas fa-gavel w-5 text-center text-red-500"></i> المزادات
-            </a>
-            <a href="offers.html"
-                class="flex items-center gap-4 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
-                <i class="fas fa-tags w-5 text-center text-yellow-500"></i> العروض
-            </a>
+            <nav class="flex-1 overflow-y-auto p-4 space-y-2">
+                <a href="index.html" class="flex items-center gap-3 px-4 py-3 bg-indigo-50 text-indigo-600 rounded-xl font-bold dark:bg-gray-700 dark:text-indigo-300">
+                    <i class="fas fa-home w-6 text-center"></i> الرئيسية
+                </a>
+                <a href="s22marketfood.html" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl transition dark:text-gray-300 dark:hover:bg-gray-700">
+                    <i class="fas fa-utensils w-6 text-center text-orange-500"></i> المطاعم
+                </a>
+                <a href="auctions.html" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl transition dark:text-gray-300 dark:hover:bg-gray-700">
+                     <i class="fas fa-gavel w-6 text-center text-red-500"></i> المزادات
+                </a>
+                 <div class="border-t border-gray-100 my-2 dark:border-gray-700"></div>
+                 <a href="profile.html?action=open_store" class="flex items-center gap-3 px-4 py-3 text-green-700 hover:bg-green-50 rounded-xl transition font-bold dark:text-green-400 dark:hover:bg-gray-700">
+                    <i class="fas fa-store w-6 text-center"></i> افتح متجرك
+                </a>
+                <a href="profile.html" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl transition dark:text-gray-300 dark:hover:bg-gray-700">
+                    <i class="fas fa-cog w-6 text-center"></i> الإعدادات
+                </a>
+            </nav>
 
-            <div class="my-3 border-t border-gray-100"></div>
-
-            <a href="profile.html?action=open_store"
-                class="flex items-center gap-4 px-4 py-3 text-gray-600 hover:bg-green-50 rounded-xl transition group">
-                <i class="fas fa-store w-5 text-center text-green-600 group-hover:scale-110 transition-transform"></i>
-                <span class="font-bold text-green-700">افتح متجرك مجاناً</span>
-            </a>
-
-            <a href="seller-dashboard.html" id="sidebar-seller-link"
-                class="hidden flex items-center gap-4 px-4 py-3 text-gray-600 hover:bg-purple-50 rounded-xl transition">
-                <i class="fas fa-chart-pie w-5 text-center text-purple-600"></i> لوحة تحكم التاجر
-            </a>
-        </nav>
-
-        <div class="px-4 pb-4">
-            <button id="dark-mode-toggle"
-                class="w-full flex items-center justify-between px-4 py-3 bg-gray-100 rounded-xl text-gray-700 hover:bg-gray-200 transition">
-                <span class="flex items-center gap-2 font-bold"><i class="fas fa-moon"></i> الوضع الليلي</span>
-                <div class="w-10 h-5 bg-gray-300 rounded-full relative transition-colors duration-300" id="dm-switch">
-                    <div class="w-4 h-4 bg-white rounded-full absolute top-0.5 left-0.5 shadow-sm transition-transform duration-300"
-                        id="dm-knob"></div>
-                </div>
-            </button>
-        </div>
-
-        <div class="p-4 text-center text-xs text-gray-400 border-t">
-            S22 Market v3.1 (GitHub Fix)
+            <div class="p-4 border-t border-gray-100 dark:border-gray-700">
+                <button id="dark-mode-toggle" class="w-full flex items-center justify-between px-4 py-3 bg-gray-100 rounded-xl text-gray-700 dark:bg-gray-700 dark:text-gray-200">
+                     <span class="font-bold flex items-center gap-2"><i class="fas fa-moon"></i> الوضع الليلي</span>
+                     <div class="w-10 h-5 bg-gray-300 rounded-full relative transition-colors" id="dm-switch">
+                        <div class="w-4 h-4 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform" id="dm-knob"></div>
+                     </div>
+                </button>
+            </div>
         </div>
     </aside>
 
-    <nav class="bottom-nav glass-nav">
-        <a href="index.html" class="nav-item active">
-            <i class="fas fa-home"></i> <span>الرئيسية</span>
+    <!-- Bottom Nav -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 pb-safe z-40 flex justify-around items-center h-16 dark:bg-gray-800 dark:border-gray-700 shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
+        <a href="index.html" class="flex flex-col items-center justify-center w-full h-full text-indigo-600">
+            <i class="fas fa-home text-xl mb-1"></i>
+            <span class="text-[10px] font-bold">الرئيسية</span>
         </a>
-        <a href="s22marketfood.html" class="nav-item">
-            <i class="fas fa-utensils"></i> <span>المطاعم</span>
+        <a href="s22marketfood.html" class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-orange-500 transition">
+            <i class="fas fa-utensils text-xl mb-1"></i>
+            <span class="text-[10px] font-bold">مطاعم</span>
         </a>
-
-        <a href="auctions.html" class="fab-container">
-            <div class="fab-btn">
-                <i class="fas fa-gavel"></i>
-            </div>
-        </a>
-
-        <a href="cart.html" class="nav-item">
+        <div class="relative -top-5">
+            <a href="auctions.html" class="w-14 h-14 bg-indigo-600 rounded-full flex items-center justify-center text-white shadow-lg border-4 border-gray-50 dark:border-gray-800 transform transition hover:scale-105">
+                <i class="fas fa-gavel text-xl"></i>
+            </a>
+        </div>
+        <a href="cart.html" class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-indigo-500 transition relative">
             <div class="relative">
-                <i class="fas fa-shopping-cart"></i>
-                <span id="nav-cart-badge"
-                    class="absolute -top-1 -right-2 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold border-2 border-white hidden">0</span>
+                <i class="fas fa-shopping-cart text-xl mb-1"></i>
+                <span id="nav-cart-badge" class="absolute -top-1 -right-2 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold hidden border-2 border-white dark:border-gray-800">0</span>
             </div>
-            <span>السلة</span>
+            <span class="text-[10px] font-bold">السلة</span>
         </a>
-        <a href="profile.html" class="nav-item">
-            <i class="fas fa-user"></i> <span>حسابي</span>
+        <a href="profile.html" class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-indigo-500 transition">
+            <i class="fas fa-user text-xl mb-1"></i>
+            <span class="text-[10px] font-bold">حسابي</span>
         </a>
     </nav>
 
-    <div id="toast-container"></div>
-
-    <!-- Login Promotion Modal -->
-    <!-- Login Promotion Modal REMOVED -->
-    <script>
-        // Login Promo Script Removed
-    </script>
-
-    <!-- Mobile Enhancements -->
+    <!-- App Logic -->
     <script type="module">
-        // --- 1. Core Logic Centralization ---
         import { auth, db, MobileEnhancements } from './app-core.js';
-        // Need to import other Firestore functions used in index.html logic
-        import { collection, getDocs, doc, getDoc, query, orderBy, where, limit, onSnapshot, runTransaction, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { collection, getDocs, doc, getDoc, query, orderBy, where, limit, startAfter } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- 2. Global State & UI Elements ---
+        // --- Auth Listener ---
+        const authArea = document.getElementById('auth-area');
+        const sidebarUserInfo = document.getElementById('sidebar-user-info');
 
-        // --- 2. Global State & UI Elements ---
-        let currentUser = null;
-        let userWishlist = new Set();
-        let currentUserProfile = null;
+        window.addEventListener('user-auth-state-changed', (e) => {
+            const user = e.detail.user;
+            updateAuthUI(user);
+        });
 
-        const sidebar = document.getElementById('sidebar');
-        const backdrop = document.getElementById('sidebar-backdrop');
-        // --- DOM Elements ---
-        const searchInput = document.getElementById('search-input'); // Fixed ID
-        const searchSuggestions = document.getElementById('search-suggestions');
-        const productsGrid = document.getElementById('products-grid');
-        const categoriesContainer = document.getElementById('categories-container');
-        const heroWrapper = document.getElementById('hero-slider-wrapper');
-        const storesContainer = document.getElementById('stores-container');
-        const storeSection = document.getElementById('stores-section');
-        const themeToggle = document.getElementById('theme-toggle');
-        const mobileMenuBtn = document.getElementById('menu-btn'); // Fixed ID
-        const filterMin = document.getElementById('filter-min-price');
-        const filterMax = document.getElementById('filter-max-price');
-        // No explicit filter toggle in new header yet - simplified for Phase 1
+        // Initial Check (in case event missed or cached)
+        if (window.currentUser) updateAuthUI(window.currentUser);
+        // Note: app-core.js also runs independently and will trigger the event.
 
-        // --- Search Suggestions Logic ---
-        let allProductsCache = []; // Cache for search suggestions
-
-        async function loadProductsForSuggestions() {
-            try {
-                const q = query(collection(db, "products"), limit(100));
-                const snap = await getDocs(q);
-                allProductsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            } catch (e) { console.log('Cache load error', e); }
-        }
-        loadProductsForSuggestions();
-
-        function showSearchSuggestions(queryText) {
-            if (!queryText || queryText.length < 2) {
-                searchSuggestions.classList.add('hidden');
-                return;
-            }
-
-            const q = queryText.toLowerCase();
-            const matches = allProductsCache.filter(p => {
-                const name = typeof p.name === 'string' ? p.name.toLowerCase() : '';
-                const desc = (p.description || '').toLowerCase();
-                return name.includes(q) || desc.includes(q);
-            }).slice(0, 6); // Limit to 6
-
-            if (matches.length === 0) {
-                searchSuggestions.classList.add('hidden');
-                return;
-            }
-
-            let html = '';
-            matches.forEach(p => {
-                const img = (p.imageUrls && p.imageUrls[0]) ? p.imageUrls[0] : (p.imageUrl || 'https://placehold.co/50');
-                const name = typeof p.name === 'string' ? p.name : 'منتج';
-                const price = p.price ? Number(p.price).toLocaleString() + ' د.ج' : '';
-
-                html += `
-                    <a href="PRESENTPRODUCT.html?product=${p.id}" class="flex items-center gap-3 p-3 hover:bg-gray-50 border-b border-gray-50 last:border-0 transition">
-                        <img src="${img}" class="w-10 h-10 rounded-lg object-cover bg-gray-100" loading="lazy">
-                        <div class="flex-1 min-w-0">
-                            <div class="text-sm font-bold text-gray-800 truncate">${name}</div>
-                            <div class="text-xs text-indigo-600 font-bold">${price}</div>
-                        </div>
-                        <i class="fas fa-chevron-left text-gray-300 text-xs"></i>
+        function updateAuthUI(user) {
+            if (user) {
+                // Header Icon
+                authArea.innerHTML = `
+                    <a href="profile.html" class="relative">
+                        <img src="${user.photoURL || 'https://ui-avatars.com/api/?name=' + user.displayName}" class="w-10 h-10 rounded-full border border-gray-200 object-cover" alt="Profile">
+                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
                     </a>
                 `;
-            });
 
-            // Add "View All" link
-            html += `
-                <a href="classproductindex.html?search=${encodeURIComponent(queryText)}" class="block text-center py-3 text-indigo-600 font-bold text-sm hover:bg-indigo-50 transition">
-                    <i class="fas fa-search ml-1"></i> عرض كل النتائج
-                </a>
-            `;
-
-            searchSuggestions.innerHTML = html;
-            searchSuggestions.classList.remove('hidden');
-        }
-
-        // Listen for input
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                showSearchSuggestions(e.target.value.trim());
-            });
-
-            // Hide on blur (with delay to allow click)
-            searchInput.addEventListener('blur', () => {
-                setTimeout(() => searchSuggestions.classList.add('hidden'), 200);
-            });
-
-            // Show on focus if has value
-            searchInput.addEventListener('focus', (e) => {
-                if (e.target.value.trim().length >= 2) {
-                    showSearchSuggestions(e.target.value.trim());
-                }
-            });
-        }
-
-        // --- Theme Toggle Logic ---
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
-                document.body.classList.toggle('dark-mode');
-                const icon = themeToggle.querySelector('i');
-                if (document.body.classList.contains('dark-mode')) {
-                    icon.classList.remove('fa-moon');
-                    icon.classList.add('fa-sun');
-                    localStorage.setItem('theme', 'dark');
-                } else {
-                    icon.classList.remove('fa-sun');
-                    icon.classList.add('fa-moon');
-                    localStorage.setItem('theme', 'light');
-                }
-            });
-
-            // Initialize Theme
-            if (localStorage.getItem('theme') === 'dark') {
-                document.body.classList.add('dark-mode');
-                themeToggle.querySelector('i')?.classList.replace('fa-moon', 'fa-sun');
-            }
-        }
-
-        // --- Auth Logic (Inline or Helper) ---
-
-        // Safe UI Update
-        const updateAuthUI = (user, role = 'user') => {
-            const authArea = document.getElementById('user-auth-area');
-            if (authArea) {
-                if (user) {
-                    let dashboardLink = '';
-                    if (role === 'admin') dashboardLink = `<a href="admin-dashboard.html" class="s22-btn-primary text-xs !px-3 !py-1 ml-2">الإدارة</a>`;
-                    else if (role === 'vendor' || role === 'restaurant') dashboardLink = `<a href="seller-dashboard.html" class="s22-btn-primary text-xs !px-3 !py-1 ml-2">متجري</a>`;
-
-                    authArea.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            ${dashboardLink}
-                            <a href="profile.html" class="flex items-center gap-2">
-                                <img src="${user.photoURL || 'https://ui-avatars.com/api/?name=' + (user.displayName || 'User')}" class="w-8 h-8 rounded-full border border-gray-200 object-cover" loading="lazy">
-                            </a>
-                        </div>
-                    `;
-                } else {
-                    authArea.innerHTML = `
-                        <a href="login.html" class="s22-btn-primary text-sm flex items-center gap-2">
-                            <i class="far fa-user"></i>
-                            <span class="hidden sm:inline">دخول</span>
-                        </a>
-                    `;
-                }
-            }
-        };
-
-        // Voice Search Logic
-        function setupVoiceSearch() {
-            const voiceBtn = document.getElementById('voice-search-btn');
-            if (voiceBtn && 'webkitSpeechRecognition' in window) {
-                const recognition = new webkitSpeechRecognition();
-                recognition.lang = 'ar-SA';
-                recognition.continuous = false;
-
-                voiceBtn.onclick = () => {
-                    recognition.start();
-                    voiceBtn.innerHTML = '<i class="fas fa-microphone-slash animate-pulse text-red-500"></i>';
-                };
-
-                recognition.onresult = (event) => {
-                    const transcript = event.results[0][0].transcript;
-                    if (searchInput) searchInput.value = transcript;
-                    window.currentSearchQuery = transcript;
-                    if (window.handleSearch) window.handleSearch();
-
-                    voiceBtn.innerHTML = '<i class="fas fa-microphone text-gray-500"></i>';
-                };
-
-                recognition.onerror = () => {
-                    voiceBtn.innerHTML = '<i class="fas fa-microphone text-gray-500"></i>';
-                };
-            }
-        }
-
-        // Initialize Voice Search
-        setupVoiceSearch();
-
-        // --- Dark Mode Logic 🌙 ---
-        const dmToggle = document.getElementById('dark-mode-toggle');
-        const dmSwitch = document.getElementById('dm-switch');
-        const dmKnob = document.getElementById('dm-knob');
-
-        // Check LocalStorage
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
-            updateToggleUI(true);
-        }
-
-        function filterByCategory(categoryName, btnElement) {
-            currentCategory = categoryName;
-
-            // Updated UI for buttons
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('bg-indigo-600', 'text-white', 'scale-105', 'shadow-md');
-                btn.classList.add('bg-white', 'text-gray-600', 'hover:bg-gray-50');
-            });
-
-            if (btnElement) {
-                btnElement.classList.remove('bg-white', 'text-gray-600', 'hover:bg-gray-50');
-                btnElement.classList.add('bg-indigo-600', 'text-white', 'scale-105', 'shadow-md');
-            }
-
-            // Trigger Filter
-            applyFilters();
-        }
-
-        function updateToggleUI(isDark) {
-            if (isDark) {
-                dmSwitch.classList.replace('bg-gray-300', 'bg-indigo-600');
-                dmKnob.style.transform = 'translateX(20px)';
-            } else {
-                dmSwitch.classList.replace('bg-indigo-600', 'bg-gray-300');
-                dmKnob.style.transform = 'translateX(0)';
-            }
-        }
-
-        if (dmToggle) {
-            dmToggle.addEventListener('click', () => {
-                document.body.classList.toggle('dark-mode');
-                const isDark = document.body.classList.contains('dark-mode');
-                localStorage.setItem('theme', isDark ? 'dark' : 'light');
-                updateToggleUI(isDark);
-            });
-        }
-
-        // Sidebar Toggle
-        // Initialize Mobile Features
-        const toggleSidebar = () => {
-            if (!sidebar || !backdrop) return;
-            const isActive = sidebar.classList.toggle('active');
-            backdrop.classList.toggle('active');
-            document.body.style.overflow = isActive ? 'hidden' : '';
-
-            // Integrate with Shared Mobile Logic
-            if (isActive && window.openMobileOverlay) {
-                // Pass the function that actively closes the sidebar (without logic loop)
-                window.openMobileOverlay(() => {
-                    sidebar.classList.remove('active');
-                    backdrop.classList.remove('active');
-                    document.body.style.overflow = '';
-                }, 'sidebar');
-            }
-        };
-
-        // Menu Button Click Handler
-        if (mobileMenuBtn) {
-            mobileMenuBtn.addEventListener('click', toggleSidebar);
-        }
-
-        // Backdrop Click Handler  
-        if (backdrop) {
-            backdrop.addEventListener('click', () => {
-                // If user clicks backdrop manually, we should also sync history if possible.
-                if (sidebar && sidebar.classList.contains('active')) {
-                    if (window.closeMobileOverlay) window.closeMobileOverlay();
-                    else toggleSidebar(); // Fallback
-                }
-            });
-        }
-
-        // Search Redirect
-        // Search Redirect with Params
-        const handleSearch = () => {
-            const query = searchInput.value.trim();
-            const min = filterMin ? filterMin.value : '';
-            const max = filterMax ? filterMax.value : '';
-
-            if (query || min || max) {
-                let url = `classproductindex.html?search=${encodeURIComponent(query)}`;
-                if (min) url += `&minPrice=${min}`;
-                if (max) url += `&maxPrice=${max}`;
-                window.location.href = url;
-            }
-        };
-
-        if (searchInput) {
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') handleSearch();
-            });
-        }
-
-        // Also allow updating search live from filters if needed? No, just keep standard behavior.
-
-        // --- 4. Data Fetching Functions ---
-
-        // --- CACHE FOR CATEGORIES & STORES ---
-        const categoriesMap = new Map();
-        const storesCache = new Map();
-        let activeGlobalLogo = 'https://placehold.co/100/1f2937/ffffff?text=Logo'; // Fallback
-
-        async function initHome() {
-            // A. Fetch Global Logo First
-            try {
-                const globalSettingsSnap = await getDoc(doc(db, "settings", "storeConfig"));
-                if (globalSettingsSnap.exists()) {
-                    const gData = globalSettingsSnap.data();
-                    if (gData.logoUrl) activeGlobalLogo = gData.logoUrl;
-                }
-            } catch (err) { console.log("Global logo fetch error", err); }
-
-            // B. Load Categories (Independent) & Build Map
-            try {
-                const catSnap = await getDocs(query(collection(db, "categories"), orderBy("orderIndex")));
-                let catHTML = `
-                <a href="classproductindex.html" class="cat-item">
-                        <div class="cat-icon bg-indigo-50 border-indigo-100"><i class="fas fa-th-large"></i></div>
-                        <span class="text-[10px] font-bold text-gray-600">الكل</span>
-                    </a>`;
-
-                catSnap.forEach(doc => {
-                    const c = doc.data();
-                    categoriesMap.set(doc.id, c.name); // Cache Name
-                    const icon = c.icon || 'fa-box';
-                    catHTML += `
-            <a href="classproductindex.html?category=${doc.id}" class="cat-item">
-                            <div class="cat-icon"><i class="fas ${icon}"></i></div>
-                            <span class="text-[10px] font-bold text-gray-600 truncate w-16 text-center">${c.name}</span>
-                        </a>`;
-                });
-                categoriesContainer.innerHTML = catHTML;
-            } catch (e) { console.error("Categories failed", e); }
-
-            // B. Load Featured Stores
-            loadFeaturedStores();
-
-            // C. Load Dynamic Sections (Custom Home Layout)
-            await loadHomeSections();
-
-            // D. Load Hero Slider (Offers)
-
-            try {
-                const offerSnap = await getDocs(query(collection(db, "offers"), orderBy("createdAt", "desc"), limit(5)));
-                if (!offerSnap.empty) {
-                    heroWrapper.innerHTML = '';
-                    offerSnap.forEach(doc => {
-                        const o = doc.data();
-                        const img = o.imageUrl || 'https://placehold.co/600x300';
-                        heroWrapper.innerHTML += `
-            <div class="swiper-slide bg-gray-200">
-                <a href="PRESENTPRODUCT.html?offer=${doc.id}" class="block w-full h-full relative">
-                    <img src="${img}" class="w-full h-full object-cover">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 text-white">
-                            <h3 class="font-bold text-lg leading-tight mb-1">${o.title}</h3>
-                            <p class="text-xs opacity-90 line-clamp-1">${o.description || ''}</p>
-                        </div>
-                </a>
-                            </div>`;
-                    });
-
-                    // Add Navigation Buttons for Large Screens
-                    heroWrapper.parentElement.insertAdjacentHTML('beforeend', `
-            <div class="swiper-button-next !w-8 !h-8 !bg-white/80 !rounded-full !text-indigo-600 !text-xs !hidden sm:!flex after:!text-xs shadow-md"></div>
-                <div class="swiper-button-prev !w-8 !h-8 !bg-white/80 !rounded-full !text-indigo-600 !text-xs !hidden sm:!flex after:!text-xs shadow-md"></div>
-        `);
-
-                    new Swiper('.main-slider', {
-                        pagination: { el: '.swiper-pagination', dynamicBullets: true },
-                        navigation: {
-                            nextEl: '.swiper-button-next',
-                            prevEl: '.swiper-button-prev',
-                        },
-                        autoplay: { delay: 4000, disableOnInteraction: false },
-                        loop: true,
-                        effect: 'fade'
-                    });
-                } else {
-                    heroWrapper.innerHTML = `<div class="swiper-slide"> <img src="https://placehold.co/600x300/4f46e5/ffffff?text=Welcome+S22" class="w-full h-full object-cover"></div>`;
-                }
-            } catch (e) { console.error("Offers failed", e); }
-
-            // C. Load Recent Products (Logic moved to loadHomeSections to prevent double fetching)
-            // Legacy code removed.
-        }
-
-        async function loadFeaturedStores() {
-            try {
-                // Fetch Vendors and Restaurants
-                // Note: For Scalability, should use a limit and maybe a 'isFeatured' flag
-                // For now, we fetch a batch of sellers
-                const q = query(collection(db, "users"), where("role", "in", ["vendor", "restaurant"]), limit(10));
-                const snap = await getDocs(q);
-
-                if (!snap.empty) {
-                    let html = '';
-                    snap.forEach(doc => {
-                        const s = doc.data();
-                        const name = s.storeName || s.displayName || 'متجر';
-                        // Logo Fallback Logic: storeLogo -> photoURL -> globalLogo
-                        const avatar = s.storeLogo || s.logoUrl || s.photoURL || activeGlobalLogo;
-
-                        // Exclude admin or invalid
-                        if (!s.role) return;
-
-                        html += `
-            <div class="store-card-mini" onclick="location.href='classproductindex.html?sellerId=${doc.id}'">
-                                <div class="store-avatar-ring">
-                                    <img src="${avatar}" class="store-avatar-mini" loading="lazy">
-                                </div>
-                                <span class="text-[10px] font-bold text-gray-700 truncate w-20 text-center">${name}</span>
-                            </div>
-            `;
-                    });
-
-                    if (html) {
-                        storesContainer.innerHTML = html;
-                        storeSection.classList.remove('hidden');
-                    }
-                }
-            } catch (e) {
-                console.error("Error loading stores:", e);
-                // Fail silently for UI
-            }
-        }
-
-        // --- Dynamic Sections Logic ---
-        async function loadHomeSections() {
-            const container = document.getElementById('home-dynamic-sections');
-            const defaultGrid = document.getElementById('products-grid');
-            const defaultTitle = document.getElementById('default-recent-title');
-
-            try {
-                const q = query(collection(db, "home_sections"), orderBy("orderIndex", "asc"));
-                const snapshot = await getDocs(q);
-
-                if (snapshot.empty) {
-                    // If no dynamic sections, show default recent products
-                    defaultGrid.classList.remove('hidden');
-                    defaultTitle.classList.remove('hidden');
-
-                    // Helper to load default products
-                    loadDefaultRecentProducts();
-                    return;
-                }
-
-                container.innerHTML = '';
-
-                // Hide default hardcoded section if we have dynamic ones
-                // (Or keep it if you prefer mixed, but typically dynamic replaces static)
-                // For now, we assume if dynamic sections exist, we use them.
-
-                for (const docSnap of snapshot.docs) {
-                    const section = docSnap.data();
-                    if (section.isActive === false) continue; // Skip inactive
-
-                    const sectionDiv = document.createElement('section');
-                    // sectionDiv.className = "px-4"; 
-
-                    // Header
-                    const headerHTML = `
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="font-bold text-gray-800 text-lg flex items-center gap-2">
-                    ${getSectionIcon(section.type)} ${section.title}
-                </h2>
-                            ${section.type === 'category' ? `<a href="classproductindex.html?category=${section.config?.categoryId || ''}" class="text-xs text-indigo-600 font-bold">عرض الكل</a>` : ''}
-                        </div>`;
-
-                    sectionDiv.innerHTML = headerHTML;
-
-                    // Content Container
-                    const gridDiv = document.createElement('div');
-                    gridDiv.className = "grid grid-cols-2 gap-3 sm:gap-4";
-                    sectionDiv.appendChild(gridDiv);
-
-                    // Fetch Data based on type
-                    let products = [];
-                    try {
-                        if (section.type === 'recent') {
-                            try {
-                                // Use the robust method: Fetch simple batch then sort in memory
-                                // This bypasses Index requirements completely
-                                const qProd = query(collection(db, "products"), limit(50));
-                                const snap = await getDocs(qProd);
-                                products = snap.docs
-                                    .map(d => ({ id: d.id, ...d.data() }))
-                                    .filter(p => p.productType !== 'course' && p.storeType !== 'restaurant' && p.categoryName !== 'Food' && p.categoryName !== 'مأكولات')
-                                    .sort((a, b) => {
-                                        // Sort desc by createdAt, handling missing dates safely
-                                        const dateA = a.createdAt?.seconds || 0;
-                                        const dateB = b.createdAt?.seconds || 0;
-                                        return dateB - dateA;
-                                    })
-                                    .slice(0, 6); // Take top 6 after filtering details
-                            } catch (e) {
-                                console.error("Error fetching recent section:", e);
-                            }
-                        } else if (section.type === 'category') {
-                            if (section.config && section.config.categoryId) {
-                                const qCat = query(collection(db, "products"), where("categoryId", "==", section.config.categoryId), limit(6));
-                                const snap = await getDocs(qCat);
-                                products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                            }
-                        } else if (section.type === 'offers') {
-                            // Fetch from offers collection
-                            const qOff = query(collection(db, "offers"), limit(6));
-                            const snap = await getDocs(qOff);
-                            products = snap.docs.map(d => ({ id: d.id, ...d.data(), isOffer: true }));
-                        }
-                    } catch (err) {
-                        console.error(`Error loading section ${section.title}: `, err);
-                        gridDiv.innerHTML = '<p class="text-red-400 text-xs">خطأ في تحميل القسم</p>';
-                        container.appendChild(sectionDiv);
-                        continue;
-                    }
-
-                    // Render Items
-                    if (products.length > 0) {
-                        products.forEach(p => {
-                            // If it's an offer, map it to product-like structure for the card if needed, 
-                            // or create a special card.
-                            // Assuming createProductCard handles standard product object.
-                            // For offers, we might need adapter.
-                            if (p.isOffer) {
-                                // Simple adapter for offer to product card
-                                p.name = p.title;
-                                p.price = p.discountPrice || p.price || 0;
-                            }
-                            gridDiv.innerHTML += createProductCardHTML(p);
-                        });
-                    } else {
-                        gridDiv.innerHTML = '<div class="col-span-full text-center py-4 text-gray-400 text-sm">لا توجد عناصر لعرضها</div>';
-                    }
-
-                    container.appendChild(sectionDiv);
-                }
-
-                // Setup wishlist listeners for new dynamic content
-                setupWishlistButtons();
-
-            } catch (e) {
-                console.error("Error loading home sections:", e);
-                // Fallback
-                defaultGrid.classList.remove('hidden');
-                defaultTitle.classList.remove('hidden');
-                loadDefaultRecentProducts();
-            }
-        }
-
-        // --- Enhanced Filtering Logic ---
-        function applyFilters() {
-            const minPrice = parseFloat(document.getElementById('min-price').value) || 0;
-            const maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
-
-            const filtered = products.filter(p => {
-                // 1. Category Filter (Global State)
-                const categoryMatch = currentCategory === 'all' ||
-                    (p.categoryName && p.categoryName === currentCategory) ||
-                    (p.categoryId && p.categoryId === currentCategory); // Handle legacy ID matches
-
-                // 2. Price Filter
-                const price = p.price || 0;
-                const priceMatch = price >= minPrice && price <= maxPrice;
-
-                // 3. Search Filter (Global State)
-                const query = currentSearchQuery.toLowerCase();
-                const searchMatch = !query ||
-                    (p.name && (p.name.ar?.toLowerCase().includes(query) || p.name.en?.toLowerCase().includes(query) || (typeof p.name === 'string' && p.name.toLowerCase().includes(query)))) ||
-                    (p.description && p.description.toLowerCase().includes(query));
-
-                return categoryMatch && priceMatch && searchMatch;
-            });
-
-            // Re-render
-            const productsGrid = document.getElementById('products-grid');
-            productsGrid.innerHTML = '';
-
-            if (filtered.length > 0) {
-                productsGrid.className = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 pb-24";
-                filtered.forEach(p => {
-                    productsGrid.innerHTML += createProductCardHTML(p);
-                });
-            } else {
-                productsGrid.className = "grid grid-cols-1 gap-3 pb-24";
-                productsGrid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 flex flex-col items-center">
-                    <i class="fas fa-search-minus text-4xl mb-3 text-indigo-300"></i>
-                    <p>لا توجد منتجات تطابق شروط التصفية.</p>
-                </div>`;
-            }
-
-            // Close Sidebar on Mobile if open
-            const sidebar = document.getElementById('mobile-sidebar');
-            if (sidebar && !sidebar.classList.contains('translate-x-full')) {
-                // Use the toggle function we defined earlier if accessible, or manually close
-                sidebar.classList.add('translate-x-full');
-                document.getElementById('sidebar-backdrop').classList.add('hidden');
-            }
-
-            showToast(`تم العثور على ${filtered.length} منتج`);
-        }
-
-        function getSectionIcon(type) {
-            if (type === 'recent') return '<i class="fas fa-clock text-blue-500"></i>';
-            if (type === 'category') return '<i class="fas fa-folder-open text-indigo-500"></i>';
-            if (type === 'offers') return '<i class="fas fa-fire text-orange-500"></i>';
-            return '<i class="fas fa-layer-group"></i>';
-        }
-
-        function createProductCardHTML(p) {
-            const img = (p.imageUrls && p.imageUrls[0]) ? p.imageUrls[0] : (p.imageUrl || 'https://placehold.co/300');
-            const isDirect = p.productType === 'direct';
-            const price = p.price ? p.price.toLocaleString() : '0';
-
-            // Resolve Category Name
-            let catName = p.categoryName;
-            if (!catName || catName === 'General' || catName === 'عام') {
-                if (p.categoryId && categoriesMap.has(p.categoryId)) {
-                    catName = categoriesMap.get(p.categoryId);
-                } else {
-                    catName = 'متجر';
-                }
-            }
-            // Sanitize
-            if (String(catName).includes('object')) catName = 'متجر';
-
-
-            // Resolve Store Name (Async fetch if missing, but for sync render we try best effort)
-            // If we really want store name, we might need to fetch it if it's critical. 
-            // For now, let's look for storeName field.
-            let storeNameDisplay = p.storeName || '';
-            // If missing, we could try to fetch user... but that causes layout shifts.
-            // Let's rely on data fix for storeName.
-
-
-            // Badge Logic
-            let badgesHTML = '';
-
-            // Refined Badge Container
-            let badgesContainer = '<div class="absolute top-2 right-2 flex flex-col gap-1 items-end z-10">';
-
-            if (p.createdAt) {
-                const createdDate = p.createdAt.seconds ? new Date(p.createdAt.seconds * 1000) : new Date(p.createdAt);
-                const diffDays = Math.ceil(Math.abs(new Date() - createdDate) / (1000 * 60 * 60 * 24));
-                if (diffDays <= 7) {
-                    badgesContainer += `<span class="badge-new">جديد</span>`;
-                }
-            }
-
-            if (p.originalPrice && p.originalPrice > p.price) {
-                const discount = Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100);
-                if (discount > 0) badgesContainer += `<span class="badge-discount bg-red-500 text-white">-${discount}%</span>`;
-            }
-
-            if (isDirect) {
-                badgesContainer += `<span class="bg-indigo-600 text-white text-[10px] px-2 py-1 rounded-md font-bold shadow-sm backdrop-blur">مباشر</span>`;
-            }
-
-            badgesContainer += '</div>';
-
-            // --- S22 High-Density Product Card ---
-            return `
-            <div class="s22-card group flex flex-col h-full bg-white border border-gray-100 hover:border-[var(--primary)]" onclick="location.href='PRESENTPRODUCT.html?product=${p.id}${p.isOffer ? '&offer=true' : ''}'">
-
-                    <!-- Image Area -->
-                    <div class="relative w-full aspect-[4/5] bg-gray-50 overflow-hidden">
-                        <img src="${img}" alt="${p.name}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
-                        
-                        <!-- Badges -->
-                        <div class="absolute top-2 left-2 flex flex-col gap-1 items-start z-10">
-                            ${p.isOffer ? `<span class="s22-badge bg-red-100 text-red-600">عرض 🔥</span>` : ''}
-                            ${isDirect ? `<span class="s22-badge bg-blue-100 text-blue-600">مباشر</span>` : ''}
-                        </div>
-
-                        <!-- Wishlist (Hidden by default, shows on hover/mobile) -->
-                        <button class="absolute top-2 right-2 w-7 h-7 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-sm transition opacity-0 group-hover:opacity-100 md:opacity-0 md:group-hover:opacity-100 opacity-100 ${userWishlist.has(p.id) ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}" 
-                            onclick="event.stopPropagation(); toggleWishlist('${p.id}', this)">
-                            <i class="${userWishlist.has(p.id) ? 'fas' : 'far'} fa-heart text-xs"></i>
-                        </button>
+                // Sidebar Info
+                sidebarUserInfo.innerHTML = `
+                     <div class="w-16 h-16 rounded-full mx-auto mb-2 border-2 border-white/30 overflow-hidden">
+                        <img src="${user.photoURL || 'https://ui-avatars.com/api/?name=' + user.displayName}" class="w-full h-full object-cover">
                     </div>
-
-                    <!--Content Area-- >
-            <div class="p-3 flex flex-col flex-1">
-                <!-- Title -->
-                <h3 class="text-xs text-gray-700 leading-tight mb-1 line-clamp-2 h-[2.5em] group-hover:text-[var(--primary)] transition-colors" title="${p.name}">
-                    ${p.name}
-                </h3>
-
-                <!-- Rating & Sold -->
-                <div class="flex items-center gap-1 mb-2 text-[10px] text-gray-500">
-                    <span class="text-yellow-400"><i class="fas fa-star"></i></span>
-                    <span>${p.rating || '4.8'}</span>
-                    <span class="text-gray-300">|</span>
-                    <span>${p.soldCount || '100+'} بيع</span>
-                </div>
-
-                <!-- Price & Add Button -->
-                <div class="mt-auto flex items-end justify-between">
-                    <div>
-                        ${p.originalPrice > p.price ? `<div class="text-[10px] text-gray-400 line-through decoration-red-400">${p.originalPrice.toLocaleString()}</div>` : ''}
-                        <div class="text-sm font-extrabold text-[var(--accent)] leading-none">
-                            ${Number(p.price).toLocaleString()} <span class="text-[9px] font-normal text-gray-500">د.ج</span>
-                        </div>
+                    <h3 class="font-bold text-lg">${user.displayName || 'مستخدم'}</h3>
+                    <p class="text-xs opacity-75 mb-2">${user.email}</p>
+                `;
+            } else {
+                authArea.innerHTML = `
+                    <a href="login.html" class="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-full transition dark:text-gray-200 dark:hover:bg-gray-700">
+                        <i class="far fa-user text-xl"></i>
+                    </a>
+                `;
+                 sidebarUserInfo.innerHTML = `
+                     <div class="w-16 h-16 bg-white/20 backdrop-blur rounded-full mx-auto flex items-center justify-center text-2xl font-bold border-2 border-white/30 mb-2">
+                        <i class="fas fa-user"></i>
                     </div>
-
-                    <button class="w-7 h-7 rounded-full bg-gray-100 text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white flex items-center justify-center transition-colors shadow-sm active:scale-95"
-                        onclick="event.stopPropagation(); addToCartWithAnimation(this, '${p.id}', '${String(p.name).replace(/'/g, "\\'")}', ${p.price}, '${img}')">
-                    <i class="fas fa-cart-plus text-xs"></i>
-                </button>
-            </div>
-                    </div >
-                </div > `;
-        }
-
-        // Helper Animation for Cart
-        function addToCartWithAnimation(btn, id, name, price, img) {
-            // 1. Trigger Fly Animation
-            const cartIcon = document.querySelector('.fa-shopping-bag') || document.querySelector('.fa-shopping-cart'); // Target nav icon
-            if (cartIcon) {
-                const startRect = btn.getBoundingClientRect();
-                const endRect = cartIcon.getBoundingClientRect();
-
-                const flyer = document.createElement('img');
-                flyer.src = img;
-                flyer.className = 'fly-item';
-                flyer.style.left = `${startRect.left} px`;
-                flyer.style.top = `${startRect.top} px`;
-                document.body.appendChild(flyer);
-
-                // Force reflow
-                void flyer.offsetWidth;
-
-                flyer.style.left = `${endRect.left} px`;
-                flyer.style.top = `${endRect.top} px`;
-                flyer.style.width = '20px';
-                flyer.style.height = '20px';
-                flyer.style.opacity = '0.5';
-
-                setTimeout(() => {
-                    flyer.remove();
-                    // Shake Cart
-                    cartIcon.parentElement.classList.add('animate-bounce');
-                    setTimeout(() => cartIcon.parentElement.classList.remove('animate-bounce'), 1000);
-                }, 800);
-            }
-
-            // 2. Add to LocalStorage Logic
-            let cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
-            const existing = cart.find(i => i.id === id);
-            if (existing) {
-                existing.quantity++;
-            } else {
-                cart.push({
-                    id: id,
-                    name: name,
-                    price: price,
-                    image: img,
-                    quantity: 1,
-                    itemType: 'market', // Default for homepage items
-                    storeName: 'S22 Market' // Default or fetch if available
-                });
-            }
-            localStorage.setItem('s22market_cart', JSON.stringify(cart));
-
-            // 3. Update Badge UI
-            const count = cart.reduce((sum, i) => sum + i.quantity, 0);
-            ['header-cart-badge', 'nav-cart-badge'].forEach(bid => {
-                const el = document.getElementById(bid);
-                if (el) { el.textContent = count > 9 ? '9+' : count; el.classList.remove('hidden'); }
-            });
-
-            // 4. Toast
-            showToast('تمت الإضافة للسلة 🛒');
-        }
-
-        async function loadDefaultRecentProducts() {
-            const productsGrid = document.getElementById('products-grid');
-
-            try {
-                // Fetch more to allow for filtering
-                const q = query(collection(db, "products"), limit(50));
-                const prodSnap = await getDocs(q);
-
-                productsGrid.innerHTML = '';
-
-                if (prodSnap.empty) {
-                    productsGrid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">لا توجد منتجات في قاعدة البيانات.</div>`;
-                    return;
-                }
-
-                let products = prodSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-                // Filter by Wilaya
-                if (currentUserProfile && currentUserProfile.wilaya) {
-                    const userWilaya = currentUserProfile.wilaya;
-                    console.log("Filtering products by Wilaya:", userWilaya);
-
-                    // Get unique seller IDs
-                    const sellerIds = [...new Set(products.map(p => p.sellerId).filter(id => id))];
-
-                    if (sellerIds.length > 0) {
-                        // Fetch sellers in parallel
-                        // Optimization: Check local cache or fetch
-                        const validSellerIds = new Set();
-                        await Promise.all(sellerIds.map(async (sid) => {
-                            try {
-                                const sDoc = await getDoc(doc(db, "users", sid));
-                                if (sDoc.exists()) {
-                                    const sData = sDoc.data();
-                                    // Check coverage
-                                    // 1. isNational
-                                    const isNat = sData.fulfillment?.isNational || (sData.role === 'vendor' && sData.isNational === true);
-                                    if (isNat) {
-                                        validSellerIds.add(sid);
-                                        return;
-                                    }
-                                    // 2. coveredWilayas (store or user doc)
-                                    const covered = sData.fulfillment?.coveredWilayas || sData.coveredWilayas || [sData.wilaya];
-                                    if (covered && covered.includes(userWilaya)) {
-                                        validSellerIds.add(sid);
-                                        return;
-                                    }
-                                    // 3. Simple wilaya match
-                                    if (sData.wilaya === userWilaya) validSellerIds.add(sid);
-                                }
-                            } catch (e) { console.log("Err checking seller", sid, e); }
-                        }));
-
-                        // Filter products
-                        products = products.filter(p => validSellerIds.has(p.sellerId));
-
-                        // Badge or Message
-                        if (products.length > 0) {
-                            const title = document.getElementById('default-recent-title');
-                            if (title) title.innerHTML = `<i class="fas fa-map-marker-alt text-indigo-500"></i> منتجات في ${userWilaya} والكوت الوطني`;
-                        } else {
-                            productsGrid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500"> لا توجد منتجات متاحة في ${userWilaya} حالياً.</div>`;
-                            return;
-                        }
-                    }
-                }
-
-                products.forEach(p => {
-                    if (p.productType !== 'course' && p.storeType !== 'restaurant' && p.categoryName !== 'Food' && p.categoryName
-                        !== 'مأكولات') {
-                        productsGrid.innerHTML += createProductCardHTML(p);
-                    }
-                });
-
-                productsGrid.classList.remove('hidden');
-                document.getElementById('default-recent-title').classList.remove('hidden');
-                setupWishlistButtons();
-
-            } catch (e) {
-                console.error("فشل الجلب:", e);
-                productsGrid.innerHTML = `<div class="col-span-full text-center py-4 text-red-500" dir="ltr">Error: ${e.message}</div>`;
-                productsGrid.classList.remove('hidden');
+                    <h3 class="font-bold text-lg">زائر كريم</h3>
+                    <a href="login.html" class="text-xs bg-white text-indigo-600 px-4 py-1 rounded-full font-bold mt-2 inline-block">تسجيل الدخول</a>
+                 `;
             }
         }
 
-        // --- 5. Auth & Wishlist Logic ---
-
-        // userWishlist declared at top (line 1039)
-
-        // --- Comparison Logic (Global) ---
-        let compareList = new Set(JSON.parse(localStorage.getItem('s22_compare') || '[]'));
-
-        function updateCompareFloatingBtn() {
-            let floatBtn = document.getElementById('compare-float-btn');
-            if (!floatBtn) {
-                // Create if not exists
-                floatBtn = document.createElement('a');
-                floatBtn.id = 'compare-float-btn';
-                floatBtn.href = 'compare.html';
-                floatBtn.className = 'fixed bottom-24 left-4 z-40 bg-indigo-600 text-white p-3 rounded-full shadow-lg flex items-center justify-center gap-2 transform transition-all duration-300 scale-0 origin-bottom-left hover:scale-105 hover:bg-indigo-700';
-                floatBtn.innerHTML = `
-            <div class="relative">
-                        <i class="fas fa-balance-scale text-xl"></i>
-                        <span id="compare-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-indigo-600">0</span>
-                    </div>
-            <span class="font-bold text-sm hidden group-hover:block pr-1">مقارنة</span>
-        `;
-                document.body.appendChild(floatBtn);
+        // --- Search Logic ---
+        const searchInput = document.getElementById('smart-search-input');
+        const searchResults = document.getElementById('search-results');
+        
+        let searchDebounce;
+        searchInput.addEventListener('input', (e) => {
+            const q = e.target.value.trim();
+            clearTimeout(searchDebounce);
+            
+            if (q.length < 2) {
+                searchResults.classList.add('hidden');
+                return;
             }
 
-            const count = compareList.size;
-            const countBadge = document.getElementById('compare-count');
-            if (countBadge) countBadge.textContent = count;
+            searchDebounce = setTimeout(async () => {
+                await performSmartSearch(q);
+            }, 300);
+        });
 
-            if (count > 0) {
-                floatBtn.classList.remove('scale-0');
-                floatBtn.classList.add('scale-100');
-            } else {
-                floatBtn.classList.remove('scale-100');
-                floatBtn.classList.add('scale-0');
-            }
-        }
+        searchInput.addEventListener('focus', () => {
+             if (searchInput.value.trim().length >= 2) searchResults.classList.remove('hidden');
+        });
 
-        window.toggleCompare = function (id, btn) {
-            if (compareList.has(id)) {
-                compareList.delete(id);
-                showToast('تمت الإزالة من المقارنة');
-                if (btn) btn.classList.remove('text-indigo-600');
-            } else {
-                if (compareList.size >= 3) {
-                    showToast('يمكنك مقارنة 3 منتجات فقط', 'error');
-                    return;
-                }
-                compareList.add(id);
-                showToast('تمت الإضافة للمقارنة ⚖️');
-                // Trigger fly animation to float button if exists
-                if (btn) btn.classList.add('text-indigo-600');
-            }
-            localStorage.setItem('s22_compare', JSON.stringify([...compareList]));
-            updateCompareFloatingBtn();
-            // Re-render card state if needed (optional)
-        };
-
-        // Initialize float btn on load
-        updateCompareFloatingBtn();
-
-        // Load correct wishlist on startup (Guest vs User handled in Auth Observer)
-        function loadGuestWishlist() {
-            const local = JSON.parse(localStorage.getItem('s22_wishlist') || '[]');
-            userWishlist = new Set(local);
-        }
-
-        window.toggleWishlist = async function (id, btn) {
-            if (!btn) return; // called from unexpected context
-
-            // Optimistic Toggle
-            const isLiked = userWishlist.has(id);
-            const icon = btn.querySelector('i');
-
-            if (isLiked) {
-                // Remove
-                userWishlist.delete(id);
-                icon.className = 'far fa-heart text-xs';
-                btn.classList.remove('text-red-500');
-                btn.classList.add('text-gray-400');
-
-                if (currentUser) {
-                    try { await updateDoc(doc(db, "users", currentUser.uid), { wishlist: arrayRemove(id) }); } catch (e) { console.error(e); }
-                } else {
-                    localStorage.setItem('s22_wishlist', JSON.stringify([...userWishlist]));
-                }
-                showToast('تم الحذف من المفضلة 💔');
-            } else {
-                // Add
-                userWishlist.add(id);
-                icon.className = 'fas fa-heart text-xs';
-                btn.classList.remove('text-gray-400');
-                btn.classList.add('text-red-500');
-
-                // Animation
-                icon.classList.add('animate-bounce');
-                setTimeout(() => icon.classList.remove('animate-bounce'), 1000);
-
-                if (currentUser) {
-                    try { await updateDoc(doc(db, "users", currentUser.uid), { wishlist: arrayUnion(id) }); } catch (e) { console.error(e); }
-                } else {
-                    localStorage.setItem('s22_wishlist', JSON.stringify([...userWishlist]));
-                }
-                showToast('تمت الإضافة للمفضلة ❤️');
-            }
-        };
-
-        // Redundant setupWishlistButtons removed as we use inline onclick now
-        function setupWishlistButtons() {
-            // Deprecated - kept empty to prevent ReferenceErrors if called elsewhere
-        }
-
-        function showToast(message, success = true) {
-            const el = document.createElement('div');
-            el.className = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 bg-gray-800 text-white px-4 py-2 rounded-full shadow-lg text-sm flex items-center gap-2 animate-bounce';
-            el.innerHTML = `<i class="fas ${success ? 'fa-check-circle text-green-400' : 'fa-exclamation-circle text-red-400'}"></i> ${message}`;
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 3000);
-        }
-
-        // --- Main Auth Observer ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-
-                // تحديث أيقونة المستخدم في الهيدر
-                const headerUserIcon = document.getElementById('header-user-icon');
-                if (headerUserIcon) headerUserIcon.href = 'profile.html';
-
-                // تحديث بيانات المستخدم في القائمة الجانبية
-                const userInfoDiv = document.getElementById('sidebar-user-info');
-                userInfoDiv.innerHTML = `
-                <h3 class="font-bold text-lg text-white">${user.displayName || 'مستخدم'}</h3>
-                    <div class="flex gap-3 text-xs text-indigo-100 mt-1">
-                        <span class="bg-white/20 px-2 py-0.5 rounded">عضو مسجل</span>
-                        <a href="#" id="sidebar-logout" class="hover:text-white underline">خروج</a>
-                    </div>`;
-
-                document.getElementById('sidebar-logout').onclick = () => auth.signOut().then(() => window.location.reload());
-
-                // جلب بيانات إضافية (الدور، المفضلة)
-                try {
-                    const userDoc = await getDoc(doc(db, "users", user.uid));
-                    if (userDoc.exists()) {
-                        const data = userDoc.data();
-                        currentUserProfile = data; // Save for filtering
-                        if (data.wishlist) userWishlist = new Set(data.wishlist);
-                        setupWishlistButtons(); // Re-run to update UI icons
-
-                        // Update Main Auth UI (Header)
-                        updateAuthUI(user, data.role || 'user');
-
-                        // إظهار رابط لوحة التاجر إذا كان بائعاً
-                        if (data.role === 'vendor' || data.role === 'restaurant') {
-                            const sellerLink = document.getElementById('sidebar-seller-link');
-                            if (sellerLink) {
-                                sellerLink.classList.remove('hidden');
-                                sellerLink.classList.add('flex');
-                            }
-                        }
-                    } else {
-                        updateAuthUI(user, 'user');
-                    }
-                } catch (e) {
-                    console.error(e);
-                    updateAuthUI(user, 'user');
-                }
-
-                // تحديث شارة السلة
-                const cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
-                const count = cart.reduce((sum, i) => sum + i.quantity, 0);
-                if (count > 0) {
-                    ['header-cart-badge', 'nav-cart-badge'].forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el) { el.textContent = count > 9 ? '9+' : count; el.classList.remove('hidden'); }
-                    });
-                }
-
-            } else {
-                currentUser = null;
-                currentUserProfile = null;
-                loadGuestWishlist(); // Load from LS
-
-                // إعادة أيقونة المستخدم للصفحة الرئيسية
-                const headerUserIcon = document.getElementById('header-user-icon');
-                if (headerUserIcon) headerUserIcon.href = 'login.html';
-
-                updateAuthUI(null);
+        // Click outside to close
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.add('hidden');
             }
         });
 
-        // PWA Service Worker Registration removed from here, moving to separate script block
+        async function performSmartSearch(queryText) {
+            searchResults.classList.remove('hidden');
+            searchResults.innerHTML = '<div class="p-4 text-center text-gray-500"><i class="fas fa-spinner fa-spin"></i> جاري البحث...</div>';
 
-
-
-        // --- Inlined: SpinWheel ---
-        class SpinWheel {
-            constructor() {
-                this.config = null;
-                this.segments = [];
-                this.todayStr = new Date().toISOString().split('T')[0];
-                this.user = null;
-                this.isSpinning = false;
-
-                this.init();
-            }
-
-            async init() {
-                // 1. Auth Listener
-                // Offer Countdown Logic
-                setInterval(() => {
-                    document.querySelectorAll('.offer-countdown').forEach(el => {
-                        let endTime = parseInt(el.dataset.end);
-
-                        // Fallback: End of today if no specific time
-                        if (!endTime) {
-                            const now = new Date();
-                            const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).getTime();
-                            endTime = endOfDay;
-                        }
-
-                        const now = Date.now();
-                        const diff = endTime - now;
-
-                        if (diff <= 0) {
-                            el.textContent = 'انتهى العرض';
-                            el.classList.add('bg-gray-800');
-                            el.classList.remove('bg-red-600'); // Assuming we might add red later
-                        } else {
-                            const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                            const m = Math.floor((diff / (1000 * 60)) % 60);
-                            const s = Math.floor((diff / 1000) % 60);
-                            el.textContent = `${h}س ${m}د ${s} ث`;
-                        }
-                    });
-                }, 1000);
-
-                onAuthStateChanged(auth, (user) => {
-                    this.user = user;
-                    if (user) {
-                        this.loadConfig();
-                    } else {
-                        this.removeUI();
-                    }
-                });
-            }
-
-            async loadConfig() {
-                try {
-                    const snap = await getDoc(doc(db, "settings", "daily_rewards"));
-                    if (snap.exists()) {
-                        this.config = snap.data();
-                        if (this.config.isActive && this.checkSchedule()) {
-                            // Check if already played today
-                            const played = await this.checkIfPlayedToday();
-                            if (!played) {
-                                this.renderFloatingButton();
-                                this.renderModal();
-                            }
-                        }
-                    }
-                } catch (e) {
-                    console.error("Wheel Init Error:", e);
-                }
-            }
-
-            checkSchedule() {
-                if (!this.config.schedule) return true;
-
-                const now = new Date();
-                const currentHour = now.getHours();
-                const currentDay = now.getDay(); // 0 = Sunday
-
-                const { startHour, endHour, activeDays } = this.config.schedule;
-
-                if (currentHour < startHour || currentHour >= endHour) return false;
-                if (activeDays && !activeDays.includes(currentDay)) return false;
-
-                return true;
-            }
-
-            async checkIfPlayedToday() {
-                if (!this.user) return true;
-                // Check local storage first for speed (optimization)
-                const localKey = `s22_spin_${this.user.uid}_${this.todayStr} `;
-                if (localStorage.getItem(localKey)) return true;
-
-                // Verify with Firestore
-                // We query the 'claims' subcollection for this user
-                const q = query(
-                    collection(db, "daily_rewards_history", this.todayStr, "claims"),
-                    where("userId", "==", this.user.uid)
-                );
+            try {
+                // Simple client-side filtering for demo (in production: Algolia or Elastic)
+                // We will fetch a batch and filter in memory for better UX on small datasets
+                const q = query(collection(db, "products"), limit(50));
                 const snap = await getDocs(q);
-                const played = !snap.empty;
+                
+                const matches = snap.docs
+                    .map(d => ({id: d.id, ...d.data()}))
+                    .filter(p => {
+                        const name = (p.name || '').toLowerCase();
+                        const desc = (p.description || '').toLowerCase();
+                        const search = queryText.toLowerCase();
+                        return name.includes(search) || desc.includes(search);
+                    })
+                    .slice(0, 5); // Top 5
 
-                if (played) localStorage.setItem(localKey, 'true');
-                return played;
+                if (matches.length === 0) {
+                    searchResults.innerHTML = '<div class="p-4 text-center text-sm text-gray-500">لا توجد نتائج مطابقة</div>';
+                } else {
+                    let html = '';
+                    matches.forEach(p => {
+                         html += `
+                            <a href="PRESENTPRODUCT.html?product=${p.id}" class="flex items-center gap-3 p-3 hover:bg-gray-50 transition border-b border-gray-50 last:border-0">
+                                <img src="${p.imageUrl || 'https://placehold.co/50'}" class="w-10 h-10 rounded object-cover">
+                                <div class="flex-1">
+                                    <div class="font-bold text-sm text-gray-800 line-clamp-1">${p.name}</div>
+                                    <div class="text-xs text-indigo-600 font-bold">${p.price} د.ج</div>
+                                </div>
+                                <i class="fas fa-chevron-left text-gray-300 text-xs"></i>
+                            </a>
+                        `;
+                    });
+                    
+                    html += `
+                        <a href="classproductindex.html?search=${encodeURIComponent(queryText)}" class="block text-center py-3 text-indigo-600 font-bold text-sm bg-indigo-50 hover:bg-indigo-100 transition rounded-b-xl">
+                            عرض جميع النتائج
+                        </a>
+                    `;
+                    searchResults.innerHTML = html;
+                }
+
+            } catch (err) {
+                console.error("Search error", err);
+                searchResults.innerHTML = '<div class="p-2 text-center text-red-500 text-xs">خطأ في البحث</div>';
             }
-
-            renderFloatingButton() {
-                if (document.getElementById('spin-fab')) return;
-
-                const btn = document.createElement('div');
-                btn.id = 'spin-fab';
-                btn.className = 'fixed bottom-24 left-4 z-40 animate-bounce cursor-pointer';
-                btn.innerHTML = `
-            <div class="relative group">
-                <div
-                    class="absolute -inset-1 bg-gradient-to-r from-pink-600 to-purple-600 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200">
-                </div>
-                <button
-                    class="relative w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl shadow-2xl border-2 border-white transform transition hover:scale-110">
-                    🎡
-                </button>
-                <div
-                    class="absolute -top-10 left-1/2 -translate-x-1/2 w-max bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition">
-                    جرب حظك اليوم!
-                </div>
-            </div>
-            `;
-                btn.onclick = () => this.openModal();
-                document.body.appendChild(btn);
-            }
-
-            renderModal() {
-                if (document.getElementById('spin-modal')) return;
-
-                // Inject Styles
-                const style = document.createElement('style');
-                style.textContent = `
-                .wheel - container { position: relative; width: 300px; height: 300px; margin: 0 auto; }
-                .wheel {
-            width: 100 %; height: 100 %; border - radius: 50 %; border: 8px solid white;
-            box - shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-            transition: transform 4s cubic - bezier(0.17, 0.67, 0.12, 0.99);
-            position: relative; overflow: hidden; background: #333;
         }
-                .wheel - segment {
-            position: absolute; width: 50 %; height: 50 %; top: 50 %; left: 50 %; transform - origin: 0 % 0 %;
-            clip - path: polygon(0 0, 100 % 0, 100 % 100 %);
-        }
-                .wheel - text {
-            position: absolute; left: 120 %; top: 20 %; transform: rotate(45deg);
-            font - weight: bold; color: white; font - size: 12px; white - space: nowrap;
-            text - shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-                .wheel - arrow {
-            position: absolute; top: -15px; left: 50 %; transform: translateX(-50 %); width: 30px; height: 40px;
-            z - index: 10; filter: drop - shadow(0 4px 4px rgba(0, 0, 0, 0.3));
-        }
-                .wheel - center {
-            position: absolute; top: 50 %; left: 50 %; transform: translate(-50 %, -50 %); width: 50px;
-            height: 50px; background: white; border - radius: 50 %; z - index: 5;
-            display: flex; align - items: center; justify - content: center;
-            box - shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        `;
-                document.head.appendChild(style);
 
-                const modal = document.createElement('div');
-                modal.id = 'spin-modal';
-                modal.className = 'fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm';
-                modal.innerHTML = `
-            <div class="bg-white rounded-3xl p-6 max-w-sm w-full relative text-center shadow-2xl overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-indigo-100 to-white -z-10"></div>
-
-                    <h2 class="text-2xl font-extrabold text-indigo-900 mb-1">عجلة الحظ اليومية 🎡</h2>
-                    <p class="text-xs text-gray-500 mb-6">جرب حظك وإربح جوائز قيمة!</p>
-
-                    <div class="wheel-container mb-6">
-                        <img src="https://cdn-icons-png.flaticon.com/512/295/295128.png" class="wheel-arrow">
-                        <div class="wheel" id="the-wheel">
-                            <!-- Segments Injected Here -->
+        // --- Data Loading ---
+        
+        // 1. Categories
+        async function loadCategories() {
+            const container = document.getElementById('categories-container');
+            if(!container) return;
+            try {
+                const q = query(collection(db, "categories"), orderBy("orderIndex"));
+                const snap = await getDocs(q);
+                if (snap.empty) { container.innerHTML = '<div class="p-2 w-full text-center text-xs text-gray-400">لا توجد أقسام</div>'; return; }
+                
+                let html = '';
+                 html += `
+                    <a href="classproductindex.html" class="flex flex-col items-center gap-2 min-w-[70px] group">
+                        <div class="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-xl shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition duration-300">
+                             <i class="fas fa-th-large"></i>
                         </div>
-                        <button id="spin-btn-action"
-                            class="wheel-center text-indigo-600 text-xl font-bold bg-white hover:bg-indigo-50 border-4 border-indigo-100 rounded-full w-16 h-16 shadow-inner transition">
-                            العب
-                        </button>
-                    </div>
+                        <span class="text-[10px] font-bold text-gray-600 group-hover:text-indigo-600 transition">الكل</span>
+                    </a>
+                `;
 
-                    <div id="spin-status" class="h-6 text-sm font-bold text-indigo-600"></div>
+                snap.forEach(doc => {
+                    const c = doc.data();
+                    const icon = c.icon || 'fa-box';
+                    html += `
+                        <a href="classproductindex.html?category=${doc.id}" class="flex flex-col items-center gap-2 min-w-[70px] group">
+                            <div class="w-14 h-14 rounded-2xl bg-white border border-gray-100 flex items-center justify-center text-gray-400 text-xl shadow-sm group-hover:border-indigo-600 group-hover:text-indigo-600 transition duration-300">
+                                <i class="fas ${icon}"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-gray-600 group-hover:text-indigo-600 transition truncate w-16 text-center">${c.name}</span>
+                        </a>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch (e) { console.error('Cats:', e); }
+        }
 
-                    <button onclick="document.getElementById('spin-modal').classList.add('hidden')"
-                        class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-            `;
-                document.body.appendChild(modal);
+        // 2. Hero Offers
+        async function loadHero() {
+            const wrapper = document.getElementById('hero-slider-wrapper');
+            try {
+                const q = query(collection(db, "offers"), orderBy("createdAt", "desc"), limit(5));
+                const snap = await getDocs(q);
+                if (!snap.empty) {
+                    wrapper.innerHTML = '';
+                    snap.forEach(d => {
+                        const o = d.data();
+                        const img = o.imageUrl || 'https://placehold.co/800x400';
+                        wrapper.innerHTML += `
+                            <div class="swiper-slide cursor-pointer" onclick="location.href='PRESENTPRODUCT.html?offer=${d.id}'">
+                                <img src="${img}" class="w-full h-full object-cover">
+                            </div>
+                        `;
+                    });
+                    new Swiper('.main-slider', {
+                        pagination: { el: '.swiper-pagination' },
+                        autoplay: { delay: 4000 },
+                        loop: true
+                    });
+                } else {
+                     wrapper.innerHTML = `<div class="swiper-slide flex items-center justify-center bg-indigo-600 text-white font-bold">مرحباً بك في متجر 22</div>`;
+                }
+            } catch(e) { console.error(e); }
+        }
 
-                document.getElementById('spin-btn-action').onclick = () => this.spin();
-            }
+        // 3. Products
+        let lastDoc = null;
+        async function loadProducts(isLoadMore = false) {
+            const grid = document.getElementById('products-grid');
+            const spinner = document.getElementById('loading-spinner');
+            const loadMoreBtn = document.getElementById('load-more-container');
+            
+            if (!isLoadMore) grid.innerHTML = '';
+            spinner.classList.remove('hidden');
+            loadMoreBtn.classList.add('hidden');
 
-            openModal() {
-                if (!this.checkSchedule()) {
-                    alert('عذراً، لعبة الحظ غير متاحة في هذا الوقت.');
+            try {
+                let q = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(10));
+                if (isLoadMore && lastDoc) {
+                    q = query(collection(db, "products"), orderBy("createdAt", "desc"), startAfter(lastDoc), limit(10));
+                }
+
+                const snap = await getDocs(q);
+                spinner.classList.add('hidden');
+                
+                if (snap.empty) {
+                    if (!isLoadMore) grid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400">لا توجد منتجات حالياً</div>';
                     return;
                 }
-                this.drawWheel();
-                document.getElementById('spin-modal').classList.remove('hidden');
-            }
 
-            drawWheel() {
-                const wheel = document.getElementById('the-wheel');
-                wheel.innerHTML = '';
-                this.segments = this.config.segments || [];
+                lastDoc = snap.docs[snap.docs.length - 1];
+                
+                snap.forEach(d => {
+                    const p = d.data();
+                    // Exclude Food? The user said "remove food items" previously, let's honor that or verify. 
+                    // Previous conversation said: "except food items".
+                    // Assuming 'food' category or specific flag.
+                    // For now, I will render everything but if 'category' === 'food' skip? 
+                    // Let's implement a safe check.
+                    
+                    const isFood = (p.category === 'مطاعم' || p.category === 'food' || p.isFood === true);
+                    if (isFood) return; // Skip food items on main index
 
-                if (this.segments.length === 0) return;
-
-                const sliceAngle = 360 / this.segments.length;
-                let gradientStr = 'conic-gradient(';
-                let currentDeg = 0;
-
-                this.segments.forEach((seg, i) => {
-                    const endDeg = currentDeg + sliceAngle;
-                    gradientStr += `${seg.color} ${currentDeg}deg ${endDeg}deg${i === this.segments.length - 1 ? '' : ','} `;
-
-                    const label = document.createElement('div');
-                    const midAngle = currentDeg + (sliceAngle / 2);
-                    label.style.cssText = `
-        position: absolute;
-        top: 50 %; left: 50 %;
-        width: 50 %; height: 20px;
-        transform - origin: 0 % 50 %;
-        transform: rotate(${midAngle - 90}deg) translate(20px);
-        text - align: right;
-        color: white;
-        font - size: 10px;
-        font - weight: bold;
-        pointer - events: none;
-        padding - right: 15px;
-        text - shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        `;
-                    label.innerHTML = `<span style="display:inline-block; transform: rotate(90deg)">${seg.label}</span>`;
-                    currentDeg = endDeg;
+                    const img = (p.imageUrls && p.imageUrls[0]) ? p.imageUrls[0] : (p.imageUrl || 'https://placehold.co/300');
+                    
+                    grid.innerHTML += `
+                        <a href="PRESENTPRODUCT.html?product=${d.id}" class="block bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition duration-300 product-card-hover border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+                            <div class="relative aspect-square">
+                                <img src="${img}" class="w-full h-full object-cover">
+                                ${p.discount ? `<div class="absolute top-2 right-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">-${p.discount}%</div>` : ''}
+                            </div>
+                            <div class="p-3">
+                                <h3 class="font-bold text-sm text-gray-800 mb-1 line-clamp-2 min-h-[40px] dark:text-gray-200">${p.name}</h3>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-indigo-600 font-extrabold text-sm dark:text-indigo-400">${p.price} د.ج</span>
+                                    ${p.oldPrice ? `<span class="text-xs text-gray-400 line-through">${p.oldPrice}</span>` : ''}
+                                </div>
+                            </div>
+                        </a>
+                    `;
                 });
-                gradientStr += ')';
-                wheel.style.background = gradientStr;
-            }
 
-            async spin() {
-                if (this.isSpinning) return;
-                this.isSpinning = true;
-                const btn = document.getElementById('spin-btn-action');
-                const status = document.getElementById('spin-status');
-                btn.disabled = true;
-                status.textContent = 'جاري السحب...';
-
-                try {
-                    const resultDoc = await runTransaction(db, async (transaction) => {
-                        const statsRef = doc(db, "daily_rewards_history", this.todayStr);
-                        const statsDoc = await transaction.get(statsRef);
-
-                        let currentCounts = {};
-                        let totalSpins = 0;
-
-                        if (statsDoc.exists()) {
-                            const d = statsDoc.data();
-                            currentCounts = d.segmentCounts || {};
-                            totalSpins = d.totalSpins || 0;
-                        }
-
-                        const availableSegments = this.segments.filter(seg => {
-                            const count = currentCounts[seg.id] || 0;
-                            const limit = seg.limit || 0;
-                            if (limit > 0 && count >= limit) return false;
-                            return true;
-                        });
-
-                        let winningSegment;
-
-                        if (availableSegments.length === 0) {
-                            winningSegment = this.segments.find(s => s.type === 'hardluck') || this.segments[0];
-                        } else {
-                            const totalWeight = availableSegments.reduce((sum, s) => sum + (s.probability || 0), 0);
-                            let random = Math.random() * totalWeight;
-
-                            for (const seg of availableSegments) {
-                                random -= (seg.probability || 0);
-                                if (random <= 0) { winningSegment = seg; break; }
-                            }
-                            if (!winningSegment) winningSegment = availableSegments[availableSegments.length - 1];
-                        }
-
-                        // Update Stats
-                        const newCount = (currentCounts[winningSegment.id] || 0) + 1;
-                        transaction.set(statsRef, {
-                            totalSpins: totalSpins + 1,
-                            segmentCounts: { ...currentCounts, [winningSegment.id]: newCount },
-                            lastUpdated: serverTimestamp()
-                        }, { merge: true });
-
-                        // Create Claim Record
-                        const claimRef = doc(collection(db, "daily_rewards_history"), `${this.todayStr}_${this.user.uid}`);
-                        transaction.set(claimRef, {
-                            userId: this.user.uid,
-                            userName: this.user.displayName || 'Anonymous',
-                            segmentId: winningSegment.id,
-                            rewardValue: winningSegment.value,
-                            type: winningSegment.type,
-                            timestamp: serverTimestamp()
-                        });
-
-                        // Update User Balance if points
-                        if (winningSegment.type === 'points' && winningSegment.value > 0) {
-                            const userRef = doc(db, "users", this.user.uid);
-                            transaction.update(userRef, {
-                                points: increment(winningSegment.value)
-                            });
-                        }
-
-                        return winningSegment;
-                    });
-
-                    const segmentIndex = this.segments.findIndex(s => s.id === resultDoc.id);
-                    const segmentAngle = 360 / this.segments.length;
-                    const targetRotation = 3600 + (360 - (segmentIndex * segmentAngle)) - (segmentAngle / 2);
-
-                    const wheel = document.getElementById('the-wheel');
-                    wheel.style.transform = `rotate(${targetRotation}deg)`;
-
-                    setTimeout(() => {
-                        this.showResult(resultDoc);
-                        localStorage.setItem(`s22_spin_${this.user.uid}_${this.todayStr}`, 'true');
-                    }, 4100);
-
-                } catch (e) {
-                    console.error(e);
-                    status.textContent = 'حدث خطأ، حاول مرة أخرى';
-                    this.isSpinning = false;
-                    btn.disabled = false;
+                if (snap.docs.length >= 10) {
+                     loadMoreBtn.classList.remove('hidden');
+                     loadMoreBtn.querySelector('button').onclick = () => loadProducts(true);
                 }
-            }
 
-            showResult(segment) {
-                const modal = document.getElementById('spin-modal');
-                const isWin = segment.type !== 'hardluck';
-
-                const content = modal.querySelector('.bg-white');
-                content.innerHTML = `
-            <div class="py-10 animate-pulse">
-                    <div class="text-6xl mb-4">${isWin ? '🎉' : '🥺'}</div>
-                    <h2 class="text-3xl font-extrabold ${isWin ? 'text-green-600' : 'text-gray-600'} mb-2">
-                        ${isWin ? 'ألف مبروك!' : 'حظ أوفر!'}
-                    </h2>
-                    <p class="text-gray-800 text-lg font-bold mb-6">
-                        ${segment.label}
-                    </p>
-                    <button onclick="location.reload()"
-                        class="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition">
-                        حسناً
-                    </button>
-                </div>
-                `;
-                document.getElementById('spin-fab')?.remove();
-            }
-
-            removeUI() {
-                document.getElementById('spin-fab')?.remove();
-                document.getElementById('spin-modal')?.remove();
+            } catch (e) {
+                console.error("Products load error", e);
+                spinner.classList.add('hidden');
             }
         }
 
-        // Init SpinWheel
-        new SpinWheel();
-        // --- End Inlined SpinWheel ---
+        // --- SideBar Logic ---
+        const menuBtn = document.getElementById('menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
 
-        // Start
-        initHome();
-
-        // Offline Detection
-        window.addEventListener('offline', () => showToast('انقطع الاتصال بالإنترنت ⚠️', 'error'));
-        window.addEventListener('online', () => showToast('عاد الاتصال بالإنترنت ✅'));
-
-    </script>
-    <script>
-        // Unregister Service Worker to ensure fresh content
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function (registrations) {
-                for (let registration of registrations) {
-                    registration.unregister();
-                }
-            });
+        function toggleSidebar() {
+            const isOpen = !sidebar.classList.contains('translate-x-full');
+            if (isOpen) {
+                sidebar.classList.add('translate-x-full');
+                backdrop.classList.add('hidden');
+                backdrop.classList.remove('opacity-100');
+            } else {
+                sidebar.classList.remove('translate-x-full');
+                backdrop.classList.remove('hidden');
+                // slight delay for opacity transition
+                setTimeout(() => backdrop.classList.add('opacity-100'), 10);
+            }
         }
+
+        menuBtn.addEventListener('click', toggleSidebar);
+        backdrop.addEventListener('click', toggleSidebar);
+        
+        // Dark Mode
+        const dmToggle = document.getElementById('dark-mode-toggle');
+        const dmSwitch = document.getElementById('dm-switch');
+        const dmKnob = document.getElementById('dm-knob');
+        
+        function updateThemeUI(isDark) {
+            if(isDark) {
+                document.body.classList.add('dark'); // Tailwind dark mode
+                dmSwitch.classList.remove('bg-gray-300');
+                dmSwitch.classList.add('bg-indigo-600');
+                dmKnob.classList.add('translate-x-5');
+            } else {
+                document.body.classList.remove('dark');
+                dmSwitch.classList.add('bg-gray-300');
+                dmSwitch.classList.remove('bg-indigo-600');
+                dmKnob.classList.remove('translate-x-5');
+            }
+        }
+
+        // Init Theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            updateThemeUI(true);
+        }
+
+        dmToggle.addEventListener('click', () => {
+             const isDark = document.body.classList.toggle('dark');
+             localStorage.setItem('theme', isDark ? 'dark' : 'light');
+             updateThemeUI(isDark);
+        });
+
+
+        // --- Init ---
+        loadCategories();
+        loadHero();
+        loadProducts();
+
     </script>
 </body>
-
 </html>
