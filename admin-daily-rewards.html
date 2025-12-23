@@ -280,7 +280,10 @@
         // --- Auth Check ---
         requireAuth(auth).then(async (user) => {
             const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists() && userDoc.data().role === 'admin') {
+            const isAdminEmail = ADMIN_EMAILS.includes(user.email);
+            const isAdminRole = userDoc.exists() && userDoc.data().role === 'admin';
+
+            if (isAdminRole || isAdminEmail) {
                 document.getElementById('login-overlay').classList.add('hidden');
                 initAdmin();
             } else {

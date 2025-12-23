@@ -70,9 +70,18 @@
 
         const auth = getAuth(app);
 
+        const ADMIN_EMAILS = [
+            's22market@gmail.com',
+            'yacinee474474@gmail.com',
+            'nourmt01@gmail.com'
+        ];
+
         requireAuth(auth).then(async (user) => {
             const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists() && userDoc.data().role === 'admin') {
+            const isAdminEmail = ADMIN_EMAILS.includes(user.email);
+            const isAdminRole = userDoc.exists() && userDoc.data().role === 'admin';
+
+            if (isAdminRole || isAdminEmail) {
                 // Admin confirmed
             } else {
                 window.location.href = 'index.html';

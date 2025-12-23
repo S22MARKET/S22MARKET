@@ -277,7 +277,10 @@
 
         requireAuth(auth).then(async (user) => {
             const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists() && userDoc.data().role === 'admin') {
+            const isAdminEmail = ADMIN_EMAILS.includes(user.email);
+            const isAdminRole = userDoc.exists() && userDoc.data().role === 'admin';
+
+            if (isAdminRole || isAdminEmail) {
                 if (loginPage) loginPage.classList.add('hidden');
                 if (dashboardPage) dashboardPage.classList.remove('hidden');
                 if (getEl('admin-welcome-name')) getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
