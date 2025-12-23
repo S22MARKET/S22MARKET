@@ -248,6 +248,32 @@
         </div>
     </div>
 
+    <!-- Added To Cart Modal -->
+    <div id="added-to-cart-modal"
+        class="fixed inset-0 bg-black/70 hidden z-[100] items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl transform transition-all scale-100">
+            <div class="flex flex-col items-center text-center">
+                <div
+                    class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 text-green-600 animate-bounce">
+                    <i class="fas fa-check text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-black text-gray-800 mb-2">تمت الإضافة للسلة!</h3>
+                <p class="text-gray-500 mb-6 font-medium">تم وضع المنتج في عربة التسوق الخاصة بك بنجاح.</p>
+
+                <div class="grid grid-cols-2 gap-3 w-full">
+                    <button onclick="hideAddedToCartModal()"
+                        class="py-3 px-4 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition">
+                        تابع التسوق
+                    </button>
+                    <a href="cart.html"
+                        class="py-3 px-4 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
+                        الذهاب للسلة <i class="fas fa-arrow-left mr-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Logic -->
     <script type="module">
         import { auth, db } from './app-core.js';
@@ -316,7 +342,7 @@
 
             // Text
             document.getElementById('product-name').textContent = name;
-            document.getElementById('product-description').textContent = desc;
+            document.getElementById('product-description').innerHTML = desc;
             document.title = `${name} | S22 Market`;
 
             // Price
@@ -450,18 +476,8 @@
             // Update Badges
             updateCartBadge();
 
-            // Show Success / Ask to Login
-            const user = auth.currentUser;
-            if (user) {
-                // If logged in, maybe sync to Firestore logic (omitted for brevity, handled in cart.html)
-                if (confirm('تمت الإضافة للسلة! الذهاب للسلة؟')) {
-                    window.location.href = 'cart.html';
-                }
-            } else {
-                if (confirm('تمت الإضافة للسلة! ( تسجيل الدخول يمنحك نقاط وفاء 💎). الذهاب للسلة؟')) {
-                    window.location.href = 'cart.html';
-                }
-            }
+            // Show Success Custom Modal
+            showAddedToCartModal();
         }
 
         function updateCartBadge() {
@@ -504,6 +520,19 @@
             document.getElementById('page-loader').classList.add('hidden');
             document.getElementById('error-state').classList.remove('hidden');
             document.getElementById('error-message').textContent = msg;
+        }
+
+        // --- Added to Cart Modal Logic ---
+        function showAddedToCartModal() {
+            const modal = document.getElementById('added-to-cart-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        window.hideAddedToCartModal = () => {
+            const modal = document.getElementById('added-to-cart-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
         // Run

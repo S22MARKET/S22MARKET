@@ -842,8 +842,9 @@
                 setTimeout(() => window.location.href = 'order_history.html', 1500);
 
             } catch (error) {
-                console.error(error);
-                showToast(error.message, 'error');
+                console.error("Checkout Error:", error);
+                // Fallback alert for critical errors if toast doesn't appear
+                alert("حدث خطأ أثناء إتمام الطلب: " + error.message);
                 toggleButtonState(btn, false, originalContent);
             }
         };

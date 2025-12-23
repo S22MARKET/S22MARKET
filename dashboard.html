@@ -12,7 +12,7 @@
     <script src="theme-manager.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            ThemeManager.createFloatingSwitcher();
+            // ThemeManager.createFloatingSwitcher(); // Deprecated in favor of Sidebar
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -186,6 +186,8 @@
                     <button id="logout-btn"
                         class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i
                             class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
+                    <!-- Theme Switcher Container -->
+                    <div id="sidebar-theme-container"></div>
                 </div>
             </aside>
 
@@ -408,6 +410,7 @@
                 dashboardPage.classList.remove('hidden');
                 getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
                 initializeDashboard();
+                ThemeManager.renderSidebarControl('sidebar-theme-container'); // Sidebar Theme
             } else {
                 window.location.href = 'index.html';
             }
