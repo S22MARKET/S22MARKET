@@ -304,6 +304,8 @@
 
             // المستخدم قام بتسجيل الدخول
             loginBtn.classList.add('hidden');
+            loginBtn.classList.remove('sm:flex'); // Ensure it's hidden on desktop too
+            loginBtn.style.display = 'none'; // Double safety
             userMenu.classList.remove('hidden');
 
             const displayName = user.displayName || "زبوننا";

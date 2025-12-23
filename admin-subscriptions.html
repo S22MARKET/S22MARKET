@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Market - إدارة الاشتراكات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .dashboard-tab:hover {
+            background-color: #4338ca;
+        }
+
+        .dashboard-tab.active-tab {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: bold;
+        }
+
+        .dashboard-panel {
+            animation: fadeIn 0.5s;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4f46e5;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            z-index: 50;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Toast */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10001;
+        }
+
+        .toast {
+            background-color: #2f855a;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+        }
+
+        .toast.error {
+            background-color: #c53030;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="login-page" class="hidden min-h-screen flex items-center justify-center bg-gray-100 p-4">
+        <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl space-y-6">
+            <h2 class="text-3xl font-extrabold text-center text-gray-900">يرجى تسجيل الدخول</h2>
+            <p class="text-center text-red-500">تم تسجيل خروجك. يرجى العودة إلى <a href="dashboard.html"
+                    class="font-bold underline">صفحة الدخول الرئيسية</a>.</p>
+        </div>
+    </div>
+
+    <div id="dashboard-page" class="hidden">
+        <div class="relative min-h-screen md:flex">
+
+            <aside id="sidebar"
+                class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
+                <div class="p-3 text-center border-b border-gray-700">
+                    <h2 class="text-2xl font-bold">S22 Market</h2>
+                    <p id="admin-welcome-name" class="text-sm text-indigo-300"></p>
+                </div>
+                <nav class="flex-1 p-2 space-y-2">
+                    <a href="dashboard.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-chart-line fa-fw mr-3"></i> لوحة التحكم</a>
+                    <a href="admin-subscriptions.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-crown fa-fw mr-3 text-yellow-500"></i> إدارة الاشتراكات</a>
+                    <a href="admin-sellers.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-users-cog fa-fw mr-3"></i> إدارة البائعين</a>
+                    <a href="admin-products.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-boxes fa-fw mr-3"></i> المنتجات</a>
+
+                    <hr class="border-gray-700 my-2">
+                    <a href="dashboard.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-arrow-right fa-fw mr-3"></i> العودة للرئيسية</a>
+                </nav>
+                <div class="p-4 border-t border-gray-700">
+                    <button id="logout-btn"
+                        class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i
+                            class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
+                </div>
+            </aside>
+            <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+                <div id="main-panel" class="dashboard-panel">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-3xl font-bold text-gray-800">إدارة باقات الاشتراكات</h1>
+                        <button id="add-plan-btn"
+                            class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700">
+                            <i class="fas fa-plus mr-2"></i> إضافة باقة
+                        </button>
+                    </div>
+                    <div id="plans-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="col-span-full text-center p-8 bg-white rounded-lg shadow-sm">
+                            <div class="loader mx-auto"></div>
+                            <p class="mt-4 text-gray-600">جاري تحميل الباقات...</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="modal-container"></div>
+    <div id="toast-container"></div>
+
+    <script type="module">
+        import { auth, db } from './app-core.js';
+        import { collection, addDoc, doc, getDoc, updateDoc, deleteDoc, onSnapshot, query, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const ADMIN_EMAILS = [
+            's22market@gmail.com',
+            'yacinee474474@gmail.com',
+            'nourmt01@gmail.com'
+        ];
+
+        let plansCache = [];
+        const loginPage = document.getElementById('login-page');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const logoutBtn = document.getElementById('logout-btn');
+        const getEl = (id) => document.getElementById(id);
+        const getVal = (id) => getEl(id)?.value || '';
+
+        // --- Auth Check ---
+        async function checkAdminPermissions(user) {
+            if (!user) {
+                dashboardPage.classList.add('hidden');
+                loginPage.classList.remove('hidden');
+                return;
+            }
+            let isAdmin = false;
+
+            if (ADMIN_EMAILS.includes(user.email)) {
+                isAdmin = true;
+            } else {
+                try {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists() && userDoc.data().role === 'admin') {
+                        isAdmin = true;
+                    }
+                } catch (error) { console.error("Error checking permissions:", error); }
+            }
+
+            if (isAdmin) {
+                loginPage.classList.add('hidden');
+                dashboardPage.classList.remove('hidden');
+                getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
+                initializeDashboard();
+            } else {
+                dashboardPage.classList.add('hidden');
+                loginPage.classList.remove('hidden');
+                signOut(auth);
+            }
+        }
+        onAuthStateChanged(auth, user => { checkAdminPermissions(user); });
+        logoutBtn.addEventListener('click', async () => { await signOut(auth); });
+
+        // --- Helpers ---
+        const showModal = (title, content, onConfirm, confirmText = 'حفظ', showCancel = true) => {
+            const modalContainer = getEl('modal-container');
+            const confirmBtnHTML = `<button id="modal-confirm" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700">${confirmText}</button>`;
+            const cancelBtnHTML = showCancel ? `<button id="modal-cancel" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button>` : '';
+            modalContainer.innerHTML = `
+            <div class="modal-backdrop" id="modal-backdrop">
+                <div class="modal-content">
+                    <div class="flex justify-between items-center mb-4 border-b pb-3">
+                        <h3 class="text-xl font-bold">${title}</h3>
+                        <button id="modal-close-btn" class="text-gray-400 hover:text-gray-800 text-2xl">&times;</button>
+                    </div>
+                    <div id="modal-body">${content}</div>
+                    <div class="flex justify-end gap-4 mt-6 border-t pt-4">
+                        ${cancelBtnHTML}
+                        ${onConfirm ? confirmBtnHTML : ''}
+                    </div>
+                </div>
+            </div>`;
+            if (showCancel) getEl('modal-cancel').onclick = closeModal;
+            getEl('modal-close-btn').onclick = closeModal;
+            getEl('modal-backdrop').onclick = (e) => { if (e.target.id === 'modal-backdrop') closeModal(); };
+            if (onConfirm) getEl('modal-confirm').onclick = onConfirm;
+        }
+        const closeModal = () => { getEl('modal-container').innerHTML = ''; }
+        const showToast = (message, type = 'success') => {
+            const container = getEl('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+            toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        };
+        const showLoadingModal = (text = 'جاري التحميل...') => {
+            getEl('modal-container').innerHTML = `
+            <div class="modal-backdrop" id="modal-backdrop-loader">
+                <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-sm w-full">
+                    <div class="loader mx-auto"></div>
+                    <p class="mt-4 text-lg font-semibold text-gray-700">${text}</p>
+                </div>
+            </div>`;
+        }
+
+        // --- Main Logic ---
+        function initializeDashboard() {
+            loadPlans();
+            getEl('add-plan-btn').addEventListener('click', () => showPlanModal());
+        }
+
+        function loadPlans() {
+            onSnapshot(query(collection(db, "subscription_plans"), orderBy("order", "asc")), (snapshot) => {
+                plansCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderPlans();
+            });
+        }
+
+        function renderPlans() {
+            const list = getEl('plans-list');
+            list.innerHTML = plansCache.length === 0 ? '<p class="text-center text-gray-500 col-span-full mt-8">لا توجد باقات حالياً. أضف باقة جديدة للبدء.</p>' : '';
+
+            plansCache.forEach(plan => {
+                const card = document.createElement('div');
+                card.className = `bg-white p-6 rounded-xl shadow-md flex flex-col relative border border-gray-100 overflow-hidden transform transition hover:-translate-y-1 hover:shadow-lg`;
+
+                if (plan.color) card.style.borderTop = `4px solid ${plan.color}`;
+
+                const featuresList = (plan.features || []).map(f => `<li class="text-sm text-gray-600 mb-1 flex items-center"><i class="fas fa-check text-green-500 ml-2 text-xs"></i> ${f}</li>`).join('');
+
+                card.innerHTML = `
+                ${plan.isPopular ? '<div class="absolute top-0 right-0 bg-yellow-400 text-xs font-bold px-3 py-1 rounded-bl-lg text-white shadow-sm">الأكثر طلباً</div>' : ''}
+                <div class="mb-4">
+                    <h3 class="font-bold text-xl text-gray-800">${plan.name}</h3>
+                    <div class="flex items-baseline mt-2">
+                        <span class="text-3xl font-extrabold text-indigo-600">${plan.price.toLocaleString()}</span>
+                        <span class="text-sm text-gray-500 mr-1">د.ج / ${plan.period}</span>
+                    </div>
+                </div>
+                <div class="flex-grow border-t border-gray-100 pt-4 mb-4">
+                    <ul class="space-y-2">
+                       ${featuresList}
+                    </ul>
+                </div>
+                <div class="flex gap-2">
+                    <button class="edit-plan-btn flex-1 bg-gray-100 text-gray-600 py-2 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition" data-id="${plan.id}"><i class="fas fa-edit"></i> تعديل</button>
+                    <button class="delete-plan-btn flex-1 bg-gray-100 text-gray-600 py-2 rounded-lg hover:bg-red-50 hover:text-red-600 transition" data-id="${plan.id}"><i class="fas fa-trash"></i> حذف</button>
+                </div>
+                `;
+                list.appendChild(card);
+            });
+
+            document.querySelectorAll('.edit-plan-btn').forEach(btn => btn.onclick = () => {
+                const plan = plansCache.find(p => p.id === btn.dataset.id);
+                if (plan) showPlanModal(plan);
+            });
+
+            document.querySelectorAll('.delete-plan-btn').forEach(btn => btn.onclick = () => {
+                const planId = btn.dataset.id;
+                showModal('حذف الباقة', 'هل أنت متأكد من حذف هذه الباقة؟', async () => {
+                    try {
+                        await deleteDoc(doc(db, "subscription_plans", planId));
+                        closeModal();
+                        showToast('تم حذف الباقة');
+                    } catch (e) { alert(e.message); }
+                }, 'نعم، احذف', true);
+            });
+        }
+
+        function showPlanModal(plan = null) {
+            const isEditing = !!plan;
+            const title = isEditing ? 'تعديل الباقة' : 'إضافة باقة جديدة';
+
+            const content = `
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">اسم الباقة</label>
+                    <input type="text" id="p-name" class="mt-1 w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="مثال: الباقة الذهبية" value="${plan?.name || ''}">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">السعر (د.ج)</label>
+                        <input type="number" id="p-price" class="mt-1 w-full p-2 border rounded-lg" value="${plan?.price || ''}">
+                    </div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-700">المدة</label>
+                        <input type="text" id="p-period" class="mt-1 w-full p-2 border rounded-lg" placeholder="مثال: شهرياً، سنوياً" value="${plan?.period || ''}">
+                    </div>
+                </div>
+                <div>
+                     <label class="block text-sm font-medium text-gray-700">المميزات (ميزة في كل سطر)</label>
+                     <textarea id="p-features" rows="4" class="mt-1 w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="- عدد غير محدود من المنتجات\n- شارة التوثيق">${plan?.features ? plan.features.join('\n') : ''}</textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4 items-center">
+                    <div>
+                         <label class="block text-sm font-medium text-gray-700">الترتيب (Order)</label>
+                         <input type="number" id="p-order" class="mt-1 w-full p-2 border rounded-lg" value="${plan?.order || 1}">
+                    </div>
+                     <div>
+                         <label class="block text-sm font-medium text-gray-700">لون الشريط العلوى</label>
+                         <input type="color" id="p-color" class="mt-1 w-full h-10 p-1 border rounded-lg" value="${plan?.color || '#4f46e5'}">
+                    </div>
+                </div>
+                <div class="flex items-center mt-2">
+                    <input type="checkbox" id="p-popular" class="w-4 h-4 text-indigo-600 rounded" ${plan?.isPopular ? 'checked' : ''}>
+                    <label for="p-popular" class="mr-2 text-sm text-gray-700">تمييز كـ "الأكثر طلباً"</label>
+                </div>
+            </div>`;
+
+            showModal(title, content, async () => {
+                const name = getVal('p-name').trim();
+                const price = parseFloat(getVal('p-price'));
+                const period = getVal('p-period').trim();
+                const featuresStr = getVal('p-features').trim();
+                const order = parseInt(getVal('p-order')) || 1;
+                const color = getVal('p-color');
+                const isPopular = getEl('p-popular').checked;
+
+                if (!name || isNaN(price) || !period) return alert('يرجى ملء الاسم، السعر، والمدة');
+
+                const features = featuresStr.split('\n').map(f => f.trim()).filter(f => f);
+
+                const data = {
+                    name, price, period, features, order, color, isPopular,
+                    updatedAt: serverTimestamp()
+                };
+
+                showLoadingModal('جاري الحفظ...');
+                try {
+                    if (isEditing) {
+                        await updateDoc(doc(db, "subscription_plans", plan.id), data);
+                    } else {
+                        data.createdAt = serverTimestamp();
+                        await addDoc(collection(db, "subscription_plans"), data);
+                    }
+                    closeModal();
+                    showToast('تم الحفظ بنجاح');
+                } catch (e) {
+                    closeModal();
+                    alert(e.message);
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

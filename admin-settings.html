@@ -147,6 +147,9 @@
                     <a href="dashboard.html"
                         class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
                             class="fas fa-chart-line fa-fw mr-3"></i> لوحة التحكم</a>
+                    <a href="admin-subscriptions.html"
+                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
+                            class="fas fa-crown fa-fw mr-3 text-yellow-500"></i> إدارة الاشتراكات</a>
                     <a href="admin-sellers.html"
                         class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i
                             class="fas fa-users-cog fa-fw mr-3"></i> إدارة البائعين</a>
@@ -252,7 +255,10 @@
 
         requireAuth(auth).then(async (user) => {
             const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists() && userDoc.data().role === 'admin') {
+            const isAdminEmail = ADMIN_EMAILS.includes(user.email);
+            const isAdminRole = userDoc.exists() && userDoc.data().role === 'admin';
+
+            if (isAdminRole || isAdminEmail) {
                 if (loginPage) loginPage.classList.add('hidden');
                 if (dashboardPage) dashboardPage.classList.remove('hidden');
                 if (getEl('admin-welcome-name')) getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
