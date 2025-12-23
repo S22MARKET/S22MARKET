@@ -536,19 +536,12 @@
         }
 
         // WILAYA LOGIC
-        const wilayas = [
-            "أدرار", "الشلف", "الأغواط", "أم البواقي", "باتنة", "بجاية", "بسكرة", "بشار", "البليدة", "البويرة", "تمنراست", "تبسة", "تلمسان", "تيارت", "تيزي وزو", "الجزائر", "الجلفة", "جيجل", "سطيف", "سعيدة", "سكيكدة", "سيدي بلعباس", "عنابة", "قالمة", "قسنطينة", "المدية", "مستغانم", "المسيلة", "معسكر", "ورقلة", "وهران", "البيض", "إليزي", "برج بوعريريج", "بومرداس", "الطارق", "تندوف", "تيسمسيلت", "الوادي", "خنشلة", "سوق أهراس", "تيبازة", "ميلة", "عين الدفلى", "النعامة", "عين تموشنت", "غرداية", "غليزان", "تيميمون", "برج باجي مختار", "أولاد جلال", "بني عباس", "عين صالح", "عين قزام", "تقرت", "جانوت", "المغير", "المنيعة"
-        ];
+        /* 
+           Legacy Wilaya Logic - Replaced by new Modal 
+        */
+        // const wilayas = [...];
+        // const wilayaSelectorBtn = ...
 
-        const wilayaSelectorBtn = document.getElementById('wilaya-selector-btn');
-        const currentWilayaText = document.getElementById('current-wilaya-text');
-
-        // Initial Load of Wilaya
-        let selectedWilaya = localStorage.getItem('s22_selected_wilaya');
-        if (selectedWilaya) {
-            // currentWilayaText.textContent = selectedWilaya; // Removed old
-            locationBarCity.textContent = selectedWilaya;
-        }
 
         // Connect Location Bar to Modal
         locationBarBtn.onclick = () => {
@@ -897,8 +890,125 @@
 
             return div;
         }
+    </script>
+
+    <!-- Wilaya Selection Modal -->
+    <div id="wilaya-modal"
+        class="fixed inset-0 bg-black/80 z-[6000] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl transform transition-all scale-100">
+            <div class="text-center mb-6">
+                <div class="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-map-marker-alt text-2xl text-orange-600 animate-bounce"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">أين تتواجد حالياً؟</h3>
+                <p class="text-gray-500">اختر ولايتك لعرض المطاعم المتاحة في منطقتك</p>
+            </div>
+
+            <div class="space-y-4">
+                <div class="relative">
+                    <i class="fas fa-search absolute right-4 top-3.5 text-gray-400"></i>
+                    <input type="text" id="wilaya-search" placeholder="ابحث عن ولايتك..."
+                        class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pr-10 pl-4 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition font-bold text-gray-700">
+                </div>
+
+                <div id="wilayas-grid" class="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto custom-scrollbar p-1">
+                    <!-- Wilayas injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './app-core.js';
+        import { updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Wilayas List (58)
+        const wilayas = [
+            "01. أدرار", "02. الشليف", "03. الأغواط", "04. أم البواقي", "05. باتنة", "06. بجاية", "07. بسكرة", "08. بشار",
+            "09. البليدة", "10. البويرة", "11. تمنراست", "12. تبسة", "13. تلمسان", "14. تيارت", "15. تيزي وزو", "16. الجزائر",
+            "17. الجلفة", "18. جيجل", "19. سطيف", "20. سعيدة", "21. سكيكدة", "22. سيدي بلعباس", "23. عنابة", "24. قالمة",
+            "25. قسنطينة", "26. المدية", "27. مستغانم", "28. المسيلة", "29. معسكر", "30. ورقلة", "31. وهران", "32. البيض",
+            "33. إليزي", "34. برج بوعريريج", "35. بومرداس", "36. الطارف", "37. تندوف", "38. تيسمسيلت", "39. الوادي", "40. خنشلة",
+            "41. سوق أهراس", "42. تيبازة", "43. ميلة", "44. عين الدفلى", "45. النعامة", "46. عين تموشنت", "47. غرداية", "48. غليزان",
+            "49. تيميمون", "50. برج باجي مختار", "51. أولاد جلال", "52. بني عباس", "53. إن صالح", "54. إن قزام", "55. تقرت",
+            "56. جانت", "57. المغير", "58. المنيعة"
+        ];
+
+        let currentWilaya = localStorage.getItem('user_wilaya');
+
+        // Init Location Logic
+        function initLocation() {
+            const modal = document.getElementById('wilaya-modal');
+            const grid = document.getElementById('wilayas-grid');
+            const searchInput = document.getElementById('wilaya-search');
+            const locationBarBtn = document.getElementById('location-bar-btn');
+            const locationDisplay = document.getElementById('location-bar-city');
+
+            // Render List
+            function renderWilayas(filter = '') {
+                grid.innerHTML = '';
+                const filtered = wilayas.filter(w => w.includes(filter));
+                filtered.forEach(w => {
+                    const btn = document.createElement('button');
+                    btn.className = `text-right px-4 py-3 rounded-xl font-bold text-sm transition ${currentWilaya === w ? 'bg-orange-500 text-white shadow-lg' : 'bg-gray-50 text-gray-700 hover:bg-orange-50 hover:text-orange-600'}`;
+                    btn.textContent = w;
+                    btn.onclick = () => selectWilaya(w);
+                    grid.appendChild(btn);
+                });
+            }
+
+            // Select Handler
+            async function selectWilaya(w) {
+                currentWilaya = w;
+                localStorage.setItem('user_wilaya', w);
+
+                // UI Update
+                locationDisplay.textContent = w.split(' ').slice(1).join(' '); // Remove number
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+
+                // Optional: Sync to Firestore if logged in
+                const user = auth.currentUser;
+                if (user) {
+                    try {
+                        await updateDoc(doc(db, "users", user.uid), { wilaya: w });
+                    } catch (e) { console.log('Sync err'); }
+                }
+
+                // Reload or Filter logic could go here (e.g. filter restaurants by wilaya)
+                // For now, just update UI
+            }
+
+            // Open Modal Logic
+            function openModal() {
+                renderWilayas();
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            // Listeners
+            locationBarBtn.onclick = openModal;
+            searchInput.oninput = (e) => renderWilayas(e.target.value);
+
+            // Initial Check
+            if (!currentWilaya) {
+                // Default fallback if strictly needed, but better to force selection
+                // currentWilaya = "16. الجزائر"; 
+                setTimeout(openModal, 1000); // Show after small delay for effect
+            } else {
+                locationDisplay.textContent = currentWilaya.split(' ').slice(1).join(' ');
+            }
+        }
+
+        // Run when DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initLocation);
+        } else {
+            initLocation();
+        }
 
     </script>
+
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
         <a href="index.html" class="nav-item">

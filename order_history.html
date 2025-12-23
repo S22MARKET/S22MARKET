@@ -496,6 +496,8 @@
             if (user) {
                 // المستخدم قام بتسجيل الدخول
                 loginBtn.classList.add('hidden');
+                loginBtn.classList.remove('sm:flex');
+                loginBtn.style.display = 'none';
                 userMenu.classList.remove('hidden');
 
                 const displayName = user.displayName || "زبوننا";

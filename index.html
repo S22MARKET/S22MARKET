@@ -342,21 +342,29 @@
             }
         });
 
+        // Helper to handle multi-language names
+        function getProductName(product) {
+            if (!product || !product.name) return 'منتج';
+            if (typeof product.name === 'object') {
+                return product.name.ar || product.name.en || 'منتج';
+            }
+            return String(product.name);
+        }
+
         async function performSmartSearch(queryText) {
             searchResults.classList.remove('hidden');
             searchResults.innerHTML = '<div class="p-4 text-center text-gray-500"><i class="fas fa-spinner fa-spin"></i> جاري البحث...</div>';
 
             try {
-                // Simple client-side filtering for demo (in production: Algolia or Elastic)
-                // We will fetch a batch and filter in memory for better UX on small datasets
-                const q = query(collection(db, "products"), limit(50));
+                // Fetch a broader set to filter properly on client for mixed types
+                const q = query(collection(db, "products"), limit(100));
                 const snap = await getDocs(q);
 
                 const matches = snap.docs
                     .map(d => ({ id: d.id, ...d.data() }))
                     .filter(p => {
-                        const name = (p.name || '').toLowerCase();
-                        const desc = (p.description || '').toLowerCase();
+                        const name = getProductName(p).toLowerCase();
+                        const desc = (typeof p.description === 'object' ? (p.description.ar || p.description.en || '') : (p.description || '')).toLowerCase();
                         const search = queryText.toLowerCase();
                         return name.includes(search) || desc.includes(search);
                     })
@@ -367,11 +375,12 @@
                 } else {
                     let html = '';
                     matches.forEach(p => {
+                        const displayName = getProductName(p);
                         html += `
                             <a href="PRESENTPRODUCT.html?product=${p.id}" class="flex items-center gap-3 p-3 hover:bg-gray-50 transition border-b border-gray-50 last:border-0">
                                 <img src="${p.imageUrl || 'https://placehold.co/50'}" class="w-10 h-10 rounded object-cover">
                                 <div class="flex-1">
-                                    <div class="font-bold text-sm text-gray-800 line-clamp-1">${p.name}</div>
+                                    <div class="font-bold text-sm text-gray-800 line-clamp-1">${displayName}</div>
                                     <div class="text-xs text-indigo-600 font-bold">${p.price} د.ج</div>
                                 </div>
                                 <i class="fas fa-chevron-left text-gray-300 text-xs"></i>
@@ -389,7 +398,7 @@
 
             } catch (err) {
                 console.error("Search error", err);
-                searchResults.innerHTML = '<div class="p-2 text-center text-red-500 text-xs">خطأ في البحث</div>';
+                searchResults.innerHTML = '<div class="p-2 text-center text-red-500 text-xs">خطأ في البحث: تأكد من الاتصال</div>';
             }
         }
 
@@ -417,12 +426,13 @@
                 snap.forEach(doc => {
                     const c = doc.data();
                     const icon = c.icon || 'fa-box';
+                    const catName = typeof c.name === 'object' ? (c.name.ar || c.name.en || 'قسم') : c.name;
                     html += `
                         <a href="classproductindex.html?category=${doc.id}" class="flex flex-col items-center gap-2 min-w-[70px] group">
                             <div class="w-14 h-14 rounded-2xl bg-white border border-gray-100 flex items-center justify-center text-gray-400 text-xl shadow-sm group-hover:border-indigo-600 group-hover:text-indigo-600 transition duration-300">
                                 <i class="fas ${icon}"></i>
                             </div>
-                            <span class="text-[10px] font-bold text-gray-600 group-hover:text-indigo-600 transition truncate w-16 text-center">${c.name}</span>
+                            <span class="text-[10px] font-bold text-gray-600 group-hover:text-indigo-600 transition truncate w-16 text-center">${catName}</span>
                         </a>
                     `;
                 });
@@ -491,6 +501,7 @@
                     if (isFood) return; // Skip food items on main index
 
                     const img = (p.imageUrls && p.imageUrls[0]) ? p.imageUrls[0] : (p.imageUrl || 'https://placehold.co/300');
+                    const displayName = getProductName(p);
 
                     grid.innerHTML += `
                         <a href="PRESENTPRODUCT.html?product=${d.id}" class="block bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition duration-300 product-card-hover border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
@@ -499,7 +510,7 @@
                                 ${p.discount ? `<div class="absolute top-2 right-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">-${p.discount}%</div>` : ''}
                             </div>
                             <div class="p-3">
-                                <h3 class="font-bold text-sm text-gray-800 mb-1 line-clamp-2 min-h-[40px] dark:text-gray-200">${p.name}</h3>
+                                <h3 class="font-bold text-sm text-gray-800 mb-1 line-clamp-2 min-h-[40px] dark:text-gray-200">${displayName}</h3>
                                 <div class="flex items-center justify-between">
                                     <span class="text-indigo-600 font-extrabold text-sm dark:text-indigo-400">${p.price} د.ج</span>
                                     ${p.oldPrice ? `<span class="text-xs text-gray-400 line-through">${p.oldPrice}</span>` : ''}

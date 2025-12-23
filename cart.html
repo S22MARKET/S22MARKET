@@ -853,6 +853,8 @@
             currentUser = user;
             if (user) {
                 elements.loginBtn.classList.add('hidden');
+                elements.loginBtn.classList.remove('sm:flex');
+                elements.loginBtn.style.display = 'none';
                 document.getElementById('user-menu').classList.remove('hidden');
                 document.getElementById('user-menu-name').textContent = user.displayName?.split(' ')[0] || 'مستخدم';
                 document.getElementById('user-menu-displayname').textContent = user.displayName;
