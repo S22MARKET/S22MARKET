@@ -451,6 +451,22 @@
             renderCartItems();
         };
 
+        // --- Load Cart Logic ---
+        function loadCart() {
+            try {
+                const stored = localStorage.getItem('s22_cart');
+                cart = stored ? JSON.parse(stored) : [];
+                renderCartItems();
+                updateCartIcon(); // Local update
+            } catch (e) {
+                console.error("Cart load error", e);
+                cart = [];
+            }
+        }
+
+        // Init Load
+        loadCart();
+
         // --- Helper Functions ---
         const showToast = (message, type = 'success') => {
             const toast = document.createElement('div');
