@@ -1,14 +1,10 @@
 ﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
-
-
-
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S22 Market - ط³ظ„ط© ط§ظ„ظ…ط´طھط±ظٹط§طھ</title>
+    <title>S22 Market - سلة المشتريات</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -63,7 +59,7 @@
                 <a href="login.html" id="login-btn"
                     class="hidden relative text-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-full transition-colors items-center gap-2 sm:flex">
                     <i class="fas fa-sign-in-alt"></i>
-                    <span>ط¯ط®ظˆظ„ / طھط³ط¬ظٹظ„</span>
+                    <span>دخول / تسجيل</span>
                 </a>
 
                 <div id="user-menu" class="hidden">
@@ -76,26 +72,26 @@
                     <div id="user-menu-dropdown"
                         class="hidden absolute left-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border z-50 overflow-hidden">
                         <div class="p-3 border-b">
-                            <p class="text-sm text-gray-500">ظ…ط±ط­ط¨ط§ظ‹ ط¨ظƒطŒ</p>
+                            <p class="text-sm text-gray-500">مرحباً بك،</p>
                             <p class="font-bold text-gray-800" id="user-menu-displayname">...</p>
                         </div>
                         <a href="profile.html"
                             class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
-                                class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ظ…ظ„ظپظٹ ط§ظ„ط´ط®طµظٹ
-                            ظˆظ…ط­ط§ظپط·ظٹ</a>
+                                class="fas fa-user-circle fa-fw ml-2 text-gray-400"></i> ملفي الشخصي
+                            ومحافظي</a>
                         <a href="seller-dashboard.html"
                             class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
-                                class="fas fa-store fa-fw ml-2 text-blue-400"></i> ظ„ظˆط­ط© طھط­ظƒظ… ط§ظ„ط¨ط§ط¦ط¹</a>
+                                class="fas fa-store fa-fw ml-2 text-blue-400"></i> لوحة تحكم البائع</a>
                         <a href="order_history.html"
                             class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
-                                class="fas fa-archive fa-fw ml-2 text-gray-400"></i> ط£ط±ط´ظٹظپ ط·ظ„ط¨ط§طھظٹ</a>
+                                class="fas fa-archive fa-fw ml-2 text-gray-400"></i> أرشيف طلباتي</a>
                         <a href="loyalty_card.html"
                             class="block px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"><i
-                                class="fas fa-star fa-fw ml-2 text-orange-400"></i> ط¨ط·ط§ظ‚ط© ط§ظ„ظˆظپط§ط،
-                            (ط§ظ„ط¬ظˆط§ظ‡ط±)</a>
+                                class="fas fa-star fa-fw ml-2 text-orange-400"></i> بطاقة الوفاء
+                            (الجواهر)</a>
                         <button id="logout-btn"
                             class="w-full text-right px-4 py-3 text-red-600 hover:bg-red-50 border-t transition-colors"><i
-                                class="fas fa-sign-out-alt fa-fw ml-2"></i> طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬</button>
+                                class="fas fa-sign-out-alt fa-fw ml-2"></i> تسجيل الخروج</button>
                     </div>
                 </div>
             </div>
@@ -112,11 +108,11 @@
                 </div>
                 <button onclick="switchCartTab('market')" id="tab-market"
                     class="flex-1 py-3 rounded-xl font-bold text-sm relative z-10 transition-colors text-indigo-600">
-                    <i class="fas fa-shopping-bag mr-2"></i> طھط³ظˆظ‚ ظ…ظ†طھط¬ط§طھ
+                    <i class="fas fa-shopping-bag mr-2"></i> تسوق منتجات
                 </button>
                 <button onclick="switchCartTab('food')" id="tab-food"
                     class="flex-1 py-3 rounded-xl font-bold text-sm relative z-10 transition-colors text-gray-500">
-                    <i class="fas fa-utensils mr-2"></i> ط·ظ„ط¨ط§طھ ط·ط¹ط§ظ…
+                    <i class="fas fa-utensils mr-2"></i> طلبات طعام
                 </button>
             </div>
         </div>
@@ -139,12 +135,12 @@
             <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-shopping-basket text-4xl text-gray-300"></i>
             </div>
-            <h1 class="text-2xl font-extrabold text-gray-900 mb-2">ط³ظ„طھظƒ ظپط§ط±ط؛ط©!</h1>
-            <p class="text-gray-500 mb-8 max-w-xs mx-auto">ظ„ظ… طھظ‚ظ… ط¨ط¥ط¶ط§ظپط© ط£ظٹ ظ…ظ†طھط¬ط§طھ ظپظٹ ظ‡ط°ط§
-                ط§ظ„ظ‚ط³ظ… ط¨ط¹ط¯.</p>
+            <h1 class="text-2xl font-extrabold text-gray-900 mb-2">سلتك فارغة!</h1>
+            <p class="text-gray-500 mb-8 max-w-xs mx-auto">لم تقم بإضافة أي منتجات في هذا
+                القسم بعد.</p>
             <a href="index.html"
                 class="inline-flex items-center gap-2 bg-indigo-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
-                ط§ط¨ط¯ط£ ط§ظ„طھط³ظˆظ‚
+                ابدأ التسوق
             </a>
         </div>
 
@@ -161,43 +157,43 @@
                 <div class="lg:col-span-1">
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:sticky lg:top-28">
                         <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                            <i class="fas fa-receipt text-gray-400"></i> ظ…ظ„ط®طµ ط§ظ„ط·ظ„ط¨
+                            <i class="fas fa-receipt text-gray-400"></i> ملخص الطلب
                         </h2>
 
                         <div id="order-summary" class="space-y-4 mb-6">
                             <div class="flex justify-between font-medium text-gray-600">
-                                <span>ط§ظ„ظ…ط¬ظ…ظˆط¹ ط§ظ„ظپط±ط¹ظٹ</span>
-                                <span id="summary-subtotal" class="font-mono text-gray-900">0 ط¯.ط¬</span>
+                                <span>المجموع الفرعي</span>
+                                <span id="summary-subtotal" class="font-mono text-gray-900">0 د.ج</span>
                             </div>
 
                             <!-- Coupon -->
                             <div class="pt-4 border-t border-dashed">
                                 <div class="flex gap-2">
-                                    <input type="text" id="coupon-code" placeholder="ظƒظˆط¯ ط®طµظ…طں"
+                                    <input type="text" id="coupon-code" placeholder="كود خصم؟"
                                         class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono uppercase focus:ring-2 focus:ring-indigo-500 outline-none">
                                     <button type="button" id="apply-coupon-btn"
                                         class="w-20 bg-gray-900 text-white font-bold rounded-xl text-sm hover:bg-gray-800 transition">
-                                        طھط·ط¨ظٹظ‚
+                                        تطبيق
                                     </button>
                                 </div>
                                 <p id="coupon-msg" class="text-xs mt-2 hidden"></p>
                             </div>
 
                             <div class="flex justify-between font-medium text-gray-600 pt-2">
-                                <span>ط§ظ„طھظˆطµظٹظ„</span>
-                                <span id="summary-shipping" class="font-mono text-gray-900 text-sm">ظٹط­ط¯ط¯ ط¹ظ†ط¯
-                                    ط§ظ„ط·ظ„ط¨</span>
+                                <span>التوصيل</span>
+                                <span id="summary-shipping" class="font-mono text-gray-900 text-sm">يحدد عند
+                                    الطلب</span>
                             </div>
 
                             <div class="flex justify-between text-xl font-black border-t pt-4 mt-2">
-                                <span>ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ</span>
-                                <span id="summary-total" class="font-mono text-indigo-600">0 ط¯.ط¬</span>
+                                <span>الإجمالي</span>
+                                <span id="summary-total" class="font-mono text-indigo-600">0 د.ج</span>
                             </div>
                         </div>
 
                         <button type="button" id="desktop-checkout-btn"
                             class="hidden lg:flex w-full justify-center items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-4 rounded-xl shadow-lg shadow-indigo-200 transition-all hover:scale-[1.02]">
-                            <span>ط¥طھظ…ط§ظ… ط§ظ„ط·ظ„ط¨</span>
+                            <span>إتمام الطلب</span>
                             <i class="fas fa-arrow-left"></i>
                         </button>
                     </div>
@@ -212,12 +208,12 @@
         class="fixed bottom-[70px] left-4 right-4 bg-white/90 backdrop-blur-md border border-gray-100 p-4 rounded-2xl shadow-2xl z-40 lg:hidden transform transition-transform duration-300 translate-y-full">
         <div class="flex justify-between items-center gap-4">
             <div class="flex flex-col">
-                <span class="text-xs text-gray-500 font-bold">ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ</span>
-                <p id="mobile-sticky-total" class="text-xl font-black text-indigo-600 font-mono">0 ط¯.ط¬</p>
+                <span class="text-xs text-gray-500 font-bold">الإجمالي</span>
+                <p id="mobile-sticky-total" class="text-xl font-black text-indigo-600 font-mono">0 د.ج</p>
             </div>
             <button id="mobile-checkout-btn"
                 class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-200">
-                <span>ط¥طھظ…ط§ظ… ط§ظ„ط·ظ„ط¨</span>
+                <span>إتمام الطلب</span>
                 <i class="fas fa-arrow-left"></i>
             </button>
         </div>
@@ -228,7 +224,7 @@
         <div class="modal-content overflow-hidden flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center p-5 border-b bg-gray-50">
                 <h3 class="text-xl font-black text-gray-800 flex items-center gap-2">
-                    <i class="fas fa-shield-alt text-green-500"></i> ط¥طھظ…ط§ظ… ط§ظ„ط·ظ„ط¨
+                    <i class="fas fa-shield-alt text-green-500"></i> إتمام الطلب
                 </h3>
                 <button id="close-checkout-modal-btn"
                     class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-300 hover:text-red-500 transition">
@@ -242,20 +238,20 @@
                     <!-- Type Specific Notice -->
                     <div id="checkout-type-notice"
                         class="bg-blue-50 text-blue-800 p-3 rounded-xl text-sm font-bold flex items-center gap-2">
-                        <i class="fas fa-info-circle"></i> <span>ط¬ط§ط±ظٹ ط¥طھظ…ط§ظ… ط·ظ„ط¨ طھط³ظˆظ‚</span>
+                        <i class="fas fa-info-circle"></i> <span>جاري إتمام طلب تسوق</span>
                     </div>
 
-                    <h3 class="font-bold text-gray-700 border-b pb-2">ظ…ط¹ظ„ظˆظ…ط§طھ ط§ظ„ط§ط³طھظ„ط§ظ…</h3>
+                    <h3 class="font-bold text-gray-700 border-b pb-2">معلومات الاستلام</h3>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-1">ط§ظ„ط§ط³ظ…</label>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">الاسم</label>
                             <input type="text" id="q-customer-name"
                                 class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
                                 required>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-1">ط±ظ‚ظ… ط§ظ„ظ‡ط§طھظپ</label>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">رقم الهاتف</label>
                             <input type="tel" id="q-customer-phone"
                                 class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
                                 dir="ltr" required>
@@ -263,13 +259,13 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1">ط§ظ„ظˆظ„ط§ظٹط© &
-                            ط§ظ„ط¨ظ„ط¯ظٹط©</label>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">الولاية &
+                            البلدية</label>
                         <div class="grid grid-cols-2 gap-4">
-                            <input type="text" id="q-customer-wilaya" placeholder="ط§ظ„ظˆظ„ط§ظٹط©"
+                            <input type="text" id="q-customer-wilaya" placeholder="الولاية"
                                 class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
                                 required>
-                            <input type="text" id="q-customer-baladiya" placeholder="ط§ظ„ط¨ظ„ط¯ظٹط©"
+                            <input type="text" id="q-customer-baladiya" placeholder="البلدية"
                                 class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
                                 required>
                         </div>
@@ -278,27 +274,26 @@
                     <!-- GPS Field (Enhanced for Food) -->
                     <div id="gps-field-container">
                         <label class="block text-xs font-bold text-gray-500 mb-1 flex justify-between">
-                            <span>ط§ظ„ط¹ظ†ظˆط§ظ† / ط§ظ„ظ…ظˆظ‚ط¹</span>
-                            <span class="text-orange-500 text-[10px]" id="gps-required-hint">* ظٹظپط¶ظ„ GPS
-                                ظ„ط·ط¹ط§ظ…</span>
+                            <span>العنوان / الموقع</span>
+                            <span class="text-orange-500 text-[10px]" id="gps-required-hint">* يفضل GPS
+                                لطعام</span>
                         </label>
                         <div class="relative">
                             <i class="fas fa-map-marker-alt absolute right-3 top-3.5 text-gray-400"></i>
-                            <input type="url" id="q-customer-gps"
-                                placeholder="ط±ط§ط¨ط· ظ…ظˆظ‚ط¹ظƒ ظ…ظ† Maps (ط§ط®طھظٹط§ط±ظٹ)"
+                            <input type="url" id="q-customer-gps" placeholder="رابط موقعك من Maps (اختياري)"
                                 class="w-full p-3 pr-10 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
                                 dir="ltr">
                         </div>
                         <textarea id="q-customer-address"
                             class="mt-2 w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm"
-                            rows="2" placeholder="ظˆطµظپ ط¯ظ‚ظٹظ‚ ظ„ظ„ظ…ظ†ط²ظ„/ط§ظ„ظ…ظƒط§ظ†..." required></textarea>
+                            rows="2" placeholder="وصف دقيق للمنزل/المكان..." required></textarea>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1">ظ…ظ„ط§ط­ط¸ط§طھ</label>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">ملاحظات</label>
                         <textarea id="q-customer-notes"
                             class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm"
-                            rows="1" placeholder="ط£ظٹ طھظپط§طµظٹظ„ ط¥ط¶ط§ظپظٹط©..."></textarea>
+                            rows="1" placeholder="أي تفاصيل إضافية..."></textarea>
                     </div>
 
                     <!-- Extra Features (Hidden by default, toggleable) -->
@@ -309,19 +304,19 @@
                                 onclick="document.getElementById('schedule-options').classList.toggle('hidden')"
                                 class="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition">
                                 <span class="text-sm font-bold text-gray-700"><i
-                                        class="fas fa-clock text-indigo-500 ml-2"></i> ط¬ط¯ظˆظ„ط© ط§ظ„طھظˆطµظٹظ„</span>
+                                        class="fas fa-clock text-indigo-500 ml-2"></i> جدولة التوصيل</span>
                                 <i class="fas fa-chevron-down text-xs text-gray-400"></i>
                             </button>
                             <div id="schedule-options" class="hidden p-4 bg-white">
                                 <label class="flex items-center gap-2 mb-2 cursor-pointer">
                                     <input type="checkbox" id="is-scheduled-checkbox" class="accent-indigo-600 w-4 h-4">
-                                    <span class="text-sm">طھظپط¹ظٹظ„ ط§ظ„ط¬ط¯ظˆظ„ط©</span>
+                                    <span class="text-sm">تفعيل الجدولة</span>
                                 </label>
                                 <select id="schedule-frequency"
                                     class="w-full p-2 bg-gray-50 rounded-lg text-sm border border-gray-200">
-                                    <option value="daily">ظٹظˆظ…ظٹط§ظ‹</option>
-                                    <option value="weekly">ط£ط³ط¨ظˆط¹ظٹط§ظ‹</option>
-                                    <option value="monthly">ط´ظ‡ط±ظٹط§ظ‹</option>
+                                    <option value="daily">يومياً</option>
+                                    <option value="weekly">أسبوعياً</option>
+                                    <option value="monthly">شهرياً</option>
                                 </select>
                             </div>
                         </div>
@@ -332,12 +327,12 @@
 
             <div class="p-5 border-t bg-gray-50">
                 <div class="flex justify-between items-center mb-4">
-                    <span class="text-gray-600 font-bold">ط§ظ„ظ…ط¬ظ…ظˆط¹ ط§ظ„ظƒظ„ظٹ</span>
-                    <span id="modal-summary-total" class="text-2xl font-black text-indigo-600 font-mono">0 ط¯.ط¬</span>
+                    <span class="text-gray-600 font-bold">المجموع الكلي</span>
+                    <span id="modal-summary-total" class="text-2xl font-black text-indigo-600 font-mono">0 د.ج</span>
                 </div>
                 <button type="submit" form="checkout-form" id="submit-quick-checkout-btn"
                     class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-green-200 transition transform active:scale-95 flex justify-center items-center gap-2">
-                    <span>طھط£ظƒظٹط¯ ط§ظ„ط·ظ„ط¨</span>
+                    <span>تأكيد الطلب</span>
                     <i class="fas fa-check-circle"></i>
                 </button>
             </div>
@@ -446,7 +441,7 @@
             setTimeout(() => toast.remove(), 3000);
         };
 
-        const toggleButtonState = (btn, isLoading, originalText = 'طھط£ظƒظٹط¯') => {
+        const toggleButtonState = (btn, isLoading, originalText = 'تأكيد') => {
             if (!btn) return;
             if (isLoading) {
                 btn.disabled = true;
@@ -529,7 +524,7 @@
                 const storeId = item.sellerId || 'unknown';
                 if (!groups[storeId]) {
                     groups[storeId] = {
-                        name: item.storeName || (activeTab === 'market' ? 'ظ…طھط¬ط± ط¹ط§ظ…' : 'ظ…ط·ط¹ظ… ط؛ظٹط± ظ…ط¹ط±ظˆظپ'),
+                        name: item.storeName || (activeTab === 'market' ? 'متجر عام' : 'مطعم غير معروف'),
                         logo: item.storeLogo || item.logoUrl || item.photoURL || activeGlobalLogo,
                         items: [],
                         totalValue: 0,
@@ -566,11 +561,11 @@
                                     </div>
                                     <div>
                                         <h3 class="font-bold text-gray-800 text-base">${group.name}</h3>
-                                        <p class="text-[10px] text-gray-400 font-bold">ط¨ط§ط¦ط¹ ظ…ظˆط«ظˆظ‚</p>
+                                        <p class="text-[10px] text-gray-400 font-bold">بائع موثوق</p>
                                     </div>
                                 </div>
                                 <div class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">
-                                    ط§ظ„ظ…ط³طھظˆظ‰ ${level}
+                                    المستوى ${level}
                                 </div>
                             </div>
 
@@ -578,7 +573,7 @@
                             <div class="w-full bg-gray-100 rounded-full h-1.5 mt-1 overflow-hidden">
                                 <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-1.5 rounded-full transition-all duration-1000" style="width: ${progressPercent}%"></div>
                             </div>
-                            <p class="text-[10px] text-gray-400 text-left w-full pl-1">ظ…طھط¨ظ‚ظٹ ${Math.max(0, (level * 5000) - group.totalValue)} ط¯.ط¬ ظ„ظ„ظ…ط³طھظˆظ‰ ط§ظ„طھط§ظ„ظٹ</p>
+                            <p class="text-[10px] text-gray-400 text-left w-full pl-1">متبقي ${Math.max(0, (level * 5000) - group.totalValue)} د.ج للمستوى التالي</p>
                         </div>
 
                         <!-- Items -->
@@ -593,20 +588,20 @@
                 });
             } else {
                 if (activeTab === 'market') {
-                    container.innerHTML = `<div class="text-center py-10 text-gray-400">ظ„ط§ طھظˆط¬ط¯ ظ…ظ†طھط¬ط§طھ طھط³ظˆظ‚ ظپظٹ ط§ظ„ط³ظ„ط©</div>`;
+                    container.innerHTML = `<div class="text-center py-10 text-gray-400">لا توجد منتجات تسوق في السلة</div>`;
                 } else {
-                    container.innerHTML = `<div class="text-center py-10 text-gray-400">ظ„ط§ طھظˆط¬ط¯ ط·ظ„ط¨ط§طھ ط·ط¹ط§ظ… ظپظٹ ط§ظ„ط³ظ„ط©</div>`;
+                    container.innerHTML = `<div class="text-center py-10 text-gray-400">لا توجد طلبات طعام في السلة</div>`;
                 }
             }
 
 
             // 4. "Next to the old one" - Cross Category Alert
             if (otherItems.length > 0) {
-                const otherType = activeTab === 'market' ? 'ط·ط¹ط§ظ…' : 'طھط³ظˆظ‚';
+                const otherType = activeTab === 'market' ? 'طعام' : 'تسوق';
                 const otherIcon = activeTab === 'market' ? 'fa-utensils' : 'fa-shopping-bag';
                 const otherColor = activeTab === 'market' ? 'orange' : 'indigo'; // Tailwinds colors
 
-      ment.createElement('div');
+                const alertEl = document.createElement('div');
                 alertEl.className = `mt-6 bg-${otherColor}-50 border border-${otherColor}-100 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:bg-${otherColor}-100 transition-colors`;
                 alertEl.onclick = () => switchCartTab(activeTab === 'market' ? 'food' : 'market');
                 alertEl.innerHTML = `
@@ -615,12 +610,12 @@
                             <i class="fas ${otherIcon} animate-pulse"></i>
                         </div>
                         <div>
-                            <h4 class="font-bold text-gray-800 text-sm">ظ„ط¯ظٹظƒ ط³ظ„ط© ${otherType} ط¬ط§ظ†ط¨ظٹط©!</h4>
-                            <p class="text-xs text-gray-500">${otherItems.length} ط¹ظ†طµط± ظٹظ†طھط¸ط±ظƒ ظ‡ظ†ط§ظƒ</p>
+                            <h4 class="font-bold text-gray-800 text-sm">لديك سلة ${otherType} جانبية!</h4>
+                            <p class="text-xs text-gray-500">${otherItems.length} عنصر ينتظرك هناك</p>
                         </div>
                     </div>
                     <div class="bg-white px-4 py-2 rounded-lg text-xs font-bold text-${otherColor}-600 shadow-sm">
-                        ط¹ط±ط¶ ط§ظ„ط³ظ„ط©
+                        عرض السلة
                     </div>
                 `;
                 container.appendChild(alertEl);
@@ -632,13 +627,13 @@
                 upsellEl.className = 'mt-8 border-t pt-4';
                 upsellEl.innerHTML = `
                     <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                        <i class="fas fa-magic text-yellow-500"></i> ط§ظ‚طھط±ط§ط­ط§طھ Dr. S22
+                        <i class="fas fa-magic text-yellow-500"></i> اقتراحات Dr. S22
                     </h3>
                     <div class="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
                          <!-- Static Examples for Visuals -->
-                         ${createUpsellCard('ط¨ظٹط¨ط³ظٹ', '150', 'https://images.unsplash.com/photo-1629203851122-3726ecdf080c?auto=format&fit=crop&q=80&w=100')}
-                         ${createUpsellCard('ط¨ط·ط§ط·ط³ ط¥ط¶ط§ظپظٹط©', '200', 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&q=80&w=100')}
-                         ${createUpsellCard('طµظˆطµ ط«ظˆظ…', '50', 'https://images.unsplash.com/photo-1472476443507-c7a392dd6182?auto=format&fit=crop&q=80&w=100')}
+                         ${createUpsellCard('بيبسي', '150', 'https://images.unsplash.com/photo-1629203851122-3726ecdf080c?auto=format&fit=crop&q=80&w=100')}
+                         ${createUpsellCard('بطاطس إضافية', '200', 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&q=80&w=100')}
+                         ${createUpsellCard('صوص ثوم', '50', 'https://images.unsplash.com/photo-1472476443507-c7a392dd6182?auto=format&fit=crop&q=80&w=100')}
                     </div>
                  `;
                 container.appendChild(upsellEl);
@@ -652,22 +647,22 @@
                 <div class="min-w-[100px] bg-white rounded-xl p-2 border border-gray-100 shadow-sm flex flex-col items-center gap-2 cursor-pointer hover:border-indigo-300 transition-colors">
                     <img src="${img}" class="w-12 h-12 rounded-full object-cover bg-gray-50">
                     <span class="text-[10px] font-bold text-gray-700 text-center truncate w-full">${name}</span>
-                    <span class="text-xs font-black text-indigo-600">${price} ط¯.ط¬</span>
-                    <button class="w-full bg-indigo-50 text-indigo-600 text-[10px] font-bold py-1 rounded hover:bg-indigo-600 hover:text-white transition-colors">ط¥ط¶ط§ظپط©</button>
+                    <span class="text-xs font-black text-indigo-600">${price} د.ج</span>
+                    <button class="w-full bg-indigo-50 text-indigo-600 text-[10px] font-bold py-1 rounded hover:bg-indigo-600 hover:text-white transition-colors">إضافة</button>
                 </div>
             `;
         }
 
         function createItemHTML(item, wrap = false) {
             const img = (item.imageUrls && item.imageUrls[0]) || item.image || 'https://placehold.co/100';
-            const itemName = typeof item.name === 'object' ? (item.name.ar || item.name.en || 'ظ…ظ†طھط¬') : item.name;
+            const itemName = typeof item.name === 'object' ? (item.name.ar || item.name.en || 'منتج') : item.name;
             const html = `
     <div
         class="flex items-center gap-4 ${wrap ? 'bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-4' : ''}">
         <img src="${img}" class="w-20 h-20 rounded-xl bg-gray-50 object-cover border border-gray-100">
         <div class="flex-grow">
             <h4 class="font-bold text-gray-800 text-sm line-clamp-2">${itemName}</h4>
-            <p class="text-indigo-600 font-mono font-bold mt-1">${item.price.toLocaleString()} ط¯.ط¬</p>
+            <p class="text-indigo-600 font-mono font-bold mt-1">${item.price.toLocaleString()} د.ج</p>
         </div>
         <div class="flex flex-col items-end gap-2">
             <div class="flex items-center bg-gray-50 rounded-lg border border-gray-200 h-8">
@@ -679,7 +674,7 @@
             </div>
             <button onclick="removeItem('${item.id}')"
                 class="text-gray-400 hover:text-red-500 text-xs transition-colors">
-                <i class="fas fa-trash"></i> ط­ط°ظپ
+                <i class="fas fa-trash"></i> حذف
             </button>
         </div>
     </div>
@@ -696,13 +691,13 @@
 
             const total = Math.max(0, subtotal - discount);
 
-            elements.subtotal.textContent = `${subtotal.toLocaleString()} ط¯.ط¬`;
-            elements.total.textContent = `${total.toLocaleString()} ط¯.ط¬`;
-            elements.mobileStickyTotal.textContent = `${total.toLocaleString()} ط¯.ط¬`;
-            elements.modalTotal.textContent = `${total.toLocaleString()} ط¯.ط¬`;
+            elements.subtotal.textContent = `${subtotal.toLocaleString()} د.ج`;
+            elements.total.textContent = `${total.toLocaleString()} د.ج`;
+            elements.mobileStickyTotal.textContent = `${total.toLocaleString()} د.ج`;
+            elements.modalTotal.textContent = `${total.toLocaleString()} د.ج`;
 
             if (currentDiscount) {
-                elements.couponMsg.textContent = `طھظ… طھط·ط¨ظٹظ‚ ط®طµظ… ${discount.toLocaleString()} ط¯.ط¬`;
+                elements.couponMsg.textContent = `تم تطبيق خصم ${discount.toLocaleString()} د.ج`;
                 elements.couponMsg.className = 'text-xs mt-2 text-green-600 font-bold';
                 elements.couponMsg.classList.remove('hidden');
             } else {
@@ -740,7 +735,7 @@
                     const q = query(collection(db, 'coupons'), where('code', '==', code), where('isActive', '==', true), limit(1));
                     const snap = await getDocs(q);
 
-                    if (snap.empty) throw new Error('ط§ظ„ظƒظˆط¯ ط؛ظٹط± طµط­ظٹط­');
+                    if (snap.empty) throw new Error('الكود غير صحيح');
                     const data = snap.docs[0].data();
 
                     currentDiscount = { id: snap.docs[0].id, ...data };
@@ -751,13 +746,13 @@
                     elements.couponMsg.classList.remove('hidden');
                     currentDiscount = null;
                 }
-                toggleButtonState(elements.couponBtn, false, 'طھط·ط¨ظٹظ‚');
+                toggleButtonState(elements.couponBtn, false, 'تطبيق');
             };
         }
 
         // --- Checkout Logic ---
         async function openCheckout() {
-            const user = await requireAuth(auth);
+            const user = await window.requireAuth(auth);
             if (!user) return; // Should have redirected
 
             elements.checkoutModal.classList.add('active');
@@ -765,13 +760,16 @@
             // Context Update
             if (activeTab === 'market') {
                 elements.checkoutTypeNotice.className = 'bg-indigo-50 text-indigo-800 p-3 rounded-xl text-sm font-bold flex items-center gap-2';
-                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-shopping-bag"></i> <span>ط¬ط§ط±ظٹ ط¥طھظ…ط§ظ… ط·ظ„ط¨ <b>طھط³ظˆظ‚</b></span>';
+                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-shopping-bag"></i> <span>جاري إتمام طلب <b>تسوق</b></span>';
                 document.getElementById('gps-field-container').classList.add('opacity-50'); // Dim GPS for market
             } else {
                 elements.checkoutTypeNotice.className = 'bg-orange-50 text-orange-800 p-3 rounded-xl text-sm font-bold flex items-center gap-2';
-                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-utensils"></i> <span>ط¬ط§ط±ظٹ ط¥طھظ…ط§ظ… ط·ظ„ط¨ <b>ط·ط¹ط§ظ…</b></span>';
+                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-utensils"></i> <span>جاري إتمام طلب <b>طعام</b></span>';
                 document.getElementById('gps-field-container').classList.remove('opacity-50');
             }
+
+            // Prefill logic
+            if (window.autoFillCheckout) window.autoFillCheckout();
 
             // Mobile Hook
             if (window.openMobileOverlay) window.openMobileOverlay(() => elements.checkoutModal.classList.remove('active'),
@@ -793,136 +791,93 @@
 
             try {
                 const checkoutItems = getFilteredItems();
-                if (checkoutItems.length === 0) throw new Error('ظ„ط§ طھظˆط¬ط¯ ط¹ظ†ط§طµط± ظ„ط¥طھظ…ط§ظ… ط§ظ„ط·ظ„ط¨');
+                if (checkoutItems.length === 0) throw new Error('لا توجد عناصر لإتمام الطلب');
 
                 const subtotal = checkoutItems.reduce((sum, i) => sum + (Number(i.price) * Number(i.quantity)), 0);
                 const discount = currentDiscount ? (currentDiscount.discountType === 'percentage' ? subtotal *
                     (currentDiscount.discountValue / 100) : currentDiscount.discountValue) : 0;
                 const total = Math.max(0, subtotal - discount);
 
-                // Basic Data
-                const isScheduled = document.getElementById('is-scheduled-checkbox').checked;
-                const scheduleFrequency = document.getElementById('schedule-frequency').value;
+                if (!currentUser) throw new Error('يرجى تسجيل الدخول');
 
-                const order = {
+                const orderData = {
+                    customerId: currentUser.uid,
                     customerName: document.getElementById('q-customer-name').value,
-                    customerContact: document.getElementById('q-customer-phone').value,
-                    customerWilaya: document.getElementById('q-customer-wilaya').value,
-                    customerBaladiya: document.getElementById('q-customer-baladiya').value,
-                    customerLocation: document.getElementById('q-customer-address').value,
-                    customerGps: document.getElementById('q-customer-gps').value.trim(),
-                    customerInquiry: document.getElementById('q-customer-notes').value,
-
-                    // Scheduling Data
-                    isScheduled: isScheduled,
-                    scheduleFrequency: isScheduled ? scheduleFrequency : null,
+                    customerPhone: document.getElementById('q-customer-phone').value,
+                    wilaya: document.getElementById('q-customer-wilaya').value,
+                    baladiya: document.getElementById('q-customer-baladiya').value,
+                    address: document.getElementById('q-customer-address').value,
+                    gpsLocation: document.getElementById('q-customer-gps').value,
+                    notes: document.getElementById('q-customer-notes').value,
 
                     items: checkoutItems,
                     totalPrice: total,
                     subtotal: subtotal,
-                    discountAmount: discount,
-                    couponCode: currentDiscount?.code || null,
-
-                    orderType: activeTab, // 'market' or 'food'
-                    status: 'new',
+                    discount: discount,
+                    status: 'pending',
+                    type: activeTab, // market or food
                     createdAt: serverTimestamp(),
-                    userId: currentUser?.uid || null
+                    sellerId: checkoutItems[0].sellerId || 'unknown' // Naive: assume single seller or primary
+                    // Real app should split orders by seller, but for S22 "Market" mode, usually aggregation.
                 };
 
-                // Split Orders if Food (Multi-Restaurant) ???
-                // For simplicity and user UX, we create ONE main order,
-                // BUT if we want to follow strict multi-vendor, we might split.
-                // For now: Keep simple. Admin sees one order with items from X and Y.
-                // Or better: If 'food', maybe grouping helps drivers?
-                // Let's stick to Single Order Document for MVP, but array of items carries sellerIds.
+                // Add Schedule if checked
+                const isScheduled = document.getElementById('is-scheduled-checkbox').checked;
+                if (isScheduled) {
+                    orderData.scheduled = true;
+                    orderData.scheduleFrequency = document.getElementById('schedule-frequency').value;
+                    // Add to separate collection? or just flag? 
+                    // Let's just flag it.
+                }
 
-                const ref = await addDoc(collection(db, 'orders'), order);
+                await addDoc(collection(db, 'orders'), orderData);
 
-                // Clear ONLY purchased items
-                cart = cart.filter(i => activeTab === 'market' ? i.itemType === 'food' : (i.itemType === 'market' ||
-                    !i.itemType));
+                // Clear cart (only ordered items)
+                const remaining = cart.filter(i => activeTab === 'market' ? i.itemType === 'food' : (i.itemType === 'market' || !i.itemType));
+                cart = remaining;
                 saveCart();
-                currentDiscount = null;
 
-                // Success
-                elements.content.innerHTML = `
-        <div class="text-center py-20 bg-white rounded-3xl shadow-sm animate-pulse">
-            <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fas fa-check text-4xl text-green-600"></i>
-            </div>
-            <h2 class="text-3xl font-extrabold text-gray-900 mb-2">طھظ… ط§ظ„ط·ظ„ط¨ ط¨ظ†ط¬ط§ط­!</h2>
-            <p class="text-gray-500 mb-8">ط±ظ‚ظ… ط§ظ„ط·ظ„ط¨: <span
-                    class="font-mono font-bold text-gray-800">#${ref.id.slice(0, 6)}</span></p>
-            <a href="index.html" class="inline-block bg-gray-900 text-white font-bold py-3 px-8 rounded-xl">ط§ظ„ط¹ظˆط¯ط©
-                ظ„ظ„ط±ط¦ظٹط³ظٹط©</a>
-        </div>
-        `;
-                elements.mobileCheckoutBar.classList.add('hidden');
-                if (window.closeMobileOverlay) window.closeMobileOverlay();
+                showToast(`تم إرسال الطلب بنجاح!`, 'success');
+                elements.checkoutModal.classList.remove('active');
+                setTimeout(() => window.location.href = 'order_history.html', 1500);
 
-            } catch (err) {
-                console.error(err);
-                showToast(err.message, 'error');
+            } catch (error) {
+                console.error(error);
+                showToast(error.message, 'error');
                 toggleButtonState(btn, false, originalContent);
             }
         };
 
         // --- Init ---
-        // Initialize
-        // --- INLINED AUTH LOGIN (Self-Contained) ---
-        // requireAuth definition is kept here, imports and const declarations removed to avoid duplicates
-        async function requireAuth(authInstance) {
-            await setPersistence(authInstance, browserLocalPersistence);
-
-            return new Promise((resolve) => {
-                const unsubscribe = onAuthStateChanged(authInstance, async (user) => {
-                    if (!user) {
-                        // Not logged in -> Redirect to Login
-                        // Save return URL manually since we removed helper
-                        localStorage.setItem('s22_return_url', window.location.href);
-                        window.location.href = 'login.html';
-                        resolve(null);
-                    } else {
-                        // Logged in
-                        resolve(user);
-                    }
-                    unsubscribe();
-                });
-            });
-        }
-        // auth and db are already defined at the top
-
-        // Check Auth on Load for Cart
-        // We use a hybrid approach here: loading the cart doesn't Strictly require auth until checkout
-        // But the previous code might have enforced it. The user wants "Persistent Auth".
-        // Let's keep the existing flow but use the new function if called.
-
-        // Global User var
         onAuthStateChanged(auth, (user) => {
+            currentUser = user;
             if (user) {
-                currentUser = user;
-                loadCart();
-                // Pre-fill
-                if (user) {
-                    elements.loginBtn?.classList.add('hidden');
-                    elements.bottomLoginBtn?.classList.add('hidden');
-                    elements.bottomProfileBtn?.classList.remove('hidden');
+                elements.loginBtn.classList.add('hidden');
+                document.getElementById('user-menu').classList.remove('hidden');
+                document.getElementById('user-menu-name').textContent = user.displayName?.split(' ')[0] || 'مستخدم';
+                document.getElementById('user-menu-displayname').textContent = user.displayName;
 
-                    getDoc(doc(db, 'users', user.uid)).then(s => {
-                        if (s.exists()) {
-                            const d = s.data();
-                            if (document.getElementById('q-customer-name')) document.getElementById('q-customer-name').value = d.displayName || '';
-                            if (document.getElementById('q-customer-phone')) document.getElementById('q-customer-phone').value = d.phoneNumber || '';
-                        }
-                    });
-                }
+                // Auto-fill checkout if form is open (unlikely on load, but good practice)
+                if (window.autoFillCheckout) window.autoFillCheckout();
+            } else {
+                elements.loginBtn.classList.remove('hidden');
+                document.getElementById('user-menu').classList.add('hidden');
             }
+            loadCart();
         });
 
-        // We need to protect CHECKOUT action then.
-        // Let's modify openCheckout to check auth
-
-
+        // Dropdown Toggle
+        document.getElementById('user-menu-button').onclick = (e) => {
+            e.stopPropagation();
+            document.getElementById('user-menu-dropdown').classList.toggle('show');
+        };
+        document.addEventListener('click', () => {
+            document.getElementById('user-menu-dropdown').classList.remove('show');
+        });
+        document.getElementById('logout-btn').onclick = async () => {
+            await auth.signOut();
+            window.location.reload();
+        };
 
     </script>
 </body>
