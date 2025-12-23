@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Market - مركز الدعم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="app-style.css">
+    <script src="theme-manager.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            ThemeManager.createFloatingSwitcher();
+        });
+    </script>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="glass-nav sticky top-0 z-50">
+        <div class="s22-container h-16 flex items-center justify-between">
+            <a href="javascript:history.back()"
+                class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <h1 class="text-lg font-bold text-gray-800">مركز الدعم والتواصل</h1>
+            <div class="w-10 h-10"></div> <!-- Spacer -->
+        </div>
+    </nav>
+
+    <div class="s22-container py-8 max-w-2xl">
+
+        <!-- Header -->
+        <div class="text-center mb-10 fade-in-up">
+            <div
+                class="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-600 text-3xl shadow-lg border-4 border-white">
+                <i class="fas fa-headset"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">نحن هنا لمساعدتك</h2>
+            <p class="text-gray-500">اختر وسيلة التواصل المناسبة لك، فريقنا جاهز للرد على استفساراتك.</p>
+        </div>
+
+        <!-- Contact Options Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+
+            <!-- Phone -->
+            <a href="tel:0699443914"
+                class="s22-card p-6 flex flex-col items-center justify-center text-center group hover:bg-blue-50 border border-transparent hover:border-blue-200 transition">
+                <div
+                    class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-3 text-xl group-hover:scale-110 transition">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <h3 class="font-bold text-gray-800">اتصال هاتفي</h3>
+                <p class="text-sm text-gray-500 mt-1" dir="ltr">0699 44 39 14</p>
+            </a>
+
+            <!-- WhatsApp -->
+            <a href="https://wa.me/213699443914" target="_blank"
+                class="s22-card p-6 flex flex-col items-center justify-center text-center group hover:bg-green-50 border border-transparent hover:border-green-200 transition">
+                <div
+                    class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-3 text-xl group-hover:scale-110 transition">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+                <h3 class="font-bold text-gray-800">واتساب</h3>
+                <p class="text-sm text-gray-500 mt-1">محادثة مباشرة</p>
+            </a>
+
+            <!-- Telegram -->
+            <a href="https://t.me/S22MARKET" target="_blank"
+                class="s22-card p-6 flex flex-col items-center justify-center text-center group hover:bg-sky-50 border border-transparent hover:border-sky-200 transition">
+                <div
+                    class="w-12 h-12 bg-sky-100 text-sky-500 rounded-full flex items-center justify-center mb-3 text-xl group-hover:scale-110 transition">
+                    <i class="fab fa-telegram-plane"></i>
+                </div>
+                <h3 class="font-bold text-gray-800">تيليجرام</h3>
+                <p class="text-sm text-gray-500 mt-1">قناة S22MARKET</p>
+            </a>
+
+            <!-- Instagram -->
+            <a href="https://www.instagram.com/s22market2?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                target="_blank"
+                class="s22-card p-6 flex flex-col items-center justify-center text-center group hover:bg-pink-50 border border-transparent hover:border-pink-200 transition">
+                <div
+                    class="w-12 h-12 bg-pink-100 text-pink-500 rounded-full flex items-center justify-center mb-3 text-xl group-hover:scale-110 transition">
+                    <i class="fab fa-instagram"></i>
+                </div>
+                <h3 class="font-bold text-gray-800">إنستغرام</h3>
+                <p class="text-sm text-gray-500 mt-1">@s22market2</p>
+            </a>
+
+            <!-- Facebook -->
+            <a href="https://www.facebook.com/profile.php?id=61563869504735&mibextid=ZbWKwL" target="_blank"
+                class="s22-card p-6 flex flex-col items-center justify-center text-center group hover:bg-blue-50 border border-transparent hover:border-blue-200 transition">
+                <div
+                    class="w-12 h-12 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center mb-3 text-xl group-hover:scale-110 transition">
+                    <i class="fab fa-facebook-f"></i>
+                </div>
+                <h3 class="font-bold text-gray-800">فيسبوك</h3>
+                <p class="text-sm text-gray-500 mt-1">تابع صفحتنا</p>
+            </a>
+
+        </div>
+
+        <!-- Contribution CTA -->
+        <div class="s22-card p-6 border-2 border-dashed border-indigo-200 bg-indigo-50/50 hover:bg-indigo-50 transition cursor-pointer"
+            onclick="window.location.href='contributions.html'">
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-indigo-600 shadow-sm text-xl flex-shrink-0">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-indigo-900 text-lg">لديك اقتراح أو شكوى؟</h3>
+                    <p class="text-sm text-indigo-600 mt-1">شاركنا رأيك، ملفاتك، أو أي شكوى عبر بوابة المساهمات.</p>
+                </div>
+                <i class="fas fa-chevron-left text-indigo-400"></i>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

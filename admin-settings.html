@@ -324,6 +324,14 @@
                 </div>
 
                 <div class="border-t pt-4 space-y-4">
+                    <h3 class="font-bold text-lg text-orange-600"><i class="fas fa-utensils"></i> إعدادات صفحة الطعام (S22 FOOD)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label class="font-semibold text-sm">عنوان الصفحة (بدل S22 FOOD)</label><input type="text" id="setting-food-title" class="mt-1 w-full p-2 border rounded" value="${settings.foodTitle || 'S22 FOOD'}" placeholder="مثال: S22 EATS"></div>
+                        <div><label class="font-semibold text-sm">أيقونة الصفحة (URL)</label><input type="url" id="setting-food-icon" class="mt-1 w-full p-2 border rounded" value="${settings.foodIcon || ''}" placeholder="رابط صورة الأيقونة"></div>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4 space-y-4">
                     <h3 class="font-bold text-lg text-indigo-700">روابط التواصل (Footer)</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div><label class="font-semibold text-sm">واتساب (مع رمز الدولة)</label><input type="text" id="setting-social-whatsapp" class="mt-1 w-full p-2 border rounded" value="${settings.socialLinks?.whatsapp || ''}" dir="ltr"></div>
@@ -403,6 +411,8 @@
                     },
                     gaId: getVal('setting-ga-id'),
                     fbPixelId: getVal('setting-pixel-id'),
+                    foodTitle: getVal('setting-food-title'),
+                    foodIcon: getVal('setting-food-icon'),
 
                     exchangeRates: {
                         jewels_to_coins: getNum('exchange_jewels_to_coins') || 0,

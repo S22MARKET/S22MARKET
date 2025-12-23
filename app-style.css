@@ -4,62 +4,116 @@
  * Inspired by: Ouedkniss (Trust) & AliExpress (Engagement)
  * ==========================================
  */
+/* 
+ * ==========================================
+ * S22 UI Design System v3.0 (Theme Engine)
+ * ==========================================
+ */
 :root {
-    /* Branding Colors */
+    /* --- Default (Day Mode) --- */
     --primary: #4f46e5;
-    /* Royal Blue - Trust & Professionalism */
+    --primary-light: #818cf8;
     --primary-dark: #3730a3;
-    --accent: #f97316;
-    /* Vibrant Orange - Call to Action/Offers */
-    --accent-hover: #ea580c;
-
-    /* Backgrounds */
-    --bg-body: #f1f5f9;
-    /* Slate-100 */
+    
+    --bg-main: #f0f2f5;
     --bg-card: #ffffff;
-    --bg-glass: rgba(255, 255, 255, 0.9);
+    --bg-nav: rgba(255, 255, 255, 0.9);
+    --bg-glass: rgba(255, 255, 255, 0.75);
+    
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-muted: #9ca3af;
+    
+    --border-color: #e5e7eb;
+    --shadow-color: rgba(0, 0, 0, 0.05);
 
-    /* Text Colors */
-    --text-main: #0f172a;
-    /* Slate-900 */
-    --text-muted: #64748b;
-    /* Slate-500 */
-    --text-price: #dc2626;
-    /* Red-600 */
-
-    /* Dimensions & Spacing */
+    /* Dimensions */
     --header-height: 64px;
     --nav-height: 50px;
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 16px;
-
-    /* Transitions */
-    --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark Mode Tokens */
-body.dark-mode {
+/* --- Night Mode (Dark) --- */
+[data-theme="dark"] {
     --primary: #6366f1;
-    --bg-body: #0f172a;
-    /* Slate-900 */
-    --bg-card: #1e293b;
-    /* Slate-800 */
-    --bg-glass: rgba(30, 41, 59, 0.95);
-    --text-main: #f1f5f9;
-    --text-muted: #94a3b8;
+    --primary-light: #818cf8;
+    --primary-dark: #4338ca;
+
+    --bg-main: #0f172a;       /* Slate 950 */
+    --bg-card: #1e293b;       /* Slate 800 */
+    --bg-nav: rgba(30, 41, 59, 0.95);
+    --bg-glass: rgba(15, 23, 42, 0.8);
+
+    --text-primary: #f8fafc;  /* Slate 50 */
+    --text-secondary: #cbd5e1;/* Slate 300 */
+    --text-muted: #64748b;    /* Slate 500 */
+
+    --border-color: #334155;  /* Slate 700 */
+    --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
-/* Global Reset */
+/* --- Eye Care Mode (Comfort/Sepia) --- */
+[data-theme="eye-care"] {
+    --primary: #854d0e;     /* Warm Bronze */
+    --primary-light: #a16207;
+    --primary-dark: #713f12;
+
+    --bg-main: #fdf6e3;     /* Warm Beige (Solarized Light-ish) */
+    --bg-card: #fffbf0;     /* Cream */
+    --bg-nav: rgba(253, 246, 227, 0.95);
+    --bg-glass: rgba(253, 246, 227, 0.8);
+
+    --text-primary: #433422; /* Dark Brown */
+    --text-secondary: #5c4b37;
+    --text-muted: #8d7b68;
+
+    --border-color: #e6dcc8;
+    --shadow-color: rgba(67, 52, 34, 0.05);
+}
+
+/* --- Utility Overrides (The Magic) --- */
 body {
+    background-color: var(--bg-main) !important;
+    color: var(--text-primary) !important;
     font-family: 'Tajawal', sans-serif;
-    background-color: var(--bg-body);
-    color: var(--text-main);
+    transition: background-color 0.4s ease, color 0.4s ease;
     padding-top: calc(var(--header-height) + var(--nav-height) + 10px);
     padding-bottom: 70px;
-    /* Space for bottom nav on mobile */
-    /* Space for sticky header */
     -webkit-tap-highlight-color: transparent;
+}
+
+/* Tailwind Overrides for Themes */
+.bg-white { background-color: var(--bg-card) !important; }
+.bg-gray-100, .bg-gray-50, .bg-slate-50, .bg-slate-100 { background-color: var(--bg-main) !important; }
+.bg-gray-800, .bg-gray-900, .bg-slate-800, .bg-slate-900 { 
+    background-color: var(--bg-card) !important; 
+    /* In dark mode, dark headers might need to stay dark or adapt */
+}
+/* Exception: Keep specific dark headers dark in light mode if intended, 
+   but for full conversion, we map them. */
+
+.text-gray-900, .text-gray-800, .text-slate-900 { color: var(--text-primary) !important; }
+.text-gray-600, .text-gray-500, .text-slate-500 { color: var(--text-secondary) !important; }
+.text-gray-400 { color: var(--text-muted) !important; }
+
+.border-gray-200, .border-gray-100, .border-slate-200 { border-color: var(--border-color) !important; }
+
+/* Utilities */
+.s22-glass {
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.s22-container {
+    max-width: 1400px;
+    /* Wider for AliExpress density */
+    margin: 0 auto;
+    padding: 0 16px;
 }
 
 @media (min-width: 769px) {

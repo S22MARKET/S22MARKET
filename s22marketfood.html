@@ -104,9 +104,9 @@
             <a href="index.html" class="flex items-center gap-2 text-gray-600 hover:text-orange-600">
                 <i class="fas fa-arrow-right"></i> <span class="hidden sm:inline">العودة للمتجر</span>
             </a>
-            <h1 class="text-2xl font-extrabold text-gray-800 flex items-center gap-2">
-                <i class="fas fa-utensils text-orange-500"></i>
-                S22<span class="text-orange-500">FOOD</span>
+            <h1 id="app-header-title" class="text-2xl font-extrabold text-gray-800 flex items-center gap-2">
+                <i id="app-header-icon" class="fas fa-utensils text-orange-500"></i>
+                <span id="app-header-text">S22<span class="text-orange-500">FOOD</span></span>
             </h1>
             <div class="w-20 flex justify-end">
                 <!-- User Avatar Placeolder -->
@@ -316,92 +316,14 @@
         import { collection, query, where, getDocs, orderBy, limit, getDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // --- End Inlined Config ---
-
-        // --- AI ASSISTANT LOGIC (Main Page) ---
-        window.toggleAIAssistant = () => {
-            const el = document.getElementById('ai-overlay');
-            el.classList.toggle('hidden');
-            el.classList.toggle('flex');
-        };
-
-        window.aiReply = async (type) => {
-            const chatBox = document.getElementById('ai-chat-box');
-            const options = document.getElementById('ai-options');
-
-            let userText = type === 'random' ? "اقترح لي مطعم عشوائي 🎲" : "جيعان مرة (أسرع توصيل) ⚡";
-
-            chatBox.innerHTML += `
-                <div class="flex gap-3 justify-end animate-fade-in">
-                    <div class="bg-indigo-600 p-3 rounded-2xl rounded-tl-none shadow-sm text-sm text-white max-w-[80%]">
-                        ${userText}
-                    </div>
-                </div>
-            `;
-
-            // Typing
-            chatBox.innerHTML += `
-                <div class="flex gap-3 animate-fade-in" id="ai-typing">
-                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-robot text-indigo-600 text-xs"></i>
-                    </div>
-                    <div class="bg-gray-200 p-3 rounded-2xl rounded-tr-none shadow-sm flex gap-1 items-center h-10">
-                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-75"></div>
-                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-150"></div>
-                    </div>
-                </div>
-            `;
-            chatBox.scrollTop = chatBox.scrollHeight;
-            options.classList.add('hidden');
-
-            await new Promise(r => setTimeout(r, 1500));
-            document.getElementById('ai-typing').remove();
-
-            // Logic
-            let suggestion = null;
-            if (allRestaurants.length > 0) {
-                if (type === 'random') {
-                    suggestion = allRestaurants[Math.floor(Math.random() * allRestaurants.length)];
-                } else {
-                    // Fastest delivery
-                    // Note: actual data might not have numeric deliveryTime, so just picking random for now as simulation
-                    suggestion = allRestaurants[0];
-                }
+        // Global Helper for Safe Text (Fixes [object Object])
+        window.safeText = (val, fallback = '') => {
+            if (!val) return fallback;
+            if (typeof val === 'object') {
+                return val.ar || val.name || val.en || fallback;
             }
-
-            let responseHTML = '';
-            if (suggestion) {
-                const img = suggestion.photoURL || suggestion.logoUrl || 'https://placehold.co/100';
-                responseHTML = `
-                    <div class="flex gap-3 animate-fade-in">
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-robot text-indigo-600 text-xs"></i>
-                        </div>
-                        <div class="flex flex-col gap-2 max-w-[85%]">
-                            <div class="bg-white p-3 rounded-2xl rounded-tr-none shadow-sm text-sm text-gray-700">
-                                أبشر! لقيت لك هذا المطعم الرهيب:
-                            </div>
-                            <div class="bg-white p-3 rounded-xl shadow-md border border-gray-100 cursor-pointer hover:scale-105 transition-transform" onclick="location.href='vendor.html?id=${suggestion.id}&type=restaurant'">
-                                <div class="flex items-center gap-3">
-                                    <img src="${img}" class="w-12 h-12 object-cover rounded-full border border-gray-200">
-                                    <div>
-                                         <h4 class="font-bold text-gray-900">${suggestion.displayName}</h4>
-                                         <p class="text-xs text-gray-500">⭐ ${suggestion.rating || 4.5}</p>
-                                    </div>
-                                </div>
-                                <button class="mt-2 w-full bg-indigo-600 text-white text-xs font-bold py-2 rounded-lg">عرض المنيو</button>
-                            </div>
-                             <button onclick="aiReply('random')" class="mt-1 text-xs text-indigo-600 font-bold self-center">غيره 🔄</button>
-                        </div>
-                    </div>
-                `;
-            } else {
-                responseHTML = `<div class="bg-white p-3 rounded-2xl shadow-sm text-sm">ما لقيت مطاعم حالياً 😔</div>`;
-            }
-
-            chatBox.innerHTML += responseHTML;
-            chatBox.scrollTop = chatBox.scrollHeight;
+            if (String(val).includes('object Object')) return fallback;
+            return val;
         };
 
         const restaurantsGrid = document.getElementById('restaurants-grid');
@@ -409,6 +331,11 @@
         const userStatus = document.getElementById('user-status');
         const searchInput = document.getElementById('restaurant-search');
         const filterBtns = document.getElementById('food-filters');
+
+        // Header Elements
+        const appHeaderTitle = document.getElementById('app-header-title');
+        const appHeaderIcon = document.getElementById('app-header-icon');
+        const appHeaderText = document.getElementById('app-header-text');
 
         // Location Bar Elements
         const locationBarBtn = document.getElementById('location-bar-btn');
@@ -470,6 +397,26 @@
                 showSkeletons();
                 const snapshot = await getDocs(q);
 
+                // Fetch Global Logo for Fallback & Header Config
+                try {
+                    const globalSettingsSnap = await getDoc(doc(db, "settings", "storeConfig"));
+                    if (globalSettingsSnap.exists()) {
+                        const gData = globalSettingsSnap.data();
+                        if (gData.logoUrl) activeGlobalLogo = gData.logoUrl;
+
+                        // Apply Admin Customizations to Header
+                        if (gData.foodTitle) {
+                            appHeaderText.innerHTML = gData.foodTitle; // Allow HTML or just text
+                        }
+                        if (gData.foodIcon) {
+                            appHeaderIcon.className = ''; // Reset classes
+                            appHeaderIcon.innerHTML = `<img src="${gData.foodIcon}" class="w-8 h-8 object-contain">`;
+                        }
+                    }
+                } catch (err) {
+                    console.log("Could not fetch global logo fallback", err);
+                }
+
                 if (snapshot.empty) {
                     restaurantsGrid.innerHTML = '';
                     noRestaurantsMsg.classList.remove('hidden');
@@ -479,21 +426,9 @@
 
                 allRestaurants = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                // Fetch Global Logo for Fallback
-                try {
-                    const globalSettingsSnap = await getDoc(doc(db, "settings", "storeConfig"));
-                    if (globalSettingsSnap.exists()) {
-                        const gData = globalSettingsSnap.data();
-                        if (gData.logoUrl) activeGlobalLogo = gData.logoUrl;
-                    }
-                } catch (err) {
-                    console.log("Could not fetch global logo fallback", err);
-                }
-
                 // Filter by Wilaya immediately if user has one
                 if (currentUserProfile && currentUserProfile.wilaya) {
                     const userWilaya = currentUserProfile.wilaya;
-                    console.log("Filtering by Wilaya:", userWilaya);
 
                     // Filter Logic:
                     // 1. Restaurant is in same wilaya
@@ -520,8 +455,6 @@
 
             } catch (error) {
                 console.error("Error loading restaurants:", error);
-                console.error("Error code:", error.code);
-                console.error("Error message:", error.message);
 
                 restaurantsGrid.innerHTML = `
                     <div class="col-span-full text-center py-10 bg-red-50 rounded-2xl border border-red-100 mx-4">
@@ -534,56 +467,6 @@
                     </div>`;
             }
         }
-
-        // WILAYA LOGIC
-        /* 
-           Legacy Wilaya Logic - Replaced by new Modal 
-        */
-        // const wilayas = [...];
-        // const wilayaSelectorBtn = ...
-
-
-        // Connect Location Bar to Modal
-        locationBarBtn.onclick = () => {
-            // Create a nice modal for wilaya selection
-            const modalHTML = `
-                <div class="fixed inset-0 z-[60] flex items-center justify-center p-4">
-                    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="this.parentElement.remove()"></div>
-                    <div class="relative bg-white rounded-3xl p-6 w-full max-w-lg shadow-2xl h-[80vh] flex flex-col animate-[slideInUp_0.3s_ease-out]">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-2xl font-bold text-gray-800">اختر ولايتك 🇩🇿</h3>
-                            <button onclick="this.closest('.fixed').remove()" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200"><i class="fas fa-times"></i></button>
-                        </div>
-                        <input type="search" id="wilaya-search" placeholder="ابحث عن الولاية..." class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl mb-4 focus:ring-2 focus:ring-orange-500 outline-none">
-                        <div class="overflow-y-auto flex-1 grid grid-cols-2 gap-2" id="wilaya-list">
-                            ${wilayas.map(w => `<button class="wilaya-option p-3 rounded-xl hover:bg-orange-50 border border-transparent hover:border-orange-200 text-right transition-all font-medium text-gray-700 hover:text-orange-700" onclick="selectWilaya('${w}')">${w}</button>`).join('')}
-                        </div>
-                    </div>
-                </div>
-             `;
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-            // Search Logic inside modal
-            document.getElementById('wilaya-search').focus();
-            document.getElementById('wilaya-search').oninput = (e) => {
-                const term = e.target.value.toLowerCase();
-                document.querySelectorAll('.wilaya-option').forEach(btn => {
-                    btn.style.display = btn.innerText.toLowerCase().includes(term) ? 'block' : 'none';
-                });
-            };
-        };
-
-        window.selectWilaya = (wilaya) => {
-            selectedWilaya = wilaya;
-            localStorage.setItem('s22_selected_wilaya', wilaya);
-            // currentWilayaText.textContent = wilaya; // Removed old
-            locationBarCity.textContent = wilaya;
-            document.querySelector('.fixed.z-\\[60\\]').remove(); // Close modal
-
-            // Re-fetch or Re-filter
-            loadRestaurants(); // Reload to apply filter
-        };
-
 
         // --- PRODUCT PREVIEW LOGIC ---
         const productsCache = {};
@@ -608,9 +491,6 @@
         async function loadTrendingDishes() {
             const container = document.getElementById('trending-dishes-container');
             try {
-                // Fetch random products that are available
-                // Note: Firestore doesn't support random easily, so we fetch a batch and shuffle client side or use a criteria
-                // For demo, fetch recent 10 available products
                 const q = query(collection(db, "products"), where("isAvailable", "==", true), limit(10));
                 const snap = await getDocs(q);
 
@@ -631,8 +511,8 @@
                         </div>
                         <div class="p-3 flex-1 flex flex-col justify-between">
                             <div>
-                                <h4 class="font-bold text-gray-800 text-sm leading-tight mb-1 line-clamp-2">${dish.name}</h4>
-                                <p class="text-xs text-gray-400 truncate">${String(dish.categoryName).includes('object') ? 'وجبة' : (dish.categoryName || 'وجبة')}</p>
+                                <h4 class="font-bold text-gray-800 text-sm leading-tight mb-1 line-clamp-2">${safeText(dish.name, 'وجبة لذيذة')}</h4>
+                                <p class="text-xs text-gray-400 truncate">${safeText(dish.categoryName, 'وجبة')}</p>
                             </div>
                             <button class="mt-3 w-full bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white text-xs font-bold py-1.5 rounded-lg transition-colors">
                                 طلب الآن
@@ -664,12 +544,16 @@
             });
 
             const storiesHTML = activeStories.map(r => {
+                const displayName = safeText(r.displayName, 'مطعم');
+                // Escape single quotes for the onClick handler
+                const safeName = displayName.replace(/'/g, "\\'");
+
                 return `
-                    <div class="flex flex-col items-center gap-2 cursor-pointer group min-w-[70px]" onclick="viewStory('${r.id}', '${String(r.displayName).replace(/'/g, "\\'")}', '${r.photoURL || r.logoUrl}', '${r.storyUrl}')">
+                    <div class="flex flex-col items-center gap-2 cursor-pointer group min-w-[70px]" onclick="viewStory('${r.id}', '${safeName}', '${r.photoURL || r.logoUrl}', '${r.storyUrl}')">
                         <div class="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-yellow-400 to-red-600 group-hover:scale-110 transition-transform">
                             <img src="${r.photoURL || r.logoUrl || 'https://placehold.co/100'}" class="w-full h-full rounded-full border-2 border-white object-cover">
                         </div>
-                        <span class="text-xs font-bold text-gray-700 truncate w-16 text-center">${(r.displayName && !String(r.displayName).includes('object')) ? r.displayName.split(' ')[0] : 'مطعم'}</span>
+                        <span class="text-xs font-bold text-gray-700 truncate w-16 text-center">${displayName.split(' ')[0]}</span>
                     </div>
                 `;
             }).join('');
@@ -732,8 +616,6 @@
                 if (currentFilter.startsWith('mood:')) {
                     // MOOD FILTERING
                     const mood = currentFilter.split(':')[1];
-                    // Logic: Check 'tags' array or 'moods' array in restaurant doc
-                    // Assuming we will add 'moods' field later, for now check tags/description
                     filtered = list.filter(r =>
                         (r.moods && r.moods.includes(mood)) ||
                         (r.tags && r.tags.includes(mood)) ||
@@ -743,7 +625,7 @@
                     // FOOD TYPE FILTERING
                     const term = currentFilter.toLowerCase();
                     filtered = list.filter(r =>
-                        (r.displayName && r.displayName.toLowerCase().includes(term)) ||
+                        (safeText(r.displayName).toLowerCase().includes(term)) ||
                         (r.description && r.description.toLowerCase().includes(term)) ||
                         (r.tags && r.tags.includes(term))
                     );
@@ -754,7 +636,7 @@
             const searchTerm = searchInput.value.trim().toLowerCase();
             if (searchTerm) {
                 filtered = filtered.filter(r =>
-                    (r.displayName && r.displayName.toLowerCase().includes(searchTerm))
+                    (safeText(r.displayName).toLowerCase().includes(searchTerm))
                 );
             }
 
@@ -774,6 +656,9 @@
                 card.classList.add('fade-in-up');
                 restaurantsGrid.appendChild(card);
             });
+
+            // Render Stories from the list (if they have stories)
+            renderStories(list);
         }
 
         // Debounce Utility
@@ -820,9 +705,11 @@
             const coverImage = data.coverUrl || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1000';
             // Fix: Check storeLogo first, then others, then global fallback
             const logoImage = data.storeLogo || data.logoUrl || data.photoURL || activeGlobalLogo;
-            let name = data.displayName || data.storeName || 'مطعم جديد';
-            if (String(name).includes('object')) name = 'مطعم جديد';
-            const desc = data.description || 'أفضل المأكولات لدينا';
+
+            // SAFE TEXT USAGE
+            const name = safeText(data.displayName || data.storeName, 'مطعم جديد');
+            const desc = safeText(data.description, 'أفضل المأكولات لدينا');
+
             const status = data.isOpen === false ? '<span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold">مغلق</span>' : '<span class="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-bold">مفتوح</span>';
             const rating = data.rating || '4.8';
 
@@ -878,7 +765,7 @@
                 const container = div.querySelector(`#preview-${id}`);
                 if (products.length > 0) {
                     container.innerHTML = products.map(p => `
-                        <div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 relative group/dish" title="${p.name || ''}">
+                        <div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 relative group/dish" title="${safeText(p.name)}">
                             <img src="${p.imageUrl}" class="w-full h-full object-cover">
                         </div>
                     `).join('');
