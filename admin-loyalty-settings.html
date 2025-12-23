@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="app-style.css">
+    <script src="theme-manager.js"></script>
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
@@ -316,6 +317,7 @@
                     <button id="logout-btn"
                         class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i
                             class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
+                    <div id="sidebar-theme-container"></div>
                 </div>
             </aside>
             <main class="flex-1 p-4 md:p-8 overflow-y-auto">
@@ -688,6 +690,7 @@
                 if (dashboardPage) dashboardPage.classList.remove('hidden');
                 if (getEl('admin-welcome-name')) getEl('admin-welcome-name').textContent = `مرحباً، ${user.displayName || user.email.split('@')[0]}`;
                 initializeDashboard();
+                ThemeManager.renderSidebarControl('sidebar-theme-container');
             } else {
                 window.location.href = 'index.html';
             }

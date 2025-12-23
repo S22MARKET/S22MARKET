@@ -219,122 +219,144 @@
         </div>
     </div>
 
-    <!-- Checkout Modal -->
-    <div id="checkout-modal" class="modal-backdrop z-[100]">
-        <div class="modal-content overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="flex justify-between items-center p-5 border-b bg-gray-50">
-                <h3 class="text-xl font-black text-gray-800 flex items-center gap-2">
-                    <i class="fas fa-shield-alt text-green-500"></i> إتمام الطلب
-                </h3>
-                <button id="close-checkout-modal-btn"
-                    class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-300 hover:text-red-500 transition">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
+    <!-- Checkout Modal (Redesigned) -->
+    <div id="checkout-modal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog"
+        aria-modal="true">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity opacity-0 pointer-events-none"
+            id="checkout-backdrop"></div>
 
-            <div class="flex-1 overflow-y-auto p-6 scrollbar-hide">
-                <form id="checkout-form" class="space-y-5">
+        <!-- Modal Panel -->
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center sm:items-center p-0 sm:p-4 text-center">
 
-                    <!-- Type Specific Notice -->
-                    <div id="checkout-type-notice"
-                        class="bg-blue-50 text-blue-800 p-3 rounded-xl text-sm font-bold flex items-center gap-2">
-                        <i class="fas fa-info-circle"></i> <span>جاري إتمام طلب تسوق</span>
+                <div id="checkout-panel"
+                    class="relative transform overflow-hidden bg-white text-right shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:rounded-3xl w-full rounded-t-3xl translate-y-full sm:translate-y-10 opacity-0">
+
+                    <!-- Header -->
+                    <div
+                        class="bg-gray-50/50 px-4 py-4 sm:px-6 flex items-center justify-between border-b border-gray-100">
+                        <h3 class="text-lg font-black leading-6 text-gray-900 flex items-center gap-2" id="modal-title">
+                            <span
+                                class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            إتمام الطلب الآمن
+                        </h3>
+                        <button type="button" id="close-checkout-modal-btn"
+                            class="rounded-full p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none transition">
+                            <span class="sr-only">إغلاق</span>
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
                     </div>
 
-                    <h3 class="font-bold text-gray-700 border-b pb-2">معلومات الاستلام</h3>
+                    <div class="flex-1 overflow-y-auto p-6 scrollbar-hide">
+                        <form id="checkout-form" class="space-y-5">
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-1">الاسم</label>
-                            <input type="text" id="q-customer-name"
-                                class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
-                                required>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-1">رقم الهاتف</label>
-                            <input type="tel" id="q-customer-phone"
-                                class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
-                                dir="ltr" required>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1">الولاية &
-                            البلدية</label>
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="text" id="q-customer-wilaya" placeholder="الولاية"
-                                class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
-                                required>
-                            <input type="text" id="q-customer-baladiya" placeholder="البلدية"
-                                class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
-                                required>
-                        </div>
-                    </div>
-
-                    <!-- GPS Field (Enhanced for Food) -->
-                    <div id="gps-field-container">
-                        <label class="block text-xs font-bold text-gray-500 mb-1 flex justify-between">
-                            <span>العنوان / الموقع</span>
-                            <span class="text-orange-500 text-[10px]" id="gps-required-hint">* يفضل GPS
-                                لطعام</span>
-                        </label>
-                        <div class="relative">
-                            <i class="fas fa-map-marker-alt absolute right-3 top-3.5 text-gray-400"></i>
-                            <input type="url" id="q-customer-gps" placeholder="رابط موقعك من Maps (اختياري)"
-                                class="w-full p-3 pr-10 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
-                                dir="ltr">
-                        </div>
-                        <textarea id="q-customer-address"
-                            class="mt-2 w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm"
-                            rows="2" placeholder="وصف دقيق للمنزل/المكان..." required></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1">ملاحظات</label>
-                        <textarea id="q-customer-notes"
-                            class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm"
-                            rows="1" placeholder="أي تفاصيل إضافية..."></textarea>
-                    </div>
-
-                    <!-- Extra Features (Hidden by default, toggleable) -->
-                    <div class="space-y-3 pt-2">
-                        <!-- Scheduling -->
-                        <div class="border border-gray-100 rounded-xl overflow-hidden">
-                            <button type="button"
-                                onclick="document.getElementById('schedule-options').classList.toggle('hidden')"
-                                class="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition">
-                                <span class="text-sm font-bold text-gray-700"><i
-                                        class="fas fa-clock text-indigo-500 ml-2"></i> جدولة التوصيل</span>
-                                <i class="fas fa-chevron-down text-xs text-gray-400"></i>
-                            </button>
-                            <div id="schedule-options" class="hidden p-4 bg-white">
-                                <label class="flex items-center gap-2 mb-2 cursor-pointer">
-                                    <input type="checkbox" id="is-scheduled-checkbox" class="accent-indigo-600 w-4 h-4">
-                                    <span class="text-sm">تفعيل الجدولة</span>
-                                </label>
-                                <select id="schedule-frequency"
-                                    class="w-full p-2 bg-gray-50 rounded-lg text-sm border border-gray-200">
-                                    <option value="daily">يومياً</option>
-                                    <option value="weekly">أسبوعياً</option>
-                                    <option value="monthly">شهرياً</option>
-                                </select>
+                            <!-- Type Specific Notice -->
+                            <div id="checkout-type-notice"
+                                class="bg-blue-50 text-blue-800 p-3 rounded-xl text-sm font-bold flex items-center gap-2">
+                                <i class="fas fa-info-circle"></i> <span>جاري إتمام طلب تسوق</span>
                             </div>
-                        </div>
+
+                            <h3 class="font-bold text-gray-700 border-b pb-2">معلومات الاستلام</h3>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">الاسم</label>
+                                    <input type="text" id="q-customer-name"
+                                        class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                                        required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">رقم الهاتف</label>
+                                    <input type="tel" id="q-customer-phone"
+                                        class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                                        dir="ltr" required>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">الولاية &
+                                    البلدية</label>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <input type="text" id="q-customer-wilaya" placeholder="الولاية"
+                                        class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                                        required>
+                                    <input type="text" id="q-customer-baladiya" placeholder="البلدية"
+                                        class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                                        required>
+                                </div>
+                            </div>
+
+                            <!-- GPS Field (Enhanced for Food) -->
+                            <div id="gps-field-container">
+                                <label class="block text-xs font-bold text-gray-500 mb-1 flex justify-between">
+                                    <span>العنوان / الموقع</span>
+                                    <span class="text-orange-500 text-[10px]" id="gps-required-hint">* يفضل GPS
+                                        لطعام</span>
+                                </label>
+                                <div class="relative">
+                                    <i class="fas fa-map-marker-alt absolute right-3 top-3.5 text-gray-400"></i>
+                                    <input type="url" id="q-customer-gps" placeholder="رابط موقعك من Maps (اختياري)"
+                                        class="w-full p-3 pr-10 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                                        dir="ltr">
+                                </div>
+                                <textarea id="q-customer-address"
+                                    class="mt-2 w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm"
+                                    rows="2" placeholder="وصف دقيق للمنزل/المكان..." required></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">ملاحظات</label>
+                                <textarea id="q-customer-notes"
+                                    class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm"
+                                    rows="1" placeholder="أي تفاصيل إضافية..."></textarea>
+                            </div>
+
+                            <!-- Extra Features (Hidden by default, toggleable) -->
+                            <div class="space-y-3 pt-2">
+                                <!-- Scheduling -->
+                                <div class="border border-gray-100 rounded-xl overflow-hidden">
+                                    <button type="button"
+                                        onclick="document.getElementById('schedule-options').classList.toggle('hidden')"
+                                        class="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition">
+                                        <span class="text-sm font-bold text-gray-700"><i
+                                                class="fas fa-clock text-indigo-500 ml-2"></i> جدولة التوصيل</span>
+                                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                                    </button>
+                                    <div id="schedule-options" class="hidden p-4 bg-white">
+                                        <label class="flex items-center gap-2 mb-2 cursor-pointer">
+                                            <input type="checkbox" id="is-scheduled-checkbox"
+                                                class="accent-indigo-600 w-4 h-4">
+                                            <span class="text-sm">تفعيل الجدولة</span>
+                                        </label>
+                                        <select id="schedule-frequency"
+                                            class="w-full p-2 bg-gray-50 rounded-lg text-sm border border-gray-200">
+                                            <option value="daily">يومياً</option>
+                                            <option value="weekly">أسبوعياً</option>
+                                            <option value="monthly">شهرياً</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </form>
                     </div>
 
-                </form>
-            </div>
-
-            <div class="p-5 border-t bg-gray-50">
-                <div class="flex justify-between items-center mb-4">
-                    <span class="text-gray-600 font-bold">المجموع الكلي</span>
-                    <span id="modal-summary-total" class="text-2xl font-black text-indigo-600 font-mono">0 د.ج</span>
-                </div>
-                <button type="submit" form="checkout-form" id="submit-quick-checkout-btn"
-                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-green-200 transition transform active:scale-95 flex justify-center items-center gap-2">
-                    <span>تأكيد الطلب</span>
-                    <i class="fas fa-check-circle"></i>
-                </button>
+                    <div class="p-5 border-t bg-gray-50">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-gray-600 font-bold">المجموع الكلي</span>
+                            <span id="modal-summary-total" class="text-2xl font-black text-indigo-600 font-mono">0
+                                د.ج</span>
+                        </div>
+                        <button type="submit" form="checkout-form" id="submit-quick-checkout-btn"
+                            class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-green-200 transition transform active:scale-95 flex justify-center items-center gap-2">
+                            <span>تأكيد الطلب</span>
+                            <i class="fas fa-check-circle"></i>
+                        </button>
+                    </div>
+                </div> <!-- End Panel -->
             </div>
         </div>
     </div>
@@ -753,36 +775,61 @@
         // --- Checkout Logic ---
         async function openCheckout() {
             const user = await window.requireAuth(auth);
-            if (!user) return; // Should have redirected
+            if (!user) return;
 
-            elements.checkoutModal.classList.add('active');
+            const modal = elements.checkoutModal;
+            const backdrop = document.getElementById('checkout-backdrop');
+            const panel = document.getElementById('checkout-panel');
+
+            // 1. Show Modal Container
+            modal.classList.remove('hidden');
+
+            // 2. Animate In (Next Frame)
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                backdrop.classList.add('opacity-100');
+
+                panel.classList.remove('translate-y-full', 'sm:translate-y-10', 'opacity-0');
+                panel.classList.add('translate-y-0', 'sm:translate-y-0', 'opacity-100');
+            }, 10);
 
             // Context Update
             if (activeTab === 'market') {
-                elements.checkoutTypeNotice.className = 'bg-indigo-50 text-indigo-800 p-3 rounded-xl text-sm font-bold flex items-center gap-2';
-                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-shopping-bag"></i> <span>جاري إتمام طلب <b>تسوق</b></span>';
-                document.getElementById('gps-field-container').classList.add('opacity-50'); // Dim GPS for market
+                elements.checkoutTypeNotice.className = 'bg-indigo-50 text-indigo-800 p-3 rounded-xl text-sm font-bold flex items-center gap-2 border border-indigo-100';
+                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-shopping-bag text-lg"></i> <span>جاري إتمام طلب <b>تسوق</b></span>';
+                document.getElementById('gps-field-container').classList.add('opacity-50', 'pointer-events-none');
             } else {
-                elements.checkoutTypeNotice.className = 'bg-orange-50 text-orange-800 p-3 rounded-xl text-sm font-bold flex items-center gap-2';
-                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-utensils"></i> <span>جاري إتمام طلب <b>طعام</b></span>';
-                document.getElementById('gps-field-container').classList.remove('opacity-50');
+                elements.checkoutTypeNotice.className = 'bg-orange-50 text-orange-800 p-3 rounded-xl text-sm font-bold flex items-center gap-2 border border-orange-100';
+                elements.checkoutTypeNotice.innerHTML = '<i class="fas fa-utensils text-lg"></i> <span>جاري إتمام طلب <b>طعام</b></span>';
+                document.getElementById('gps-field-container').classList.remove('opacity-50', 'pointer-events-none');
             }
 
-            // Prefill logic
             if (window.autoFillCheckout) window.autoFillCheckout();
+        }
 
-            // Mobile Hook
-            if (window.openMobileOverlay) window.openMobileOverlay(() => elements.checkoutModal.classList.remove('active'),
-                'checkout');
+        function closeCheckout() {
+            const modal = elements.checkoutModal;
+            const backdrop = document.getElementById('checkout-backdrop');
+            const panel = document.getElementById('checkout-panel');
+
+            // 1. Animate Out
+            backdrop.classList.remove('opacity-100');
+            backdrop.classList.add('opacity-0');
+
+            panel.classList.remove('translate-y-0', 'sm:translate-y-0', 'opacity-100');
+            panel.classList.add('translate-y-full', 'sm:translate-y-10', 'opacity-0');
+
+            // 2. Hide Container after animation
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300); // Match transition duration
         }
 
         elements.desktopCheckoutBtn.onclick = openCheckout;
         elements.mobileCheckoutBtn.onclick = openCheckout;
-        elements.closeCheckoutModalBtn.onclick = () => {
-            if (window.closeMobileOverlay) window.closeMobileOverlay();
-            else elements.checkoutModal.classList.remove('active');
-        };
+        elements.closeCheckoutModalBtn.onclick = closeCheckout;
 
+        // Form Submit
         elements.checkoutForm.onsubmit = async (e) => {
             e.preventDefault();
             const btn = elements.submitBtn;
@@ -802,6 +849,8 @@
 
                 const orderData = {
                     customerId: currentUser.uid,
+                    // rest of fields... this block is just to fix the button handler context
+
                     customerName: document.getElementById('q-customer-name').value,
                     customerPhone: document.getElementById('q-customer-phone').value,
                     wilaya: document.getElementById('q-customer-wilaya').value,

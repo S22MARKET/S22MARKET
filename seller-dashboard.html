@@ -162,6 +162,34 @@
             transform: translateX(24px);
         }
 
+        @keyframes flyToCart {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0.1);
+                opacity: 0;
+            }
+        }
+
+        .cart-flyer {
+            position: fixed;
+            z-index: 9999;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            pointer-events: none;
+            object-fit: cover;
+            animation: flyToCart 0.8s ease-in-out forwards;
+        }
+
         @keyframes flash-green {
             0% {
                 background-color: rgba(16, 185, 129, 0.2);
@@ -261,7 +289,7 @@
 </head>
 
 <body>
-    <audio id="order-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3"></audio>
+    <audio id="order-sound" src="alerta.mp3" preload="auto"></audio>
 
     <header
         class="bg-white shadow-sm h-16 fixed top-0 w-full z-40 flex items-center justify-between px-4 lg:pr-[260px]">
@@ -277,6 +305,10 @@
                     <span class="slider"></span>
                 </label>
             </div>
+            <button id="enable-sound-btn" onclick="enableAudio()"
+                class="hidden bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-indigo-200 transition animate-pulse">
+                <i class="fas fa-volume-up"></i> تفعيل التنبيهات
+            </button>
             <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold"
                 id="user-avatar">
                 <i class="fas fa-user"></i>
@@ -321,7 +353,7 @@
 
             <!-- RESTAURANT SPECIFIC -->
             <a href="store-orders-screen.html" target="_blank"
-                class="restaurant-only hidden w-full flex items-center gap-3 px-4 py-3 text-amber-400 hover:bg-gray-800 hover:text-amber-300 rounded-xl transition-all duration-200 nav-btn group">
+                class="restaurant-only hidden w-full flex items-center gap-3 px-4 py-3 text-amber-500 hover:bg-gray-800 hover:text-amber-300 rounded-xl transition-all duration-200 nav-btn group border border-amber-500/20 bg-amber-500/5">
                 <div
                     class="w-8 h-8 rounded-lg bg-amber-400/10 text-amber-500 group-hover:bg-amber-400 group-hover:text-amber-900 flex items-center justify-center transition-colors">
                     <i class="fas fa-desktop"></i>
@@ -390,6 +422,8 @@
                     <span class="font-medium">الإعدادات</span>
                 </button>
             </div>
+            <!-- Theme Switcher Container -->
+            <div id="sidebar-theme-container"></div>
         </nav>
 
         <div class="p-4 border-t border-gray-800 bg-gray-900/50">
@@ -1018,7 +1052,8 @@
             initQuill();
             initChart();
             renderStoreLink();
-            updateSubscriptionUI(data); // Added Subscription Check
+            updateSubscriptionUI(data);
+            ThemeManager.renderSidebarControl('sidebar-theme-container'); // Add Theme Sidebar
 
             // Navigation Logic
             setupNavigation();
@@ -1762,6 +1797,40 @@
             if (!date) return false;
             const today = new Date();
             return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+        }
+
+        // --- Audio Logic ---
+        window.enableAudio = () => {
+            const audio = document.getElementById('order-sound');
+            audio.play().then(() => {
+                audio.pause();
+                audio.currentTime = 0;
+                document.getElementById('enable-sound-btn').classList.add('hidden');
+                localStorage.setItem('s22_sound_enabled', 'true');
+                showToast('تم تفعيل التنبيهات الصوتية 🔊');
+            }).catch(e => console.log('Audio enable failed', e));
+        };
+
+        function playNotification() {
+            const audio = document.getElementById('order-sound');
+            const alertBox = document.getElementById('new-order-alert');
+
+            // Visual Alert
+            if (alertBox) alertBox.classList.remove('hidden');
+
+            // Sound Alert
+            const promise = audio.play();
+            if (promise !== undefined) {
+                promise.catch(error => {
+                    console.log('Autoplay prevented. User interaction need');
+                    document.getElementById('enable-sound-btn').classList.remove('hidden');
+                });
+            }
+        }
+
+        // Check legacy enabled state
+        if (localStorage.getItem('s22_sound_enabled') === 'true') {
+            // Try silent play to warm up
         }
 
         function getDaysDifference(date) {

@@ -44,54 +44,60 @@ const ThemeManager = {
         }
     },
 
-    // Helper: Create the standard Floating Switcher
+    // Helper: Create the standard Floating Switcher (Deprecated preferred in Sidebar)
     createFloatingSwitcher() {
-        if (document.getElementById('s22-theme-floater')) return;
-
-        const container = document.createElement('div');
-        container.id = 's22-theme-floater';
-        container.className = 'fixed bottom-24 left-4 z-50 flex flex-col gap-2 bg-white/90 backdrop-blur shadow-lg p-2 rounded-full border border-gray-200 transition-transform duration-300 transform translate-x-[-150%]';
-        // Initially hidden off-screen, needs trigger
-
-        // Define buttons
-        const modes = [
-            { id: this.THEMES.LIGHT, icon: 'fa-sun', color: '#f59e0b', title: 'وضع النهار' },
-            { id: this.THEMES.DARK, icon: 'fa-moon', color: '#6366f1', title: 'وضع الليل' },
-            { id: this.THEMES.EYE_CARE, icon: 'fa-eye', color: '#854d0e', title: 'حماية العين' }
-        ];
-
-        container.innerHTML = modes.map(m => `
-            <button onclick="ThemeManager.applyTheme('${m.id}')" 
-                class="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md transition-transform hover:scale-110 theme-option-btn" 
-                style="background-color: ${m.color}" 
-                title="${m.title}" data-theme-target="${m.id}">
-                <i class="fas ${m.icon}"></i>
-            </button>
-        `).join('');
-
-        // Trigger Button (Visible)
-        const triggerBtn = document.createElement('button');
-        triggerBtn.className = 'fixed bottom-24 left-4 z-50 w-12 h-12 bg-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-indigo-700 transition-all';
-        triggerBtn.innerHTML = '<i class="fas fa-palette"></i>';
-        triggerBtn.onclick = () => {
-            const isHidden = container.classList.contains('translate-x-[-150%]');
-            if (isHidden) {
-                container.classList.remove('translate-x-[-150%]');
-                container.classList.add('translate-x-0');
-            } else {
-                container.classList.add('translate-x-[-150%]');
-                container.classList.remove('translate-x-0');
-            }
-        };
-
-        document.body.appendChild(container);
-        document.body.appendChild(triggerBtn);
-
-        // Highlight active
-        this.updateActiveButton(localStorage.getItem('s22-theme') || 'light');
+        // Disabling for now based on user feedback to prioritize sidebar
+        // If specific legacy pages need it, we can re-enable or check a flag.
+        if (sessionStorage.getItem('use-floating-theme')) {
+            // ... existing code ...
+        }
     },
 
+    // New: Render Controls into a Sidebar Container
+    renderSidebarControl(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const modes = [
+            { id: this.THEMES.LIGHT, icon: 'fa-sun', label: 'النهار', bg: 'bg-amber-100', text: 'text-amber-600' },
+            { id: this.THEMES.DARK, icon: 'fa-moon', label: 'الليل', bg: 'bg-indigo-100', text: 'text-indigo-600' },
+            { id: this.THEMES.EYE_CARE, icon: 'fa-eye', label: 'حماية', bg: 'bg-stone-100', text: 'text-stone-600' }
+        ];
+
+        container.innerHTML = `
+            <div class="px-4 py-2 mt-4 border-t border-gray-700/50">
+                <p class="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">المظهر</p>
+                <div class="flex gap-2 justify-between bg-black/20 p-1 rounded-lg">
+                    ${modes.map(m => `
+                        <button onclick="ThemeManager.applyTheme('${m.id}')" 
+                                class="flex-1 py-1.5 rounded-md text-xs font-bold transition-all duration-300 flex items-center justify-center gap-1 theme-btn-${m.id} text-gray-400 hover:bg-white/10"
+                                title="${m.label}">
+                            <i class="fas ${m.icon}"></i>
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        this.updateSidebarActiveState();
+    },
+
+    updateSidebarActiveState() {
+        const current = localStorage.getItem('s22-theme') || this.THEMES.LIGHT;
+        document.querySelectorAll(`[class*="theme-btn-"]`).forEach(btn => {
+            // Reset
+            btn.className = btn.className.replace('bg-white text-gray-900 shadow-sm', 'text-gray-400 hover:bg-white/10');
+
+            if (btn.classList.contains(`theme-btn-${current}`)) {
+                btn.classList.remove('text-gray-400', 'hover:bg-white/10');
+                btn.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+            }
+        });
+    },
+
+    // Override updateActiveButton to also update sidebar
     updateActiveButton(activeTheme) {
+        // Legacy Floating
         document.querySelectorAll('.theme-option-btn').forEach(btn => {
             if (btn.dataset.themeTarget === activeTheme) {
                 btn.style.border = '2px solid white';
@@ -101,6 +107,9 @@ const ThemeManager = {
                 btn.style.outline = 'none';
             }
         });
+
+        // New Sidebar UI
+        this.updateSidebarActiveState();
     }
 };
 
