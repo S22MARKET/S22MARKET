@@ -8,7 +8,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="app-style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap"
+        rel="stylesheet">
+    <script src="theme-manager.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            ThemeManager.createFloatingSwitcher();
+        });
+    </script>
 
     <style>
         body {
@@ -175,6 +182,13 @@
                     </div>
                     <i class="fas fa-chevron-left text-gray-300 text-xs"></i>
                 </a>
+                <a href="subscriptions.html" class="menu-item border-t border-gray-100">
+                    <div class="flex items-center flex-1">
+                        <div class="menu-icon-container bg-purple-50 text-purple-600"><i class="fas fa-crown"></i></div>
+                        <span class="font-bold text-sm text-gray-900 mr-3">ترقية المتجر (الباقات)</span>
+                    </div>
+                    <i class="fas fa-chevron-left text-gray-300 text-xs"></i>
+                </a>
                 <div onclick="shareStoreLink()" class="menu-item border-t border-gray-100">
                     <div class="flex items-center flex-1">
                         <div class="menu-icon-container bg-blue-50 text-blue-500"><i class="fas fa-share-alt"></i></div>
@@ -208,6 +222,28 @@
         </div>
 
         <!-- General Menu -->
+        <!-- Theme Settings -->
+        <h3 class="text-xs font-bold text-gray-400 mb-3 px-2">مظهر التطبيق</h3>
+        <div class="menu-group p-4">
+            <div class="flex justify-between items-center bg-gray-50 rounded-xl p-1">
+                <button onclick="ThemeManager.applyTheme('light')"
+                    class="flex-1 py-2 rounded-lg text-sm font-bold text-gray-600 transition hover:bg-white hover:shadow-sm flex items-center justify-center gap-2 theme-btn"
+                    data-target="light">
+                    <i class="fas fa-sun text-orange-500"></i> نهار
+                </button>
+                <button onclick="ThemeManager.applyTheme('dark')"
+                    class="flex-1 py-2 rounded-lg text-sm font-bold text-gray-600 transition hover:bg-white hover:shadow-sm flex items-center justify-center gap-2 theme-btn"
+                    data-target="dark">
+                    <i class="fas fa-moon text-indigo-500"></i> ليل
+                </button>
+                <button onclick="ThemeManager.applyTheme('eye-care')"
+                    class="flex-1 py-2 rounded-lg text-sm font-bold text-gray-600 transition hover:bg-white hover:shadow-sm flex items-center justify-center gap-2 theme-btn"
+                    data-target="eye-care">
+                    <i class="fas fa-eye text-amber-700"></i> حماية
+                </button>
+            </div>
+        </div>
+
         <h3 class="text-xs font-bold text-gray-400 mb-3 px-2">الإعدادات والحساب</h3>
         <div class="menu-group">
             <div onclick="openEditProfile()" class="menu-item">
@@ -434,6 +470,25 @@
             } else {
                 startCta.classList.remove('hidden');
             }
+
+            // Sync Theme UI in Profile
+            const currentTheme = localStorage.getItem('s22-theme') || 'light';
+            updateProfileThemeUI(currentTheme);
+        }
+
+        // Listen for global theme changes
+        window.addEventListener('themeChanged', (e) => updateProfileThemeUI(e.detail.theme));
+
+        function updateProfileThemeUI(theme) {
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                if (btn.dataset.target === theme) {
+                    btn.classList.add('bg-white', 'shadow-md', 'text-indigo-600');
+                    btn.classList.remove('text-gray-600', 'hover:bg-white');
+                } else {
+                    btn.classList.remove('bg-white', 'shadow-md', 'text-indigo-600');
+                    btn.classList.add('text-gray-600', 'hover:bg-white');
+                }
+            });
         }
 
         // --- Editors ---

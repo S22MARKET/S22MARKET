@@ -14,16 +14,16 @@
     --primary: #4f46e5;
     --primary-light: #818cf8;
     --primary-dark: #3730a3;
-    
+
     --bg-main: #f0f2f5;
     --bg-card: #ffffff;
     --bg-nav: rgba(255, 255, 255, 0.9);
     --bg-glass: rgba(255, 255, 255, 0.75);
-    
+
     --text-primary: #111827;
     --text-secondary: #4b5563;
     --text-muted: #9ca3af;
-    
+
     --border-color: #e5e7eb;
     --shadow-color: rgba(0, 0, 0, 0.05);
 
@@ -42,31 +42,41 @@
     --primary-light: #818cf8;
     --primary-dark: #4338ca;
 
-    --bg-main: #0f172a;       /* Slate 950 */
-    --bg-card: #1e293b;       /* Slate 800 */
+    --bg-main: #0f172a;
+    /* Slate 950 */
+    --bg-card: #1e293b;
+    /* Slate 800 */
     --bg-nav: rgba(30, 41, 59, 0.95);
     --bg-glass: rgba(15, 23, 42, 0.8);
 
-    --text-primary: #f8fafc;  /* Slate 50 */
-    --text-secondary: #cbd5e1;/* Slate 300 */
-    --text-muted: #64748b;    /* Slate 500 */
+    --text-primary: #f8fafc;
+    /* Slate 50 */
+    --text-secondary: #cbd5e1;
+    /* Slate 300 */
+    --text-muted: #64748b;
+    /* Slate 500 */
 
-    --border-color: #334155;  /* Slate 700 */
+    --border-color: #334155;
+    /* Slate 700 */
     --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
 /* --- Eye Care Mode (Comfort/Sepia) --- */
 [data-theme="eye-care"] {
-    --primary: #854d0e;     /* Warm Bronze */
+    --primary: #854d0e;
+    /* Warm Bronze */
     --primary-light: #a16207;
     --primary-dark: #713f12;
 
-    --bg-main: #fdf6e3;     /* Warm Beige (Solarized Light-ish) */
-    --bg-card: #fffbf0;     /* Cream */
+    --bg-main: #fdf6e3;
+    /* Warm Beige (Solarized Light-ish) */
+    --bg-card: #fffbf0;
+    /* Cream */
     --bg-nav: rgba(253, 246, 227, 0.95);
     --bg-glass: rgba(253, 246, 227, 0.8);
 
-    --text-primary: #433422; /* Dark Brown */
+    --text-primary: #433422;
+    /* Dark Brown */
     --text-secondary: #5c4b37;
     --text-muted: #8d7b68;
 
@@ -86,20 +96,53 @@ body {
 }
 
 /* Tailwind Overrides for Themes */
-.bg-white { background-color: var(--bg-card) !important; }
-.bg-gray-100, .bg-gray-50, .bg-slate-50, .bg-slate-100 { background-color: var(--bg-main) !important; }
-.bg-gray-800, .bg-gray-900, .bg-slate-800, .bg-slate-900 { 
-    background-color: var(--bg-card) !important; 
-    /* In dark mode, dark headers might need to stay dark or adapt */
+.bg-white {
+    background-color: var(--bg-card) !important;
 }
-/* Exception: Keep specific dark headers dark in light mode if intended, 
-   but for full conversion, we map them. */
 
-.text-gray-900, .text-gray-800, .text-slate-900 { color: var(--text-primary) !important; }
-.text-gray-600, .text-gray-500, .text-slate-500 { color: var(--text-secondary) !important; }
-.text-gray-400 { color: var(--text-muted) !important; }
+.bg-gray-50,
+.bg-slate-50,
+.bg-gray-100,
+.bg-slate-100 {
+    background-color: var(--bg-main) !important;
+}
 
-.border-gray-200, .border-gray-100, .border-slate-200 { border-color: var(--border-color) !important; }
+/* FIX: Do not force dark elements to be white in light mode */
+[data-theme="dark"] .bg-gray-900,
+[data-theme="dark"] .bg-slate-900,
+[data-theme="dark"] .bg-gray-800,
+[data-theme="dark"] .bg-slate-800 {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="eye-care"] .bg-gray-900,
+[data-theme="eye-care"] .bg-slate-900 {
+    background-color: var(--text-primary) !important;
+    /* Brownish dark for contrast */
+}
+
+.text-gray-900,
+.text-gray-800,
+.text-slate-900 {
+    color: var(--text-primary) !important;
+}
+
+.text-gray-600,
+.text-gray-500,
+.text-slate-500 {
+    color: var(--text-secondary) !important;
+}
+
+.text-gray-400 {
+    color: var(--text-muted) !important;
+}
+
+.border-gray-200,
+.border-gray-100,
+.border-slate-200 {
+    border-color: var(--border-color) !important;
+}
 
 /* Utilities */
 .s22-glass {
@@ -549,8 +592,13 @@ body {
 }
 
 @keyframes skeleton-shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 /* Bottom Navigation */
@@ -613,8 +661,15 @@ body {
 }
 
 @keyframes pageEnter {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Pull to Refresh Spinner */

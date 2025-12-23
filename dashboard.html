@@ -418,84 +418,124 @@
             window.location.href = 'admin-login.html';
         });
 
-        // قائمة الموبايل
+        function loadRecentActivity() {
+            const container = getEl('recent-activity');
+
+            // Subscribe to multiple collections for real-time feed
+            const qOrders = query(collection(db, "orders"), orderBy("createdAt", "desc"), limit(5));
+            const qUsers = query(collection(db, "users"), orderBy("createdAt", "desc"), limit(5));
+
+            // We'll use a snapshot on orders mostly as primary activity
+            onSnapshot(qOrders, (orderSnap) => {
+                const activities = [];
+
+                orderSnap.forEach(doc => {
+                    const data = doc.data();
+                    activities.push({
+                        type: 'order',
+                        text: `طلب جديد بقيمة ${data.total || 0} د.ج`,
+                        subtext: `من السيدة/السيد ${data.customerName || 'عميل'}`,
+                        time: data.createdAt,
+                        icon: 'fa-shopping-bag',
+                        color: 'bg-indigo-100 text-indigo-600'
+                    });
+                });
+
+                // Render immediately
+                renderActivities(container, activities);
+            });
+        }
+
+        function renderActivities(container, items) {
+            if (items.length === 0) {
+                container.innerHTML = '<div class="text-center text-gray-400 py-4">لا توجد نشاطات حديثة</div>';
+                return;
+            }
+
+            container.innerHTML = items.map(item => {
+                // Time Formatting
+                let timeStr = 'الآن';
+                if (item.time && item.time.toDate) {
+                    const date = item.time.toDate();
+                    timeStr = date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                }
+
+                return `
+                <div class="flex items-start gap-4 p-3 hover:bg-gray-50 rounded-xl transition-colors border-b border-gray-50 last:border-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center ${item.color} flex-shrink-0">
+                        <i class="fas ${item.icon}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-gray-800 text-sm">${item.text}</h4>
+                        <p class="text-xs text-gray-500">${item.subtext}</p>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-full">${timeStr}</span>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // --- Sidebar Logic Enhanced ---
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const sidebar = document.getElementById('sidebar');
+
+        // Add Overlay and Close Button dynamically
+        const overlay = document.createElement('div');
+        overlay.className = 'fixed inset-0 bg-black/50 z-20 hidden md:hidden transition-opacity opacity-0';
+        document.body.appendChild(overlay);
+
+        // Add Close Button to Sidebar Header
+        const sidebarHeader = sidebar.querySelector('div.border-b'); // Targeting the existing header
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'absolute top-4 left-4 text-gray-400 hover:text-white md:hidden';
+        closeBtn.innerHTML = '<i class="fas fa-times text-xl"></i>';
+        closeBtn.onclick = closeSidebar;
+        if (sidebarHeader) sidebarHeader.appendChild(closeBtn);
+
+        function openSidebar() {
+            sidebar.classList.remove('translate-x-full');
+            overlay.classList.remove('hidden');
+            setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+        }
+
+        function closeSidebar() {
+            sidebar.classList.add('translate-x-full');
+            overlay.classList.add('opacity-0');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+        }
+
         if (mobileMenuBtn) {
-            mobileMenuBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('translate-x-full');
-            });
-        }
-
-        function setActiveTab() {
-            const currentPage = window.location.pathname.split('/').pop();
-            const tabs = document.querySelectorAll('.dashboard-tab');
-            tabs.forEach(tab => {
-                const tabHref = tab.getAttribute('href').split('/').pop();
-                if (tabHref === currentPage || (currentPage === '' && tabHref === 'dashboard.html') || (currentPage === 'dashboard.html' && tabHref === 'dashboard.html')) {
-                    tab.classList.add('active-tab');
-                } else {
-                    tab.classList.remove('active-tab');
-                }
-            });
-        }
-
-        // Helper to animate numbers
-        function animateValue(obj, start, end, duration) {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                const value = Math.floor(progress * (end - start) + start);
-
-                // Format with K/M if large, or commas
-                // For this dashboard, simple commas are preferred
-                obj.textContent = value.toLocaleString();
-                if (obj.id === 'total-profit' || obj.id === 'avg-profit') {
-                    obj.textContent += ' د.ج';
-                }
-
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                } else {
-                    // Ensure final value text is exact
-                    obj.textContent = end.toLocaleString();
-                    if (obj.id === 'total-profit' || obj.id === 'avg-profit') {
-                        obj.textContent += ' د.ج';
-                    }
-                }
+            mobileMenuBtn.onclick = (e) => {
+                e.stopPropagation();
+                openSidebar();
             };
-            window.requestAnimationFrame(step);
         }
 
+        overlay.onclick = closeSidebar;
+
+        // Auto-refresh logic removal/cleanup if needed (none here)
+
+        // Update init
         function initializeDashboard() {
             setActiveTab();
-
             loadAnalytics();
+            loadRecentActivity(); // Added Call
 
-            // الاستماع لتحديثات المنتجات (للحسابات)
+            // ... (rest of listeners)
             onSnapshot(query(collection(db, "products")), (snapshot) => {
                 productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 updateAnalytics();
             });
-
-            // الاستماع لتحديثات الطلبات
             onSnapshot(query(collection(db, "orders")), (snapshot) => {
                 ordersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 updateAnalytics();
             });
-
-            // الاستماع لطلبات المتاجر المعلقة (إشعار فوري)
             onSnapshot(query(collection(db, "users"), where("storeRequest.status", "==", "pending")), (snapshot) => {
                 const count = snapshot.size;
                 const badge = document.getElementById('sellers-badge');
                 if (badge) {
-                    if (count > 0) {
-                        badge.textContent = count;
-                        badge.classList.remove('hidden');
-                    } else {
-                        badge.classList.add('hidden');
-                    }
+                    badge.textContent = count > 0 ? count : '';
+                    if (count > 0) badge.classList.remove('hidden'); else badge.classList.add('hidden');
                 }
             });
         }
