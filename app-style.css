@@ -61,28 +61,10 @@
     --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
-/* --- Eye Care Mode (Comfort/Sepia) --- */
-[data-theme="eye-care"] {
-    --primary: #854d0e;
-    /* Warm Bronze */
-    --primary-light: #a16207;
-    --primary-dark: #713f12;
+/* --- Eye Care Mode (Overlay Logic) --- */
+/* Note: Eye Care is now handled via .eye-care-active class on body, 
+   applying a filter on top of the existing theme (Light or Dark). */
 
-    --bg-main: #fdf6e3;
-    /* Warm Beige (Solarized Light-ish) */
-    --bg-card: #fffbf0;
-    /* Cream */
-    --bg-nav: rgba(253, 246, 227, 0.95);
-    --bg-glass: rgba(253, 246, 227, 0.8);
-
-    --text-primary: #433422;
-    /* Dark Brown */
-    --text-secondary: #5c4b37;
-    --text-muted: #8d7b68;
-
-    --border-color: #e6dcc8;
-    --shadow-color: rgba(67, 52, 34, 0.05);
-}
 
 /* --- Utility Overrides (The Magic) --- */
 body {
@@ -142,6 +124,63 @@ body {
 .border-gray-100,
 .border-slate-200 {
     border-color: var(--border-color) !important;
+}
+
+/* --- Accessibility & Contrast Overrides --- */
+
+/* 1. Form Inputs in Dark Mode */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background-color: #1e293b !important;
+    /* Slate 800 */
+    color: #f8fafc !important;
+    /* Slate 50 */
+    border-color: #475569 !important;
+    /* Slate 600 */
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+    color: #94a3b8 !important;
+    /* Slate 400 */
+}
+
+/* 2. Buttons in Dark Mode (Ghost/Outline fixes) */
+[data-theme="dark"] .bg-gray-100,
+[data-theme="dark"] .bg-gray-200,
+[data-theme="dark"] .hover\:bg-gray-100:hover,
+[data-theme="dark"] .hover\:bg-gray-200:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #f8fafc !important;
+}
+
+/* 3. Eye Care Filter (Golden/Warm Overlay) */
+html.eye-care-active {
+    position: relative;
+}
+
+html.eye-care-active::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 166, 0, 0.15);
+    /* Warm Orange tint */
+    backdrop-filter: sepia(30%) contrast(90%);
+    pointer-events: none;
+    z-index: 99999;
+    mix-blend-mode: multiply;
+    /* Blends nicely with both dark and light */
+    transition: all 0.5s ease;
+}
+
+/* Adjust filter for Dark Mode to avoid being too muddy */
+[data-theme="dark"].eye-care-active::before {
+    mix-blend-mode: soft-light;
+    background: rgba(255, 180, 50, 0.2);
 }
 
 /* Utilities */
