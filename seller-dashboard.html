@@ -1013,14 +1013,20 @@
 
         async function initApp() {
             try {
+                console.log("Starting initApp...");
                 // Use global requireAuth
                 const user = await window.requireAuth(auth);
-                if (!user) return;
+                if (!user) {
+                    console.log("User not authenticated, redirect handled by requireAuth");
+                    return;
+                }
 
+                console.log("User authenticated:", user.uid);
                 const userDoc = await getDoc(doc(db, "users", user.uid));
 
                 if (userDoc.exists()) {
                     const data = userDoc.data();
+                    console.log("User role:", data.role);
 
                     if (data.role === 'vendor' || data.role === 'restaurant') {
                         if (data.isSuspended) {
@@ -1040,6 +1046,7 @@
                             return;
                         }
                         currentUser = user;
+                        console.log("Initializing Dashboard Components...");
                         initDashboardComponents(data);
                     } else {
                         console.log('Role mismatch:', data.role);
@@ -1047,41 +1054,60 @@
                         window.location.href = 'index.html';
                     }
                 } else {
+                    console.error("User document not found!");
+                    alert("خطأ: لم يتم العثور على بيانات المستخدم.");
                     window.location.href = 'index.html';
                 }
             } catch (error) {
                 console.error("Critical Error in initApp:", error);
-                alert("حدث خطأ غير متوقع: " + error.message);
+                alert("حدث خطأ غير متوقع أثناء الدخول للوحة التحكم:\n" + error.message);
             }
         }
 
         function initDashboardComponents(data) {
-            document.getElementById('shop-name').textContent = data.storeName || data.displayName;
+            try {
+                console.log("Loading Dashboard Data...");
+                document.getElementById('shop-name').textContent = data.storeName || data.displayName;
 
-            // Initialize Components
-            loadOrdersListener();
-            loadProducts();
-            loadReviewsListener();
-            loadCategories();
-            loadSettings(data);
-            initQuill();
-            initChart();
-            renderStoreLink();
-            updateSubscriptionUI(data);
-            ThemeManager.renderSidebarControl('sidebar-theme-container'); // Add Theme Sidebar
+                // Initialize Components
+                loadOrdersListener();
+                loadProducts();
+                loadReviewsListener();
+                loadCategories();
+                loadSettings(data);
+                initQuill();
+                initChart();
+                renderStoreLink();
+                updateSubscriptionUI(data);
 
-            // Navigation Logic
-            setupNavigation();
+                if (window.ThemeManager) {
+                    ThemeManager.renderSidebarControl('sidebar-theme-container');
+                } else {
+                    console.warn("ThemeManager not found");
+                }
 
-            // Restaurant Specific UI & Adaptation
-            updateInterfaceForUser(data);
+                // Navigation Logic
+                setupNavigation();
 
-            if (data.role === 'restaurant') {
-                loadOffers();
+                // Restaurant Specific UI & Adaptation
+                updateInterfaceForUser(data);
+
+                if (data.role === 'restaurant') {
+                    loadOffers();
+                }
+
+                // Logout
+                document.getElementById('logout-btn').onclick = () => signOut(auth);
+
+                // Hide Loader Success
+                console.log("Dashboard Loaded Successfully");
+                // Note: There is no explicit loader element to hide in HTML, 
+                // but if there were, we would hide it here.
+
+            } catch (error) {
+                console.error("Error in initDashboardComponents:", error);
+                alert("حدث خطأ أثناء تحميل مكونات لوحة التحكم:\n" + error.message);
             }
-
-            // Logout
-            document.getElementById('logout-btn').onclick = () => signOut(auth);
         }
 
         function initQuill() {
