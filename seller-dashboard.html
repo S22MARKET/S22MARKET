@@ -309,6 +309,11 @@
                 class="hidden bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-indigo-200 transition animate-pulse">
                 <i class="fas fa-volume-up"></i> تفعيل التنبيهات
             </button>
+            <button id="wake-lock-btn" onclick="toggleWakeLock()"
+                class="hidden sm:flex items-center gap-2 bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-xs font-bold hover:bg-slate-200 transition"
+                title="منع الشاشة من الانطفاء">
+                <i class="fas fa-sun"></i> <span class="hidden md:inline">وضع النشاط</span>
+            </button>
             <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold"
                 id="user-avatar">
                 <i class="fas fa-user"></i>
@@ -1808,8 +1813,53 @@
                 document.getElementById('enable-sound-btn').classList.add('hidden');
                 localStorage.setItem('s22_sound_enabled', 'true');
                 showToast('تم تفعيل التنبيهات الصوتية 🔊');
+
+                // Auto-trigger Wake Lock if sound is enabled (UX convenience)
+                if (!wakeLock) toggleWakeLock();
             }).catch(e => console.log('Audio enable failed', e));
         };
+
+        // --- Screen Wake Lock API ---
+        let wakeLock = null;
+        async function toggleWakeLock() {
+            const btn = document.getElementById('wake-lock-btn');
+            if ('wakeLock' in navigator) {
+                try {
+                    if (wakeLock) {
+                        await wakeLock.release();
+                        wakeLock = null;
+                        btn.className = "hidden sm:flex items-center gap-2 bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-xs font-bold hover:bg-slate-200 transition";
+                        btn.querySelector('i').className = "fas fa-sun";
+                        showToast('تم إيقاف وضع النشاط (الشاشة قد تنطفئ)', 'info');
+                    } else {
+                        wakeLock = await navigator.wakeLock.request('screen');
+                        btn.className = "flex items-center gap-2 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold hover:bg-yellow-200 transition shadow-sm border border-yellow-200";
+                        btn.querySelector('i').className = "fas fa-lightbulb animate-pulse";
+                        showToast('تم تفعيل وضع النشاط (الشاشة ستبقى تعمل) 💡', 'success');
+
+                        wakeLock.addEventListener('release', () => {
+                            console.log('Wake Lock released');
+                            // UI update handled above or by system
+                        });
+                    }
+                } catch (err) {
+                    console.error(`${err.name}, ${err.message}`);
+                    showToast('المتصفح لا يدعم هذه الميزة', 'error');
+                }
+            } else {
+                showToast('جهازك لا يدعم Wake Lock API', 'error');
+            }
+        }
+
+        // Re-acquire lock when page becomes visible
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                // The lock is released when tab is hidden, so re-acquire
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                } catch (err) { console.log('Wake Lock re-acquire failed', err); }
+            }
+        });
 
         function playNotification() {
             const audio = document.getElementById('order-sound');

@@ -458,24 +458,23 @@
                 cart = stored ? JSON.parse(stored) : [];
 
                 // DATA MIGRATION FIX: Ensure all items have a type
+                let dirt = false;
                 cart.forEach(item => {
                     if (!item.itemType) {
                         item.itemType = 'market';
-                        // Check if it looks like food? Hard to say without category ID
-                        // Safe default is market as food requires restaurant ID usually
+                        dirt = true;
                     }
                 });
 
+                if (dirt) saveCart();
+
                 renderCartItems();
-                updateCartIcon(); // Local update
+                updateCartIcon();
             } catch (e) {
                 console.error("Cart load error", e);
                 cart = [];
             }
         }
-
-        // Init Load
-        loadCart();
 
         // --- Helper Functions ---
         const showToast = (message, type = 'success') => {
@@ -500,27 +499,11 @@
             }
         };
 
-        // --- Cart Logic ---
-        function loadCart() {
-            cart = JSON.parse(localStorage.getItem('s22market_cart')) || [];
-
-            // Migration: Add default type if missing
-            let dirt = false;
-            cart = cart.map(item => {
-                if (!item.itemType) {
-                    item.itemType = 'market';
-                    dirt = true;
-                }
-                return item;
-            });
-            if (dirt) saveCart();
-
-            renderCartItems();
-            updateCartIcon();
-        }
+        // Init Load
+        loadCart();
 
         function saveCart() {
-            localStorage.setItem('s22market_cart', JSON.stringify(cart));
+            localStorage.setItem('s22_cart', JSON.stringify(cart));
             updateCartIcon();
             renderCartItems();
         }

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Market - بوابة التجار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="app-style.css">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #0f172a;
+            /* Slate 900 */
+            background-image: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%), radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+            min-height: 100vh;
+        }
+
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .fade-in-up {
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    <script type="module">
+        // PRE-CHECK AUTH to speed up UX
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+
+        // Minimal config for speed check (Optimistic)
+        // Note: Real check happens in app-core logic below, but this prevents flickering if we can catch it early
+    </script>
+</head>
+
+<body class="flex items-center justify-center min-h-screen text-white">
+
+    <div class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-8 p-4">
+
+        <!-- Left Side: Login Form -->
+        <div class="glass-panel rounded-3xl p-8 lg:p-12 fade-in-up order-2 lg:order-1 relative overflow-hidden">
+            <!-- Decorative Glow -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-3xl -mr-16 -mt-16"></div>
+
+            <div class="relative z-10">
+                <div class="mb-10 text-center lg:text-right">
+                    <h2 class="text-3xl font-bold mb-2">تسجيل دخول التجار</h2>
+                    <p class="text-slate-400 text-sm">أدخل بيانات حسابك لإدارة متجرك.</p>
+                </div>
+
+                <form id="seller-login-form" class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-2">البريد الإلكتروني المهني</label>
+                        <div class="relative">
+                            <i class="fas fa-envelope absolute right-4 top-4 text-slate-500"></i>
+                            <input type="email" id="seller-email" required
+                                class="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-10 py-3.5 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-white placeholder-slate-600"
+                                placeholder="name@business.com">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-2">كلمة المرور</label>
+                        <div class="relative">
+                            <i class="fas fa-lock absolute right-4 top-4 text-slate-500"></i>
+                            <input type="password" id="seller-password" required
+                                class="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-10 py-3.5 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-white placeholder-slate-600"
+                                placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs">
+                        <label
+                            class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white transition">
+                            <input type="checkbox" id="seller-remember" class="accent-indigo-500 w-4 h-4 rounded"
+                                checked>
+                            <span>تذكرني على هذا الجهاز</span>
+                        </label>
+                        <a href="login.html" class="text-indigo-400 hover:text-indigo-300 transition">مشكلة في
+                            الدخول؟</a>
+                    </div>
+
+                    <button type="submit" id="seller-submit"
+                        class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-500/20 transition-all hover:scale-[1.02] flex justify-center items-center gap-2">
+                        <span>الدخول للوحة التحكم</span>
+                        <i class="fas fa-arrow-left"></i>
+                        <div class="loader hidden" id="login-spinner"></div>
+                    </button>
+                </form>
+
+                <div class="mt-8 pt-8 border-t border-slate-700/50 text-center">
+                    <p class="text-xs text-slate-500">لست شريكاً بعد؟ <a href="business.html"
+                            class="text-indigo-400 hover:text-white transition font-bold">انضم إلينا كبائع</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Branding -->
+        <div class="hidden lg:flex flex-col justify-center p-12 fade-in-up order-1 lg:order-2"
+            style="animation-delay: 0.1s;">
+            <div class="mb-8">
+                <h1 class="text-5xl font-black mb-4">S22 <span class="text-indigo-400">PARTNER</span></h1>
+                <p class="text-xl text-slate-300 leading-relaxed">أدر مطعمك أو متجرك باحترافية. تابع الطلبات لحظياً، حلل
+                    المبيعات، وتواصل مع زبائنك.</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass-panel p-6 rounded-2xl flex flex-col items-start gap-3">
+                    <div
+                        class="w-10 h-10 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center text-xl">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="font-bold">تنبيهات فورية</div>
+                    <div class="text-xs text-slate-400">نظام صوتي لتنبيهك بالطلبات الجديدة حتى والشاشة مغلقة.</div>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl flex flex-col items-start gap-3">
+                    <div
+                        class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-xl">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="font-bold">إحصائيات دقيقة</div>
+                    <div class="text-xs text-slate-400">تقارير مبيعات يومية وشهرية لتحسين أداء متجرك.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Initial Loading Overlay -->
+    <div id="auth-check-overlay" class="fixed inset-0 bg-[#0f172a] z-50 flex flex-col items-center justify-center">
+        <div class="w-16 h-16 border-4 border-indigo-500 border-t-white rounded-full animate-spin mb-4"></div>
+        <p class="text-indigo-200 text-sm font-bold animate-pulse">جاري التحقق من أمان التاجر...</p>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './app-core.js';
+        import { onAuthStateChanged, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const overlay = document.getElementById('auth-check-overlay');
+        const form = document.getElementById('seller-login-form');
+        const submitBtn = document.getElementById('seller-submit');
+        const spinner = document.getElementById('login-spinner');
+
+        // 1. Auto-Redirect Logic
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // User is authenticated. Verify if they are a SELLER/PARTNER?
+                // For now, we allow access to dashboard, and dashboard handles strict role checking.
+                // But to be "professional", let's check basic claim here or just redirect fast.
+
+                // Fast Redirect
+                window.location.href = 'seller-dashboard.html';
+            } else {
+                // Not logged in. Hide overlay and show form.
+                overlay.classList.add('hidden');
+            }
+        });
+
+        // 2. Login Logic
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('seller-email').value;
+            const password = document.getElementById('seller-password').value;
+            const remember = document.getElementById('seller-remember').checked;
+
+            // UI Loading State
+            submitBtn.disabled = true;
+            submitBtn.querySelector('span').classList.add('hidden');
+            submitBtn.querySelector('.fa-arrow-left').classList.add('hidden');
+            spinner.classList.remove('hidden');
+
+            try {
+                // Auth
+                await setPersistence(auth, browserLocalPersistence); // Always persist
+                await signInWithEmailAndPassword(auth, email, password);
+
+                // Redirect will be handled by onAuthStateChanged above
+            } catch (error) {
+                console.error(error);
+                alert('خطأ في الدخول: تأكد من البريد وكلمة المرور');
+
+                // Reset UI
+                submitBtn.disabled = false;
+                submitBtn.querySelector('span').classList.remove('hidden');
+                submitBtn.querySelector('.fa-arrow-left').classList.remove('hidden');
+                spinner.classList.add('hidden');
+            }
+        };
+
+        // Safety fallback: if auth takes too long (e.g. offline), hide overlay after 3s
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+        }, 3000);
+    </script>
+</body>
+
+</html>
