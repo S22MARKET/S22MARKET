@@ -534,10 +534,10 @@
             const userDoc = await getDoc(doc(db, "users", user.uid));
             if (userDoc.exists()) {
                 const userData = userDoc.data();
-                if (userData.role === 'restaurant' || userData.role === 'admin') {
+                if (userData.role === 'restaurant' || userData.role === 'admin' || userData.role === 'vendor') {
                     currentUser = user;
                     if (document.getElementById('restaurant-name-display')) {
-                        document.getElementById('restaurant-name-display').textContent = "أهلا بك في مطعمك";
+                        document.getElementById('restaurant-name-display').textContent = "أهلا بك في متجرك";
                     }
                     if (authLoader) authLoader.classList.add('hidden');
                     if (dashboardPage) dashboardPage.classList.remove('hidden');

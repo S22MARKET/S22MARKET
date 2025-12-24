@@ -153,117 +153,179 @@
         <div class="relative min-h-screen md:flex">
 
             <aside id="sidebar"
-                class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-300 ease-in-out z-30">
-                <!-- Happy Hour Section -->
-                <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 mb-8 relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-purple-500 to-pink-500"></div>
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="p-3 bg-gray-700 rounded-xl">
-                            <i class="fas fa-cocktail text-2xl text-purple-400"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-xl font-bold text-white">Happy Hour Automator ⚡</h2>
-                            <p class="text-gray-400 text-sm">قم بتفعيل خصومات تلقائية في ساعات الركود لجذب المزيد من
-                                الزبائن.</p>
-                        </div>
+                class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-300 ease-in-out z-30 flex flex-col">
+                <div class="p-6 text-center border-b border-gray-800 relative overflow-hidden group">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-20 transition duration-500">
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-gray-400 mb-2 font-medium">نسبة الخصم (%)</label>
-                            <input type="number" id="hh-discount"
-                                class="w-full bg-gray-700 border-gray-600 rounded-xl p-3 text-white focus:border-purple-500 transition-colors"
-                                placeholder="مثال: 20">
-                        </div>
-                        <div>
-                            <label class="block text-gray-400 mb-2 font-medium">الحالة</label>
-                            <label class="relative inline-flex items-center cursor-pointer mt-2">
-                                <input type="checkbox" id="hh-active" class="sr-only peer">
-                                <div
-                                    class="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600">
-                                </div>
-                                <span class="mr-3 text-sm font-medium text-gray-300">تفعيل الأتمتة</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <label class="block text-gray-400 mb-2 font-medium">التوقيت (من - إلى)</label>
-                        <div class="flex gap-4">
-                            <input type="time" id="hh-start"
-                                class="flex-1 bg-gray-700 border-gray-600 rounded-xl p-3 text-white">
-                            <span class="self-center text-gray-500">إلى</span>
-                            <input type="time" id="hh-end"
-                                class="flex-1 bg-gray-700 border-gray-600 rounded-xl p-3 text-white">
-                        </div>
-                    </div>
-
-                    <button id="save-hh-btn"
-                        class="mt-6 w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 rounded-xl shadow-lg transition-transform transform hover:scale-[1.02]">
-                        حفظ إعدادات Happy Hour
-                    </button>
+                    <h2 class="text-2xl font-black tracking-wider relative z-10">S22 <span
+                            class="text-indigo-400">PARTNER</span></h2>
+                    <p class="text-xs text-gray-400 mt-2 font-medium bg-gray-800 py-1 px-3 rounded-full inline-block"
+                        id="restaurant-name-display">S22 RESTAURANT</p>
                 </div>
 
-                <!-- Existing Offers List -->
-                <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700">
-                    <h2 class="text-2xl font-bold">S22 <span class="text-orange-400">RESTAURANT</span></h2>
-                    <p id="restaurant-name-display" class="text-xs text-gray-400 mt-1">...</p>
-                </div>
-                <nav class="flex-1 p-2 space-y-2">
+                <nav class="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
+                    <!-- نظرة عامة -->
                     <a href="seller-dashboard.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
-                            class="fas fa-tachometer-alt fa-fw ml-3"></i> اللوحة الرئيسية</a>
+                        class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <span class="font-medium">نظرة عامة</span>
+                    </a>
+
+                    <!-- الطلبات -->
                     <a href="restaurant-orders.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
-                            class="fas fa-clipboard-list fa-fw ml-3"></i> الطلبات الواردة</a>
+                        class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <span class="font-medium">الطلبات</span>
+                    </a>
+
+                    <!-- شاشة المطبخ -->
                     <a href="store-orders-screen.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700 text-yellow-300 font-bold"><i
-                            class="fas fa-tv fa-fw ml-3"></i> شاشة المطبخ</a>
+                        class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
+                            <i class="fas fa-tv"></i>
+                        </div>
+                        <span class="font-medium">شاشة المطبخ</span>
+                    </a>
+
+                    <!-- موافقات النقاط -->
                     <a href="restaurant-loyalty.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
-                            class="fas fa-check-to-slot fa-fw ml-3"></i> موافقات النقاط</a>
+                        class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
+                            <i class="fas fa-check-to-slot"></i>
+                        </div>
+                        <span class="font-medium">موافقات النقاط</span>
+                    </a>
+
+                    <!-- سجل العملاء -->
                     <a href="restaurant-customer-log.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
-                            class="fas fa-users fa-fw ml-3"></i> سجل العملاء (بالطلبات)</a>
+                        class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <span class="font-medium">سجل العملاء</span>
+                    </a>
+
+                    <!-- العملاء المسجلون -->
                     <a href="restaurant-customers.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
-                            class="fas fa-id-card fa-fw ml-3"></i> العملاء المسجلون</a>
+                        class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <span class="font-medium">العملاء المسجلون</span>
+                    </a>
+
+
+                    <!-- قائمة الطعام -->
                     <a href="restaurant-menu.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
-                            class="fas fa-utensils fa-fw ml-3"></i> قائمة الطعام</a>
+                        class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <span class="font-medium">قائمة الطعام</span>
+                    </a>
+
+                    <!-- العروض والباقات -->
                     <a href="restaurant-offers.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
-                            class="fas fa-star fa-fw ml-3"></i> العروض والباقات</a>
+                        class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <span class="font-medium">العروض والباقات</span>
+                    </a>
+
+                    <!-- الكوبونات -->
                     <a href="restaurant-coupons.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
-                            class="fas fa-tags fa-fw ml-3"></i> الكوبونات</a>
+                        class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <span class="font-medium">الكوبونات</span>
+                    </a>
+
+                    <!-- الأقسام -->
                     <a href="restaurant-sections.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
-                            class="fas fa-sitemap fa-fw ml-3"></i> الأقسام</a>
+                        class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
+                            <i class="fas fa-sitemap"></i>
+                        </div>
+                        <span class="font-medium">الأقسام</span>
+                    </a>
+
+                    <!-- عمال التوصيل -->
                     <a href="restaurant-drivers.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
-                            class="fas fa-biking fa-fw ml-3"></i> عمال التوصيل</a>
+                        class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
+                            <i class="fas fa-biking"></i>
+                        </div>
+                        <span class="font-medium">عمال التوصيل</span>
+                    </a>
+
+                    <!-- الإحصائيات -->
                     <a href="restaurant-stats.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
-                            class="fas fa-chart-line fa-fw ml-3"></i> الإحصائيات</a>
+                        class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <span class="font-medium">الإحصائيات</span>
+                    </a>
+
+                    <!-- إعدادات الوفاء -->
                     <a href="restaurant-fulfillment-settings.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
-                            class="fas fa-gift fa-fw ml-3"></i> إعدادات الوفاء</a>
+                        class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <span class="font-medium">إعدادات الوفاء</span>
+                    </a>
+
+                    <!-- إعدادات التوصيل -->
                     <a href="restaurant-delivery-settings.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
-                            class="fas fa-motorcycle fa-fw ml-3"></i> إعدادات التوصيل</a>
+                        class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
+                            <i class="fas fa-motorcycle"></i>
+                        </div>
+                        <span class="font-medium">إعدادات التوصيل</span>
+                    </a>
+
+                    <!-- إعدادات المطعم -->
                     <a href="restaurant-settings.html"
-                        class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-orange-700"><i
-                            class="fas fa-cogs fa-fw ml-3"></i> إعدادات المطعم</a>
+                        class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <span class="font-medium">إعدادات المطعم</span>
+                    </a>
                 </nav>
-                <div class="p-4 border-t border-gray-700">
+
+                <div class="p-4 border-t border-gray-800 bg-gray-900/50">
                     <button id="logout-btn"
-                        class="w-full flex items-center justify-center px-4 py-3 rounded-md bg-red-600 hover:bg-red-700">
-                        <i class="fas fa-sign-out-alt fa-fw ml-3"></i> تسجيل الخروج
+                        class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all duration-200 font-medium group">
+                        <i class="fas fa-sign-out-alt group-hover:rotate-180 transition-transform duration-300"></i>
+                        <span>تسجيل الخروج</span>
                     </button>
                     <a href="index.html"
-                        class="w-full flex items-center justify-center px-4 py-2 mt-2 rounded-md bg-gray-700 text-sm hover:bg-gray-600">
-                        العودة للمتجر
+                        class="block text-center text-xs text-gray-500 mt-3 hover:text-gray-300 transition-colors">
+                        العودة للمتجر الرئيسي
                     </a>
                 </div>
             </aside>
@@ -277,6 +339,55 @@
                 </header>
 
                 <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+
+                    <!-- Happy Hour Automator (Moved from Sidebar) -->
+                    <div class="bg-white rounded-2xl p-6 shadow-md mb-8 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-2 h-full bg-gradient-to-b from-purple-500 to-pink-500">
+                        </div>
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="p-3 bg-purple-100 rounded-xl">
+                                <i class="fas fa-cocktail text-2xl text-purple-600"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-800">Happy Hour Automator ⚡</h2>
+                                <p class="text-gray-500 text-sm">قم بتفعيل خصومات تلقائية في ساعات الركود لجذب المزيد من
+                                    الزبائن.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+                            <div>
+                                <label class="block text-gray-600 mb-2 font-medium">نسبة الخصم (%)</label>
+                                <input type="number" id="hh-discount"
+                                    class="w-full bg-gray-50 border-gray-300 rounded-xl p-3 text-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                                    placeholder="مثال: 20">
+                            </div>
+                            <div>
+                                <label class="block text-gray-600 mb-2 font-medium">التوقيت (من)</label>
+                                <input type="time" id="hh-start"
+                                    class="w-full bg-gray-50 border-gray-300 rounded-xl p-3 text-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-gray-600 mb-2 font-medium">التوقيت (إلى)</label>
+                                <input type="time" id="hh-end"
+                                    class="w-full bg-gray-50 border-gray-300 rounded-xl p-3 text-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all">
+                            </div>
+
+                            <div class="flex items-center gap-4">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="hh-active" class="sr-only peer">
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600">
+                                    </div>
+                                    <span class="mr-3 text-sm font-medium text-gray-700">تفعيل</span>
+                                </label>
+                                <button id="save-hh-btn"
+                                    class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-md transition-transform transform hover:scale-[1.02]">
+                                    حفظ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
                     <div id="offers-panel" class="dashboard-panel">
                         <div class="flex justify-between items-center mb-6">
