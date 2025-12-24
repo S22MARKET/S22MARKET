@@ -104,10 +104,18 @@ body {
     /* Brownish dark for contrast */
 }
 
+/* --- Dark Mode Text Fixes --- */
 .text-gray-900,
 .text-gray-800,
 .text-slate-900 {
     color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .text-gray-900,
+[data-theme="dark"] .text-gray-800,
+[data-theme="dark"] .text-slate-900 {
+    color: #f8fafc !important;
+    /* White text for dark mode */
 }
 
 .text-gray-600,
@@ -116,17 +124,23 @@ body {
     color: var(--text-secondary) !important;
 }
 
+[data-theme="dark"] .text-gray-600,
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .text-slate-500 {
+    color: #cbd5e1 !important;
+    /* Lighter gray for dark mode */
+}
+
 .text-gray-400 {
     color: var(--text-muted) !important;
 }
 
 .border-gray-200,
 .border-gray-100,
-.border-slate-200 {
+.border-slate-200,
+.border-gray-300 {
     border-color: var(--border-color) !important;
 }
-
-/* --- Accessibility & Contrast Overrides --- */
 
 /* 1. Form Inputs in Dark Mode */
 [data-theme="dark"] input,

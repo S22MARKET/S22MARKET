@@ -138,13 +138,11 @@ const ThemeManager = {
 };
 
 // Auto-init on load
+// Run explicitly for fast execution
+ThemeManager.init();
+
 document.addEventListener('DOMContentLoaded', () => {
     ThemeManager.init();
-    // Auto-inject switcher on specific pages or globally?
-    // Let's protect it and only add if requested or on main pages.
-    if (document.querySelector('body')) {
-        // ThemeManager.createFloatingSwitcher(); // Uncomment to auto-add everywhere
-    }
 });
 
 // Expose to window

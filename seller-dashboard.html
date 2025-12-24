@@ -333,6 +333,19 @@
                     class="text-indigo-400">PARTNER</span></h2>
             <p class="text-xs text-gray-400 mt-2 font-medium bg-gray-800 py-1 px-3 rounded-full inline-block"
                 id="shop-name">TEXMEX</p>
+
+            <div class="flex justify-center gap-2 mt-3 z-20 relative">
+                <button id="theme-toggle"
+                    class="w-8 h-8 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors flex items-center justify-center"
+                    title="تبديل الوضع (نهاري/ليلي)">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="eye-care-toggle"
+                    class="w-8 h-8 rounded-lg bg-gray-700 hover:bg-gray-600 text-yellow-500 transition-colors flex items-center justify-center"
+                    title="وضع حماية العين">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
         </div>
 
         <nav class="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
@@ -2591,8 +2604,50 @@
                 console.error("Error deleting review:", error);
                 alert('حدث خطأ أثناء الحذف');
             }
-        };
+    </script>
+    <script src="theme-manager.js"></script>
+    <script>
+            // Bind Dashboard Buttons to ThemeManager
+            document.addEventListener('DOMContentLoaded', () => {
+                const themeToggleBtn = document.getElementById('theme-toggle');
+                const eyeCareBtn = document.getElementById('eye-care-toggle');
 
+                // Sync initial state
+                if (themeToggleBtn) {
+                    const currentTheme = localStorage.getItem('s22-theme') || 'light';
+                    if (currentTheme === 'dark') themeToggleBtn.innerHTML = '<i class="fas fa-sun text-yellow-400"></i>';
+
+                    themeToggleBtn.addEventListener('click', () => {
+                        const current = localStorage.getItem('s22-theme') || 'light';
+                        const next = current === 'dark' ? 'light' : 'dark';
+                        ThemeManager.applyTheme(next);
+                        // Update Icon
+                        if (next === 'dark') {
+                            themeToggleBtn.innerHTML = '<i class="fas fa-sun text-yellow-400"></i>';
+                        } else {
+                            themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+                        }
+                    });
+                }
+
+                if (eyeCareBtn) {
+                    const isEyeCare = localStorage.getItem('s22-eye-care') === 'true';
+                    if (isEyeCare) {
+                        eyeCareBtn.classList.replace('text-yellow-500', 'text-yellow-300');
+                        eyeCareBtn.style.backgroundColor = 'rgba(234, 179, 8, 0.2)';
+                    }
+
+                    eyeCareBtn.addEventListener('click', () => {
+                        ThemeManager.toggleEyeCare();
+                        const isActive = document.documentElement.classList.contains('eye-care-active');
+                        if (isActive) {
+                            eyeCareBtn.style.backgroundColor = 'rgba(234, 179, 8, 0.2)';
+                        } else {
+                            eyeCareBtn.style.backgroundColor = '';
+                        }
+                    });
+                }
+            });
     </script>
 </body>
 
