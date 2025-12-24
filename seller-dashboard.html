@@ -1077,7 +1077,7 @@
                     fn();
                 } catch (error) {
                     console.error(`Error initializing ${name}:`, error);
-                    alert(`خطأ في تحميل ${name}: ${error.message}`);
+                    // alert(`خطأ في تحميل ${name}: ${error.message}`); // Disabled for production
                 }
             };
 
@@ -1124,21 +1124,31 @@
             } catch (e) { console.error("Quill init error", e); }
         }
 
+        // Global Navigation Helper
+        window.showSection = (sectionId) => {
+            const section = document.getElementById(`${sectionId}-section`);
+            if (!section) {
+                console.warn(`Section ${sectionId}-section not found`);
+                return;
+            }
+
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            section.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'bg-gray-800', 'text-white'));
+            const btn = document.getElementById(`btn-${sectionId}`);
+            if (btn) btn.classList.add('active', 'bg-gray-800', 'text-white');
+
+            if (window.innerWidth < 1024) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebar-overlay');
+                if (sidebar) sidebar.classList.add('closed');
+                if (overlay) overlay.classList.remove('active');
+            }
+        };
+
         function setupNavigation() {
-            window.showSection = (sectionId) => {
-                document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-                document.getElementById(`${sectionId}-section`).classList.remove('hidden');
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'bg-gray-800', 'text-white'));
-                document.getElementById(`btn-${sectionId}`).classList.add('active', 'bg-gray-800', 'text-white');
-
-                if (window.innerWidth < 1024) {
-                    const sidebar = document.getElementById('sidebar');
-                    const overlay = document.getElementById('sidebar-overlay');
-                    if (sidebar) sidebar.classList.add('closed');
-                    if (overlay) overlay.classList.remove('active');
-                }
-            };
-
+            // Logic moved to global window.showSection
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
             const menuBtn = document.getElementById('menu-btn');
@@ -1221,6 +1231,7 @@
                                 <td>
                                     <div class="flex gap-2">
                                         <button onclick="window.printReceipt('${id}')" class="text-gray-500 hover:text-gray-800" title="طباعة"><i class="fas fa-print"></i></button>
+                                        <button onclick="window.deleteOrder('${id}')" class="text-red-400 hover:text-red-600" title="حذف"><i class="fas fa-trash"></i></button>
                                         <select onchange="window.updateOrderStatus('${id}', this.value)" class="text-xs border rounded p-1">
                                             <option value="new" ${order.status === 'new' ? 'selected' : ''}>جديد</option>
                                             <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>تحضير</option>
@@ -1314,6 +1325,17 @@
             catch (e) { console.error(e); }
         };
 
+        window.deleteOrder = async (id) => {
+            if (!confirm('هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+            try {
+                await deleteDoc(doc(db, "orders", id));
+                showToast('تم حذف الطلب بنجاح', 'success');
+            } catch (e) {
+                console.error("Error deleting order:", e);
+                showToast('حدث خطأ أثناء الحذف', 'error');
+            }
+        };
+
         window.printReceipt = async (orderId) => {
             const docSnap = await getDoc(doc(db, "orders", orderId));
             if (!docSnap.exists()) return;
@@ -1396,7 +1418,7 @@
             if (shopNameEl) shopNameEl.textContent = userData.storeName || userData.displayName || 'المتجر';
 
             // Subscription Check
-            checkSubscription(userData);
+            updateSubscriptionUI(userData);
 
             // Update Link Display inside the new Share Card
             const linkDisplay = document.getElementById('store-link-display');
