@@ -453,28 +453,62 @@
 
         // Cart Logic
         function addToCart(p) {
-            let cart = JSON.parse(localStorage.getItem('s22_cart') || '[]');
+            let cart = [];
+            try {
+                cart = JSON.parse(localStorage.getItem('s22_cart') || '[]');
+            } catch (e) { cart = []; }
+
+            // Determine safe itemType
+            let type = 'market';
+            if (currentProductType === 'offer') type = 'food';
+            else if (p.categoryId === 'restaurant_food') type = 'food';
 
             // Check if item exists
             const existing = cart.find(i => i.id === p.id);
             if (existing) {
                 existing.quantity = (existing.quantity || 1) + 1;
+                // Force update type just in case
+                if (!existing.itemType) existing.itemType = type;
             } else {
                 cart.push({
                     id: p.id,
                     name: getLocalizedName(p.name),
                     price: Number(p.price),
-                    image: p.imageUrl || (p.imageUrls ? p.imageUrls[0] : ''),
+                    image: p.imageUrl || (p.imageUrls ? p.imageUrls[0] : 'https://placehold.co/100'),
                     quantity: 1,
-                    sellerId: p.sellerId,
-                    itemType: currentProductType === 'offer' ? 'food' : 'market' // Heuristic
+                    sellerId: p.sellerId || 'admin',
+                    storeName: p.storeName || 'S22 Market',
+                    itemType: type
                 });
             }
 
             localStorage.setItem('s22_cart', JSON.stringify(cart));
 
-            // Update Badges
+            // Visuals
             updateCartBadge();
+
+            // Fly Animation (Desktop)
+            const mainImg = document.getElementById('main-image');
+            const cartIcon = document.getElementById('header-cart-icon') || document.getElementById('header-cart-btn'); // Fallback
+            if (mainImg && cartIcon) {
+                const flyer = mainImg.cloneNode();
+                flyer.classList.add('fly-item');
+
+                // Start pos
+                const rect = mainImg.getBoundingClientRect();
+                flyer.style.left = rect.left + 'px';
+                flyer.style.top = rect.top + 'px';
+                flyer.style.width = '100px';
+                flyer.style.height = '100px';
+
+                // End pos
+                const endRect = cartIcon.getBoundingClientRect();
+                flyer.style.setProperty('--tx', (endRect.left - rect.left) + 'px');
+                flyer.style.setProperty('--ty', (endRect.top - rect.top) + 'px');
+
+                document.body.appendChild(flyer);
+                setTimeout(() => flyer.remove(), 1000);
+            }
 
             // Show Success Custom Modal
             showAddedToCartModal();

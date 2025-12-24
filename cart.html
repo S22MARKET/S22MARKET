@@ -456,6 +456,16 @@
             try {
                 const stored = localStorage.getItem('s22_cart');
                 cart = stored ? JSON.parse(stored) : [];
+
+                // DATA MIGRATION FIX: Ensure all items have a type
+                cart.forEach(item => {
+                    if (!item.itemType) {
+                        item.itemType = 'market';
+                        // Check if it looks like food? Hard to say without category ID
+                        // Safe default is market as food requires restaurant ID usually
+                    }
+                });
+
                 renderCartItems();
                 updateCartIcon(); // Local update
             } catch (e) {
@@ -865,6 +875,7 @@
 
                 const orderData = {
                     customerId: currentUser.uid,
+                    userId: currentUser.uid, // Added for compatibility with order_history.html
                     // rest of fields... this block is just to fix the button handler context
 
                     customerName: document.getElementById('q-customer-name').value,
