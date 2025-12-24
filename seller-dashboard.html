@@ -1013,26 +1013,14 @@
 
         async function initApp() {
             try {
-                // DEBUG TRACER 1
-                // console.log("Init App Started");
-
                 // Use global requireAuth
                 const user = await window.requireAuth(auth);
                 if (!user) return;
 
-                // DEBUG TRACER 2
-                // console.log("User Auth OK", user.uid);
-
                 const userDoc = await getDoc(doc(db, "users", user.uid));
-
-                // DEBUG TRACER 3
-                // console.log("User Doc Fetched", userDoc.exists());
 
                 if (userDoc.exists()) {
                     const data = userDoc.data();
-
-                    // DEBUG TRACER 4
-                    // console.log("Role:", data.role);
 
                     if (data.role === 'vendor' || data.role === 'restaurant') {
                         if (data.isSuspended) {
@@ -1052,8 +1040,6 @@
                             return;
                         }
                         currentUser = user;
-                        // DEBUG TRACER 5
-                        // console.log("Initializing Components...");
                         initDashboardComponents(data);
                     } else {
                         console.log('Role mismatch:', data.role);
@@ -1061,7 +1047,6 @@
                         window.location.href = 'index.html';
                     }
                 } else {
-                    alert("لم يتم العثور على بيانات المستخدم في قاعدة البيانات!");
                     window.location.href = 'index.html';
                 }
             } catch (error) {
@@ -1798,16 +1783,23 @@
             snap.forEach(d => { select.innerHTML += `<option value="${d.id}">${d.data().name}</option>`; });
         }
 
+
+
         function playNotification() {
             const audio = document.getElementById('order-sound');
-            // Ensure src is set from settings if not already (redundant safety)
-            if (currentUser && currentUser.notificationSound && !audio.src.endsWith(currentUser.notificationSound)) {
-                // This might be tricky if currentUser isn't globally updated with every setting change immediately without reload.
-                // But loadSettings does set it.
+            const alertBox = document.getElementById('new-order-alert');
+
+            // Visual Alert
+            if (alertBox) alertBox.classList.remove('hidden');
+
+            // Sound Alert
+            const promise = audio.play();
+            if (promise !== undefined) {
+                promise.catch(error => {
+                    console.log('Autoplay prevented. User interaction need');
+                    document.getElementById('enable-sound-btn').classList.remove('hidden');
+                });
             }
-            // Just play whatever is in the src
-            audio.play().catch(e => console.log('Audio blocked', e));
-            document.getElementById('new-order-alert').classList.remove('hidden');
         }
 
         function showToast(msg, type = 'success') {
