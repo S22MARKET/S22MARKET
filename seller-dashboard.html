@@ -1012,16 +1012,18 @@
         });
 
         async function initApp() {
-            // Use global requireAuth
-            const user = await window.requireAuth(auth);
-            if (!user) return; // requireAuth handles redirect
+            try {
+                // Use global requireAuth
+                const user = await window.requireAuth(auth);
+                if (!user) return; // requireAuth handles redirect
 
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists()) {
-                const data = userDoc.data();
-                if (data.role === 'vendor' || data.role === 'restaurant') {
-                    if (data.isSuspended) {
-                        document.body.innerHTML = `
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    if (data.role === 'vendor' || data.role === 'restaurant') {
+                        if (data.isSuspended) {
+                            // ... suspension logic ... (omitted for brevity in replacement if unchanged, but safety first)
+                            document.body.innerHTML = `
                             <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
                                 <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md text-center">
                                     <div class="text-red-500 text-5xl mb-4"><i class="fas fa-store-slash"></i></div>
@@ -1032,18 +1034,22 @@
                                 </div>
                             </div>
                         `;
-                        await signOut(auth);
-                        return;
+                            await signOut(auth);
+                            return;
+                        }
+                        currentUser = user;
+                        initDashboardComponents(data);
+                    } else {
+                        console.log('Role mismatch:', data.role);
+                        alert(`غير مصرح لك بالوصول. دورك الحالي: ${data.role || 'مستخدم'}. يرجى التواصل مع الإدارة لترقية حسابك.`);
+                        window.location.href = 'index.html';
                     }
-                    currentUser = user;
-                    initDashboardComponents(data);
                 } else {
-                    console.log('Role mismatch:', data.role);
-                    alert(`غير مصرح لك بالوصول. دورك الحالي: ${data.role || 'مستخدم'}. يرجى التواصل مع الإدارة لترقية حسابك.`);
                     window.location.href = 'index.html';
                 }
-            } else {
-                window.location.href = 'index.html';
+            } catch (error) {
+                console.error("Critical Error in initApp:", error);
+                alert("حدث خطأ غير متوقع أثناء تحميل لوحة التحكم. يرجى مراجعة الدعم الفني.\n" + error.message);
             }
         }
 
@@ -1379,7 +1385,8 @@
         };
 
         // --- Subscription Logic ---
-        function checkSubscription(userData) {
+        // --- Subscription Logic ---
+        function updateSubscriptionUI(userData) {
             const subCard = document.getElementById('sub-card');
             if (subCard) subCard.classList.remove('hidden');
 
