@@ -1013,16 +1013,30 @@
 
         async function initApp() {
             try {
+                // DEBUG TRACER 1
+                // console.log("Init App Started");
+
                 // Use global requireAuth
                 const user = await window.requireAuth(auth);
-                if (!user) return; // requireAuth handles redirect
+                if (!user) return;
+
+                // DEBUG TRACER 2
+                // console.log("User Auth OK", user.uid);
 
                 const userDoc = await getDoc(doc(db, "users", user.uid));
+
+                // DEBUG TRACER 3
+                // console.log("User Doc Fetched", userDoc.exists());
+
                 if (userDoc.exists()) {
                     const data = userDoc.data();
+
+                    // DEBUG TRACER 4
+                    // console.log("Role:", data.role);
+
                     if (data.role === 'vendor' || data.role === 'restaurant') {
                         if (data.isSuspended) {
-                            // ... suspension logic ... (omitted for brevity in replacement if unchanged, but safety first)
+                            // ... existing suspension logic ...
                             document.body.innerHTML = `
                             <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
                                 <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md text-center">
@@ -1038,18 +1052,21 @@
                             return;
                         }
                         currentUser = user;
+                        // DEBUG TRACER 5
+                        // console.log("Initializing Components...");
                         initDashboardComponents(data);
                     } else {
                         console.log('Role mismatch:', data.role);
-                        alert(`غير مصرح لك بالوصول. دورك الحالي: ${data.role || 'مستخدم'}. يرجى التواصل مع الإدارة لترقية حسابك.`);
+                        alert(`غير مصرح لك بالوصول. دورك الحالي: ${data.role || 'مستخدم'}.`);
                         window.location.href = 'index.html';
                     }
                 } else {
+                    alert("لم يتم العثور على بيانات المستخدم في قاعدة البيانات!");
                     window.location.href = 'index.html';
                 }
             } catch (error) {
                 console.error("Critical Error in initApp:", error);
-                alert("حدث خطأ غير متوقع أثناء تحميل لوحة التحكم. يرجى مراجعة الدعم الفني.\n" + error.message);
+                alert("حدث خطأ غير متوقع: " + error.message);
             }
         }
 
