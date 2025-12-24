@@ -1066,49 +1066,53 @@
         }
 
         function initDashboardComponents(data) {
-            try {
-                console.log("Loading Dashboard Data...");
-                document.getElementById('shop-name').textContent = data.storeName || data.displayName;
+            console.log("Loading Dashboard Data...");
 
-                // Initialize Components
-                loadOrdersListener();
-                loadProducts();
-                loadReviewsListener();
-                loadCategories();
-                loadSettings(data);
-                initQuill();
-                initChart();
-                renderStoreLink();
-                updateSubscriptionUI(data);
+            try { document.getElementById('shop-name').textContent = data.storeName || data.displayName; } catch (e) { console.error("Header Error", e); }
 
+            // Safeguarded Initialization Helper
+            const safeInit = (fn, name) => {
+                try {
+                    console.log(`Initializing ${name}...`);
+                    fn();
+                } catch (error) {
+                    console.error(`Error initializing ${name}:`, error);
+                    alert(`خطأ في تحميل ${name}: ${error.message}`);
+                }
+            };
+
+            safeInit(() => loadOrdersListener(), "Orders");
+            safeInit(() => loadProducts(), "Products");
+            safeInit(() => loadReviewsListener(), "Reviews");
+            safeInit(() => loadCategories(), "Categories");
+            safeInit(() => loadSettings(data), "Settings");
+            safeInit(() => initQuill(), "Quill Editor");
+            safeInit(() => initChart(), "Chart");
+            safeInit(() => renderStoreLink(), "Store Link");
+            safeInit(() => updateSubscriptionUI(data), "Subscription UI");
+
+            safeInit(() => {
                 if (window.ThemeManager) {
                     ThemeManager.renderSidebarControl('sidebar-theme-container');
                 } else {
                     console.warn("ThemeManager not found");
                 }
+            }, "Theme Manager");
 
-                // Navigation Logic
-                setupNavigation();
+            // Navigation Logic
+            safeInit(() => setupNavigation(), "Navigation");
 
-                // Restaurant Specific UI & Adaptation
-                updateInterfaceForUser(data);
+            // Restaurant Specific UI & Adaptation
+            safeInit(() => updateInterfaceForUser(data), "Interface Adaptation");
 
-                if (data.role === 'restaurant') {
-                    loadOffers();
-                }
-
-                // Logout
-                document.getElementById('logout-btn').onclick = () => signOut(auth);
-
-                // Hide Loader Success
-                console.log("Dashboard Loaded Successfully");
-                // Note: There is no explicit loader element to hide in HTML, 
-                // but if there were, we would hide it here.
-
-            } catch (error) {
-                console.error("Error in initDashboardComponents:", error);
-                alert("حدث خطأ أثناء تحميل مكونات لوحة التحكم:\n" + error.message);
+            if (data.role === 'restaurant') {
+                safeInit(() => loadOffers(), "Offers");
             }
+
+            // Logout
+            try { document.getElementById('logout-btn').onclick = () => signOut(auth); } catch (e) { }
+
+            console.log("Dashboard Initialization Complete");
         }
 
         function initQuill() {
