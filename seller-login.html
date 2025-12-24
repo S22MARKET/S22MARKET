@@ -183,14 +183,27 @@
         // 1. Auto-Redirect Logic
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // User is authenticated. Verify if they are a SELLER/PARTNER?
-                // For now, we allow access to dashboard, and dashboard handles strict role checking.
-                // But to be "professional", let's check basic claim here or just redirect fast.
-
-                // Fast Redirect
-                window.location.href = 'seller-dashboard.html';
+                // Verify Role
+                try {
+                    const snap = await getDoc(doc(db, "users", user.uid));
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        if (data.role === 'vendor' || data.role === 'restaurant') {
+                            window.location.href = 'seller-dashboard.html';
+                            return;
+                        } else {
+                            // User logged in but not a seller
+                            console.log('User is not a seller');
+                            overlay.classList.add('hidden');
+                            // Optional: Show error here? or just let them try to login and fail?
+                            // Let's just hide overlay and let them use the form which will check again
+                            // Or better, sign them out if they are on this page?
+                            // No, maybe they want to login as seller.
+                        }
+                    }
+                } catch (e) { console.error(e); }
+                overlay.classList.add('hidden');
             } else {
-                // Not logged in. Hide overlay and show form.
                 overlay.classList.add('hidden');
             }
         });
@@ -200,25 +213,37 @@
             e.preventDefault();
             const email = document.getElementById('seller-email').value;
             const password = document.getElementById('seller-password').value;
-            const remember = document.getElementById('seller-remember').checked;
 
-            // UI Loading State
             submitBtn.disabled = true;
             submitBtn.querySelector('span').classList.add('hidden');
             submitBtn.querySelector('.fa-arrow-left').classList.add('hidden');
             spinner.classList.remove('hidden');
 
             try {
-                // Auth
-                await setPersistence(auth, browserLocalPersistence); // Always persist
-                await signInWithEmailAndPassword(auth, email, password);
+                await setPersistence(auth, browserLocalPersistence);
+                const cred = await signInWithEmailAndPassword(auth, email, password);
 
-                // Redirect will be handled by onAuthStateChanged above
+                // Check Role Explicitly
+                const snap = await getDoc(doc(db, "users", cred.user.uid));
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.role === 'vendor' || data.role === 'restaurant') {
+                        window.location.href = 'seller-dashboard.html';
+                    } else {
+                        alert('هذا الحساب ليس حساب تاجر. يرجى الدخول من صفحة الزبائن أو ترقية حسابك.');
+                        submitBtn.disabled = false;
+                        submitBtn.querySelector('span').classList.remove('hidden');
+                        submitBtn.querySelector('.fa-arrow-left').classList.remove('hidden');
+                        spinner.classList.add('hidden');
+                    }
+                } else {
+                    alert('بيانات المستخدم غير موجودة.');
+                    // Error handling
+                }
             } catch (error) {
                 console.error(error);
                 alert('خطأ في الدخول: تأكد من البريد وكلمة المرور');
 
-                // Reset UI
                 submitBtn.disabled = false;
                 submitBtn.querySelector('span').classList.remove('hidden');
                 submitBtn.querySelector('.fa-arrow-left').classList.remove('hidden');
