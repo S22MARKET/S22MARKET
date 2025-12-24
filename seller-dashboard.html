@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>S22 Market - لوحة التاجر</title>
@@ -1905,22 +1906,7 @@
             }
         });
 
-        function playNotification() {
-            const audio = document.getElementById('order-sound');
-            const alertBox = document.getElementById('new-order-alert');
 
-            // Visual Alert
-            if (alertBox) alertBox.classList.remove('hidden');
-
-            // Sound Alert
-            const promise = audio.play();
-            if (promise !== undefined) {
-                promise.catch(error => {
-                    console.log('Autoplay prevented. User interaction need');
-                    document.getElementById('enable-sound-btn').classList.remove('hidden');
-                });
-            }
-        }
 
         // Check legacy enabled state
         if (localStorage.getItem('s22_sound_enabled') === 'true') {
