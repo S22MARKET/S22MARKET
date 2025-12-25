@@ -1433,7 +1433,7 @@
                                 <td>
                                     <div class="flex gap-2">
                                         <button onclick="window.printReceipt('${id}')" class="text-gray-500 hover:text-gray-800" title="طباعة"><i class="fas fa-print"></i></button>
-                                        <button onclick="window.deleteOrder('${id}')" class="text-red-400 hover:text-red-600" title="حذف"><i class="fas fa-trash"></i></button>
+                                        <!-- Delete button removed as per owner policy: Merchants can only change status -->
                                         <select onchange="window.updateOrderStatus('${id}', this.value)" class="text-xs border rounded p-1">
                                             <option value="new" ${order.status === 'new' ? 'selected' : ''}>جديد</option>
                                             <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>تحضير</option>

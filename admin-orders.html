@@ -349,11 +349,12 @@
 
         function loadOrders() {
             const panel = getEl('orders-panel');
-            panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">الطلبات الواردة</h1>
+            panel.innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-6">طلبات المتاجر والمطاعم</h1>
                    <div class="overflow-x-auto bg-white rounded-xl shadow-md">
                      <table class="w-full text-right responsive-table">
                        <thead class="bg-gray-100">
                          <tr>
+                           <th class="p-3 font-semibold">المتجر</th>
                            <th class="p-3 font-semibold">العميل</th><th class="p-3 font-semibold">الهاتف</th><th class="p-3 font-semibold">الموقع</th>
                            <th class="p-3 font-semibold">نوع التوصيل</th><th class="p-3 font-semibold">المنتجات</th><th class="p-3 font-semibold">المبلغ</th>
                            <th class="p-3 font-semibold">الربح</th><th class="p-3 font-semibold">ملاحظات</th><th class="p-3 font-semibold">الحالة</th>
@@ -387,11 +388,14 @@
 
                 tableBody.innerHTML = snapshot.empty ? `<tr><td colspan="13" class="p-8 text-center text-gray-500">لا توجد طلبات حاليًا.</td></tr>` : '';
 
-                ordersCache.forEach(order => {
+                ordersCache.forEach((order, index) => {
                     const date = order.createdAt?.toDate().toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' }) || 'N/A';
                     const statusColor = order.status === 'completed' ? 'bg-green-100 text-green-800' : (order.status === 'canceled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800');
                     const rowColor = order.status === 'completed' ? 'bg-green-50/50' : (order.status === 'canceled' ? 'bg-red-50/50' : 'bg-white');
                     const product = productsCache.find(p => p.id === (order.items && order.items[0] ? order.items[0].id : null));
+
+                    // Display Store Name
+                    const storeName = order.storeName || (product ? product.storeName : 'غير معروف');
 
                     let defaultProfit = ''; let defaultSupplierInfo = '';
                     if (product) {
@@ -415,6 +419,7 @@
                     row.className = `border-b ${rowColor} transition-colors fade-in-up`;
                     row.style.animationDelay = `${index * 0.05}s`;
                     row.innerHTML = `
+                    <td data-label="المتجر" class="p-3 font-bold text-indigo-700">${storeName}</td>
                     <td data-label="العميل" class="p-3 font-semibold">
                         ${order.customerName}
                         <div>${scheduleBadge}</div>
@@ -425,14 +430,15 @@
                         ${gpsButton}
                     </td>
                     <td data-label="نوع التوصيل" class="p-3 text-sm">${deliveryDisplay}</td>
-                    <td data-label="المنتجات" class="p-3 text-sm">${itemsHtml}</td><td data-label="المبلغ" class="p-3 font-mono">${totalPriceDisplay}</td>
+                    <td data-label="المنتجات" class="p-3 text-sm">${itemsHtml}</td>
+                    <td data-label="المبلغ" class="p-3 font-mono">${totalPriceDisplay}</td>
                     <td data-label="الربح" class="p-3"><input type="number" class="profit-input w-24 p-1 border rounded text-center font-mono transition-colors" placeholder="0" value="${order.profit ?? defaultProfit}" data-id="${order.id}"></td>
                     <td data-label="ملاحظات" class="p-3 text-sm text-gray-600">${order.customerInquiry || '---'}</td>
                     <td data-label="الحالة" class="p-3 actions-cell"><select class="order-status-select p-2 rounded-lg border-gray-300 ${statusColor}" data-id="${order.id}"><option value="new" ${order.status === 'new' ? 'selected' : ''}>جديد</option><option value="completed" ${order.status === 'completed' ? 'selected' : ''}>مكتمل</option><option value="canceled" ${order.status === 'canceled' ? 'selected' : ''}>ملغي</option></select></td>
                     <td data-label="تمت بواسطة" class="p-3"><input type="text" class="doneBy-input w-full p-2 border rounded transition-colors" placeholder="اكتب هنا..." value="${order.doneBy || ''}" data-id="${order.id}"></td>
                     <td data-label="الموردون" class="p-3"><textarea rows="4" class="suppliers-textarea w-full p-2 border rounded transition-colors" placeholder="اكتب هنا..." maxlength="500" data-id="${order.id}">${order.suppliers ?? defaultSupplierInfo}</textarea></td>
                     <td data-label="التاريخ" class="p-3 font-mono text-sm">${date}</td>
-                    <td data-label="إجراءات" class="p-3 actions-cell"><button class="copy-order-btn text-blue-500 hover:text-blue-700 mr-2" data-id="${order.id}" title="نسخ معلومات الطلب للمورد"><i class="fas fa-copy fa-lg"></i></button><button class="delete-order-btn text-red-500 hover:text-red-700" data-id="${order.id}"><i class="fas fa-trash fa-lg"></i></button></td>`;
+                    <td data-label="إجراءات" class="p-3 actions-cell"><button class="copy-order-btn text-blue-500 hover:text-blue-700 mr-2" data-id="${order.id}" title="نسخ معلومات الطلب للمورد"><i class="fas fa-copy fa-lg"></i></button><button class="delete-order-btn text-red-500 hover:text-red-700" data-id="${order.id}" title="حذف نهائي (متاح للإدارة فقط)"><i class="fas fa-trash fa-lg"></i></button></td>`;
                 });
                 attachOrderActionListeners();
             });
