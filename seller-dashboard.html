@@ -1146,6 +1146,8 @@
         let salesChart;
 
         // --- Initialization ---
+        // JS Execution Test
+        alert("JS LOADED - STARTING INIT");
         document.addEventListener('DOMContentLoaded', () => {
             initApp();
         });
@@ -2022,22 +2024,7 @@
 
 
 
-        function playNotification() {
-            const audio = document.getElementById('order-sound');
-            const alertBox = document.getElementById('new-order-alert');
 
-            // Visual Alert
-            if (alertBox) alertBox.classList.remove('hidden');
-
-            // Sound Alert
-            const promise = audio.play();
-            if (promise !== undefined) {
-                promise.catch(error => {
-                    console.log('Autoplay prevented. User interaction need');
-                    document.getElementById('enable-sound-btn').classList.remove('hidden');
-                });
-            }
-        }
 
         function showToast(msg, type = 'success') {
             const container = document.getElementById('toast-container');
@@ -2732,7 +2719,7 @@
             }
         };
     </script>
-    <script src="theme-manager.js"></script>
+
     <script>
         // Bind Dashboard Buttons to ThemeManager
         document.addEventListener('DOMContentLoaded', () => {
