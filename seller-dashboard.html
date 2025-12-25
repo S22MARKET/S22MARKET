@@ -558,16 +558,30 @@
                     <div
                         class="stat-card bg-gradient-to-br from-indigo-600 to-purple-700 text-white border-none relative overflow-hidden group shadow-lg shadow-indigo-500/30">
                         <div class="relative z-10 p-1 w-full">
-                            <p class="text-xs text-indigo-200 font-bold mb-1 uppercase tracking-wider">رابط متجرك</p>
-                            <h3 class="font-bold text-white text-sm truncate w-full mb-3 dir-ltr"
-                                id="store-link-display">...</h3>
+                            <div class="flex items-center gap-2 mb-2">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white font-bold backdrop-blur-sm">
+                                    <i class="fas fa-store"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-indigo-200 font-bold uppercase tracking-wider">متجرك</p>
+                                    <h4 class="font-bold text-white text-sm" id="dashboard-store-name">...</h4>
+                                </div>
+                            </div>
+
+                            <div class="bg-black/20 rounded-lg p-2 mb-3 backdrop-blur-sm border border-white/10">
+                                <p class="text-xs text-indigo-100 mb-1">رابط المتجر:</p>
+                                <h3 class="font-mono text-xs text-white truncate w-full dir-ltr select-all"
+                                    id="store-link-display">...</h3>
+                            </div>
+
                             <div class="flex gap-2">
                                 <button onclick="window.copyStoreLink()"
-                                    class="flex-1 bg-white/10 backdrop-blur-sm border border-white/20 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-white hover:text-indigo-600 transition-all flex items-center justify-center gap-2">
+                                    class="flex-1 bg-white text-indigo-600 px-3 py-2 rounded-lg text-xs font-bold hover:bg-indigo-50 transition-all flex items-center justify-center gap-2 shadow-sm">
                                     <i class="fas fa-copy"></i> <span>نسخ</span>
                                 </button>
                                 <button onclick="window.shareStoreNative()"
-                                    class="flex-1 bg-green-500/20 backdrop-blur-sm border border-green-400/30 text-green-300 px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-500 hover:text-white transition-all flex items-center justify-center gap-2">
+                                    class="flex-1 bg-indigo-500/50 backdrop-blur-sm border border-white/20 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-indigo-500 transition-all flex items-center justify-center gap-2">
                                     <i class="fas fa-share-alt"></i> <span>مشاركة</span>
                                 </button>
                             </div>
@@ -607,8 +621,11 @@
                             <div>
                                 <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">المبيعات (اليوم)</p>
                                 <h3 class="text-2xl font-black text-gray-800 mt-2" id="stats-daily-sales">0 د.ج</h3>
-                                <p class="text-[10px] text-green-500 font-bold mt-1 flex items-center gap-1"><i
-                                        class="fas fa-arrow-up"></i> <span>نشط</span></p>
+                                <div id="store-status-badge"
+                                    class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 text-gray-500 text-[10px] font-bold mt-2">
+                                    <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                                    <span>جاري التحميل...</span>
+                                </div>
                             </div>
                             <div
                                 class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
@@ -1566,15 +1583,31 @@
             const shopNameEl = document.getElementById('shop-name');
             if (shopNameEl) shopNameEl.textContent = userData.storeName || userData.displayName || 'المتجر';
 
+            // Update Store Name in Dashboard
+            const dashNameEl = document.getElementById('dashboard-store-name');
+            if (dashNameEl) dashNameEl.textContent = userData.storeName || userData.displayName || 'المتجر';
+
             // Subscription Check
             updateSubscriptionUI(userData);
 
             // Update Link Display inside the new Share Card
             const linkDisplay = document.getElementById('store-link-display');
             if (linkDisplay) {
-                // If it's a restaurant, we might want a different URL structure if needed, currently same file
-                // But let's ensure it looks correct
-                linkDisplay.textContent = `${window.location.host}/vendor.html?id=${currentUser.uid}`;
+                const link = `${window.location.host}/S22MARKET/vendor.html?id=${currentUser.uid}&type=${isRestaurant ? 'restaurant' : 'vendor'}`;
+                linkDisplay.textContent = link;
+            }
+
+            // Update Store Status Badge
+            const statusBadge = document.getElementById('store-status-badge');
+            if (statusBadge) {
+                const isOpen = userData.isOpen !== false; // Default true
+                if (isOpen) {
+                    statusBadge.className = "inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-600 text-[10px] font-bold mt-2";
+                    statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span><span>مفتوح - يستقبل الطلبات</span>';
+                } else {
+                    statusBadge.className = "inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-600 text-[10px] font-bold mt-2";
+                    statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500"></span><span>مغلق مؤقتاً</span>';
+                }
             }
         }
 
