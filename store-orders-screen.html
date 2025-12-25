@@ -517,6 +517,8 @@
 
             if (localStorage.getItem('soundActivated') === 'true') {
                 audioManager.isUnlocked = true;
+                // Try requesting notification permission early
+                if (Notification.permission !== "granted") Notification.requestPermission();
                 return;
             }
 
@@ -526,7 +528,13 @@
                 audioManager.unlock();
                 localStorage.setItem('soundActivated', 'true');
                 soundModal.classList.add('hidden');
+                if (Notification.permission !== "granted") Notification.requestPermission();
             };
+
+            // Allow unlocking on any interaction if not yet unlocked
+            document.addEventListener('click', () => {
+                if (!audioManager.isUnlocked) audioManager.unlock();
+            }, { once: true });
         }
 
         const newOrderModal = document.getElementById('new-order-modal');
@@ -569,6 +577,9 @@
                         </div>`;
             }).join('');
 
+            // Fallback for phone
+            const phoneDisplay = order.customerContact || order.customerPhone || 'غير متوفر';
+
             modalOrderDetails.innerHTML = `
                 <div class="flex justify-between items-center text-lg">
                     <span class="text-gray-400">العميل:</span>
@@ -576,7 +587,7 @@
                 </div>
                 <div class="flex justify-between items-center text-lg mb-3">
                     <span class="text-gray-400">الهاتف:</span>
-                    <span class="font-bold text-cyan-400" dir="ltr">${order.customerContact}</span>
+                    <span class="font-bold text-cyan-400" dir="ltr">${phoneDisplay}</span>
                 </div>
                 
                 <div class="border-t border-b border-gray-700 py-3 my-3 text-right">
@@ -593,6 +604,14 @@
 
             // Play Audio Alert
             audioManager.play();
+
+            // System Notification
+            if (Notification.permission === "granted") {
+                new Notification("S22 Market - طلب جديد!", {
+                    body: `طلب من ${order.customerName} بقيمة ${formattedPrice}`,
+                    icon: 'logo.png' // Ensure this exists or use generic
+                });
+            }
 
             newOrderCount++;
             if (!titleInterval) {

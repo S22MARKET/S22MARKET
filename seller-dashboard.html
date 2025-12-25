@@ -1304,11 +1304,20 @@
             showToast('تم تفعيل التنبيهات الصوتية d🔔');
             const btn = document.getElementById('enable-sound-btn');
             if (btn) btn.classList.add('hidden');
+            if (Notification.permission !== "granted") Notification.requestPermission();
         };
 
-        function playNotification() {
+        function playNotification(order = null) {
             audioManager.play();
             showToast('طلب جديد! 🔔', 'info');
+
+            if (Notification.permission === "granted" && order) {
+                const formattedPrice = (order.totalPrice || 0).toLocaleString('fr-DZ');
+                new Notification("S22 Market - طلب جديد!", {
+                    body: `طلب من ${order.customerName} بقيمة ${formattedPrice} د.ج`,
+                    icon: 'logo.png'
+                });
+            }
         }
 
         function loadOrdersListener() {
@@ -1350,7 +1359,7 @@
 
                         // Sound & Notification
                         if (snapshot.docChanges().some(change => change.type === 'added' && change.doc.id === id && order.status === 'new')) {
-                            playNotification();
+                            playNotification(order);
                         }
 
                         // Render Row
@@ -1360,7 +1369,9 @@
                         const row = `
                             <tr class="${order.status === 'new' ? 'new-order-row' : ''}">
                                 <td>#${id.substring(0, 6)}</td>
-                                <td>${order.customerName}<br><span class="text-xs text-gray-500">${order.customerContact}</span></td>
+                            <tr class="${order.status === 'new' ? 'new-order-row' : ''}">
+                                <td>#${id.substring(0, 6)}</td>
+                                <td>${order.customerName}<br><span class="text-xs text-gray-500">${order.customerContact || order.customerPhone || 'غير متوفر'}</span></td>
                                 <td class="font-bold text-indigo-600">${order.totalPrice} د.ج</td>
                                 <td class="text-xs truncate max-w-[150px]">${order.customerLocation}</td>
                                 <td><span class="status-badge ${statusClass}">${statusText}</span></td>

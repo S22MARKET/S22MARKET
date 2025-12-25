@@ -872,6 +872,8 @@
                     userId: currentUser.uid,
                     customerName: document.getElementById('q-customer-name').value,
                     customerPhone: document.getElementById('q-customer-phone').value,
+                    customerContact: document.getElementById('q-customer-phone').value, // Fix: Dashboard expects this field
+                    customerLocation: document.getElementById('q-customer-wilaya').value + ' - ' + document.getElementById('q-customer-address').value, // Derived field for convenience
                     wilaya: document.getElementById('q-customer-wilaya').value,
                     baladiya: document.getElementById('q-customer-baladiya').value,
                     address: document.getElementById('q-customer-address').value,
