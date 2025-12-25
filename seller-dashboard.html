@@ -2750,6 +2750,27 @@
         // Global User State
         window.currentUser = null;
 
+        window.loadOrdersListener = function () {
+            if (!window.currentUser) return;
+            const q = query(collection(db, "orders"), where("sellerId", "==", window.currentUser.uid), orderBy("createdAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "added") {
+                        // Check if truly new (within last minute)
+                        const data = change.doc.data();
+                        if (data.createdAt && Date.now() - data.createdAt.toMillis() < 60000) {
+                            const audio = document.getElementById('order-sound');
+                            if (audio) {
+                                audio.play().catch(e => console.log("Sound play error", e));
+                            }
+                            // Show visual alert if function exists
+                            if (typeof window.showNewOrder === 'function') window.showNewOrder(data);
+                        }
+                    }
+                });
+            });
+        };
+
         // Main Initialization
         onAuthStateChanged(auth, async (user) => {
             if (user) {

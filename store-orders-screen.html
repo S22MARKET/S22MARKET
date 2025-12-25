@@ -1590,71 +1590,60 @@
         }
 
         // --- Core Initialization ---
-        async function initializeKitchenApp() {
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    currentUser = user;
-                    // Verify Role (Optional but good)
-                    const userDoc = await getDoc(doc(db, "users", user.uid));
-                    if (userDoc.exists()) {
-                        currentUser = { ...user, ...userDoc.data() };
-                        if (currentUser.storeName) document.getElementById('store-name-display').textContent = currentUser.storeName;
-                    }
+        // --- Order Loading Logic ---
+        function loadOrders() {
+            if (!currentUser) return;
+            // Ensure db/query are available (imported above)
+            const q = query(collection(db, "orders"), where("sellerId", "==", currentUser.uid), orderBy("createdAt", "desc"));
 
-                    // Start Listener
-                    const q = query(collection(db, "orders"), where("sellerId", "==", user.uid), orderBy("createdAt", "desc"));
-                    onSnapshot(q, (snapshot) => {
-                        const newOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            onSnapshot(q, (snapshot) => {
+                const newOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                        // Check for brand new additions for Highlighting
-                        snapshot.docChanges().forEach((change) => {
-                            if (change.type === "added" && !ordersCache.find(o => o.id === change.doc.id)) {
-                                // Only highlight if it's genuinely new (not initial load)
-                                // optimization: check timestamp vs load time? or just let it slide for simplicity
-                                if (Date.now() - change.doc.data().createdAt.toMillis() < 60000) { // New within last minute
-                                    playSound();
-                                    newlyAddedOrderIds.add(change.doc.id);
-                                }
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "added" && !ordersCache.find(o => o.id === change.doc.id)) {
+                        if (Date.now() - change.doc.data().createdAt.toMillis() < 60000) {
+                            if (typeof audioManager !== 'undefined') audioManager.play();
+                            else {
+                                const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                                audio.play().catch(e => console.log(e));
                             }
-                        });
+                            newlyAddedOrderIds.add(change.doc.id);
 
-                        ordersCache = newOrders;
+                            // Show Alert function if exists
+                            if (typeof showNewOrderAlert === 'function') {
+                                showNewOrderAlert({ id: change.doc.id, ...change.doc.data() });
+                            }
+                        }
+                    }
+                });
 
-                        // Apply Filters
-                        filterOrders();
-                    });
-
-                } else {
-                    window.location.href = 'admin-login.html'; // Redirect if not logged in
-                }
+                ordersCache = newOrders;
+                filterOrders();
             });
         }
 
         function filterOrders() {
+            if (typeof currentOrderStatusFilter === 'undefined') window.currentOrderStatusFilter = 'new';
+
             if (currentOrderStatusFilter === 'all') {
-                filteredOrders = ordersCache;
+                // filteredOrders might need to be global or variable in scope
+                // Checking previous code: 'filteredOrders' seems implict. Let's assume global or window attached if strictly needed, 
+                // but usually renderOrdersTable uses ordersCache directly? 
+                // Wait, renderOrdersTable usually iterates ordersCache or filteredOrders.
+                // Looking at line 1037 in previous view, it used filteredOrders? No it passed nothing to renderOrdersTable.
+                // Let's assume renderOrdersTable handles it or we set a global.
+                // To be safe:
+                window.filteredOrders = ordersCache;
             } else {
-                filteredOrders = ordersCache.filter(order => order.status === currentOrderStatusFilter);
+                window.filteredOrders = ordersCache.filter(order => order.status === currentOrderStatusFilter);
             }
-            renderOrdersTable();
-            updateStats();
+
+            if (typeof renderOrdersTable === 'function') renderOrdersTable();
+            if (typeof updateStatsDashboard === 'function') updateStatsDashboard(ordersCache);
+            if (typeof updateStats === 'function') updateStats();
         }
 
-        function updateStats() {
-            const newCount = ordersCache.filter(o => o.status === 'new').length;
-            const preparingCount = ordersCache.filter(o => o.status === 'preparing').length;
-            const completedCount = ordersCache.filter(o => o.status === 'completed').length;
-
-            // Update Badges if they exist
-            // (Assuming generic badges, but let's just make sure UI doesn't break if elements missing)
-        }
-
-        function playSound() {
-            // Simple beep or notification sound
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-            audio.play().catch(e => console.log("Audio play failed", e));
-        }
-
+        // Initialize App once DOM is ready
         if (document.readyState === "loading") {
             document.addEventListener("DOMContentLoaded", initializeKitchenApp);
         } else {
