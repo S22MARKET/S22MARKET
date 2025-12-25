@@ -326,6 +326,10 @@
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
     <aside class="sidebar flex flex-col bg-slate-900 text-white transition-all duration-300 z-50" id="sidebar">
         <div class="p-6 text-center border-b border-gray-800 relative overflow-hidden group">
+            <button id="sidebar-close-btn"
+                class="lg:hidden absolute top-4 left-4 text-gray-400 hover:text-white transition-colors z-30">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
             <div
                 class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-20 transition duration-500">
             </div>
@@ -1244,6 +1248,14 @@
                 menuBtn.onclick = () => {
                     sidebar.classList.toggle('closed');
                     overlay.classList.toggle('active');
+                };
+            }
+
+            const closeBtn = document.getElementById('sidebar-close-btn');
+            if (closeBtn) {
+                closeBtn.onclick = () => {
+                    sidebar.classList.add('closed');
+                    overlay.classList.remove('active');
                 };
             }
 
