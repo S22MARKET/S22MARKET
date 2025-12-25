@@ -1226,7 +1226,7 @@
             safeInit(() => loadSettings(data), "Settings");
             safeInit(() => initQuill(), "Quill Editor");
             safeInit(() => initChart(), "Chart");
-            safeInit(() => renderStoreLink(), "Store Link");
+            // safeInit(() => renderStoreLink(), "Store Link"); // Removed to avoid conflict with updateInterfaceForUser
             safeInit(() => updateSubscriptionUI(data), "Subscription UI");
 
             safeInit(() => {
@@ -1619,11 +1619,12 @@
             // Subscription Check
             updateSubscriptionUI(userData);
 
-            // Update Link Display inside the new Share Card
+            // Update Link Display inside the Share Card
             const linkDisplay = document.getElementById('store-link-display');
             if (linkDisplay) {
-                const link = `${window.location.host}/S22MARKET/vendor.html?id=${currentUser.uid}&type=${isRestaurant ? 'restaurant' : 'vendor'}`;
-                linkDisplay.textContent = link;
+                const origin = window.location.origin;
+                const link = `${origin}/S22MARKET/vendor.html?id=${userData.uid}&type=${isRestaurant ? 'restaurant' : 'vendor'}`;
+                linkDisplay.textContent = link.replace(/^https?:\/\//, ''); // Clean display
             }
 
             // Update Store Status Badge
