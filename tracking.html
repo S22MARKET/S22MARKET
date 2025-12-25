@@ -12,340 +12,337 @@
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
-            background: #f0f2f5;
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9f0f8 100%);
+            overflow-x: hidden;
         }
 
-        /* Map Background Simulation */
-        .map-bg {
-            background-image: url('https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_without_borders.svg');
-            /* Simplified or custom map pattern */
-            background-color: #e5e7eb;
-            background-size: cover;
+
+
+        
+
+        /* Cartoon Road Animation */
+        .road-container {
             position: relative;
+            width: 120%;
+            height: 120px;
+            background: #374151;
+            transform: rotate(-2deg);
+            left: -10%;
+            margin-top: 40px;
             overflow: hidden;
+            border-top: 6px solid #4b5563;
+            border-bottom: 6px solid #4b5563;
         }
 
-        .road {
+        .road-stripes {
             position: absolute;
-            height: 12px;
-            background: #cbd5e1;
-            border-radius: 6px;
+            top: 50%;
+            left: 0;
+            width: 200%;
+            height: 10px;
+            background: repeating-linear-gradient(90deg,
+                    transparent 0,
+                    transparent 40px,
+                    #fbbf24 40px,
+                    #fbbf24 80px);
+            transform: translateY(-50%);
+            animation: moveRoad 1s linear infinite;
         }
 
-        /* Bike Animation */
-        .bike-container {
+        @keyframes moveRoad {
+            0% {
+                transform: translate(0, -50%);
+            }
+
+            100% {
+                transform: translate(-80px, -50%);
+            }
+        }
+
+        /* Bouncy Bike */
+        .bike-wrapper {
             position: absolute;
-            transition: all 1s linear;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 10;
         }
 
         .bike-icon {
-            font-size: 32px;
-            color: #ea580c;
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
-            animation: bounceBike 0.5s infinite alternate;
+            font-size: 80px;
+            color: #f97316;
+            filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.2));
+            animation: bounceBike 0.6s infinite alternate cubic-bezier(0.5, 0.05, 0.1, 0.3);
+        }
+
+        .bike-wind {
+            position: absolute;
+            top: 40px;
+            right: -20px;
+            opacity: 0;
+            animation: windEffect 0.5s infinite linear;
         }
 
         @keyframes bounceBike {
             from {
-                transform: translateY(0);
+                transform: translateY(0) rotate(2deg);
             }
 
             to {
-                transform: translateY(-3px);
+                transform: translateY(-5px) rotate(-2deg);
             }
         }
 
-        @keyframes movePath {
+        @keyframes windEffect {
             0% {
-                left: 10%;
-                top: 20%;
-                transform: rotate(0deg);
-            }
-
-            25% {
-                left: 40%;
-                top: 20%;
-                transform: rotate(0deg);
-            }
-
-            26% {
-                left: 40%;
-                top: 20%;
-                transform: rotate(90deg);
-            }
-
-            50% {
-                left: 40%;
-                top: 60%;
-                transform: rotate(90deg);
-            }
-
-            51% {
-                left: 40%;
-                top: 60%;
-                transform: rotate(0deg);
+                transform: translateX(0);
+                opacity: 0.8;
             }
 
             100% {
-                left: 80%;
-                top: 60%;
-                transform: rotate(0deg);
+                transform: translateX(-20px);
+                opacity: 0;
             }
         }
 
-        .animating-bike {
-            animation: movePath 10s linear infinite;
+        /* Glass Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.1);
+        }
+
+        .social-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .social-btn:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
 
-<body class="bg-gray-100 flex flex-col h-screen">
+<body class="min-h-screen flex flex-col items-center pb-10">
 
     <!-- Header -->
-    <div class="bg-white p-4 shadow-sm z-20 flex justify-between items-center">
-        <a href="s22marketfood.html" class="text-gray-600"><i class="fas fa-arrow-right"></i> عودة</a>
-        <h1 class="font-bold text-lg">تتبع طلبي</h1>
-        <div class="w-8"></div>
+    <div class="w-full max-w-md p-4 flex justify-between items-center z-20">
+        <a href="order_history.html" class="bg-white/80 p-3 rounded-full shadow-sm hover:bg-white transition-colors">
+            <i class="fas fa-arrow-right text-gray-700"></i>
+        </a>
+        <h1 class="font-extrabold text-gray-800 tracking-wide">تتبع الطلب</h1>
+        <div class="w-10"></div>
     </div>
 
-    <!-- Live Map Area -->
-    <div class="flex-1 map-bg relative w-full overflow-hidden">
-        <!-- Roads (Visual decoration) -->
-        <div class="road w-[40%] top-[23%] left-[10%]"></div>
-        <div class="road w-[12px] h-[45%] top-[23%] left-[42%]"></div>
-        <div class="road w-[50%] top-[63%] left-[40%]"></div>
+    <!-- Animated Scene -->
+    <div class="w-full max-w-md relative mb-6 overflow-hidden">
+        <div class="road-container shadow-xl">
+            <div class="road-stripes"></div>
+        </div>
 
-        <!-- Bike -->
-        <div class="bike-container animating-bike" id="delivery-bike">
+        <div class="bike-wrapper">
             <div class="bike-icon"><i class="fas fa-motorcycle"></i></div>
-            <div
-                class="bg-black/80 text-white text-[10px] px-2 py-1 rounded absolute -top-8 -right-4 whitespace-nowrap">
-                الكابتن محمد واصل 🚀</div>
+            <div class="bike-wind text-gray-400 text-2xl"><i class="fas fa-wind"></i></div>
         </div>
 
-        <!-- Destination (You) -->
-        <div class="absolute top-[60%] left-[82%] transform -translate-y-1/2">
-            <i class="fas fa-map-marker-alt text-4xl text-red-600 animate-bounce"></i>
-        </div>
-
-        <!-- Restaurant -->
-        <div class="absolute top-[18%] left-[8%]">
-            <div
-                class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-orange-500">
-                <i class="fas fa-store text-orange-500"></i>
-            </div>
-        </div>
+        <!-- Clouds Decoration -->
+        <i class="fas fa-cloud text-white/60 text-4xl absolute top-0 right-10 animate-pulse"></i>
+        <i class="fas fa-cloud text-white/40 text-3xl absolute top-10 left-5 animate-pulse"
+            style="animation-delay: 1s"></i>
     </div>
 
-    <!-- Status Sheet -->
-    <div class="bg-white rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.1)] p-6 z-20">
-        <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
+    <!-- Main Status Card -->
+    <div class="w-full max-w-md px-4 relative z-10 -mt-8 space-y-4">
 
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h2 class="text-xl font-black text-gray-800">طلبك في الطريق! 🛵</h2>
-                <p class="text-sm text-gray-500">سيصل خلال 15-20 دقيقة</p>
-            </div>
-            <div class="text-right">
-                <p id="REQ-ID" class="font-bold text-lg text-indigo-600">#REQ-loading</p>
+        <!-- Customer Greeting -->
+        <div class="glass-card rounded-2xl p-6 text-center animate-fade-in-up">
+            <div class="w-16 h-1 bg-gradient-to-r from-orange-400 to-indigo-500 mx-auto rounded-full mb-4"></div>
+            <h2 class="text-2xl font-black text-gray-800 leading-snug mb-2">
+                يتم توصيل منتجكم يا <span class="text-indigo-600 inline-block" id="customer-name">...</span> 📦
+            </h2>
+            <p class="text-gray-500 font-medium text-sm">شكراً لثقتكم بنا!</p>
+
+            <div id="status-badge"
+                class="mt-4 inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full font-bold text-sm">
+                <i class="fas fa-circle text-[10px] animate-pulse"></i>
+                <span id="order-status-text">جاري التحضير...</span>
             </div>
         </div>
 
-        <!-- Steps -->
-        <div class="flex justify-between items-center relative mb-4">
-            <div class="absolute top-1/2 left-0 right-0 h-1 bg-gray-100 -z-10"></div>
-            <div class="absolute top-1/2 left-0 right-1/4 h-1 bg-green-500 -z-10"></div> <!-- Progress Bar -->
-
-            <div class="flex flex-col items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-xs"><i
-                        class="fas fa-check"></i></div>
-                <span class="text-[10px] font-bold text-gray-600">تم التأكيد</span>
-            </div>
-            <div class="flex flex-col items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-xs"><i
-                        class="fas fa-fire"></i></div>
-                <span class="text-[10px] font-bold text-gray-600">جاري التحضير</span>
-            </div>
-            <div class="flex flex-col items-center gap-2">
+        <!-- Seller Contact -->
+        <div class="glass-card rounded-2xl p-6 border-t-4 border-indigo-500">
+            <div class="text-center mb-6">
                 <div
-                    class="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-lg transform scale-110 border-4 border-white">
-                    <i class="fas fa-motorcycle"></i>
+                    class="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3 text-indigo-600 text-2xl shadow-inner">
+                    <i class="fas fa-store"></i>
                 </div>
-                <span class="text-[10px] font-bold text-orange-600">في الطريق</span>
+                <h3 class="font-bold text-gray-700">معلومات البائع</h3>
+                <p class="text-xs text-gray-500 mt-1">لمعلومات أكثر إتصل على <span class="font-bold text-gray-800"
+                        id="seller-name">S22 Store</span></p>
             </div>
-            <div class="flex flex-col items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center text-xs"><i
-                        class="fas fa-home"></i></div>
-                <span class="text-[10px] font-bold text-gray-400">وصل</span>
+
+            <!-- Dynamic Social Buttons -->
+            <div class="grid grid-cols-4 gap-3" id="seller-contacts">
+                <!-- Buttons will be injected here -->
+                <div class="col-span-4 text-center py-4 text-gray-400 text-xs">جاري تحميل معلومات التواصل...</div>
             </div>
         </div>
 
-        <div class="bg-indigo-50 p-4 rounded-xl flex items-center gap-4 mt-6">
-            <img src="https://randomuser.me/api/portraits/men/32.jpg"
-                class="w-12 h-12 rounded-full border-2 border-white">
-            <div class="flex-1">
-                <h4 class="font-bold text-gray-800">محمد علي</h4>
-                <div class="flex items-center gap-1 text-xs text-yellow-600 font-bold">
-                    <i class="fas fa-star"></i> 4.9 (عامل توصيل)
+        <!-- S22 Platform Support -->
+        <div class="glass-card rounded-2xl p-5 bg-gradient-to-br from-gray-900 to-gray-800 border-none text-white">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                    <i class="fas fa-headset text-yellow-400"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm">في حالة أخرى اتصل بنا</h4>
+                    <p class="text-[10px] text-gray-400 tracking-wider font-mono">S22 MARKET SUPPORT</p>
                 </div>
             </div>
-            <button
-                class="bg-green-500 w-10 h-10 rounded-full text-white flex items-center justify-center hover:bg-green-600 shadow-md">
-                <i class="fas fa-phone"></i>
-            </button>
+
+            <div class="flex gap-3">
+                <a href="tel:0656565656"
+                    class="flex-1 bg-white/10 hover:bg-white/20 p-2 rounded-lg text-center transition-colors social-btn">
+                    <i class="fas fa-phone mb-1 block text-green-400"></i>
+                    <span class="text-[10px] font-bold">هاتف</span>
+                </a>
+                <a href="mailto:support@s22market.com"
+                    class="flex-1 bg-white/10 hover:bg-white/20 p-2 rounded-lg text-center transition-colors social-btn">
+                    <i class="fas fa-envelope mb-1 block text-blue-400"></i>
+                    <span class="text-[10px] font-bold">إيميل</span>
+                </a>
+                <a href="#"
+                    class="flex-1 bg-white/10 hover:bg-white/20 p-2 rounded-lg text-center transition-colors social-btn">
+                    <i class="fab fa-whatsapp mb-1 block text-green-500"></i>
+                    <span class="text-[10px] font-bold">واتساب</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="text-center py-4 text-gray-300 text-[10px]">
+            &copy; 2025 S22 MARKET
         </div>
     </div>
 
+    <!-- Logic -->
     <script type="module">
         import { db, auth } from './app-core.js';
         import { doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const orderId = new URLSearchParams(window.location.search).get('orderId');
 
-        // Status Map: Firestore Status -> Step Index
-        const statusMap = {
-            'pending': 0,
-            'accepted': 1,
-            'preparing': 1,
-            'ready': 2,
-            'shipping': 2,
-            'completed': 3,
-            'delivered': 3,
-            'cancelled': -1
-        };
-
-        const stepsInfo = [
-            { title: "تم التأكيد", desc: "استلم المطعم طلبك" },
-            { title: "جاري التحضير", desc: "الشيف يجهز وجبتك اللذيذة 👨‍🍳" },
-            { title: "في الطريق", desc: "الكابتن استلم الطلب وجاي لك 🚀" },
-            { title: "وصل", desc: "بالعافية عليك! 😋" }
-        ];
-
-        async function initTracking() {
-            // Check Auth First
-            const user = await window.requireAuth(auth);
-            if (!user) return; // requireAuth handles the redirect/toast
+        async function init() {
+            // Auth check (Optional: tracking might be public or require generic auth)
+            // assuming user is logged in for "Order History" context
 
             if (!orderId) {
-                alert('لا يوجد رقم طلب للتتبع!');
-                window.location.href = 'order_history.html';
+                document.body.innerHTML = '<div class="h-screen flex items-center justify-center text-red-500 font-bold">رقم الطلب مفقود!</div>';
                 return;
             }
 
-            document.querySelector('#REQ-ID').textContent = `#${orderId.slice(0, 8)}`;
-
-            // Listen to order updates
-            onSnapshot(doc(db, "orders", orderId), (docSnap) => {
+            // Real-time Order Listener
+            onSnapshot(doc(db, "orders", orderId), async (docSnap) => {
                 if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    updateUI(data);
-                } else {
-                    console.log("No such order!");
-                    // Optional: Handle case where user has no permission to read this specific order
-                    // Since rules allow read if (userId == auth.uid), if docSnap breaks or permission denied comes from onSnapshot error handler
-                }
-            }, (error) => {
-                console.error("Tracking Error:", error);
-                if (error.code === 'permission-denied') {
-                    document.querySelector('.bg-white.rounded-t-3xl').innerHTML = `
-                        <div class="text-center p-8">
-                            <i class="fas fa-lock text-4xl text-red-500 mb-4"></i>
-                            <h2 class="text-xl font-bold mb-2">غير مصرح لك</h2>
-                            <p class="text-gray-600">لا يمكنك تتبع هذا الطلب لأنه لا يخص حسابك الحالي.</p>
-                            <button onclick="window.history.back()" class="mt-4 bg-gray-800 text-white px-6 py-2 rounded-full">عودة</button>
-                        </div>
-                     `;
-                }
-            });
-        }
+                    const order = docSnap.data();
+                    updateOrderUI(order);
 
-        function updateUI(order) {
-            let stepIndex = statusMap[order.status] !== undefined ? statusMap[order.status] : 0;
-
-            // Handle Cancelled
-            if (order.status === 'cancelled' || order.status === 'rejected') {
-                document.querySelector('h2').textContent = "تم إلغاء الطلب ❌";
-                document.querySelector('h2 + p').textContent = "نأسف، تم إلغاء هذا الطلب.";
-                document.querySelectorAll('.flex.flex-col.items-center div').forEach(div => div.classList.add('grayscale'));
-                return;
-            }
-
-            const steps = document.querySelectorAll('.flex.flex-col.items-center');
-
-            steps.forEach((step, index) => {
-                const iconContainer = step.querySelector('div');
-                const text = step.querySelector('span');
-
-                if (index <= stepIndex) {
-                    // Active or Past
-                    if (index === stepIndex && stepIndex < 3) {
-                        iconContainer.classList.add('animate-pulse', 'ring', 'ring-green-300');
-                        iconContainer.classList.remove('bg-gray-200', 'text-gray-400');
-
-                        if (index === 2) { // Bike
-                            iconContainer.classList.add('bg-orange-500', 'text-white');
-                        } else {
-                            iconContainer.classList.add('bg-green-500', 'text-white');
+                    // Fetch Seller Details Once
+                    if (order.sellerId) {
+                        try {
+                            const sellerSnap = await getDoc(doc(db, "users", order.sellerId));
+                            if (sellerSnap.exists()) {
+                                updateSellerContacts(sellerSnap.data());
+                            }
+                        } catch (err) {
+                            console.error("Seller fetch error:", err);
                         }
-
-                        text.classList.remove('text-gray-400');
-                        text.classList.add('text-gray-800', 'font-black');
-                    } else {
-                        // Completed Past Steps
-                        iconContainer.classList.remove('animate-pulse', 'ring', 'ring-green-300', 'bg-gray-200', 'text-gray-400');
-                        iconContainer.classList.add('bg-green-500', 'text-white');
-                        text.classList.remove('text-gray-400');
-                        text.classList.add('text-gray-600');
                     }
                 } else {
-                    // Future Steps
-                    iconContainer.classList.remove('bg-green-500', 'text-white', 'bg-orange-500');
-                    iconContainer.classList.add('bg-gray-200', 'text-gray-400');
-                    text.classList.remove('text-gray-800', 'font-black', 'text-gray-600');
-                    text.classList.add('text-gray-400');
+                    document.getElementById('order-status-text').textContent = "الطلب غير موجود";
+                }
+            });
+        }
+
+        function updateOrderUI(order) {
+            // Customer Name
+            const nameEl = document.getElementById('customer-name');
+            nameEl.textContent = order.customerName || 'عميلنا العزيز';
+
+            // Status Styling
+            const statusMap = {
+                'new': { text: 'بانتظار التأكيد', color: 'bg-yellow-100 text-yellow-800' },
+                'preparing': { text: 'جاري التحضير', color: 'bg-blue-100 text-blue-800' },
+                'ready': { text: 'جاهز للاستلام/التوصيل', color: 'bg-indigo-100 text-indigo-800' },
+                'shipping': { text: 'في الطريق إليك', color: 'bg-orange-100 text-orange-800' },
+                'completed': { text: 'تم التوصيل', color: 'bg-green-100 text-green-800' },
+                'canceled': { text: 'ملغي', color: 'bg-red-100 text-red-800' }
+            };
+
+            const status = statusMap[order.status] || { text: order.status, color: 'bg-gray-100 text-gray-800' };
+            const badge = document.getElementById('status-badge');
+            const statusText = document.getElementById('order-status-text');
+
+            badge.className = `mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm ${status.color} shadow-sm`;
+            statusText.textContent = status.text;
+        }
+
+        function updateSellerContacts(seller) {
+            const container = document.getElementById('seller-contacts');
+            const nameEl = document.getElementById('seller-name');
+
+            if (seller.storeName) nameEl.textContent = seller.storeName;
+
+            let html = '';
+
+            // Checking logic for common fields, adapting to potential variable names
+            // Convention: facebook, instagram, phone, telegram, whatsapp
+
+            const platforms = [
+                { key: 'phone', icon: 'fa-phone', label: 'اتصال', color: 'text-green-600', prefix: 'tel:' },
+                { key: 'whatsapp', icon: 'fa-whatsapp', label: 'واتساب', color: 'text-green-500', prefix: 'https://wa.me/', isFab: true },
+                { key: 'facebook', icon: 'fa-facebook-f', label: 'فيسبوك', color: 'text-blue-600', prefix: '' },
+                { key: 'instagram', icon: 'fa-instagram', label: 'انستغرام', color: 'text-pink-600', prefix: '' },
+                { key: 'telegram', icon: 'fa-telegram-plane', label: 'تيليجرام', color: 'text-sky-500', prefix: '' },
+                { key: 'tiktok', icon: 'fa-tiktok', label: 'تيك توك', color: 'text-black', prefix: '' }
+            ];
+
+            let found = false;
+
+            platforms.forEach(p => {
+                let val = seller[p.key] || seller[`set-${p.key}`]; // Try direct or form id style
+
+                // Specific checks based on dashboard verify
+                if (p.key === 'facebook') val = seller.facebook || seller.fbLink;
+                if (p.key === 'instagram') val = seller.instagram || seller.instaLink;
+
+                if (val) {
+                    found = true;
+                    // Handle URL formatting
+                    let href = val;
+                    if (p.prefix && !val.startsWith('http') && !val.startsWith(p.prefix)) {
+                        href = p.prefix + val;
+                    }
+
+                    const iconClass = p.isFab ? 'fab' : 'fas'; // Awesome font Logic
+                    const iconPure = p.isFab || p.key === 'facebook' || p.key === 'instagram' || p.key === 'tiktok' || p.key === 'telegram' ? `fab ${p.icon}` : `fas ${p.icon}`;
+
+                    html += `
+                        <a href="${href}" target="_blank" class="flex flex-col items-center gap-2 p-3 rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all social-btn">
+                            <i class="${iconPure} text-2xl ${p.color}"></i>
+                            <span class="text-[10px] font-bold text-gray-600">${p.label}</span>
+                        </a>
+                    `;
                 }
             });
 
-            // Update Progress Bar
-            const progressLine = document.querySelector('.absolute.top-1\\/2.left-0.right-1\\/4');
-            // Tailwind class is tricky to animate purely with width inlinestyle on a div that might rely on right-1/4. 
-            // The HTML structure used right-1/4 which complicates dynamic width. 
-            // Let's assume the green bar is the one with bg-green-500
-
-            // Re-selecting specifically
-            const progressBar = document.querySelector('.bg-green-500.absolute.h-1'); // This is the one
-            if (progressBar) {
-                let width = '10%';
-                if (stepIndex === 1) width = '40%';
-                if (stepIndex === 2) width = '75%';
-                if (stepIndex === 3) width = '100%';
-                progressBar.style.width = width;
+            if (!found) {
+                html = '<div class="col-span-4 text-center text-gray-400 text-xs py-2">لا توجد معلومات تواصل إضافية</div>';
             }
 
-            // Update Text
-            const titleEl = document.querySelector('h2');
-            const descEl = document.querySelector('h2 + p');
-
-            if (stepsInfo[stepIndex]) {
-                titleEl.textContent = stepsInfo[stepIndex].title + (stepIndex === 2 ? ' 🛵' : '');
-                descEl.textContent = stepsInfo[stepIndex].desc;
-            }
-
-            // Bike Animation logic
-            const bike = document.getElementById('delivery-bike');
-            if (stepIndex === 2) { // In delivery
-                bike.classList.add('animating-bike');
-            } else {
-                bike.classList.remove('animating-bike');
-                if (stepIndex === 3) {
-                    bike.style.left = '82%';
-                    bike.style.top = '60%';
-                }
-            }
+            container.innerHTML = html;
         }
 
-        window.addEventListener('DOMContentLoaded', initTracking);
+        init();
     </script>
 </body>
 
