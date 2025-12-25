@@ -592,25 +592,47 @@
                         </div>
                     </div>
 
-                    <!-- Subscription Card (New) -->
-                    <div class="stat-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-md transition-all duration-300 relative overflow-hidden hidden"
+                    <!-- Subscription Card (Premium Enhanced) -->
+                    <div class="stat-card bg-gradient-to-br from-indigo-900 to-blue-800 text-white border-none relative overflow-hidden group shadow-lg shadow-blue-900/20 hidden"
                         id="sub-card">
-                        <div class="flex justify-between items-start z-10 relative">
-                            <div>
-                                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">اشتراك المتجر</p>
-                                <h3 class="text-2xl font-black text-gray-800 mt-2" id="sub-days-remain">---</h3>
-                                <p class="text-[10px] text-gray-400 mt-1 font-bold" id="sub-status-text">جاري التحقق...
-                                </p>
+                        <div class="relative z-10 p-1">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <p class="text-[10px] text-blue-200 font-bold uppercase tracking-wider mb-1">حالة
+                                        الاشتراك</p>
+                                    <h3 class="text-xl font-bold" id="sub-plan-name">Basi</h3>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"
+                                            id="sub-status-dot"></span>
+                                        <span class="text-xs font-bold text-blue-100" id="sub-status-text">نشط</span>
+                                    </div>
+                                </div>
+                                <div
+                                    class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/10">
+                                    <i class="fas fa-crown text-yellow-400 text-lg"></i>
+                                </div>
                             </div>
-                            <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform"
-                                id="sub-icon-bg">
-                                <i class="fas fa-calendar-alt text-xl"></i>
+
+                            <!-- Dates & Progress -->
+                            <div class="bg-black/20 rounded-lg p-3 backdrop-blur-sm border border-white/10">
+                                <div class="flex justify-between text-xs text-blue-200 mb-2">
+                                    <span>المتبقي</span>
+                                    <span class="text-white font-bold" id="sub-days-remain">-- يوم</span>
+                                </div>
+                                <div class="w-full bg-white/10 rounded-full h-1.5 mb-2 overflow-hidden">
+                                    <div class="bg-gradient-to-r from-green-400 to-emerald-400 h-full rounded-full transition-all duration-1000"
+                                        id="sub-progress" style="width: 0%"></div>
+                                </div>
+                                <div class="flex justify-between text-[10px] text-blue-300">
+                                    <span id="sub-start-date">--/--</span>
+                                    <span id="sub-end-date">--/--</span>
+                                </div>
                             </div>
                         </div>
-                        <!-- Progress Bar -->
-                        <div class="absolute bottom-0 left-0 h-1 bg-gray-100 w-full">
-                            <div id="sub-progress" class="h-full bg-indigo-500 transition-all duration-1000"
-                                style="width: 0%"></div>
+
+                        <!-- Decorative BG -->
+                        <div class="absolute -right-4 -bottom-4 text-white/5 text-8xl transform rotate-12">
+                            <i class="fas fa-calendar-check"></i>
                         </div>
                     </div>
 
@@ -2317,33 +2339,41 @@
             }
 
             // Update DOM
-            document.getElementById('sub-days-remain').textContent = `${daysRemaining} يوم`;
+            // Update DOM
+            const formatDate = (d) => d ? d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'numeric', year: 'numeric' }) : '--';
+
+            document.getElementById('sub-plan-name').textContent = sub.planName || 'الباقة الأساسية';
+            document.getElementById('sub-days-remain').textContent = daysRemaining > 0 ? `${daysRemaining} يوم` : 'منتهي';
+            document.getElementById('sub-start-date').textContent = formatDate(startDate || new Date()); // Fallback if no start
+            document.getElementById('sub-end-date').textContent = formatDate(endDate);
 
             const statusText = document.getElementById('sub-status-text');
-            const iconBg = document.getElementById('sub-icon-bg');
+            const statusDot = document.getElementById('sub-status-dot');
             const progressBar = document.getElementById('sub-progress');
 
             progressBar.style.width = `${progress}%`;
 
             if (daysRemaining > 5) {
-                statusText.textContent = `باقة ${sub.planName || 'نشطة'}`;
-                statusText.className = "text-[10px] text-green-500 font-bold mt-1";
-                iconBg.className = "w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform";
-                progressBar.className = "h-full bg-indigo-500 transition-all duration-1000";
+                statusText.textContent = 'نشط';
+                statusText.className = "text-xs font-bold text-green-100";
+                statusDot.className = "w-2 h-2 rounded-full bg-green-400 animate-pulse";
+                progressBar.className = "bg-gradient-to-r from-green-400 to-emerald-400 h-full rounded-full transition-all duration-1000";
             } else if (daysRemaining > 0) {
-                statusText.textContent = "تنتهي قريباً!";
-                statusText.className = "text-[10px] text-amber-500 font-bold mt-1";
-                iconBg.classList.replace('bg-indigo-50', 'bg-amber-50');
-                iconBg.classList.replace('text-indigo-500', 'text-amber-500');
-                progressBar.className = "h-full bg-amber-500 transition-all duration-1000";
+                statusText.textContent = 'ينتهي قريباً';
+                statusText.className = "text-xs font-bold text-orange-100";
+                statusDot.className = "w-2 h-2 rounded-full bg-orange-400 animate-pulse";
+                progressBar.className = "bg-gradient-to-r from-orange-400 to-yellow-400 h-full rounded-full transition-all duration-1000";
+                showExpirationBanner(`تنبيه: سينتهي اشتراكك خلال ${daysRemaining} أيام.`);
             } else {
-                statusText.textContent = "منتهية الصلاحية";
-                statusText.className = "text-[10px] text-red-500 font-bold mt-1";
-                iconBg.classList.replace('bg-indigo-50', 'bg-red-50');
-                iconBg.classList.replace('text-indigo-500', 'text-red-500');
-                progressBar.className = "h-full bg-red-500 transition-all duration-1000";
+                statusText.textContent = 'منتهي';
+                statusText.className = "text-xs font-bold text-red-100";
+                statusDot.className = "w-2 h-2 rounded-full bg-red-400";
+                progressBar.className = "bg-red-500 h-full rounded-full transition-all duration-1000";
+                showExpirationBanner("انتهت صلاحية اشتراك المتجر! يرجى تجديد الاشتراك.");
+                progressBar.style.width = "100%"; // Full red
             }
-        };
+        }
+        }
 
 
         // --- Delivery Pricing Logic & Coverage ---
