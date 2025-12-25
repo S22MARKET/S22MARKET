@@ -2742,6 +2742,50 @@
         });
     </script>
     <audio id="notification-sound" src="alerta.mp3" preload="auto"></audio>
+    <script type="module">
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { auth, db } from "./app-core.js";
+
+        // Global User State
+        window.currentUser = null;
+
+        // Main Initialization
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Fetch full profile
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                window.currentUser = { ...user, ...(userDoc.exists() ? userDoc.data() : {}) };
+
+                // Update UI Identity
+                const nameDisplay = document.getElementById('shop-name');
+                const dashboardName = document.getElementById('dashboard-store-name');
+                const storeLinkDisplay = document.getElementById('store-link-display');
+
+                if (window.currentUser.storeName) {
+                    if (nameDisplay) nameDisplay.textContent = window.currentUser.storeName;
+                    if (dashboardName) dashboardName.textContent = window.currentUser.storeName;
+                }
+
+                // Store Link
+                const link = `${window.location.origin}/vendor.html?id=${user.uid}`;
+                if (storeLinkDisplay) storeLinkDisplay.textContent = link;
+
+                // Start Listeners (Call global functions)
+                if (typeof window.loadOrdersListener === 'function') window.loadOrdersListener();
+                if (typeof window.loadReviewsListener === 'function') window.loadReviewsListener();
+                if (typeof window.loadDashboardStats === 'function') window.loadDashboardStats();
+
+                // Request Notification Permission
+                if (Notification.permission !== "granted") {
+                    // Optional: Show a UI hint to enable notifications
+                }
+
+            } else {
+                window.location.href = 'admin-login.html';
+            }
+        });
+    </script>
 </body>
 
 </html>

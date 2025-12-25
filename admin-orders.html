@@ -299,6 +299,7 @@
 
         let productsCache = [];
         let ordersCache = [];
+        let usersMap = {}; // Map: uid -> userData
 
         const loginPage = document.getElementById('login-page');
         const dashboardPage = document.getElementById('dashboard-page');
@@ -336,13 +337,20 @@
             });
         }
 
-        // (الدالة الرئيسية لهذه الصفحة)
         async function initializeDashboard() {
             setActiveTab();
-            // (نحتاج المنتجات أولاً لحساب الربح الافتراضي)
+
+            // 1. Fetch Products (One-time)
             const productsSnapshot = await getDocs(collection(db, "products"));
             productsCache = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            loadOrders(); // (ثم نحمل الطلبات)
+
+            // 2. Fetch Users (One-time) for mapping
+            const usersSnapshot = await getDocs(collection(db, "users"));
+            usersSnapshot.docs.forEach(doc => {
+                usersMap[doc.id] = doc.data();
+            });
+
+            loadOrders();
         }
 
         // --- (جميع الدوال المنسوخة من الملف القديم والمخصصة للطلبات) ---
@@ -354,7 +362,7 @@
                      <table class="w-full text-right responsive-table">
                        <thead class="bg-gray-100">
                          <tr>
-                           <th class="p-3 font-semibold">المتجر</th>
+                           <th class="p-3 font-semibold">المتجر & الإيميل</th>
                            <th class="p-3 font-semibold">العميل</th><th class="p-3 font-semibold">الهاتف</th><th class="p-3 font-semibold">الموقع</th>
                            <th class="p-3 font-semibold">نوع التوصيل</th><th class="p-3 font-semibold">المنتجات</th><th class="p-3 font-semibold">المبلغ</th>
                            <th class="p-3 font-semibold">الربح</th><th class="p-3 font-semibold">ملاحظات</th><th class="p-3 font-semibold">الحالة</th>
@@ -394,8 +402,10 @@
                     const rowColor = order.status === 'completed' ? 'bg-green-50/50' : (order.status === 'canceled' ? 'bg-red-50/50' : 'bg-white');
                     const product = productsCache.find(p => p.id === (order.items && order.items[0] ? order.items[0].id : null));
 
-                    // Display Store Name
-                    const storeName = order.storeName || (product ? product.storeName : 'غير معروف');
+                    // Resolve Store Info & Email
+                    const sellerId = order.sellerId || (product ? product.sellerId : null);
+                    const storeName = order.storeName || (usersMap[sellerId]?.storeName) || (product?.storeName) || 'غير معروف';
+                    const storeEmail = usersMap[sellerId]?.email || '---';
 
                     let defaultProfit = ''; let defaultSupplierInfo = '';
                     if (product) {
@@ -419,7 +429,10 @@
                     row.className = `border-b ${rowColor} transition-colors fade-in-up`;
                     row.style.animationDelay = `${index * 0.05}s`;
                     row.innerHTML = `
-                    <td data-label="المتجر" class="p-3 font-bold text-indigo-700">${storeName}</td>
+                    <td data-label="المتجر" class="p-3">
+                        <div class="font-bold text-indigo-700">${storeName}</div>
+                        <div class="text-xs text-gray-500 font-mono">${storeEmail}</div>
+                    </td>
                     <td data-label="العميل" class="p-3 font-semibold">
                         ${order.customerName}
                         <div>${scheduleBadge}</div>
