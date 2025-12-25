@@ -1167,6 +1167,23 @@
                     const data = userDoc.data();
                     console.log("User role:", data.role);
 
+                    // --- DIAGNOSTIC BLOCK (REMOVE LATER) ---
+                    // Show user exactly what data arrived to prove/disprove rules issues
+                    const debugInfo = {
+                        storeName: data.storeName,
+                        role: data.role,
+                        hasSubscription: !!data.subscription,
+                        subEndDate: data.subscription?.endDate ? 'Exists' : 'Missing',
+                        isOpen: data.isOpen
+                    };
+                    console.table(debugInfo);
+
+                    // Force visible feedback for user
+                    const msg = "تشخيص البيانات:\n" + JSON.stringify(debugInfo, null, 2);
+                    if (window.Swal) Swal.fire({ title: 'فحص البيانات', html: `<pre class="text-left text-xs">${JSON.stringify(debugInfo, null, 2)}</pre>`, icon: 'info' });
+                    else alert(msg);
+                    // ---------------------------------------
+
                     if (data.role === 'vendor' || data.role === 'restaurant') {
                         if (data.isSuspended) {
                             // ... existing suspension logic ...
