@@ -1655,7 +1655,11 @@
             audio.play().catch(e => console.log("Audio play failed", e));
         }
 
-        initializeKitchenApp();
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", initializeKitchenApp);
+        } else {
+            initializeKitchenApp();
+        }
 
     </script>
 </body>

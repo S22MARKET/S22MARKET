@@ -18,7 +18,7 @@
 
 
 
-        
+
 
         /* Cartoon Road Animation */
         .road-container {
@@ -236,7 +236,14 @@
             // assuming user is logged in for "Order History" context
 
             if (!orderId) {
-                document.body.innerHTML = '<div class="h-screen flex items-center justify-center text-red-500 font-bold">رقم الطلب مفقود!</div>';
+                // "Reassure Mode" - Default Positive State
+                updateOrderUI({
+                    status: 'shipping', // Show bike animation
+                    customerName: 'عميلنا العزيز'
+                });
+
+                // Hide specific seller section if we don't know the seller, or show generic
+                document.getElementById('seller-contacts').innerHTML = '<div class="col-span-4 text-center text-gray-400 text-xs py-2">تواصل مع الدعم الفني للمنصة في الأسفل</div>';
                 return;
             }
 
