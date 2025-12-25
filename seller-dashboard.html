@@ -1185,7 +1185,9 @@
                             return;
                         }
                         currentUser = user;
-                        console.log("Initializing Dashboard Components...");
+                        // Inject UID into data for downstream functions
+                        data.uid = user.uid;
+                        console.log("Initializing Dashboard Components for:", data.storeName);
                         initDashboardComponents(data);
                     } else {
                         console.log('Role mismatch:', data.role);
@@ -1622,9 +1624,20 @@
             // Update Link Display inside the Share Card
             const linkDisplay = document.getElementById('store-link-display');
             if (linkDisplay) {
-                const origin = window.location.origin;
-                const link = `${origin}/S22MARKET/vendor.html?id=${userData.uid}&type=${isRestaurant ? 'restaurant' : 'vendor'}`;
-                linkDisplay.textContent = link.replace(/^https?:\/\//, ''); // Clean display
+                try {
+                    const uid = userData.uid || currentUser?.uid;
+                    if (uid) {
+                        const origin = window.location.origin;
+                        const link = `${origin}/S22MARKET/vendor.html?id=${uid}&type=${isRestaurant ? 'restaurant' : 'vendor'}`;
+                        linkDisplay.textContent = link.replace(/^https?:\/\//, '');
+                    } else {
+                        linkDisplay.textContent = 'رابط غير متوفر حالياً';
+                        console.warn("UID missing for link generation");
+                    }
+                } catch (e) {
+                    console.error("Link Gen Error:", e);
+                    linkDisplay.textContent = 'خطأ في الرابط';
+                }
             }
 
             // Update Store Status Badge
@@ -1653,69 +1666,7 @@
 
         // --- Subscription Logic ---
         // --- Subscription Logic ---
-        function updateSubscriptionUI(userData) {
-            const subCard = document.getElementById('sub-card');
-            if (subCard) subCard.classList.remove('hidden');
 
-            const sub = userData.subscription || {};
-            const endDate = sub.endDate ? sub.endDate.toDate() : null;
-            const isActive = sub.isActive !== false;
-
-            const daysEl = document.getElementById('sub-days-remain');
-            const textEl = document.getElementById('sub-status-text');
-            const progressEl = document.getElementById('sub-progress');
-            const iconBg = document.getElementById('sub-icon-bg');
-
-            if (!endDate) {
-                // No subscription
-                daysEl.textContent = "غير مشترك";
-                textEl.textContent = "يرجى تفعيل الاشتراك";
-                textEl.className = "text-[10px] text-red-500 font-bold mt-1";
-                progressEl.style.width = "0%";
-                progressEl.className = "h-full bg-gray-300";
-
-                showExpirationBanner("لم يتم تفعيل اشتراك المتجر بعد. يرجى التواصل مع الإدارة.");
-                return;
-            }
-
-            const now = new Date();
-            const diffTime = endDate - now;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            if (diffDays <= 0 || !isActive) {
-                // Expired
-                daysEl.textContent = "0 يوم";
-                textEl.textContent = "الاشتراك منتهي";
-                textEl.className = "text-[10px] text-red-600 font-bold mt-1";
-                progressEl.style.width = "100%";
-                progressEl.className = "h-full bg-red-600";
-                iconBg.className = "w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-red-500";
-
-                showExpirationBanner("انتهت صلاحية اشتراك المتجر! يرجى تجديد الاشتراك للاستمرار في استقبال الطلبات.");
-            } else {
-                // Active
-                daysEl.textContent = `${diffDays} يوم`;
-                textEl.textContent = "متبقي للاشتراك";
-
-                // Color Logic
-                if (diffDays > 30) {
-                    textEl.className = "text-[10px] text-green-600 font-bold mt-1";
-                    progressEl.className = "h-full bg-green-500";
-                    iconBg.className = "w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-green-500";
-                } else if (diffDays <= 7) {
-                    textEl.className = "text-[10px] text-orange-600 font-bold mt-1";
-                    progressEl.className = "h-full bg-orange-500";
-                    iconBg.className = "w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500";
-                    showExpirationBanner(`تنبيه: سينتهي اشتراكك خلال ${diffDays} أيام.`);
-                } else {
-                    textEl.className = "text-[10px] text-indigo-600 font-bold mt-1";
-                    progressEl.className = "h-full bg-indigo-500";
-                }
-
-                // Progress Width (Assume 30 days max for bar visual, or 365? Let's simply fill it)
-                progressEl.style.width = "100%";
-            }
-        }
 
         function showExpirationBanner(msg) {
             // Check if banner exists
