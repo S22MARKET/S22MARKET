@@ -587,7 +587,7 @@
                     </div>
 
                     <!-- Subscription Card (Premium Enhanced) -->
-                    <div class="stat-card bg-gradient-to-br from-indigo-900 to-blue-800 text-white border-none relative overflow-hidden group shadow-lg shadow-blue-900/20 hidden"
+                    <div class="stat-card bg-gradient-to-br from-indigo-900 to-blue-800 text-white border-none relative overflow-hidden group shadow-lg shadow-blue-900/20"
                         id="sub-card">
                         <div class="relative z-10 p-1">
                             <div class="flex justify-between items-start mb-4">
@@ -2298,9 +2298,7 @@
             }
 
             // Update DOM
-            // Update DOM
             const formatDate = (d) => d ? d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'numeric', year: 'numeric' }) : '--';
-
             document.getElementById('sub-plan-name').textContent = sub.planName || 'الباقة الأساسية';
             document.getElementById('sub-days-remain').textContent = daysRemaining > 0 ? `${daysRemaining} يوم` : 'منتهي';
             document.getElementById('sub-start-date').textContent = formatDate(startDate || new Date()); // Fallback if no start
