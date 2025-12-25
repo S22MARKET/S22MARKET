@@ -1641,16 +1641,20 @@
             }
 
             // Update Store Status Badge
-            const statusBadge = document.getElementById('store-status-badge');
-            if (statusBadge) {
-                const isOpen = userData.isOpen !== false; // Default true
-                if (isOpen) {
-                    statusBadge.className = "inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-600 text-[10px] font-bold mt-2";
-                    statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span><span>مفتوح - يستقبل الطلبات</span>';
-                } else {
-                    statusBadge.className = "inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-600 text-[10px] font-bold mt-2";
-                    statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500"></span><span>مغلق مؤقتاً</span>';
+            try {
+                const statusBadge = document.getElementById('store-status-badge');
+                if (statusBadge) {
+                    const isOpen = userData.isOpen !== false; // Default true
+                    if (isOpen) {
+                        statusBadge.className = "inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-600 text-[10px] font-bold mt-2";
+                        statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span><span>مفتوح - يستقبل الطلبات</span>';
+                    } else {
+                        statusBadge.className = "inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-600 text-[10px] font-bold mt-2";
+                        statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500"></span><span>مغلق مؤقتاً</span>';
+                    }
                 }
+            } catch (e) {
+                console.error("Badge Update Error:", e);
             }
         }
 
@@ -2274,60 +2278,83 @@
 
         // --- Subscription Card Logic ---
         window.updateSubscriptionUI = (user) => {
-            const subCard = document.getElementById('sub-card');
-            if (!subCard || !user.subscription) return;
+            try {
+                const subCard = document.getElementById('sub-card');
+                if (!subCard || !user.subscription) return;
 
-            subCard.classList.remove('hidden');
+                subCard.classList.remove('hidden');
 
-            const sub = user.subscription;
-            const now = new Date();
-            let endDate = sub.endDate ? sub.endDate.toDate() : null;
-            let daysRemaining = 0;
-            let progress = 0; // 0 to 100%
+                const sub = user.subscription;
+                const now = new Date();
 
-            if (endDate) {
-                // Calculate total duration of plan (e.g., 30 days)
-                // If we don't store startDate, we might need to guess or just use max 30 days
-                const startDate = sub.startDate ? sub.startDate.toDate() : new Date(endDate.getTime() - (30 * 24 * 60 * 60 * 1000));
+                // Safe Date Helper
+                const toDateSafe = (val) => {
+                    if (!val) return null;
+                    if (val.toDate && typeof val.toDate === 'function') return val.toDate();
+                    if (val.seconds) return new Date(val.seconds * 1000); // Firestore JSON like
+                    return new Date(val); // String or JS Date
+                };
 
-                const totalDuration = endDate - startDate;
-                const timePassed = now - startDate;
+                let endDate = toDateSafe(sub.endDate);
+                let daysRemaining = 0;
+                let progress = 0;
+                let startDate = null;
 
-                daysRemaining = Math.max(0, Math.ceil((endDate - now) / (1000 * 60 * 60 * 24)));
-                progress = Math.min(100, Math.max(0, (timePassed / totalDuration) * 100));
-            }
+                if (endDate && !isNaN(endDate.getTime())) {
+                    startDate = sub.startDate ? toDateSafe(sub.startDate) : new Date(endDate.getTime() - (30 * 24 * 60 * 60 * 1000));
 
-            // Update DOM
-            const formatDate = (d) => d ? d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'numeric', year: 'numeric' }) : '--';
-            document.getElementById('sub-plan-name').textContent = sub.planName || 'الباقة الأساسية';
-            document.getElementById('sub-days-remain').textContent = daysRemaining > 0 ? `${daysRemaining} يوم` : 'منتهي';
-            document.getElementById('sub-start-date').textContent = formatDate(startDate || new Date()); // Fallback if no start
-            document.getElementById('sub-end-date').textContent = formatDate(endDate);
+                    const totalDuration = endDate - startDate;
+                    const timePassed = now - startDate;
 
-            const statusText = document.getElementById('sub-status-text');
-            const statusDot = document.getElementById('sub-status-dot');
-            const progressBar = document.getElementById('sub-progress');
+                    daysRemaining = Math.max(0, Math.ceil((endDate - now) / (1000 * 60 * 60 * 24)));
+                    if (totalDuration > 0) {
+                        progress = Math.min(100, Math.max(0, (timePassed / totalDuration) * 100));
+                    }
+                }
 
-            progressBar.style.width = `${progress}%`;
+                // Update DOM
+                const formatDate = (d) => d && !isNaN(d.getTime()) ? d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'numeric', year: 'numeric' }) : '--/--';
 
-            if (daysRemaining > 5) {
-                statusText.textContent = 'نشط';
-                statusText.className = "text-xs font-bold text-green-100";
-                statusDot.className = "w-2 h-2 rounded-full bg-green-400 animate-pulse";
-                progressBar.className = "bg-gradient-to-r from-green-400 to-emerald-400 h-full rounded-full transition-all duration-1000";
-            } else if (daysRemaining > 0) {
-                statusText.textContent = 'ينتهي قريباً';
-                statusText.className = "text-xs font-bold text-orange-100";
-                statusDot.className = "w-2 h-2 rounded-full bg-orange-400 animate-pulse";
-                progressBar.className = "bg-gradient-to-r from-orange-400 to-yellow-400 h-full rounded-full transition-all duration-1000";
-                showExpirationBanner(`تنبيه: سينتهي اشتراكك خلال ${daysRemaining} أيام.`);
-            } else {
-                statusText.textContent = 'منتهي';
-                statusText.className = "text-xs font-bold text-red-100";
-                statusDot.className = "w-2 h-2 rounded-full bg-red-400";
-                progressBar.className = "bg-red-500 h-full rounded-full transition-all duration-1000";
-                showExpirationBanner("انتهت صلاحية اشتراك المتجر! يرجى تجديد الاشتراك.");
-                progressBar.style.width = "100%"; // Full red
+                document.getElementById('sub-plan-name').textContent = sub.planName || 'الباقة الأساسية';
+                document.getElementById('sub-days-remain').textContent = daysRemaining > 0 ? `${daysRemaining} يوم` : 'منتهي';
+                document.getElementById('sub-start-date').textContent = formatDate(startDate || new Date());
+                document.getElementById('sub-end-date').textContent = formatDate(endDate);
+
+                const statusText = document.getElementById('sub-status-text');
+                const statusDot = document.getElementById('sub-status-dot');
+                const progressBar = document.getElementById('sub-progress');
+
+                if (progressBar) progressBar.style.width = `${progress}%`;
+
+                if (daysRemaining > 5) {
+                    if (statusText) {
+                        statusText.textContent = 'نشط';
+                        statusText.className = "text-xs font-bold text-green-100";
+                    }
+                    if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-green-400 animate-pulse";
+                    if (progressBar) progressBar.className = "bg-gradient-to-r from-green-400 to-emerald-400 h-full rounded-full transition-all duration-1000";
+                } else if (daysRemaining > 0) {
+                    if (statusText) {
+                        statusText.textContent = 'ينتهي قريباً';
+                        statusText.className = "text-xs font-bold text-orange-100";
+                    }
+                    if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-orange-400 animate-pulse";
+                    if (progressBar) progressBar.className = "bg-gradient-to-r from-orange-400 to-yellow-400 h-full rounded-full transition-all duration-1000";
+                    if (typeof showExpirationBanner === 'function') showExpirationBanner(`تنبيه: سينتهي اشتراكك خلال ${daysRemaining} أيام.`);
+                } else {
+                    if (statusText) {
+                        statusText.textContent = 'منتهي';
+                        statusText.className = "text-xs font-bold text-red-100";
+                    }
+                    if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-red-400";
+                    if (progressBar) {
+                        progressBar.className = "bg-red-500 h-full rounded-full transition-all duration-1000";
+                        progressBar.style.width = "100%";
+                    }
+                    if (typeof showExpirationBanner === 'function') showExpirationBanner("انتهت صلاحية اشتراك المتجر! يرجى تجديد الاشتراك.");
+                }
+            } catch (err) {
+                console.error("Subscription UI Error:", err);
             }
         }
 
