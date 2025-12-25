@@ -11,228 +11,97 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
         /* تم تغيير الألوان */
+        /* Updated Premium Colors */
         :root {
-            --primary-color: #3b82f6;
-            --bg-body: #f1f5f9;
+            --primary-color: #4f46e5;
+            /* Indigo-600 */
+            --bg-body: #f8fafc;
         }
 
         body {
             font-family: 'Tajawal', sans-serif;
             background-color: var(--bg-body);
+            color: #1e293b;
         }
 
-        .loader {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary-color);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
+        .order-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            position: relative;
         }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
+        .order-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-color: var(--primary-color);
         }
 
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        #user-menu-dropdown.show {
-            display: block;
-            animation: slideInUp 0.2s ease-out;
-        }
-
-        #toast-container {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-        }
-
-        .toast {
-            background-color: #2d3748;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
-        }
-
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-            }
-
-            to {
-                opacity: 0;
-            }
-        }
-
-        /* تنسيق لحالة الطلب */
         .status-badge {
-            padding: 0.25rem 0.75rem;
+            padding: 6px 12px;
             border-radius: 9999px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            text-transform: capitalize;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.025em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .status-new {
-            background-color: #dbeafe;
-            color: #1d4ed8;
+            background-color: #eff6ff;
+            color: #3b82f6;
+            border: 1px solid #dbeafe;
+        }
+
+        .status-preparing {
+            background-color: #fefce8;
+            color: #eab308;
+            border: 1px solid #fef9c3;
         }
 
         .status-completed {
-            background-color: #d1fae5;
-            color: #065f46;
+            background-color: #f0fdf4;
+            color: #22c55e;
+            border: 1px solid #dcfce7;
         }
 
         .status-canceled {
-            background-color: #fee2e2;
-            color: #991b1b;
+            background-color: #fef2f2;
+            color: #ef4444;
+            border: 1px solid #fee2e2;
         }
 
-        /* Skeleton */
-        .skeleton {
-            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
+        .btn-track {
+            background-color: #fff7ed;
+            color: #ea580c;
+            border: 1px solid #ffedd5;
+            transition: all 0.2s;
         }
 
-        @keyframes shimmer {
-            0% {
-                background-position: 200% 0;
-            }
-
-            100% {
-                background-position: -200% 0;
-            }
+        .btn-track:hover {
+            background-color: #ea580c;
+            color: white;
+            border-color: #ea580c;
         }
 
-        /* Entry Animation */
-        .fade-in-up {
-            animation: fadeInUp 0.5s ease-out forwards;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Order Timeline Stepper */
-        .stepper-wrapper {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .stepper-wrapper::before {
-            content: "";
+        /* Timeline vertical line fix */
+        .timeline-line {
             position: absolute;
-            top: 15px;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background-color: #e5e7eb;
+            right: 24px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e2e8f0;
             z-index: 0;
-            transform: translateY(-50%);
         }
 
-        .stepper-item {
+        .timeline-item {
             position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex: 1;
-        }
-
-        .stepper-item::before {
-            content: "";
-            position: absolute;
-            top: 15px;
-            left: -50%;
-            width: 100%;
-            height: 3px;
-            background-color: #e5e7eb;
-            z-index: -1;
-            transform: translateY(-50%);
-        }
-
-        .stepper-item:first-child::before {
-            content: none;
-        }
-
-        .step-counter {
-            width: 30px;
-            height: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 50%;
-            background: #fff;
-            border: 3px solid #e5e7eb;
-            color: #e5e7eb;
-            margin-bottom: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .step-name {
-            font-size: 0.75rem;
-            color: #9ca3af;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        /* Active State */
-        .stepper-item.active .step-counter {
-            border-color: #3b82f6;
-            background-color: #3b82f6;
-            color: #fff;
-        }
-
-        .stepper-item.active .step-name {
-            color: #1f2937;
-        }
-
-        /* Completed State */
-        .stepper-item.completed .step-counter {
-            border-color: #3b82f6;
-            background-color: #3b82f6;
-            color: #fff;
-        }
-
-        .stepper-item.completed::before {
-            background-color: #3b82f6;
-        }
-
-        .stepper-item.completed .step-name {
-            color: #3b82f6;
+            z-index: 10;
         }
     </style>
 </head>
@@ -424,67 +293,128 @@
 
             } catch (error) {
                 console.error("Error fetching order history: ", error);
-                // ملاحظة: بما أن هذه الصفحة مخصصة للبائعين/العملاء وليس للأدمن، قد لا يكون لديهم "طلبات" بعد
-                // سنفترض أن الطلبات ستأتي من نظام S22 Market لاحقاً
-                // هذا هو السلوك الصحيح للمستقبل
-                noOrdersMsg.classList.remove('hidden');
                 authLoader.classList.add('hidden');
+
+                // Show explicit error message if serious, or empty state if just empty
+                // For now, if permissions fail, it's likely empty rules or indexes, so fallback is okay,
+                // but let's be more descriptive if it's a real error.
+                if (error.code !== "permission-denied") {
+                    noOrdersMsg.innerHTML = `
+                         <i class="fas fa-exclamation-circle text-5xl text-red-500"></i>
+                         <p class="mt-4 text-xl font-semibold text-gray-500">حدث خطأ أثناء تحميل الطلبات.</p>
+                         <p class="text-sm text-gray-400 mt-2">${error.message}</p>
+                    `;
+                }
+                noOrdersMsg.classList.remove('hidden');
                 historyContent.classList.remove('hidden');
-                // authLoader.innerHTML = '<p class="text-red-500 text-center">حدث خطأ أثناء جلب أرشيف طلباتك.</p>';
             }
         }
 
-        // --- دالة لإنشاء كرت الطلب ---
+        // --- دالة إنشاء كرت الطلب بتصميم جديد ---
         function createOrderCard(order, orderId) {
             const card = document.createElement('div');
-            card.className = 'bg-white rounded-xl shadow-lg overflow-hidden fade-in-up';
+            card.className = 'order-card fade-in-up timeline-item';
 
-            const orderDate = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString('ar-EG', { day: '2-digit', month: 'long', year: 'numeric' }) : 'تاريخ غير محدد';
+            const dateObj = order.createdAt?.toDate ? order.createdAt.toDate() : new Date(order.createdAt || Date.now());
+            const orderDate = dateObj.toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' });
+            const orderTime = dateObj.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
 
-            let statusText = 'جديد';
+            let statusText = 'قيد الانتظار';
+            let statusIcon = 'fa-clock';
             let statusClass = 'status-new';
-            if (order.status === 'completed') {
-                statusText = 'مكتمل';
-                statusClass = 'status-completed';
-            } else if (order.status === 'canceled') {
-                statusText = 'ملغي';
-                statusClass = 'status-canceled';
+            let progressWidth = '5%';
+
+            switch (order.status) {
+                case 'preparing':
+                    statusText = 'جاري التحضير';
+                    statusIcon = 'fa-fire-burner';
+                    statusClass = 'status-preparing';
+                    progressWidth = '50%';
+                    break;
+                case 'completed':
+                    statusText = 'مكتمل';
+                    statusIcon = 'fa-check-circle';
+                    statusClass = 'status-completed';
+                    progressWidth = '100%';
+                    break;
+                case 'canceled':
+                    statusText = 'ملغي';
+                    statusIcon = 'fa-times-circle';
+                    statusClass = 'status-canceled';
+                    progressWidth = '0%';
+                    break;
+                default: // new
+                    statusText = 'طلب جديد';
             }
 
             // تجميع تفاصيل الوجبات
-            const itemsHtml = order.items.map(item => {
+            const itemsHtml = (order.items || []).map(item => {
                 const itemName = typeof item.name === 'object' ? (item.name.ar || item.name.en || 'منتج') : item.name;
                 return `
-                <li class="flex justify-between items-center text-sm">
-                    <span>${item.quantity} x ${itemName}</span>
-                    <span class="font-mono">${formatCurrency(item.price * item.quantity)}</span>
-                </li>
+                <div class="flex justify-between items-center py-2 border-dashed border-b border-gray-100 last:border-0">
+                    <div class="flex items-center gap-3">
+                         <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-md">${item.quantity}x</span>
+                         <span class="text-gray-700 font-medium">${itemName}</span>
+                    </div>
+                    <span class="font-bold text-gray-900">${formatCurrency(item.price * item.quantity)}</span>
+                </div>
             `}).join('');
 
             card.innerHTML = `
-                <div class="p-5 border-b flex flex-col md:flex-row justify-between md:items-center gap-2">
-                        <p class="text-sm text-gray-500">رقم الطلب: <span class="font-mono font-bold text-gray-700">${orderId.substring(0, 8)}</span></p>
-                        <p class="text-lg font-bold">${orderDate}</p>
-                        <p class="text-sm text-gray-600 flex items-center gap-1 mt-1">
-                            <i class="fas fa-store text-blue-500"></i> ${order.storeName || 'متجر غير محدد'}
-                        </p>
+                <!-- Header -->
+                <div class="bg-gray-50/50 p-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-3">
+                    <div class="flex items-center gap-3">
+                         <div class="bg-white p-2 rounded-full border border-gray-200 shadow-sm">
+                             <i class="fas fa-receipt text-indigo-500 text-xl"></i>
+                         </div>
+                         <div>
+                             <h3 class="font-bold text-gray-800 text-lg">طلب #${orderId.substring(0, 6)}</h3>
+                             <p class="text-xs text-gray-500"><i class="far fa-calendar-alt"></i> ${orderDate} • ${orderTime}</p>
+                         </div>
                     </div>
-                <div class="flex-shrink-0 flex flex-col items-end gap-2">
-                    <span class="status-badge ${statusClass}">${statusText}</span>
-                    <a href="tracking.html?id=${orderId}" class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full font-bold hover:bg-orange-600 hover:text-white transition-colors flex items-center gap-1">
-                        <i class="fas fa-map-marker-alt"></i> تتبع
-                    </a>
+                    <div>
+                        <span class="${statusClass} status-badge">
+                            <i class="fas ${statusIcon}"></i> ${statusText}
+                        </span>
+                    </div>
                 </div>
+
+                <!-- Store Info (if available) -->
+                ${order.storeName ? `
+                <div class="px-5 py-3 bg-indigo-50/30 flex items-center gap-2 text-indigo-700 text-sm font-medium border-b border-indigo-50">
+                    <i class="fas fa-store"></i> ${order.storeName}
                 </div>
-                <div class="p-5 bg-gray-50">
-                    <h4 class="font-bold mb-2">ملخص الطلب:</h4>
-                    <ul class="space-y-2 mb-4">
+                ` : ''}
+
+                <!-- Body -->
+                <div class="p-5">
+                    <div class="space-y-1 mb-4">
                         ${itemsHtml}
-                    </ul>
-                    <div class="border-t pt-4 space-y-2 font-semibold">
-                        <div class="flex justify-between"><span>سعر التوصيل:</span> <span class="font-mono">${formatCurrency(order.deliveryFee)}</span></div>
-                        ${order.discountAmount > 0 ? `<div class="flex justify-between text-green-600"><span>الخصم (كوبون):</span> <span class="font-mono">-${formatCurrency(order.discountAmount)}</span></div>` : ''}
-                        <div class="flex justify-between text-xl font-bold text-blue-600"><span>الإجمالي:</span> <span class="font-mono">${formatCurrency(order.totalPrice)}</span></div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-lg p-4 space-y-2 mt-4">
+                         <div class="flex justify-between text-sm text-gray-500">
+                             <span>سعر التوصيل</span>
+                             <span>${formatCurrency(order.deliveryFee)}</span>
+                         </div>
+                         ${order.discountAmount > 0 ? `
+                         <div class="flex justify-between text-sm text-green-600">
+                             <span>خصم</span>
+                             <span>-${formatCurrency(order.discountAmount)}</span>
+                         </div>` : ''}
+                         <div class="flex justify-between items-center pt-2 border-t border-gray-200 mt-2">
+                             <span class="font-bold text-gray-700">الإجمالي</span>
+                             <span class="font-extrabold text-xl text-indigo-600">${formatCurrency(order.totalPrice)}</span>
+                         </div>
+                    </div>
+
+                    <div class="flex gap-3 mt-5">
+                        <a href="tracking.html?id=${orderId}" class="flex-1 btn-track text-center py-2.5 rounded-xl font-bold text-sm shadow-sm flex items-center justify-center gap-2">
+                            <i class="fas fa-map-marked-alt"></i> تتبع الطلب
+                        </a>
+                        <button class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition" title="طباعة / تفاصيل">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
                     </div>
                 </div>
             `;

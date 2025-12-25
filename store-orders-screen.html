@@ -116,38 +116,136 @@
         }
 
         @media (max-width: 768px) {
-            .responsive-table thead {
-                display: none;
+            .orders-grid {
+                grid-template-columns: 1fr;
             }
+            .order-card {
+                 margin-bottom: 1rem;
+            }
+            header h1 {
+                font-size: 1.25rem;
+            }
+        }
 
-            .responsive-table tr {
-                display: block;
-                background-color: var(--primary-bg);
-                border: 1px solid var(--border-color);
-                border-radius: 0.75rem;
-                padding: 1rem;
-                margin-bottom: 1rem;
-            }
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
 
-            .responsive-table td {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0.8rem 0.2rem;
-                border-bottom: 1px solid var(--secondary-bg);
-                font-size: 0.95rem;
-            }
+        .order-card {
+            background-color: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        body.light-mode .order-card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background-color: white;
+        }
 
-            .responsive-table td:last-child {
-                border-bottom: none;
-            }
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+            border-color: var(--accent-color);
+        }
 
-            .responsive-table td::before {
-                content: attr(data-label);
-                font-weight: 700;
-                color: var(--text-primary);
-                margin-left: 0.5rem;
-            }
+        .order-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(0,0,0,0.05);
+        }
+        
+        body.light-mode .order-header {
+            background-color: #f8fafc;
+        }
+
+        .order-body {
+            padding: 1rem;
+        }
+
+        .order-items {
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 1rem 0;
+            padding-right: 0.5rem;
+        }
+        
+        /* Custom Scrollbar for items */
+        .order-items::-webkit-scrollbar {
+            width: 4px;
+        }
+        .order-items::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .order-items::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .order-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .order-id {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            letter-spacing: 1px;
+            background: var(--secondary-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        body.light-mode .order-id {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Status Colors */
+        .status-new { background-color: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .status-preparing { background-color: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
+        .status-completed { background-color: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .status-canceled { background-color: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        /* Light Mode Status Colors */
+        body.light-mode .status-new { background-color: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+        body.light-mode .status-preparing { background-color: #fef9c3; color: #854d0e; border-color: #fde047; }
+        body.light-mode .status-completed { background-color: #dcfce7; color: #166534; border-color: #86efac; }
+        body.light-mode .status-canceled { background-color: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .action-btn:hover {
+            transform: scale(1.1);
         }
 
         .filter-btn {
@@ -972,21 +1070,202 @@
         };
 
         function renderOrdersTable() {
-            try {
-                const tableBody = document.getElementById('orders-table-body');
-                if (!tableBody) return;
+            const panel = document.getElementById('orders-panel');
+            const ordersContainer = document.getElementById('orders-grid-container');
+            
+            // Should verify if we are filtering
+            let filteredOrders = ordersCache.sort((a, b) => {
+                 // Sort by date desc
+                 const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
+                 const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
+                 return dateB - dateA;
+            });
 
-                const filteredOrders = ordersCache.filter(order => {
-                    if (currentOrderStatusFilter === 'all') return true;
-                    return order.status === currentOrderStatusFilter;
-                });
+            if (currentOrderStatusFilter !== 'all') {
+                filteredOrders = filteredOrders.filter(o => o.status === currentOrderStatusFilter);
+            }
 
-                if (filteredOrders.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-400 text-lg">لا توجد طلبات تطابق هذه الفئة.</td></tr>`;
-                    return;
+            if (!ordersContainer) {
+               // Append grid container if missing or if structure changed
+               const existingStats = panel.querySelector('.grid.grid-cols-1');
+               if (existingStats) {
+                   // Keep stats, check for filters row then grid
+                   if (!document.getElementById('order-status-filters')) {
+                      // Add filters and grid
+                      existingStats.insertAdjacentHTML('afterend', `
+                        <div class="flex flex-wrap gap-2 mb-6" id="order-status-filters">
+                             <button onclick="setFilter('all')" class="filter-btn ${currentOrderStatusFilter === 'all' ? 'active' : ''}" data-filter="all">الكل</button>
+                             <button onclick="setFilter('new')" class="filter-btn ${currentOrderStatusFilter === 'new' ? 'active' : ''}" data-filter="new">جديدة <span id="badge-new" class="bg-red-500 text-white text-xs px-1.5 rounded-full ml-1 hidden">0</span></button>
+                             <button onclick="setFilter('preparing')" class="filter-btn ${currentOrderStatusFilter === 'preparing' ? 'active' : ''}" data-filter="preparing">قيد التحضير</button>
+                             <button onclick="setFilter('completed')" class="filter-btn ${currentOrderStatusFilter === 'completed' ? 'active' : ''}" data-filter="completed">مكتملة</button>
+                              <button onclick="setFilter('canceled')" class="filter-btn ${currentOrderStatusFilter === 'canceled' ? 'active' : ''}" data-filter="canceled">ملغاة</button>
+                        </div>
+                        <div id="orders-grid-container" class="orders-grid"></div>
+                      `);
+                   }
+               }
+            }
+            
+            const grid = document.getElementById('orders-grid-container');
+            if (!grid) return; // Wait for next cycle or proper init
+
+            // Update Badges Count
+            const newCount = ordersCache.filter(o => o.status === 'new').length;
+            const badgeNew = document.getElementById('badge-new');
+            if (badgeNew) {
+                badgeNew.textContent = newCount;
+                if(newCount > 0) badgeNew.classList.remove('hidden'); else badgeNew.classList.add('hidden');
+            }
+
+            if (filteredOrders.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full flex flex-col items-center justify-center py-20 text-gray-500 opacity-60">
+                        <i class="fas fa-search text-6xl mb-4 text-gray-600"></i>
+                        <p class="text-xl">لا توجد طلبات في هذه الفئة حالياً</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filteredOrders.map(order => {
+                const dateObj = order.createdAt?.toDate ? order.createdAt.toDate() : new Date(order.createdAt);
+                const timeStr = dateObj.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                const timeAgo = getTimeAgo(dateObj);
+                const statusText = { 'new': 'طلب جديد', 'preparing': 'جاري التحضير', 'completed': 'جاهز/مكتمل', 'canceled': 'ملغي' }[order.status] || order.status;
+                const statusClass = `status-${order.status}`;
+                
+                // Items HTML
+                const itemsHtml = (order.items || []).map(item => {
+                     const name = typeof item.name === 'object' ? (item.name.ar || item.name.en || 'منتج') : item.name;
+                     const addons = (item.selectedAddons && item.selectedAddons.length > 0) 
+                        ? `<div class="text-xs text-gray-500 mr-4 mt-0.5">${item.selectedAddons.map(a => `+ ${a.name}`).join(', ')}</div>` 
+                        : '';
+                     return `
+                        <div class="flex justify-between items-start py-2 border-b border-gray-700/30 last:border-0 border-dashed">
+                            <div>
+                                <div class="font-bold text-sm text-gray-200 light:text-gray-800"><span class="text-orange-500 ml-1">${item.quantity}x</span> ${name}</div>
+                                ${addons}
+                            </div>
+                            <div class="text-xs font-mono font-bold text-gray-400 mt-1">${(item.price * item.quantity).toLocaleString()}</div>
+                        </div>
+                     `;
+                }).join('');
+
+                // Action Buttons Logic
+                let actionsHtml = '';
+                if(order.status === 'new') {
+                    actionsHtml = `
+                        <button onclick="window.updateOrderStatus('${order.id}', 'preparing')" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2">
+                            <i class="fas fa-fire-burner"></i> بدء التحضير
+                        </button>
+                         <button onclick="window.updateOrderStatus('${order.id}', 'canceled')" class="w-10 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white py-2 rounded-lg transition flex items-center justify-center" title="رفض">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                } else if (order.status === 'preparing') {
+                     actionsHtml = `
+                        <button onclick="window.updateOrderStatus('${order.id}', 'completed')" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2">
+                            <i class="fas fa-check"></i> جاهز للتوصيل
+                        </button>
+                    `;
+                } else {
+                     actionsHtml = `
+                        <div class="flex-1 text-center text-xs text-gray-500 font-medium py-2 bg-gray-700/20 rounded-lg">
+                           ${order.status === 'completed' ? 'تم الانتهاء' : 'تم الإلغاء'}
+                        </div>
+                     `;
                 }
 
-                updateStatsDashboard(ordersCache);
+                // Phone Display Fallback
+                const phone = order.customerContact || order.customerPhone || 'غير متوفر';
+
+                return `
+                <div class="order-card ${order.status === 'new' ? 'new-order-highlight ring-2 ring-blue-500/50' : ''}">
+                    <!-- Header -->
+                    <div class="order-header">
+                        <div class="flex items-center gap-2">
+                            <span class="order-id">#${order.id.substring(0,6).toUpperCase()}</span>
+                            <span class="time-badge ${order.status === 'new' ? 'new' : 'medium'} text-[10px] py-0.5 px-2">${timeAgo}</span>
+                        </div>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="order-body">
+                        <!-- Customer Info -->
+                        <div class="flex items-start gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-500 font-bold shrink-0">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm text-gray-100 dark:text-gray-100 light:text-gray-900">${order.customerName}</h4>
+                                <div class="flex items-center gap-2 text-xs text-gray-500 mt-1 cursor-pointer hover:text-indigo-400" onclick="navigator.clipboard.writeText('${phone}')" title="نسخ">
+                                    <i class="fas fa-phone"></i> <span dir="ltr">${phone}</span>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-0.5 truncate max-w-[200px]" title="${order.customerLocation || ''}">
+                                    <i class="fas fa-map-marker-alt"></i> ${order.customerLocation || 'الموقع غير محدد'}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="h-px bg-gray-700/50 w-full mb-3"></div>
+
+                        <!-- Items List -->
+                        <div class="order-items bg-gray-900/30 rounded-lg p-2 border border-gray-800/50">
+                             ${itemsHtml}
+                        </div>
+                        
+                         <!-- Total -->
+                        <div class="flex justify-between items-center mt-3 pt-2 border-t border-gray-700/50">
+                            <span class="text-gray-400 text-sm">المجموع الكلي</span>
+                            <span class="text-xl font-extrabold text-indigo-400">${(order.totalPrice || 0).toLocaleString()} <span class="text-xs font-medium text-gray-500">د.ج</span></span>
+                        </div>
+                        
+                         ${order.notes ? `<div class="mt-3 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded text-xs text-yellow-500"><i class="fas fa-sticky-note mr-1"></i> ${order.notes}</div>` : ''}
+
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="order-footer">
+                        ${actionsHtml}
+                        <button onclick="window.printReceipt('${order.id}')" class="action-btn bg-gray-700 hover:bg-gray-600 text-gray-300" title="طباعة الفاتورة">
+                            <i class="fas fa-print"></i>
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " سنة";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " شهر";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " يوم";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " ساعة";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " دقيقة";
+            return "الآن";
+        }
+
+        window.setFilter = (filter) => {
+             currentOrderStatusFilter = filter;
+             // Update Button Styles
+             document.querySelectorAll('.filter-btn').forEach(btn => {
+                 if(btn.dataset.filter === filter) btn.classList.add('active');
+                 else btn.classList.remove('active');
+             });
+             renderOrdersTable();
+        };
+
+        window.updateOrderStatus = async (orderId, newStatus) => {
+            if(!confirm(`هل أنت متأكد من تغيير حالة الطلب إلى "${newStatus}"؟`)) return;
+            try {
 
                 const fragment = document.createDocumentFragment();
                 filteredOrders.forEach(order => {
