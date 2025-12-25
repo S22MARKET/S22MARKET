@@ -775,15 +775,17 @@
             });
             document.querySelectorAll('.delete-product-btn').forEach(btn => {
                 btn.onclick = async () => {
-                    showDeleteConfirmationModal(async () => {
+                    showSecureDeleteModal(async () => {
                         try {
                             await deleteDoc(doc(db, "products", btn.dataset.id));
+                            showToast('تم حذف المنتج بنجاح', 'success');
                             closeModal();
                         } catch (error) {
-                            showModal('خطأ', `فشل حذف المنتج: ${error.message}`, closeModal, 'موافق', false);
+                            closeModal();
+                            showModal('خطأ', 'فشل الحذف: ' + error.message, closeModal, 'موافق', false);
                         }
                     });
-                }
+                };
             });
             // Start Auction Listener
             document.querySelectorAll('.start-auction-btn').forEach(btn => btn.onclick = () => {
