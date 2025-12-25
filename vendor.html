@@ -380,79 +380,92 @@
                 return;
             }
 
+            let vendorData = {};
+            let isUserDocMissing = false;
+
             try {
                 // 1. Fetch Vendor Info
                 const userDoc = await getDoc(doc(db, "users", vendorId));
-
-                if (!userDoc.exists()) {
-                    // Check if it's a permission issue disguised as emptiness? 
-                    // Actually Firestore throws 'permission-denied' before returning non-exists usually.
-                    throw new Error("المتجر غير موجود أو تم حذفه");
+                if (userDoc.exists()) {
+                    vendorData = userDoc.data();
+                } else {
+                    isUserDocMissing = true;
                 }
+            } catch (err) {
+                console.warn("Could not fetch vendor user details (likely permissions):", err);
+                // We continue, pretending it's a generic vendor
+                vendorData = {
+                    storeName: "المتجر",
+                    description: "أهلاً بكم في متجرنا",
+                    role: 'vendor'
+                };
+            }
 
-                const vendor = userDoc.data();
-                console.log("Vendor Loaded:", vendor);
+            if (isUserDocMissing) {
+                // Explicitly missing, not just permission error
+                document.body.innerHTML = `<div class="p-10 text-center text-red-500 font-bold">المتجر غير موجود</div>`;
+                return;
+            }
 
-                // Unified View: No Redirection for Restaurant
-                // We will render restaurant data here in the professional layout
+            console.log("Vendor Data (Loaded or Fallback):", vendorData);
 
-                const reqData = vendor.storeRequest || {};
+            // Unified View: No Redirection for Restaurant
+            const reqData = vendorData.storeRequest || {};
 
-                // Fetch Global Settings for Fallback Logo
-                let globalLogo = 'https://placehold.co/100/1f2937/ffffff?text=Logo';
+            // Fetch Global Settings for Fallback Logo
+            let globalLogo = 'https://placehold.co/100/1f2937/ffffff?text=Store';
+            try {
+                const globalSettingsSnap = await getDoc(doc(db, "settings", "storeConfig"));
+                if (globalSettingsSnap.exists()) {
+                    const gData = globalSettingsSnap.data();
+                    if (gData.logoUrl) globalLogo = gData.logoUrl;
+                }
+            } catch (err) {
+                console.log("Could not fetch global logo fallback", err);
+            }
+
+            // Update UI
+            document.title = vendorData.storeName || vendorData.displayName || 'المتجر';
+            document.getElementById('vendor-name').textContent = vendorData.storeName || vendorData.displayName || 'المتجر';
+            document.getElementById('vendor-desc').textContent = vendorData.description || reqData.description || 'مرحباً بكم في متجرنا';
+            document.getElementById('vendor-cover').src = vendorData.coverUrl || reqData.coverUrl || 'https://placehold.co/600x200/1f2937/ffffff?text=Cover';
+
+            // Logo Logic
+            document.getElementById('vendor-logo').src = vendorData.storeLogo || vendorData.logoUrl || vendorData.photoURL || globalLogo;
+
+            const roleText = vendorData.role === 'restaurant' ? 'مطعم' : 'متجر';
+            document.getElementById('vendor-category').textContent = roleText;
+
+            // Likes Logic
+            likesCount = vendorData.likesCount || 0;
+            document.getElementById('likes-count').textContent = likesCount;
+            if (currentUser) {
                 try {
-                    const globalSettingsSnap = await getDoc(doc(db, "settings", "storeConfig"));
-                    if (globalSettingsSnap.exists()) {
-                        const gData = globalSettingsSnap.data();
-                        if (gData.logoUrl) globalLogo = gData.logoUrl;
-                    }
-                } catch (err) {
-                    console.log("Could not fetch global logo fallback", err);
-                }
-
-                // Update UI
-                document.title = vendor.storeName || vendor.displayName;
-                document.getElementById('vendor-name').textContent = vendor.storeName || vendor.displayName;
-                document.getElementById('vendor-desc').textContent = vendor.description || reqData.description || 'مرحباً بكم في متجرنا';
-                document.getElementById('vendor-cover').src = vendor.coverUrl || reqData.coverUrl || 'https://placehold.co/600x200/1f2937/ffffff?text=Cover';
-
-                // Fix: Check storeLogo (saved by restaurant settings) first, then logoUrl, then photoURL, THEN fallback to global
-                document.getElementById('vendor-logo').src = vendor.storeLogo || vendor.logoUrl || vendor.photoURL || globalLogo;
-
-                const roleText = vendor.role === 'restaurant' ? 'مطعم' : 'متجر';
-                document.getElementById('vendor-category').textContent = roleText;
-
-                // Likes Logic
-                likesCount = vendor.likesCount || 0;
-                document.getElementById('likes-count').textContent = likesCount;
-                if (currentUser) {
                     const likeDoc = await getDoc(doc(db, "users", vendorId, "likes", currentUser.uid));
                     isLiked = likeDoc.exists();
                     updateLikeUI();
-                }
+                } catch (e) { console.log("Like check failed", e); }
+            }
 
-                // Contact Links
-                const links = reqData.links || vendor.socialLinks || {};
-                const whatsappBtn = document.getElementById('btn-whatsapp');
-                // Check multiple possible phone fields
-                const phone = links.whatsapp || links.phone || vendor.phone;
+            // Contact Links
+            const links = reqData.links || vendorData.socialLinks || {};
+            const whatsappBtn = document.getElementById('btn-whatsapp');
+            const phone = links.whatsapp || links.phone || vendorData.phone;
+            if (phone) {
+                whatsappBtn.href = `https://wa.me/${phone.replace(/\D/g, '')}`;
+                whatsappBtn.classList.remove('hidden');
+            } else {
+                whatsappBtn.classList.add('hidden');
+            }
 
-                if (phone) {
-                    whatsappBtn.href = `https://wa.me/${phone.replace(/\D/g, '')}`;
-                    whatsappBtn.classList.remove('hidden');
-                } else {
-                    whatsappBtn.classList.add('hidden');
-                }
-
+            try {
                 // 2. Fetch Products
                 const q = query(collection(db, "products"), where("sellerId", "==", vendorId), orderBy("createdAt", "desc"), limit(50));
                 const snap = await getDocs(q);
-
                 vendorProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-                // Extract Categories for Tabs (Handle both 'subCategoryName' for stores and 'categoryName' for restaurants)
-                // Stores usually use `subCategoryName`. Restaurants might use `categoryName` or linked `categoryId`.
-                // We'll prioritize `subCategoryName`, then `categoryName`, then fall back to 'عام'
+                // If we used fallback name "المتجر" and found products, maybe we can guess name?
+                // Not reliable, but at least we show products.
 
                 const categorySet = new Set();
                 vendorProducts.forEach(p => {
@@ -461,26 +474,18 @@
                 });
 
                 const categories = ['الكل', ...categorySet];
-
-                // Clear existing tabs except static ones if any (but we are rebuilding all)
                 tabsContainer.innerHTML = '';
-
                 categories.forEach(cat => {
                     const btn = document.createElement('button');
                     btn.className = `tab-btn ${cat === 'الكل' ? 'active' : ''}`;
                     btn.textContent = cat;
-                    // Special handling for 'offers' if we want to keep it
-                    if (cat === 'الكل') {
-                        btn.onclick = () => filterProducts('all', btn);
-                    } else {
-                        btn.onclick = () => filterProducts(cat, btn);
-                    }
+                    btn.onclick = () => filterProducts(cat === 'الكل' ? 'all' : cat, btn);
                     tabsContainer.appendChild(btn);
                 });
 
-                // Add "Offers" tab manually if not present in categories but logic exists
+                // Offers Tab
                 const offersBtn = document.createElement('button');
-                offersBtn.className = 'tab-btn';
+                offersBtn.className = 'tab-btn filter-btn'; // added filter-btn class for consistency if needed
                 offersBtn.textContent = 'عروض 🔥';
                 offersBtn.onclick = () => filterProducts('offers', offersBtn);
                 tabsContainer.appendChild(offersBtn);
@@ -493,16 +498,15 @@
                 document.getElementById('main-content').classList.remove('hidden');
 
             } catch (error) {
-                console.error("Vendor Page Error:", error);
+                console.error("Vendor Page Product Error:", error);
 
-                let errorMsg = "قد يكون الرابط غير صحيح أو أن المتجر لم يعد موجوداً.";
-                let errorTitle = "عذراً، المتجر غير متاح";
+                // Only show full error page if BOTH User fetch failed (or fallback) AND Product fetch failed
+                let errorMsg = "حدث خطأ أثناء تحميل المنتجات.";
+                let errorTitle = "عذراً";
 
                 if (error.code === 'permission-denied') {
                     errorTitle = "تنبيه أمني";
-                    errorMsg = "لا تملك الصلاحية لعرض هذا الملف. قد يكون الحساب قيد المراجعة أو غير متاح للعامة.";
-                } else if (error.message.includes("غير موجود")) {
-                    errorMsg = "لم نتمكن من العثور على المتجر المطلوب.";
+                    errorMsg = "لا تملك الصلاحية لعرض محتوى هذا المتجر.";
                 }
 
                 document.body.innerHTML = `
@@ -511,13 +515,8 @@
                             <i class="fas fa-store-slash text-4xl text-red-500"></i>
                          </div>
                         <h1 class="text-2xl font-bold text-gray-800 mb-2">${errorTitle}</h1>
-                        <p class="text-gray-500 max-w-xs mx-auto mb-8">
-                            ${errorMsg}
-                            <br><span class="text-xs text-red-400 mt-2 block" dir="ltr">DEBUG: ${error.message}</span>
-                        </p>
-                        <a href="index.html" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-indigo-700 transition transform hover:scale-105">
-                            العودة للرئيسية
-                        </a>
+                        <p class="text-gray-500 max-w-xs mx-auto mb-8">${errorMsg}</p>
+                        <a href="index.html" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-indigo-700 transition">العودة للرئيسية</a>
                     </div>
                 `;
             }

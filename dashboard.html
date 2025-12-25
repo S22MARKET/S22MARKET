@@ -440,7 +440,8 @@
                         subtext: `من السيدة/السيد ${data.customerName || 'عميل'}`,
                         time: data.createdAt,
                         icon: 'fa-shopping-bag',
-                        color: 'bg-indigo-100 text-indigo-600'
+                        color: 'bg-indigo-100 text-indigo-600',
+                        orderId: doc.id // Add ID for actions
                     });
                 });
 
@@ -463,19 +464,46 @@
                     timeStr = date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
                 }
 
+                // Actionable Item
+                const isOrder = item.type === 'order';
+                const deleteBtn = isOrder ? `
+                    <button class="delete-activity-btn text-red-400 hover:text-red-600 p-2 transition-colors" data-id="${item.orderId || ''}" title="حذف الطلب">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                ` : '';
+
                 return `
-                <div class="flex items-start gap-4 p-3 hover:bg-gray-50 rounded-xl transition-colors border-b border-gray-50 last:border-0">
+                <div class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl transition-colors border-b border-gray-50 last:border-0 group">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center ${item.color} flex-shrink-0">
                         <i class="fas ${item.icon}"></i>
                     </div>
-                    <div class="flex-1">
-                        <h4 class="font-bold text-gray-800 text-sm">${item.text}</h4>
-                        <p class="text-xs text-gray-500">${item.subtext}</p>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-start">
+                             <h4 class="font-bold text-gray-800 text-sm truncate">${item.text}</h4>
+                             <span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-full whitespace-nowrap ml-2">${timeStr}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 truncate">${item.subtext}</p>
                     </div>
-                    <span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-full">${timeStr}</span>
+                    ${deleteBtn}
                 </div>
                 `;
             }).join('');
+
+            // Attach listeners
+            container.querySelectorAll('.delete-activity-btn').forEach(btn => {
+                btn.onclick = async (e) => {
+                    e.stopPropagation(); // prevent default
+                    const oid = btn.dataset.id;
+                    if (confirm('هل أنت متأكد من حذف هذا الطلب نهائياً؟')) {
+                        try {
+                            await deleteDoc(doc(db, "orders", oid));
+                            // UI will update automatically due to snapshot
+                        } catch (err) {
+                            alert('فشلت عملية الحذف: ' + err.message);
+                        }
+                    }
+                }
+            });
         }
 
         // --- Sidebar Logic Enhanced ---

@@ -1425,8 +1425,6 @@
                         const row = `
                             <tr class="${order.status === 'new' ? 'new-order-row' : ''}">
                                 <td>#${id.substring(0, 6)}</td>
-                            <tr class="${order.status === 'new' ? 'new-order-row' : ''}">
-                                <td>#${id.substring(0, 6)}</td>
                                 <td>${order.customerName}<br><span class="text-xs text-gray-500">${order.customerContact || order.customerPhone || 'غير متوفر'}</span></td>
                                 <td class="font-bold text-indigo-600">${order.totalPrice} د.ج</td>
                                 <td class="text-xs truncate max-w-[150px]">${order.customerLocation}</td>
@@ -1926,14 +1924,6 @@
                 },
                 storeName: document.getElementById('set-name').value,
                 description: document.getElementById('set-desc').value,
-                phone: document.getElementById('set-phone').value,
-                deliveryFee: parseFloat(document.getElementById('set-delivery').value),
-                socialLinks: {
-                    facebook: document.getElementById('set-fb').value,
-                    instagram: document.getElementById('set-insta').value,
-                    telegram: document.getElementById('set-telegram').value,
-                    tiktok: document.getElementById('set-tiktok').value
-                },
                 phone: document.getElementById('set-phone').value,
                 deliveryFee: parseFloat(document.getElementById('set-delivery').value),
                 socialLinks: {
