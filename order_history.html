@@ -463,9 +463,11 @@
 
             card.innerHTML = `
                 <div class="p-5 border-b flex flex-col md:flex-row justify-between md:items-center gap-2">
-                    <div>
                         <p class="text-sm text-gray-500">رقم الطلب: <span class="font-mono font-bold text-gray-700">${orderId.substring(0, 8)}</span></p>
                         <p class="text-lg font-bold">${orderDate}</p>
+                        <p class="text-sm text-gray-600 flex items-center gap-1 mt-1">
+                            <i class="fas fa-store text-blue-500"></i> ${order.storeName || 'متجر غير محدد'}
+                        </p>
                     </div>
                 <div class="flex-shrink-0 flex flex-col items-end gap-2">
                     <span class="status-badge ${statusClass}">${statusText}</span>

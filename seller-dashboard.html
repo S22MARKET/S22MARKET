@@ -1273,6 +1273,44 @@
         // --- Orders Logic ---
         let ordersCache = [];
 
+        // --- Audio Manager (Added) ---
+        const audioManager = {
+            element: null,
+            isUnlocked: false,
+            init() {
+                this.element = document.getElementById('notification-sound');
+            },
+            unlock() {
+                if (!this.element) this.init();
+                if (this.element && !this.isUnlocked) {
+                    this.element.play().then(() => {
+                        this.element.pause();
+                        this.element.currentTime = 0;
+                        this.isUnlocked = true;
+                    }).catch(e => console.warn("Audio unlock failed", e));
+                }
+            },
+            play() {
+                if (!this.element) this.init();
+                if (this.element) {
+                    this.element.currentTime = 0;
+                    this.element.play().catch(e => console.error("Play failed", e));
+                }
+            }
+        };
+
+        window.enableAudio = () => {
+            audioManager.unlock();
+            showToast('تم تفعيل التنبيهات الصوتية d🔔');
+            const btn = document.getElementById('enable-sound-btn');
+            if (btn) btn.classList.add('hidden');
+        };
+
+        function playNotification() {
+            audioManager.play();
+            showToast('طلب جديد! 🔔', 'info');
+        }
+
         function loadOrdersListener() {
             const q = query(collection(db, "orders"), where("sellerId", "==", currentUser.uid), orderBy("createdAt", "desc"));
 
@@ -2661,6 +2699,7 @@
                 }
             });
     </script>
+    <audio id="notification-sound" src="alerta.mp3" preload="auto"></audio>
 </body>
 
 </html>

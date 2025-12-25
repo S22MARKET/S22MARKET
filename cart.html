@@ -849,18 +849,27 @@
                 const checkoutItems = getFilteredItems();
                 if (checkoutItems.length === 0) throw new Error('لا توجد عناصر لإتمام الطلب');
 
-                const subtotal = checkoutItems.reduce((sum, i) => sum + (Number(i.price) * Number(i.quantity)), 0);
-                const discount = currentDiscount ? (currentDiscount.discountType === 'percentage' ? subtotal *
-                    (currentDiscount.discountValue / 100) : currentDiscount.discountValue) : 0;
-                const total = Math.max(0, subtotal - discount);
-
                 if (!currentUser) throw new Error('يرجى تسجيل الدخول');
 
-                const orderData = {
-                    customerId: currentUser.uid,
-                    userId: currentUser.uid, // Added for compatibility with order_history.html
-                    // rest of fields... this block is just to fix the button handler context
+                // 1. Group items by Seller ID
+                const ordersBySeller = {};
+                checkoutItems.forEach(item => {
+                    const sellerId = item.sellerId || 'unknown';
+                    if (!ordersBySeller[sellerId]) {
+                        ordersBySeller[sellerId] = {
+                            items: [],
+                            storeName: item.storeName || (activeTab === 'market' ? 'متجر عام' : 'مطعم'),
+                            subtotal: 0
+                        };
+                    }
+                    ordersBySeller[sellerId].items.push(item);
+                    ordersBySeller[sellerId].subtotal += (Number(item.price) * Number(item.quantity));
+                });
 
+                // 2. Prepare Common Data
+                const commonData = {
+                    customerId: currentUser.uid,
+                    userId: currentUser.uid,
                     customerName: document.getElementById('q-customer-name').value,
                     customerPhone: document.getElementById('q-customer-phone').value,
                     wilaya: document.getElementById('q-customer-wilaya').value,
@@ -868,41 +877,70 @@
                     address: document.getElementById('q-customer-address').value,
                     gpsLocation: document.getElementById('q-customer-gps').value,
                     notes: document.getElementById('q-customer-notes').value,
-
-                    items: checkoutItems,
-                    totalPrice: total,
-                    subtotal: subtotal,
-                    discount: discount,
-                    status: 'pending',
-                    type: activeTab, // market or food
+                    status: 'new', // Default status for new orders
+                    type: activeTab,
                     createdAt: serverTimestamp(),
-                    sellerId: checkoutItems[0].sellerId || 'unknown' // Naive: assume single seller or primary
-                    // Real app should split orders by seller, but for S22 "Market" mode, usually aggregation.
                 };
 
                 // Add Schedule if checked
                 const isScheduled = document.getElementById('is-scheduled-checkbox').checked;
                 if (isScheduled) {
-                    orderData.scheduled = true;
-                    orderData.scheduleFrequency = document.getElementById('schedule-frequency').value;
-                    // Add to separate collection? or just flag? 
-                    // Let's just flag it.
+                    commonData.scheduled = true;
+                    commonData.scheduleFrequency = document.getElementById('schedule-frequency').value;
                 }
 
-                await addDoc(collection(db, 'orders'), orderData);
+                // 3. Create Order for EACH Seller
+                const promises = Object.keys(ordersBySeller).map(async (sellerId) => {
+                    const sellerData = ordersBySeller[sellerId];
+
+                    // Simple discount logic: split discount proportionally or apply to first?
+                    // For now, let's apply discount only if it covers this subtotal, or just 0 for simplicity in MVP split.
+                    // Better approach: Calculate Total Order Value vs Seller Value Ratio.
+                    // IMPORTANT: For this fix, to avoid complexity bugs, we will apply the coupon ONLY to the first order or disable it for multi-vendor split temporarily?
+                    // Let's support it: Ratio = sellerSubtotal / totalCartSubtotal
+
+                    const totalCartSubtotal = checkoutItems.reduce((sum, i) => sum + (Number(i.price) * Number(i.quantity)), 0);
+                    const ratio = sellerData.subtotal / totalCartSubtotal;
+
+                    let discountForThisOrder = 0;
+                    if (currentDiscount) {
+                        if (currentDiscount.discountType === 'percentage') {
+                            discountForThisOrder = sellerData.subtotal * (currentDiscount.discountValue / 100);
+                        } else {
+                            // Fixed amount split by ratio
+                            discountForThisOrder = currentDiscount.discountValue * ratio;
+                        }
+                    }
+
+                    const totalForThisOrder = Math.max(0, sellerData.subtotal - discountForThisOrder);
+
+                    const orderData = {
+                        ...commonData,
+                        sellerId: sellerId,
+                        storeName: sellerData.storeName,
+                        items: sellerData.items,
+                        subtotal: sellerData.subtotal,
+                        discountAmount: discountForThisOrder, // Track discount amount
+                        totalPrice: totalForThisOrder,
+                        deliveryFee: 0 // Will be calculated by seller later or standard
+                    };
+
+                    return addDoc(collection(db, 'orders'), orderData);
+                });
+
+                await Promise.all(promises);
 
                 // Clear cart (only ordered items)
                 const remaining = cart.filter(i => activeTab === 'market' ? i.itemType === 'food' : (i.itemType === 'market' || !i.itemType));
                 cart = remaining;
                 saveCart();
 
-                showToast(`تم إرسال الطلب بنجاح!`, 'success');
+                showToast(`تم إرسال ${Object.keys(ordersBySeller).length} طلب(ات) بنجاح!`, 'success');
                 elements.checkoutModal.classList.remove('active');
                 setTimeout(() => window.location.href = 'order_history.html', 1500);
 
             } catch (error) {
                 console.error("Checkout Error:", error);
-                // Fallback alert for critical errors if toast doesn't appear
                 alert("حدث خطأ أثناء إتمام الطلب: " + error.message);
                 toggleButtonState(btn, false, originalContent);
             }
