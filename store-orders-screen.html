@@ -439,6 +439,12 @@
                 <span id="theme-text" class="text-base font-semibold">وضع نهاري</span>
             </button>
 
+            <button onclick="testNotification()" title="تجربة التنبيه"
+                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors bg-gray-800 border border-gray-600">
+                <i class="fas fa-bell text-lg w-6 text-center text-orange-400"></i>
+                <span class="text-base font-semibold">تجربة التنبيه</span>
+            </button>
+
             <button id="manual-refresh-btn" title="تحديث يدوي للواجهة"
                 class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors">
                 <i class="fas fa-sync-alt text-lg w-6 text-center"></i>
@@ -746,6 +752,19 @@
             setTimeout(() => icon.classList.remove('refresh-spin'), 700);
         }
 
+        window.testNotification = function () {
+            const dummyOrder = {
+                customerName: "عميل تجريبي",
+                customerContact: "0555123456",
+                totalPrice: 1500,
+                items: [
+                    { quantity: 2, name: "برجر دجاج مكسيكي", selectedAddons: [{ name: "جبنة إضافية" }] },
+                    { quantity: 1, name: "بيبسي" }
+                ]
+            };
+            showNewOrderAlert(dummyOrder);
+        };
+
         function loadOrders() {
             if (!currentUser) return;
 
@@ -802,21 +821,25 @@
                 statusIndicator.classList.add('bg-green-500', 'animate-pulse');
                 statusText.textContent = 'متصل';
 
-                if (!isInitialOrdersLoad) {
-                    snapshot.docChanges().forEach(change => {
-                        const newOrderData = { id: change.doc.id, ...change.doc.data() };
+                snapshot.docChanges().forEach(change => {
+                    const newOrderData = { id: change.doc.id, ...change.doc.data() };
 
-                        if (change.type === "added") {
-                            const existingOrder = ordersCache.find(o => o.id === newOrderData.id);
-                            if (!existingOrder) {
-                                // Logic for "new" order
-                                if (Date.now() - newOrderData.createdAt.toMillis() < 60000 * 5) { // Notify if newer than 5 mins
+                    if (change.type === "added") {
+                        const existingOrder = ordersCache.find(o => o.id === newOrderData.id);
+                        if (!existingOrder) {
+                            // Logic for "new" order
+                            // Notify if newer than 5 mins, EVEN IF it is the initial load (so user sees it after refresh)
+                            if (newOrderData.createdAt && Date.now() - newOrderData.createdAt.toMillis() < 60000 * 5) {
+                                // Prevent duplicate alerts if already shown (though cache check handles most)
+                                if (!newlyAddedOrderIds.has(change.doc.id)) {
                                     showNewOrderAlert(newOrderData);
                                     newlyAddedOrderIds.add(change.doc.id);
                                 }
                             }
                         }
+                    }
 
+                    if (!isInitialOrdersLoad) { // Only handle modifications/removals after initial load to avoid UI jitter
                         if (change.type === "modified") {
                             const oldOrder = ordersCache.find(o => o.id === change.doc.id);
                             const newOrder = change.doc.data();
@@ -828,8 +851,8 @@
                         if (change.type === "removed") {
                             hideNewOrderAlert();
                         }
-                    });
-                }
+                    }
+                });
 
                 isInitialOrdersLoad = false;
                 ordersCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
