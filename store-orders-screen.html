@@ -768,14 +768,24 @@
         }
 
         window.testNotification = function () {
-            // Force play directly to bypass potential "isUnlocked" false state during test
+            // Method 1: Try playing the DOM element
             const audio = document.getElementById('notification-sound');
             if (audio) {
                 audio.muted = false;
                 audio.volume = 1.0;
-                audio.play().then(() => {
-                    audioManager.isUnlocked = true;
-                }).catch(e => console.error("Force play failed", e));
+                audio.play()
+                    .then(() => {
+                        console.log("DOM Audio played successfully");
+                        audioManager.isUnlocked = true;
+                    })
+                    .catch(e => {
+                        console.error("DOM Audio failed:", e);
+                        // Method 2: Fallback to new Audio object
+                        const testAudio = new Audio('alerta.mp3');
+                        testAudio.play()
+                            .then(() => console.log("New Audio object played"))
+                            .catch(err => alert("عذراً، فشل تشغيل الصوت. السبب: " + err.message + "\nتأكد من إعدادات المتصفح للسماح بالصوت."));
+                    });
             }
 
             const dummyOrder = {
