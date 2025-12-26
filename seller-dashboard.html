@@ -288,9 +288,53 @@
             background: rgba(255, 255, 255, 0.2);
         }
     </style>
+    /* Notification Modal Styles */
+    .modal-content { animation: scaleIn 0.3s ease-out; }
+    @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+    }
+    #new-order-modal { z-index: 10000; }
+    .spinner-dark { width: 48px; height: 48px; border: 5px solid rgba(255, 255, 255, 0.2); border-top-color: #f97316;
+    border-radius: 50%; animation: spin 1s linear infinite; }
+    </style>
 </head>
 
 <body>
+    <!-- Sound Activation Modal -->
+    <div id="sound-activation-modal"
+        class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[10000]">
+        <div
+            class="modal-content bg-gray-800 rounded-2xl shadow-2xl p-8 text-center max-w-lg w-full border-t-4 border-orange-500">
+            <i class="fas fa-volume-up text-6xl text-orange-400 mb-5"></i>
+            <h2 class="text-3xl font-extrabold text-white mb-4">تفعيل الإشعارات الصوتية</h2>
+            <p class="text-gray-300 mb-8">
+                لضمان عدم تفويت أي طلب جديد، يرجى تفعيل الصوت.
+            </p>
+            <button id="activate-sound-btn"
+                class="bg-green-600 hover:bg-green-700 text-white font-bold text-xl py-3 px-10 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-400">
+                <i class="fas fa-check-circle mr-2"></i>
+                نعم، قم بالتفعيل
+            </button>
+        </div>
+    </div>
+
+    <!-- New Order Modal -->
+    <div id="new-order-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[9999]">
+        <div
+            class="modal-content bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 text-center max-w-lg w-full border-t-4 border-orange-500">
+            <i class="fas fa-bell text-5xl md:text-6xl text-orange-400 animate-bounce mb-5"></i>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-4">طلب جديــــــــد!</h2>
+            <div id="modal-order-details" class="bg-gray-900 p-4 rounded-lg mb-8 text-right space-y-2">
+                <!-- Order Details Injected Here -->
+            </div>
+            <button id="modal-confirm-btn" onclick="document.getElementById('new-order-modal').classList.add('hidden')"
+                class="bg-orange-600 hover:bg-orange-700 text-white font-bold text-lg md:text-xl py-3 px-10 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-orange-400">
+                <i class="fas fa-check-circle mr-2"></i>
+                تأكيــــــــد
+            </button>
+        </div>
+    </div>
     <audio id="order-sound" src="alerta.mp3" preload="auto"></audio>
 
     <header
@@ -1329,31 +1373,8 @@
         // --- Orders Logic ---
         let ordersCache = [];
 
-        // --- Audio Manager (Added) ---
-        const audioManager = {
-            element: null,
-            isUnlocked: false,
-            init() {
-                this.element = document.getElementById('notification-sound');
-            },
-            unlock() {
-                if (!this.element) this.init();
-                if (this.element && !this.isUnlocked) {
-                    this.element.play().then(() => {
-                        this.element.pause();
-                        this.element.currentTime = 0;
-                        this.isUnlocked = true;
-                    }).catch(e => console.warn("Audio unlock failed", e));
-                }
-            },
-            play() {
-                if (!this.element) this.init();
-                if (this.element) {
-                    this.element.currentTime = 0;
-                    this.element.play().catch(e => console.error("Play failed", e));
-                }
-            }
-        };
+
+
 
         window.enableAudio = () => {
             audioManager.unlock();
@@ -2750,21 +2771,82 @@
         // Global User State
         window.currentUser = null;
 
-        window.loadOrdersListener = function () {
+        // --- Audio Manager ---
+        window.audioManager = {
+            element: document.getElementById('order-sound'),
+            isMuted: false,
+            isUnlocked: false,
+            unlock() {
+                if (this.isUnlocked) return;
+                this.element.play().then(() => {
+                    this.element.pause();
+                    this.isUnlocked = true;
+                }).catch(e => console.warn(e));
+            },
+            play() {
+                if (this.isMuted || !this.isUnlocked) return;
+                this.element.currentTime = 0;
+                this.element.play().catch(e => console.error(e));
+            }
+        };
+
+        function setupSoundActivation() {
+            const soundModal = document.getElementById('sound-activation-modal');
+            const activateBtn = document.getElementById('activate-sound-btn');
+            if (localStorage.getItem('soundActivated') === 'true') {
+                window.audioManager.isUnlocked = true;
+                return;
+            }
+            soundModal.classList.remove('hidden');
+            activateBtn.onclick = () => {
+                window.audioManager.unlock();
+                localStorage.setItem('soundActivated', 'true');
+                soundModal.classList.add('hidden');
+            };
+        }
+
+        window.showNewOrder = function (order) {
+            const modal = document.getElementById('new-order-modal');
+            const details = document.getElementById('modal-order-details');
+
+            const formattedPrice = (order.totalPrice || 0).toLocaleString('fr-DZ');
+            const itemsHtml = (order.items || []).map(item =>
+                `<div class="py-1 border-b border-gray-700 last:border-0">
+                    <span class="font-bold text-white">${item.quantity} x</span>
+                    <span class="text-gray-300">${item.name}</span>
+                </div>`
+            ).join('');
+
+            details.innerHTML = `
+                <div class="flex justify-between items-center text-lg">
+                    <span class="text-gray-400">العميل:</span>
+                    <span class="font-bold text-white">${order.customerName}</span>
+                </div>
+                <div class="max-h-40 overflow-y-auto my-3 pr-2 custom-scrollbar">
+                    ${itemsHtml}
+                </div>
+                <div class="flex justify-between items-center text-xl mt-2 pt-2 border-t border-gray-700">
+                    <span class="text-gray-400">الإجمالي:</span>
+                    <span class="font-extrabold text-orange-400">${formattedPrice} د.ج</span>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            window.audioManager.play();
+        };
+
+        window.setupOrderNotifications = function () {
             if (!window.currentUser) return;
+            setupSoundActivation(); // Ensure sound is unlocked
+
             const q = query(collection(db, "orders"), where("sellerId", "==", window.currentUser.uid), orderBy("createdAt", "desc"));
             onSnapshot(q, (snapshot) => {
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === "added") {
-                        // Check if truly new (within last minute)
                         const data = change.doc.data();
+                        // Check if truly new (within last minute)
                         if (data.createdAt && Date.now() - data.createdAt.toMillis() < 60000) {
-                            const audio = document.getElementById('order-sound');
-                            if (audio) {
-                                audio.play().catch(e => console.log("Sound play error", e));
-                            }
-                            // Show visual alert if function exists
-                            if (typeof window.showNewOrder === 'function') window.showNewOrder(data);
+                            window.showNewOrder(data);
                         }
                     }
                 });
@@ -2794,8 +2876,10 @@
 
                 // Start Listeners (Call global functions)
                 if (typeof window.loadOrdersListener === 'function') window.loadOrdersListener();
+                if (typeof window.setupOrderNotifications === 'function') window.setupOrderNotifications();
                 if (typeof window.loadReviewsListener === 'function') window.loadReviewsListener();
                 if (typeof window.loadDashboardStats === 'function') window.loadDashboardStats();
+
 
                 // Request Notification Permission
                 if (Notification.permission !== "granted") {
