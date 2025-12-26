@@ -190,7 +190,7 @@
                     if (snap.exists()) {
                         const data = snap.data();
                         if (data.role === 'vendor' || data.role === 'restaurant') {
-                            window.location.href = 'seller-dashboard.html';
+                            window.location.href = 'store-orders-screen.html';
                             return;
                         } else {
                             // User logged in but not a seller
@@ -229,7 +229,7 @@
                 if (snap.exists()) {
                     const data = snap.data();
                     if (data.role === 'vendor' || data.role === 'restaurant') {
-                        window.location.href = 'seller-dashboard.html';
+                        window.location.href = 'store-orders-screen.html';
                     } else {
                         alert('هذا الحساب ليس حساب تاجر. يرجى الدخول من صفحة الزبائن أو ترقية حسابك.');
                         submitBtn.disabled = false;
