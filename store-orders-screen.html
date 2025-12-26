@@ -405,6 +405,80 @@
         </div>
     </div>
 
+    <!-- Sound Settings Modal -->
+    <div id="sound-settings-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[10000]">
+        <div class="modal-content bg-gray-800 rounded-2xl shadow-2xl p-6 w-full max-w-md border border-gray-700">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white"><i class="fas fa-music text-orange-400 ml-2"></i>نغمة التنبيه
+                </h3>
+                <button onclick="document.getElementById('sound-settings-modal').classList.add('hidden')"
+                    class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 mb-8">
+                <!-- Tone Options -->
+                <label
+                    class="flex items-center justify-between p-4 bg-gray-900 rounded-xl border border-gray-700 cursor-pointer hover:border-orange-500 transition-colors group">
+                    <div class="flex items-center">
+                        <input type="radio" name="orderSound" value="alerta.mp3"
+                            class="w-5 h-5 text-orange-500 focus:ring-orange-500 bg-gray-800 border-gray-600">
+                        <span class="mr-3 text-white font-medium">الافتراضي (الجرس)</span>
+                    </div>
+                    <button type="button" onclick="previewSound('alerta.mp3')"
+                        class="w-10 h-10 rounded-full bg-gray-800 text-gray-400 group-hover:bg-orange-500 group-hover:text-white flex items-center justify-center transition-colors">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </label>
+
+                <label
+                    class="flex items-center justify-between p-4 bg-gray-900 rounded-xl border border-gray-700 cursor-pointer hover:border-orange-500 transition-colors group">
+                    <div class="flex items-center">
+                        <input type="radio" name="orderSound" value="alerta_02.mp3"
+                            class="w-5 h-5 text-orange-500 focus:ring-orange-500 bg-gray-800 border-gray-600">
+                        <span class="mr-3 text-white font-medium">نغمة 2</span>
+                    </div>
+                    <button type="button" onclick="previewSound('alerta_02.mp3')"
+                        class="w-10 h-10 rounded-full bg-gray-800 text-gray-400 group-hover:bg-orange-500 group-hover:text-white flex items-center justify-center transition-colors">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </label>
+
+                <label
+                    class="flex items-center justify-between p-4 bg-gray-900 rounded-xl border border-gray-700 cursor-pointer hover:border-orange-500 transition-colors group">
+                    <div class="flex items-center">
+                        <input type="radio" name="orderSound" value="alerta_03.mp3"
+                            class="w-5 h-5 text-orange-500 focus:ring-orange-500 bg-gray-800 border-gray-600">
+                        <span class="mr-3 text-white font-medium">نغمة 3</span>
+                    </div>
+                    <button type="button" onclick="previewSound('alerta_03.mp3')"
+                        class="w-10 h-10 rounded-full bg-gray-800 text-gray-400 group-hover:bg-orange-500 group-hover:text-white flex items-center justify-center transition-colors">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </label>
+
+                <label
+                    class="flex items-center justify-between p-4 bg-gray-900 rounded-xl border border-gray-700 cursor-pointer hover:border-orange-500 transition-colors group">
+                    <div class="flex items-center">
+                        <input type="radio" name="orderSound" value="alerta_04.mp3"
+                            class="w-5 h-5 text-orange-500 focus:ring-orange-500 bg-gray-800 border-gray-600">
+                        <span class="mr-3 text-white font-medium">نغمة 4</span>
+                    </div>
+                    <button type="button" onclick="previewSound('alerta_04.mp3')"
+                        class="w-10 h-10 rounded-full bg-gray-800 text-gray-400 group-hover:bg-orange-500 group-hover:text-white flex items-center justify-center transition-colors">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </label>
+            </div>
+
+            <button onclick="saveSoundSettings()"
+                class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-xl transition-colors">
+                حفظ الإعدادات
+            </button>
+        </div>
+    </div>
+
     <header class="bg-gray-900 shadow-md p-4 flex justify-between items-center sticky top-0 z-30">
         <div class="flex items-center gap-4">
             <h1 class="text-xl font-bold">S22 <span class="text-orange-500">MARKET</span> Kitchen</h1>
@@ -435,10 +509,14 @@
                 <span class="text-base font-semibold">لوحة التحكم</span>
             </a>
 
-            <button id="mute-btn" title="كتم صوت الإشعارات"
+            <i id="mute-icon" class="fas fa-volume-up text-lg w-6 text-center"></i>
+            <span class="text-base font-semibold">الصوت</span>
+            </button>
+
+            <button onclick="openSoundSettings()" title="إعدادات نغمة التنبيه"
                 class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors">
-                <i id="mute-icon" class="fas fa-volume-up text-lg w-6 text-center"></i>
-                <span class="text-base font-semibold">الصوت</span>
+                <i class="fas fa-music text-lg w-6 text-center text-purple-400"></i>
+                <span class="text-base font-semibold">نغمة التنبيه</span>
             </button>
 
             <button id="theme-toggle-btn" title="تغيير الوضع"
@@ -475,8 +553,7 @@
     </main>
 
 
-    <audio id="notification-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"
-        preload="auto" loop>
+    <audio id="notification-sound" src="alerta.mp3" preload="auto" loop>
     </audio>
 
 
@@ -527,8 +604,15 @@
 
             play() {
                 if (this.isMuted || !this.isUnlocked) return;
+
+                // Load preferred sound
+                const savedSound = localStorage.getItem('notificationSoundFile') || 'alerta.mp3';
+                if (this.element.getAttribute('src') !== savedSound) {
+                    this.element.src = savedSound;
+                }
+
                 this.element.loop = true;
-                this.element.playbackRate = 1.5;
+                this.element.playbackRate = 1.0; // Reset rate
                 const promise = this.element.play();
                 if (promise !== undefined) {
                     promise.catch(error => { console.error("Audio play failed:", error); });
@@ -768,6 +852,39 @@
             setTimeout(() => icon.classList.remove('refresh-spin'), 700);
         }
 
+        // --- Sound Settings Logic ---
+        window.openSoundSettings = function () {
+            const modal = document.getElementById('sound-settings-modal');
+            const savedSound = localStorage.getItem('notificationSoundFile') || 'alerta.mp3';
+
+            // Checking the current radio
+            const radios = document.getElementsByName('orderSound');
+            for (const radio of radios) {
+                if (radio.value === savedSound) radio.checked = true;
+            }
+
+            modal.classList.remove('hidden');
+        };
+
+        window.previewSound = function (filename) {
+            const audio = new Audio(filename);
+            audio.play().catch(e => console.error("Preview failed", e));
+        };
+
+        window.saveSoundSettings = function () {
+            const radios = document.getElementsByName('orderSound');
+            let selected = 'alerta.mp3';
+            for (const radio of radios) {
+                if (radio.checked) selected = radio.value;
+            }
+            localStorage.setItem('notificationSoundFile', selected);
+            document.getElementById('sound-settings-modal').classList.add('hidden');
+
+            // Update main audio element immediately
+            const mainAudio = document.getElementById('notification-sound');
+            if (mainAudio) mainAudio.src = selected;
+        };
+
         window.testNotification = function () {
             // Method 1: Try playing the DOM element
             const audio = document.getElementById('notification-sound');
@@ -781,11 +898,11 @@
                     })
                     .catch(e => {
                         console.error("DOM Audio failed:", e);
-                        // Method 2: Fallback to new Audio object from CDN
+                        // Method 2: Fallback to new Audio object (CDN Backup if local fails)
                         const testAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
                         testAudio.play()
-                            .then(() => console.log("New Audio object played"))
-                            .catch(err => alert("عذراً، فشل تشغيل الصوت. السبب: " + err.message + "\nتأكد من إعدادات المتصفح للسماح بالصوت."));
+                            .then(() => console.log("Fallback Audio played successfully"))
+                            .catch(err => alert("عذراً، فشل تشغيل جميع مصادر الصوت. خطأ: " + err.message));
                     });
             }
 
