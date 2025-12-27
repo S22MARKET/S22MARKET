@@ -316,6 +316,63 @@
         </div>
     </div>
 
+    <!-- Seller Request Modal -->
+    <div id="seller-request-modal" class="modal">
+        <div class="modal-content bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
+            <h3 class="text-2xl font-bold mb-2 text-center text-gray-800">انضم كشريك 🚀</h3>
+            <p class="text-center text-gray-500 text-sm mb-6">أدخل بيانات متجرك لبدء البيع معنا</p>
+
+            <form id="seller-request-form" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">اسم المتجر</label>
+                        <input type="text" id="req-store-name" required placeholder="مثال: متجر الأناقة"
+                            class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">نوع النشاط</label>
+                        <select id="req-store-type"
+                            class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 transition">
+                            <option value="vendor">متجر (منتجات)</option>
+                            <option value="restaurant">مطعم (طعام)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">الولاية / المنطقة</label>
+                        <select id="req-region" required
+                            class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 transition text-gray-600">
+                            <option value="">اختر الولاية</option>
+                            <!-- Will be populated same as main wilaya select or just copied -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">رقم الهاتف</label>
+                        <input type="tel" id="req-phone" required placeholder="05/06/07..."
+                            class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 transition dir-ltr text-right">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">وصف المتجر</label>
+                    <textarea id="req-desc" rows="3" placeholder="ماذا تبيع؟ نبذة مختصرة..."
+                        class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 transition"></textarea>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="closeModal('seller-request-modal')"
+                        class="flex-1 bg-gray-100 py-3 rounded-xl font-bold text-gray-500 hover:bg-gray-200 transition">إلغاء</button>
+                    <button type="submit"
+                        class="flex-1 bg-indigo-600 py-3 rounded-xl font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition">إرسال
+                        الطلب</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Store Request / Status Modal is complex, redirect to separate page maybe? No, requested redesign. I'll keep it simple here or reuse the logic -->
     <!-- Reusing Logic but cleaner UI -->
 
@@ -354,7 +411,7 @@
     <script type="module">
         import { auth, db } from './app-core.js';
         import { signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { doc, getDoc, updateDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Admin Emails List
         const ADMIN_EMAILS = [
@@ -387,6 +444,18 @@
             opt.textContent = w;
             wilayaSelect.appendChild(opt);
         });
+
+        // Populate Request Modal Wilayas too
+        const reqWilayaSelect = document.getElementById('req-region');
+        if (reqWilayaSelect) {
+            reqWilayaSelect.innerHTML = '<option value="">اختر الولاية</option>';
+            WILAYAS.forEach(w => {
+                const opt = document.createElement('option');
+                opt.value = w;
+                opt.textContent = w;
+                reqWilayaSelect.appendChild(opt);
+            });
+        }
 
         // Auth Listener
         onAuthStateChanged(auth, (user) => {
@@ -532,23 +601,60 @@
         });
 
         // Store Request Redirect (Simple solution to keep profile clean)
+        // Store Request Logic
         window.openStoreRequest = () => {
-            // Ideally shows a clean modal here, but for now we can redirect or show the old form logic.
-            // Since the user asked for a redesign, let's keep it simple: 
-            // Just ask to contact admin or show a simple alert that feature is coming, 
-            // OR reuse the complex form logic.
-            // To be safe and complete: I'll redirect to a dedicated 'become-seller.html' or 
-            // Reuse the old logic if sensible. Use a simple "Contact support to upgrade" for now?
-            // No, self-service is important.
-            // I'll show a prompt to contact WhatsApp for manual onboarding as it is robust.
-            // OR better: Restore the modal logic from previous file?
-            // I will use a simple alert for V2 and ask user to contact admin.
-
-            // Actually, let's use a nice SWAL or just a simple modal
-            if (confirm("للانضمام كتاجر، يرجى التواصل مع الإدارة مباشرة لتفعيل حسابك فوراً.")) {
-                window.location.href = "https://wa.me/21300000000"; // Placeholder
-            }
+            // Pre-fill
+            if (userData.phone) document.getElementById('req-phone').value = userData.phone;
+            if (userData.wilaya) document.getElementById('req-region').value = userData.wilaya;
+            document.getElementById('seller-request-modal').classList.add('active');
         };
+
+        const requestForm = document.getElementById('seller-request-form');
+        if (requestForm) {
+            requestForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!currentUser) return;
+
+                const btn = e.target.querySelector('button[type="submit"]');
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                btn.disabled = true;
+
+                const storeName = document.getElementById('req-store-name').value;
+                const storeType = document.getElementById('req-store-type').value;
+                const region = document.getElementById('req-region').value;
+                const phone = document.getElementById('req-phone').value;
+                const desc = document.getElementById('req-desc').value;
+
+                try {
+                    await updateDoc(doc(db, "users", currentUser.uid), {
+                        storeRequest: {
+                            status: 'pending',
+                            applicantName: currentUser.displayName,
+                            storeName: storeName,
+                            storeType: storeType,
+                            region: region,
+                            phone: phone,
+                            description: desc,
+                            submittedAt: Timestamp.now()
+                        }
+                    });
+
+                    closeModal('seller-request-modal');
+                    showToast('تم إرسال طلبك بنجاح! سيتم مراجته قريباً.');
+
+                    // Refresh profile
+                    loadProfile(currentUser.uid);
+
+                } catch (error) {
+                    console.error("Request failed", error);
+                    showToast('حدث خطأ، حاول مرة أخرى', 'error');
+                } finally {
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                }
+            });
+        }
 
         window.handleSignOut = () => {
             signOut(auth).then(() => window.location.href = 'index.html');
