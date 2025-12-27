@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جاري تسجيل الدخول...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
+        .loader { border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid #4f46e5; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="loader"></div>
+    <p id="status">جاري تهيئة المتجر...</p>
+
+    <script type="module">
+        // 1. استيراد دوال فايربيس (نفس الإصدار المستخدم في مشروعك)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // 2. إعدادات فايربيس (انسخها من ملفك app-core.js أو seller-login.html)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY", // 👈 تأكد من صحة هذه البيانات من مشروعك
+            authDomain: "s22market-4e3e6.firebaseapp.com",
+            databaseURL: "https://s22market-4e3e6-default-rtdb.firebaseio.com",
+            projectId: "s22market-4e3e6",
+            storageBucket: "s22market-4e3e6.firebasestorage.app",
+            messagingSenderId: "119186699901",
+            appId: "1:119186699901:web:1b04100b5c5c40f5ca2314",
+            measurementId: "G-MWYNCVP4WQ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // 3. دالة الدخول الذكي
+        async function autoLogin() {
+            try {
+                // هل نحن داخل تطبيق الأندرويد؟
+                if (window.AndroidAuth) {
+                    const email = window.AndroidAuth.getEmail();
+                    const password = window.AndroidAuth.getPassword();
+
+                    if (email && password) {
+                        document.getElementById('status').innerText = "جاري الاتصال بقاعدة البيانات...";
+                        
+                        // ضبط الاستمرارية (لكي لا يخرج عند إغلاق التطبيق)
+                        await setPersistence(auth, browserLocalPersistence);
+                        
+                        // تسجيل الدخول
+                        await signInWithEmailAndPassword(auth, email, password);
+                        
+                        document.getElementById('status').innerText = "تم الدخول! جاري التوجيه...";
+                        
+                        // ✅ التوجيه للوحة التحكم مباشرة
+                        window.location.replace("store-orders-screen.html");
+                    } else {
+                        throw new Error("بيانات الدخول مفقودة");
+                    }
+                } else {
+                    // إذا فتح الصفحة شخص عادي من المتصفح، نوجهه لصفحة الدخول العادية
+                    window.location.replace("seller-login.html");
+                }
+            } catch (error) {
+                console.error("Login Error:", error);
+                document.getElementById('status').innerText = "حدث خطأ، جاري التوجيه للدخول اليدوي...";
+                setTimeout(() => { window.location.replace("seller-login.html"); }, 2000);
+            }
+        }
+
+        // تشغيل الدالة
+        autoLogin();
+    </script>
+</body>
+</html>
