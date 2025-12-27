@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الشروط والأحكام - S22 Market</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+
+        .hero-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366f1' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .tab-btn.active {
+            background-color: #4F46E5;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+        }
+
+        .section-animate {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2 group">
+                <div
+                    class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-lg font-bold group-hover:bg-indigo-700 transition">
+                    S22
+                </div>
+                <span class="font-bold text-gray-800 text-lg">Market</span>
+            </a>
+            <a href="index.html"
+                class="text-gray-500 hover:text-indigo-600 font-medium text-sm flex items-center gap-1 transition">
+                <i class="fas fa-arrow-right"></i>
+                <span class="hidden sm:inline">العودة للرئيسية</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow hero-pattern pb-12">
+        <!-- Hero Section -->
+        <div class="bg-indigo-700 text-white py-16 px-4 mb-8 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-indigo-800 to-indigo-600 opacity-90"></div>
+            <div class="relative max-w-3xl mx-auto text-center z-10">
+                <h1 class="text-3xl md:text-5xl font-black mb-4">مركز القواعد والشروط</h1>
+                <p class="text-indigo-100 text-lg md:text-xl font-medium max-w-xl mx-auto">
+                    نلتزم بالشفافية والوضوح لضمان تجربة آمنة وموثوقة لجميع مستخدمي وشركاء S22 Market.
+                </p>
+            </div>
+            <!-- Decorative Circles -->
+            <div class="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-white opacity-5"></div>
+            <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-48 h-48 rounded-full bg-white opacity-5"></div>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-4 sm:px-6">
+
+            <!-- Navigation Tabs -->
+            <div class="flex justify-center mb-10">
+                <div
+                    class="bg-white p-1 rounded-xl shadow-sm border border-gray-100 inline-flex shadow-lg max-w-full overflow-x-auto">
+                    <button onclick="switchTab('general')" id="tab-general"
+                        class="tab-btn active px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap">
+                        <i class="fas fa-shield-alt mr-2"></i> أحكام عامة
+                    </button>
+                    <button onclick="switchTab('users')" id="tab-users"
+                        class="tab-btn text-gray-500 hover:text-gray-700 px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap">
+                        <i class="fas fa-user mr-2"></i> المستخدمين
+                    </button>
+                    <button onclick="switchTab('merchants')" id="tab-merchants"
+                        class="tab-btn text-gray-500 hover:text-gray-700 px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap">
+                        <i class="fas fa-store mr-2"></i> التجار والشركاء
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Sections -->
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden min-h-[400px]">
+
+                <!-- General Terms -->
+                <div id="content-general" class="p-8 content-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div
+                            class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xl">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800">الأحكام العامة</h2>
+                    </div>
+
+                    <div class="space-y-6 text-gray-600 leading-relaxed">
+                        <p>مرحباً بكم في منصة S22 Market. يمثل استخدامك لهذا التطبيق موافقة ضمنية وكاملة على الشروط
+                            والأحكام التالية:</p>
+
+                        <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                            <h3 class="font-bold text-gray-900 mb-2 header-icon flex items-center gap-2">
+                                <i class="fas fa-copyright text-indigo-500"></i> الملكية الفكرية
+                            </h3>
+                            <p>جميع حقوق الملكية الفكرية للمنصة، بما في ذلك التصميم، والبرمجة، والشعارات، هي ملك لـ S22
+                                Market ولا يجوز نسخها أو استخدامها دون إذن خطي.</p>
+                        </div>
+
+                        <ul class="list-disc list-inside space-y-3 mr-2">
+                            <li>يحق للمنصة تعديل هذه الشروط في أي وقت، ويعتبر استمرار استخدامك للمنصة موافقة على
+                                التعديلات.</li>
+                            <li>تلتزم المنصة بحماية بيانات المستخدمين وفقاً لسياسة الخصوصية العالمية.</li>
+                            <li>يمنع استخدام المنصة لأي أغراض غير قانونية أو تنتهك حقوق الآخرين.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Users Terms -->
+                <div id="content-users" class="hidden p-8 content-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div
+                            class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xl">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800">شروط المستخدمين</h2>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div>
+                            <h3
+                                class="text-lg font-bold text-gray-900 mb-3 border-b-2 border-green-100 pb-2 inline-block">
+                                الحسابات والأمان</h3>
+                            <ul class="space-y-3 text-gray-600">
+                                <li class="flex items-start gap-3">
+                                    <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                    <span>يجب تقديم بيانات صحيحة وكاملة عند التسجيل (الاسم، الهاتف، العنوان).</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                    <span>المستخدم مسؤول مسؤولية تامة عن الحفاظ على سرية معلومات الدخول الخاصة
+                                        به.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3
+                                class="text-lg font-bold text-gray-900 mb-3 border-b-2 border-green-100 pb-2 inline-block">
+                                الطلبات والدفع</h3>
+                            <ul class="space-y-3 text-gray-600">
+                                <li class="flex items-start gap-3">
+                                    <i class="fas fa-money-bill-wave text-green-500 mt-1"></i>
+                                    <span>الدفع يتم إما عند الاستلام أو عبر الطرق الإلكترونية المعتمدة في المنصة.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <i class="fas fa-ban text-red-500 mt-1"></i>
+                                    <span>في حال تكرار إلغاء الطلبات بعد تأكيدها، يحق للمنصة حظر الحساب مؤقتاً أو
+                                        نهائياً.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Merchants Terms -->
+                <div id="content-merchants" class="hidden p-8 content-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div
+                            class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-xl">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800">التجار والشركاء</h2>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-orange-50 p-5 rounded-xl border border-orange-100">
+                            <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                <i class="fas fa-star text-orange-500"></i> جودة المنتج
+                            </h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                يلتزم الشريك بتقديم منتجات مطابقة للصور والوصف المعروض. أي شكاوى متكررة بخصوص الجودة قد
+                                تؤدي لإيقاف الحساب.
+                            </p>
+                        </div>
+
+                        <div class="bg-orange-50 p-5 rounded-xl border border-orange-100">
+                            <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                <i class="fas fa-clock text-orange-500"></i> سرعة التوصيل
+                            </h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                يجب الالتزام بأوقات التحضير والتوصيل المعلنة. التأخير غير المبرر يؤثر سلباً على تقييم
+                                المتجر.
+                            </p>
+                        </div>
+
+                        <div class="bg-orange-50 p-5 rounded-xl border border-orange-100">
+                            <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                <i class="fas fa-percentage text-orange-500"></i> العمولات
+                            </h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                يتم احتساب العمولات وفقاً للاتفاق المبرم، ويتم تحويل المستحقات بشكل دوري
+                                (أسبوعياً/شهرياً) بعد تسوية الطلبات المكتملة.
+                            </p>
+                        </div>
+
+                        <div class="bg-orange-50 p-5 rounded-xl border border-orange-100">
+                            <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                <i class="fas fa-hand-paper text-orange-500"></i> المحتوى الممنوع
+                            </h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                يمنع منعاً باتاً بيع أي منتجات مخالفة للقوانين المحلية أو السلع المقلدة أو التي تنتهك
+                                حقوق الملكية الفكرية.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer Text -->
+            <div class="text-center mt-8 text-gray-500 text-sm">
+                <p>آخر تحديث: 27 ديسمبر 2025</p>
+                <p class="mt-2">للاستفسارات القانونية، يرجى التواصل عبر: <a href="mailto:legal@s22market.com"
+                        class="text-indigo-600 hover:underline">legal@s22market.com</a></p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6 text-center">
+        <p class="text-gray-600 text-sm font-medium">&copy; 2025 S22 Market. جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <script>
+        function switchTab(tabName) {
+            // Update Buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-indigo-600', 'text-white');
+                btn.classList.add('text-gray-500', 'hover:text-gray-700');
+            });
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            activeBtn.classList.add('active');
+            activeBtn.classList.remove('text-gray-500', 'hover:text-gray-700');
+
+            // Show Content
+            document.querySelectorAll('.content-section').forEach(el => el.classList.add('hidden'));
+            const activeContent = document.getElementById(`content-${tabName}`);
+            activeContent.classList.remove('hidden');
+
+            // Re-trigger animation
+            activeContent.classList.remove('section-animate');
+            void activeContent.offsetWidth; // trigger reflow
+            activeContent.classList.add('section-animate');
+        }
+    </script>
+</body>
+
+</html>

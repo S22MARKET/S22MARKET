@@ -437,7 +437,7 @@
                     <div class="flex items-center">
                         <input type="radio" name="orderSound" value="alerta_02.mp3"
                             class="w-5 h-5 text-orange-500 focus:ring-orange-500 bg-gray-800 border-gray-600">
-                        <span class="mr-3 text-white font-medium">نغمة 2   
+                        <span class="mr-3 text-white font-medium">نغمة 2
                             (قريبا)
                         </span>
                     </div>
@@ -487,7 +487,7 @@
 
     <header class="bg-gray-900 shadow-md p-4 flex justify-between items-center sticky top-0 z-30">
         <div class="flex items-center gap-4">
-            <h1 class="text-xl font-bold">S22 <span class="text-orange-500">MARKET</span>   للمدير </h1>
+            <h1 class="text-xl font-bold">S22 <span class="text-orange-500">MARKET</span> للمدير </h1>
             <div class="flex items-center gap-2" title="حالة الاتصال بالخادم">
                 <span id="connection-status" class="h-3 w-3 bg-green-500 rounded-full animate-pulse"></span>
                 <span id="connection-text" class="text-xs text-gray-400">متصل</span>
@@ -508,49 +508,48 @@
             </button>
         </div>
 
-        <nav class="flex flex-col gap-3">
-            <a href="seller-dashboard.html" title="الذهاب للوحة التحكم الرئيسية"
-                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors">
-                <i class="fas fa-tachometer-alt text-lg w-6 text-center text-orange-400"></i>
-                <span class="text-base font-semibold">لوحة التحكم</span>
-            </a>
+        <nav id="sidebar-nav-container" class="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
+            <!-- Sidebar content will be injected by SidebarManager -->
 
+        </nav>
+
+        <div class="px-3 pb-3 space-y-2 border-t border-gray-800 pt-3">
             <button id="mute-btn" title="كتم صوت الإشعارات"
-                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors w-full">
                 <i id="mute-icon" class="fas fa-volume-up text-lg w-6 text-center"></i>
                 <span class="text-base font-semibold">الصوت</span>
             </button>
 
             <button onclick="openSoundSettings()" title="إعدادات نغمة التنبيه"
-                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors w-full">
                 <i class="fas fa-music text-lg w-6 text-center text-purple-400"></i>
                 <span class="text-base font-semibold">نغمة التنبيه</span>
             </button>
 
             <button id="theme-toggle-btn" title="تغيير الوضع"
-                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors w-full">
                 <i id="theme-icon" class="fas fa-sun text-lg w-6 text-center text-yellow-400"></i>
                 <span id="theme-text" class="text-base font-semibold">وضع نهاري</span>
             </button>
 
             <button onclick="testNotification()" title="تجربة التنبيه"
-                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors bg-gray-800 border border-gray-600">
+                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors bg-gray-800 border border-gray-600 w-full">
                 <i class="fas fa-bell text-lg w-6 text-center text-orange-400"></i>
                 <span class="text-base font-semibold">تجربة التنبيه</span>
             </button>
 
             <button id="manual-refresh-btn" title="تحديث يدوي للواجهة"
-                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors w-full">
                 <i class="fas fa-sync-alt text-lg w-6 text-center"></i>
                 <span class="text-base font-semibold">تحديث الواجهة</span>
             </button>
 
             <button id="refresh-btn" title="تحديث الصفحة كلياً" onclick="location.reload(true);"
-                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors w-full">
                 <i class="fas fa-rotate-right text-lg w-6 text-center"></i>
                 <span class="text-base font-semibold">تحديث الصفحة</span>
             </button>
-        </nav>
+        </div>
     </aside>
 
     <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/60 z-40"></div>
@@ -567,7 +566,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, query, orderBy, updateDoc, doc, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy, updateDoc, doc, where, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { SidebarManager } from './sidebar-manager.js';
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -829,9 +830,27 @@
             setupSoundActivation();
 
             // Handle Auth and Load logic
-            onAuthStateChanged(auth, (user) => {
+            onAuthStateChanged(auth, async (user) => {
                 if (user) {
-                    currentUser = user;
+                    currentUser = user; // Basic auth user
+
+                    // Fetch full user data for role-based sidebar
+                    try {
+                        const userSnap = await getDoc(doc(db, "users", user.uid));
+                        if (userSnap.exists()) {
+                            const userData = userSnap.data();
+                            // Merge role into currentUser for global access
+                            window.currentUser = { ...user, ...userData };
+                        } else {
+                            window.currentUser = user;
+                        }
+                    } catch (e) {
+                        console.error("Error fetching user role:", e);
+                        window.currentUser = user;
+                    }
+
+                    SidebarManager.render('sidebar-nav-container', 'kitchen');
+
                     loadOrders();
 
                     // Request notification permission on load

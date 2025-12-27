@@ -492,186 +492,10 @@
             </div>
         </div>
 
-        <nav class="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
-            <!-- نظرة عامة -->
-            <a href="seller-dashboard.html"
-                class="w-full flex items-center gap-3 px-4 py-3 bg-gray-800 text-white rounded-xl transition-all duration-200 nav-btn group shadow-inner">
-                <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center">
-                    <i class="fas fa-chart-pie"></i>
-                </div>
-                <span class="font-medium">نظرة عامة</span>
-            </a>
-
-            <!-- الطلبات -->
-            <a href="restaurant-orders.html"
-                class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
-                <div
-                    class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
-                    <i class="fas fa-clipboard-list"></i>
-                </div>
-                <span class="font-medium">الطلبات</span>
-            </a>
-
-            <!-- شاشة المطبخ (للمطاعم فقط) - يمكن إخفاؤها لاحقاً لغير المطاعم -->
-            <a href="store-orders-screen.html" target="_blank"
-                class="w-full flex items-center gap-3 px-4 py-3 text-amber-500 hover:bg-gray-800 hover:text-amber-400 rounded-xl transition-all duration-200 nav-btn group border border-amber-500/10 bg-amber-500/5">
-                <div
-                    class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-500 group-hover:bg-amber-500 group-hover:text-amber-900 flex items-center justify-center transition-colors">
-                    <i class="fas fa-desktop"></i>
-                </div>
-                <span class="font-bold">شاشة الطلبات/المطبخ</span>
-            </a>
-
-            <button onclick="openSoundSettings()"
-                class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
-                <div
-                    class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-purple-600 group-hover:text-white flex items-center justify-center transition-colors">
-                    <i class="fas fa-music"></i>
-                </div>
-                <span class="font-medium">إعدادات الصوت</span>
-            </button>
-
-            <div class="my-2 border-t border-gray-800"></div>
-
-            <!-- المنتجات/القائمة -->
-            <a href="restaurant-menu.html"
-                class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
-                <div
-                    class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
-                    <i class="fas fa-box-open"></i>
-                </div>
-                <span class="font-medium">المنتجات / القائمة</span>
-            </a>
-
-            <!-- الأقسام -->
-            <a href="restaurant-sections.html"
-                class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
-                <div
-                    class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
-                    <i class="fas fa-folder"></i>
-                </div>
-                <span class="font-medium">أقسام المتجر</span>
-            </a>
-
-            <div class="my-2 border-t border-gray-800"></div>
-
-            <!-- العملاء -->
-            <a href="restaurant-customers.html"
-                class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
-                <div
-                    class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
-                    <i class="fas fa-users"></i>
-                </div>
-                <span class="font-medium">زبائني</span>
-            </a>
-
-            <!-- سجل العملاء -->
-            <a href="restaurant-customer-log.html"
-                class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
-                <div
-                    class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
-                    <i class="fas fa-address-book"></i>
-                </div>
-                <span class="font-medium">سجل الزوار</span>
-            </a>
-
-            <!-- الولاء والنقاط -->
-            <a href="restaurant-loyalty.html"
-                class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
-                <div
-                    class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
-                    <i class="fas fa-star"></i>
-                </div>
-                <span class="font-medium">الولاء والنقاط</span>
-            </a>
-
-            <div class="my-2 border-t border-gray-800"></div>
-
-            <!-- الكوبونات -->
-            <a href="restaurant-coupons.html"
-                class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
-                <div
-                    class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
-                    <i class="fas fa-ticket-alt"></i>
-                </div>
-                <span class="font-medium">الكوبونات</span>
-            </a>
-
-            <!-- العروض -->
-            <a href="restaurant-offers.html"
-                class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
-                <div
-                    class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
-                    <i class="fas fa-percent"></i>
-                </div>
-                <span class="font-medium">العروض</span>
-            </a>
-
-            <!-- السائقين (يمكن إخفاؤه) -->
-            <a href="restaurant-drivers.html"
-                class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
-                <div
-                    class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
-                    <i class="fas fa-motorcycle"></i>
-                </div>
-                <span class="font-medium">السائقين</span>
-            </a>
-
-            <!-- التقييمات -->
-            <a href="restaurant-reviews.html"
-                class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
-                <div
-                    class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
-                    <i class="fas fa-comment-alt"></i>
-                </div>
-                <span class="font-medium">التقييمات</span>
-            </a>
-
-            <!-- الإحصائيات -->
-            <a href="restaurant-stats.html"
-                class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
-                <div
-                    class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <span class="font-medium">الإحصائيات</span>
-            </a>
-
-            <div class="my-2 border-t border-gray-800"></div>
-
-            <!-- إعدادات الوفاء -->
-            <a href="restaurant-fulfillment-settings.html"
-                class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
-                <div
-                    class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
-                    <i class="fas fa-gift"></i>
-                </div>
-                <span class="font-medium">طرق الاستلام</span>
-            </a>
-
-            <!-- إعدادات التوصيل -->
-            <a href="restaurant-delivery-settings.html"
-                class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
-                <div
-                    class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
-                    <i class="fas fa-map-marked-alt"></i>
-                </div>
-                <span class="font-medium">إعدادات التوصيل</span>
-            </a>
-
-            <!-- الإعدادات -->
-            <a href="restaurant-settings.html"
-                class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200 nav-btn group">
-                <div
-                    class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
-                    <i class="fas fa-cogs"></i>
-                </div>
-                <span class="font-medium">إعدادات المتجر</span>
-            </a>
-
-            <!-- Theme Switcher Container -->
-            <div id="sidebar-theme-container"></div>
+        <nav id="sidebar-nav-container" class="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
+            <!-- Sidebar content will be injected by SidebarManager -->
         </nav>
+
 
         <div class="p-4 border-t border-gray-800 bg-gray-900/50">
             <a href="index.html"
@@ -1292,6 +1116,7 @@
 
     <script type="module">
         import { auth, db } from './app-core.js';
+        import { SidebarManager } from './sidebar-manager.js';
         import { collection, getDocs, doc, getDoc, addDoc, query, orderBy, serverTimestamp, where, limit, updateDoc, onSnapshot, arrayUnion, arrayRemove, setDoc, writeBatch, Timestamp, deleteDoc, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
@@ -1350,6 +1175,10 @@
                         data.uid = user.uid;
                         console.log("Initializing Dashboard Components for:", data.storeName);
                         initDashboardComponents(data);
+
+                        // Set global user for SidebarManager
+                        window.currentUser = user;
+                        SidebarManager.render('sidebar-nav-container', 'overview');
                     } else {
                         console.log('Role mismatch:', data.role);
                         alert(`غير مصرح لك بالوصول. دورك الحالي: ${data.role || 'مستخدم'}.`);

@@ -152,14 +152,10 @@
     </nav>
 
     <script type="module">
-        import { db } from './app-core.js';
-        import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        import { db } from './app-core.js';
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { collection, getDocs, query, orderBy, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const auth = getAuth();
+        import { db, auth } from './app-core.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { collection, getDocs, query, orderBy, doc, getDoc } from
+            "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Check Auth & Render My Subscription
         onAuthStateChanged(auth, async (user) => {
@@ -194,33 +190,38 @@
             const card = document.createElement('div');
             card.className = "glass-card p-6 mb-8 relative overflow-hidden ring-4 ring-indigo-50";
             card.innerHTML = `
-                <div class="absolute top-0 left-0 w-full h-1 bg-gray-100">
-                    <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-1000" style="width: ${progress}%"></div>
-                </div>
-                
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <span class="text-xs font-bold text-indigo-500 uppercase tracking-wider bg-indigo-50 px-2 py-1 rounded-full mb-2 inline-block">باقتك الحالية</span>
-                        <h3 class="text-2xl font-black text-gray-900">${sub.planName || 'الباقة المميزة'}</h3>
-                        <p class="text-xs text-gray-500 font-bold mt-1">تنتهي في: ${endDate ? endDate.toLocaleDateString('ar-EG') : 'غير محدد'}</p>
-                    </div>
-                     <div class="text-center">
-                        <div class="text-3xl font-black text-indigo-600">${daysRemaining}</div>
-                        <div class="text-[10px] text-gray-400 font-bold">يوم متبقي</div>
-                    </div>
-                </div>
+    <div class="absolute top-0 left-0 w-full h-1 bg-gray-100">
+        <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-1000"
+            style="width: ${progress}%"></div>
+    </div>
 
-                <div class="grid grid-cols-2 gap-4 mt-6">
-                    <div class="bg-white/50 p-3 rounded-xl border border-white">
-                        <span class="block text-xs text-gray-400 mb-1">الحالة</span>
-                        <span class="font-bold text-green-600 flex items-center gap-1"><i class="fas fa-check-circle"></i> نشط</span>
-                    </div>
-                     <div class="bg-white/50 p-3 rounded-xl border border-white">
-                        <span class="block text-xs text-gray-400 mb-1">التجديد</span>
-                        <span class="font-bold text-gray-700">${sub.autoRenew ? 'تلقائي' : 'يدوي'}</span>
-                    </div>
-                </div>
-            `;
+    <div class="flex justify-between items-start mb-4">
+        <div>
+            <span
+                class="text-xs font-bold text-indigo-500 uppercase tracking-wider bg-indigo-50 px-2 py-1 rounded-full mb-2 inline-block">باقتك
+                الحالية</span>
+            <h3 class="text-2xl font-black text-gray-900">${sub.planName || 'الباقة المميزة'}</h3>
+            <p class="text-xs text-gray-500 font-bold mt-1">تنتهي في: ${endDate ? endDate.toLocaleDateString('ar-EG') :
+                    'غير محدد'}</p>
+        </div>
+        <div class="text-center">
+            <div class="text-3xl font-black text-indigo-600">${daysRemaining}</div>
+            <div class="text-[10px] text-gray-400 font-bold">يوم متبقي</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mt-6">
+        <div class="bg-white/50 p-3 rounded-xl border border-white">
+            <span class="block text-xs text-gray-400 mb-1">الحالة</span>
+            <span class="font-bold text-green-600 flex items-center gap-1"><i class="fas fa-check-circle"></i>
+                نشط</span>
+        </div>
+        <div class="bg-white/50 p-3 rounded-xl border border-white">
+            <span class="block text-xs text-gray-400 mb-1">التجديد</span>
+            <span class="font-bold text-gray-700">${sub.autoRenew ? 'تلقائي' : 'يدوي'}</span>
+        </div>
+    </div>
+    `;
 
             // Insert at the top of hero section or create a dedicated container
             // We'll insert properly into the DOM
@@ -246,11 +247,11 @@
 
                 if (querySnapshot.empty) {
                     container.innerHTML = `
-                    <div class="text-center py-10 bg-white rounded-2xl shadow-sm">
-                        <i class="fas fa-box-open text-4xl text-gray-300 mb-3"></i>
-                        <p class="text-gray-500 font-bold">لا توجد باقات متاحة حالياً.</p>
-                        <p class="text-xs text-gray-400 mt-1">يرجى التواصل معنا للمزيد من المعلومات.</p>
-                    </div>`;
+    <div class="text-center py-10 bg-white rounded-2xl shadow-sm">
+        <i class="fas fa-box-open text-4xl text-gray-300 mb-3"></i>
+        <p class="text-gray-500 font-bold">لا توجد باقات متاحة حالياً.</p>
+        <p class="text-xs text-gray-400 mt-1">يرجى التواصل معنا للمزيد من المعلومات.</p>
+    </div>`;
                     return;
                 }
 
@@ -258,37 +259,41 @@
 
                 querySnapshot.forEach((doc) => {
                     const plan = doc.data();
-                    const featuresHTML = (plan.features || []).map(f => `<div class="feature-item flex items-center text-sm font-medium text-gray-600 mb-3"><i class="fas fa-check"></i> ${f}</div>`).join('');
+                    const featuresHTML = (plan.features || []).map(f => `<div
+        class="feature-item flex items-center text-sm font-medium text-gray-600 mb-3"><i class="fas fa-check"></i> ${f}
+    </div>`).join('');
                     const accentColor = plan.color || '#4f46e5';
 
                     const card = document.createElement('div');
                     card.className = "glass-card p-6 plan-card relative overflow-hidden";
 
                     card.innerHTML = `
-                        ${plan.isPopular ? `<div class="absolute top-0 right-0 bg-yellow-400 text-white text-[10px] font-black px-3 py-1 rounded-bl-xl shadow-sm z-10">الأكثر طلباً 🔥</div>` : ''}
-                        
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 class="text-xl font-black text-gray-900">${plan.name}</h3>
-                                <div class="h-1 w-12 rounded-full mt-2" style="background-color: ${accentColor}"></div>
-                            </div>
-                        </div>
+    ${plan.isPopular ? `<div
+        class="absolute top-0 right-0 bg-yellow-400 text-white text-[10px] font-black px-3 py-1 rounded-bl-xl shadow-sm z-10">
+        الأكثر طلباً 🔥</div>` : ''}
 
-                        <div class="mb-6 flex items-baseline">
-                            <span class="text-4xl font-black text-gray-900 tracking-tight">${plan.price.toLocaleString()}</span>
-                            <span class="text-sm font-bold text-gray-400 mr-2">د.ج / ${plan.period}</span>
-                        </div>
+    <div class="flex justify-between items-start mb-4">
+        <div>
+            <h3 class="text-xl font-black text-gray-900">${plan.name}</h3>
+            <div class="h-1 w-12 rounded-full mt-2" style="background-color: ${accentColor}"></div>
+        </div>
+    </div>
 
-                        <div class="bg-white/50 rounded-2xl p-4 mb-6 border border-white/50">
-                            ${featuresHTML}
-                        </div>
+    <div class="mb-6 flex items-baseline">
+        <span class="text-4xl font-black text-gray-900 tracking-tight">${plan.price.toLocaleString()}</span>
+        <span class="text-sm font-bold text-gray-400 mr-2">د.ج / ${plan.period}</span>
+    </div>
 
-                        <a href="tel:0699443914" 
-                           class="block w-full text-center py-4 rounded-xl font-bold text-white shadow-lg shadow-indigo-200 transition transform active:scale-95"
-                           style="background-color: ${accentColor}">
-                           اشترك الآن
-                        </a>
-                    `;
+    <div class="bg-white/50 rounded-2xl p-4 mb-6 border border-white/50">
+        ${featuresHTML}
+    </div>
+
+    <a href="tel:0699443914"
+        class="block w-full text-center py-4 rounded-xl font-bold text-white shadow-lg shadow-indigo-200 transition transform active:scale-95"
+        style="background-color: ${accentColor}">
+        اشترك الآن
+    </a>
+    `;
                     container.appendChild(card);
                 });
 
