@@ -251,8 +251,43 @@
         <p class="text-gray-600 text-sm font-medium">&copy; 2025 S22 Market. جميع الحقوق محفوظة.</p>
     </footer>
 
-    <script>
-        function switchTab(tabName) {
+    <script type="module">
+        import { db } from './app-core.js';
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Fetch dynamic content
+        async function loadTermsContent() {
+            try {
+                const docSnap = await getDoc(doc(db, "settings", "terms_content"));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+
+                    const update = (id, html) => {
+                        const container = document.querySelector(`#${id} .space-y-6, #${id} .space-y-8, #${id} .grid`);
+                        if (container && html && html.trim() !== "") {
+                            container.innerHTML = html.replace(/\n/g, '<br>');
+                        }
+                    };
+
+                    if (data.general) update('content-general', data.general);
+                    if (data.users) update('content-users', data.users);
+
+                    if (data.merchants && data.merchants.trim() !== "") {
+                        const mContainer = document.querySelector('#content-merchants .grid');
+                        if (mContainer) {
+                            mContainer.className = "space-y-6 text-gray-600 leading-relaxed";
+                            mContainer.innerHTML = data.merchants.replace(/\n/g, '<br>');
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching terms:", error);
+            }
+        }
+
+        loadTermsContent();
+
+        window.switchTab = function (tabName) {
             // Update Buttons
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active', 'bg-indigo-600', 'text-white');

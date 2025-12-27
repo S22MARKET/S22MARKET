@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S22 Market - إدارة الشروط والأحكام</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="theme-manager.js"></script>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .hidden { display: none; }
+        
+        .dashboard-tab:hover { background-color: #4338ca; }
+        .dashboard-tab.active-tab { background-color: #4f46e5; color: white; font-weight: bold; }
+        
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4f46e5;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+
+<body>
+
+    <div id="login-page" class="hidden min-h-screen flex items-center justify-center bg-gray-100 p-4">
+        <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl space-y-6 text-center">
+            <h2 class="text-3xl font-extrabold text-gray-900">يرجى تسجيل الدخول</h2>
+            <p class="text-red-500">يجب أن تكون مشرفاً للوصول لهذه الصفحة.</p>
+            <a href="admin-login.html" class="inline-block bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700">تسجيل الدخول</a>
+        </div>
+    </div>
+
+    <div id="dashboard-page" class="hidden">
+        <div class="relative min-h-screen md:flex">
+
+            <!-- Sidebar -->
+            <aside id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 right-0 transform translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30">
+                <div class="p-3 text-center border-b border-gray-700">
+                    <h2 class="text-2xl font-bold">S22 Market</h2>
+                    <p id="admin-welcome-name" class="text-sm text-indigo-300"></p>
+                </div>
+                <nav class="flex-1 p-2 space-y-2">
+                    <a href="dashboard.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-chart-line fa-fw mr-3"></i> لوحة التحكم</a>
+                    <a href="admin-terms.html" class="dashboard-tab active-tab flex items-center px-4 py-3 rounded-md"><i class="fas fa-file-contract fa-fw mr-3 text-green-400"></i> إدارة الشروط</a>
+                    <a href="dashboard.html" class="dashboard-tab flex items-center px-4 py-3 rounded-md hover:bg-indigo-700"><i class="fas fa-arrow-right fa-fw mr-3"></i> العودة للرئيسية</a>
+                </nav>
+                <div class="p-4 border-t border-gray-700">
+                    <button id="logout-btn" class="w-full bg-red-600 py-2 rounded-md hover:bg-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج</button>
+                    <div id="sidebar-theme-container"></div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold text-gray-800">إدارة نصوص الشروط والأحكام</h1>
+                    <button onclick="saveTerms()" id="save-btn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700 flex items-center gap-2">
+                        <i class="fas fa-save"></i> حفظ التعديلات
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100 relative">
+                    <div id="loading-overlay" class="absolute inset-0 bg-white/80 z-10 flex items-center justify-center hidden">
+                        <div class="loader"></div>
+                    </div>
+
+                    <div class="grid gap-8">
+                        <!-- General Terms -->
+                        <div>
+                            <label class="block text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                <i class="fas fa-gavel text-indigo-500"></i> الأحكام العامة
+                            </label>
+                            <p class="text-sm text-gray-500 mb-2">تظهر في تبويب "أحكام عامة". يقبل HTML.</p>
+                            <textarea id="terms-general" rows="6" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-sm" placeholder="أدخل نص الأحكام العامة هنا..."></textarea>
+                        </div>
+
+                        <!-- User Terms -->
+                        <div>
+                            <label class="block text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                <i class="fas fa-users text-green-500"></i> شروط المستخدمين
+                            </label>
+                            <p class="text-sm text-gray-500 mb-2">تظهر في تبويب "المستخدمين".</p>
+                            <textarea id="terms-users" rows="6" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-sm" placeholder="أدخل شروط المستخدمين هنا..."></textarea>
+                        </div>
+
+                        <!-- Merchant Terms -->
+                        <div>
+                            <label class="block text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                <i class="fas fa-store text-orange-500"></i> شروط التجار
+                            </label>
+                            <p class="text-sm text-gray-500 mb-2">تظهر في تبويب "التجار والشركاء".</p>
+                            <textarea id="terms-merchants" rows="6" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-sm" placeholder="أدخل شروط التجار هنا..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './app-core.js';
+        import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const ADMIN_EMAILS = ['s22market@gmail.com', 'yacinee474474@gmail.com', 'nourmt01@gmail.com'];
+        const dashboardPage = document.getElementById('dashboard-page');
+        const loginPage = document.getElementById('login-page');
+        
+        // Auth Logic
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                let isAdmin = ADMIN_EMAILS.includes(user.email);
+                if (!isAdmin) {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists() && userDoc.data().role === 'admin') isAdmin = true;
+                }
+
+                if (isAdmin) {
+                    loginPage.classList.add('hidden');
+                    dashboardPage.classList.remove('hidden');
+                    document.getElementById('admin-welcome-name').textContent = user.displayName || 'Admin';
+                    ThemeManager.renderSidebarControl('sidebar-theme-container');
+                    loadTerms();
+                } else {
+                    forceLogin();
+                }
+            } else {
+                forceLogin();
+            }
+        });
+
+        function forceLogin() {
+            dashboardPage.classList.add('hidden');
+            loginPage.classList.remove('hidden');
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+
+        // Load Terms
+        async function loadTerms() {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.classList.remove('hidden');
+            try {
+                const docSnap = await getDoc(doc(db, "settings", "terms_content"));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    document.getElementById('terms-general').value = data.general || '';
+                    document.getElementById('terms-users').value = data.users || '';
+                    document.getElementById('terms-merchants').value = data.merchants || '';
+                } else {
+                    // Pre-fill with defaults if empty so they don't lose the hardcoded nice design immediately
+                    // Actually, let's leave empty and let them write, or maybe just placeholder.
+                }
+            } catch (error) {
+                console.error("Error loading terms:", error);
+                alert("خطأ في تحميل البيانات");
+            } finally {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // Save Terms
+        window.saveTerms = async function() {
+            const btn = document.getElementById('save-btn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...`;
+
+            const general = document.getElementById('terms-general').value;
+            const users = document.getElementById('terms-users').value;
+            const merchants = document.getElementById('terms-merchants').value;
+
+            try {
+                await setDoc(doc(db, "settings", "terms_content"), {
+                    general,
+                    users,
+                    merchants,
+                    updatedAt: serverTimestamp()
+                });
+                alert("تم حفظ التعديلات بنجاح!");
+            } catch (error) {
+                console.error("Error saving terms:", error);
+                alert("حدث خطأ أثناء الحفظ: " + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        };
+    </script>
+</body>
+</html>
