@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التقييمات | S22 Vendor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="app-style.css">
+    <script src="theme-manager.js"></script>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="auth-loader" class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-4">S22 <span class="text-orange-500">VENDOR</span></h1>
+        <div class="spinner border-4 border-gray-300 border-t-orange-500 rounded-full w-8 h-8 animate-spin"></div>
+        <p class="mt-4 text-gray-600">جاري التحقق من الهوية...</p>
+    </div>
+
+    <div id="dashboard-page" class="hidden">
+        <div class="relative min-h-screen md:flex">
+            <!-- Sidebar Container -->
+            <nav id="sidebar-nav-container"></nav>
+
+            <div class="flex-1 flex flex-col">
+                <header class="bg-white shadow-md p-4 flex justify-between items-center">
+                    <h1 class="text-xl font-bold">تقييمات العملاء</h1>
+                    <button id="mobile-menu-btn" class="text-gray-800 p-2 rounded-lg md:hidden"><i
+                            class="fas fa-bars fa-lg"></i></button>
+                </header>
+
+                <main class="flex-1 p-6">
+                    <div
+                        class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center text-gray-500 min-h-[300px] flex flex-col items-center justify-center">
+                        <i class="fas fa-comments text-5xl mb-6 text-gray-300"></i>
+                        <h2 class="text-xl font-bold text-gray-700 mb-2">لا توجد تقييمات حتى الآن</h2>
+                        <p>ستظهر آراء وتقييمات العملاء لمنتجاتك هنا.</p>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './app-core.js';
+        import { SidebarManager } from './sidebar-manager.js';
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // --- INLINED AUTH ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    if (['vendor', 'admin', 'restaurant'].includes(userData.role)) {
+                        document.getElementById('auth-loader').classList.add('hidden');
+                        document.getElementById('dashboard-page').classList.remove('hidden');
+
+                        // Initialize Sidebar
+                        window.currentUser = userData;
+                        window.currentUser.uid = user.uid;
+                        SidebarManager.render('sidebar-nav-container', 'reviews');
+
+                        initMobileMenu();
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                } else {
+                    window.location.href = 'login.html';
+                }
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        function initMobileMenu() {
+            setTimeout(() => {
+                const sidebar = document.querySelector('#sidebar-nav-container aside');
+                // SidebarManager creates 'aside' inside the container usually, or replaces it.
+                // Actually SidebarManager.render replaces innerHTML or similar.
+                // Let's rely on standard ID if SidebarManager produces it, OR find the nav element.
+
+                // If SidebarManager generates the whole aside:
+                const aside = document.querySelector('aside');
+                const btn = document.getElementById('mobile-menu-btn');
+                if (aside && btn) {
+                    // Need overlay
+                    let overlay = document.getElementById('sidebar-overlay');
+                    if (!overlay) {
+                        overlay = document.createElement('div');
+                        overlay.id = 'sidebar-overlay';
+                        overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden hidden';
+                        document.body.appendChild(overlay);
+                    }
+
+                    btn.onclick = () => { aside.classList.remove('translate-x-full'); overlay.classList.remove('hidden'); };
+                    overlay.onclick = () => { aside.classList.add('translate-x-full'); overlay.classList.add('hidden'); };
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>

@@ -49,9 +49,9 @@ export class SidebarManager {
             { separator: true },
             {
                 key: 'products',
-                label: isRestaurant ? 'قائمة الطعام' : 'المنتجات',
+                label: isRestaurant ? 'قائمة الطعام' : 'إدارة المنتجات',
                 icon: isRestaurant ? 'fa-utensils' : 'fa-box-open',
-                url: 'restaurant-menu.html',
+                url: isRestaurant ? 'restaurant-menu.html' : 'vendor-products.html',
                 roles: ['all']
             },
             {
@@ -110,7 +110,7 @@ export class SidebarManager {
                 key: 'reviews',
                 label: 'التقييمات',
                 icon: 'fa-comment-alt',
-                url: 'restaurant-reviews.html',
+                url: isRestaurant ? 'restaurant-reviews.html' : 'vendor-reviews.html',
 
                 roles: ['all']
             },

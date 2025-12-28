@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المنتجات | S22 Vendor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link rel="stylesheet" href="app-style.css">
+    <script src="theme-manager.js"></script>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .dashboard-tab.active-tab {
+            background-color: #ea580c;
+            color: white;
+        }
+
+        .dashboard-panel {
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 700px;
+            z-index: 50;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .toast {
+            background-color: #2d3748;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+        }
+
+        .toast.success {
+            background-color: #2f855a;
+        }
+
+        .toast.error {
+            background-color: #c53030;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #48bb78;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(24px);
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .spinner-dark {
+            width: 24px;
+            height: 24px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top-color: #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .ql-editor {
+            min-height: 120px;
+        }
+    </style>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+</head>
+
+<body>
+
+    <div id="auth-loader" class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-4">S22 <span class="text-orange-500">VENDOR</span></h1>
+        <div class="spinner-dark"></div>
+        <p class="mt-4 text-gray-600">جاري التحقق من الهوية...</p>
+    </div>
+
+    <div id="dashboard-page" class="hidden">
+        <div class="relative min-h-screen md:flex">
+            <!-- Sidebar Container -->
+            <nav id="sidebar-nav-container"></nav>
+
+            <div class="flex-1 flex flex-col">
+                <header class="bg-white shadow-md p-4 flex justify-between items-center">
+                    <h1 class="text-xl font-bold">إدارة المنتجات</h1>
+                    <button id="mobile-menu-btn" class="text-gray-800 p-2 rounded-lg md:hidden"><i
+                            class="fas fa-bars fa-lg"></i></button>
+                </header>
+
+                <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+
+                    <div id="menu-items-panel" class="dashboard-panel">
+                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
+                            <div>
+                                <h1 class="text-3xl font-bold text-gray-800">المنتجات</h1>
+                                <div class="relative mt-2">
+                                    <i
+                                        class="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" id="menu-search-input" placeholder="ابحث عن منتج..."
+                                        class="w-full md:w-64 pr-10 pl-3 py-2 border rounded-lg">
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <button id="add-menu-item-btn"
+                                    class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700 h-fit">
+                                    <i class="fas fa-plus mr-2"></i> إضافة منتج
+                                </button>
+                            </div>
+                        </div>
+                        <div id="menu-items-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="col-span-full text-center p-8 bg-white rounded-lg shadow-sm">
+                                <div class="spinner-dark mx-auto"></div>
+                                <p class="mt-4 text-gray-600">جاري تحميل المنتجات...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-container"></div>
+    <div id="toast-container"></div>
+
+    <script type="module">
+        import { auth, db } from './app-core.js';
+        import { SidebarManager } from './sidebar-manager.js';
+        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, serverTimestamp, orderBy, getDoc, setDoc, getDocs, where, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        let currentUser = null;
+
+        // --- INLINED AUTH (Self-Contained) ---
+        async function requireAuth(authInstance) {
+            return new Promise((resolve) => {
+                const unsubscribe = onAuthStateChanged(authInstance, (user) => {
+                    if (!user) {
+                        try {
+                            localStorage.setItem('s22_return_url', window.location.href);
+                            window.location.href = 'login.html';
+                        } catch (e) { console.error(e); }
+                        resolve(null);
+                    } else {
+                        resolve(user);
+                    }
+                    unsubscribe();
+                });
+            });
+        }
+
+        requireAuth(auth).then(async (user) => {
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                if (userData.role === 'vendor' || userData.role === 'admin' || userData.role === 'restaurant') {
+                    if (userData.isSuspended && userData.role !== 'admin') {
+                        document.body.innerHTML = `
+                            <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
+                                <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md text-center">
+                                    <div class="text-red-500 text-5xl mb-4"><i class="fas fa-store-slash"></i></div>
+                                    <h1 class="text-2xl font-bold text-gray-800 mb-2">تم تجميد حساب المتجر</h1>
+                                    <p class="text-gray-600 mb-6">نأسف، تم إيقاف حساب متجرك مؤقتاً من قبل الإدارة. يرجى التواصل مع الدعم الفني لمزيد من التفاصيل.</p>
+                                    <button onclick="window.location.reload()" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300">تحديث الصفحة</button>
+                                    <button onclick="logout()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 mt-2 block w-full">تسجيل الخروج</button>
+                                </div>
+                            </div>
+                        `;
+                        window.logout = () => signOut(auth).then(() => window.location.href = 'index.html');
+                        return;
+                    }
+
+                    currentUser = user;
+                    if (document.getElementById('auth-loader')) document.getElementById('auth-loader').classList.add('hidden');
+                    if (document.getElementById('dashboard-page')) document.getElementById('dashboard-page').classList.remove('hidden');
+
+                    // Initialize Sidebar
+                    window.currentUser = userData; // For sidebar manager
+                    window.currentUser.uid = user.uid; // Ensure UID is present
+                    SidebarManager.render('sidebar-nav-container', 'products');
+
+                    initializeDashboard();
+                } else {
+                    window.location.href = 'index.html';
+                }
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // --- GLOBAL CACHES ---
+        let categoriesCache = [];
+        let menuItemsCache = [];
+        let quillEditor = null;
+        let selectedFileStore = {};
+
+        window.formatCurrency = (number) => {
+            const num = Math.round(number) || 0;
+            return `${num} د.ج`;
+        };
+
+        window.showModal = (title, content, onConfirm, confirmText = 'حفظ', showCancel = true) => {
+            const modalContainer = document.getElementById('modal-container');
+            const confirmButtonHtml = onConfirm ? `<button id="modal-confirm" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 flex items-center gap-2">${confirmText}</button>` : '';
+            const cancelButtonHtml = showCancel ? `<button id="modal-cancel" class="bg-gray-200 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300">إلغاء</button>` : '';
+            modalContainer.innerHTML = `<div class="modal-backdrop" id="modal-backdrop"><div class="modal-content"><div class="flex justify-between items-center mb-4 border-b pb-3"><h3 class="text-xl font-bold">${title}</h3><button id="modal-close-btn" class="text-2xl">&times;</button></div><div id="modal-body">${content}</div><div class="flex justify-end gap-4 mt-6 border-t pt-4">${cancelButtonHtml}${confirmButtonHtml}</div></div></div>`;
+            const close = () => { quillEditor = null; modalContainer.innerHTML = ''; }
+            if (showCancel) document.getElementById('modal-cancel').onclick = close;
+            document.getElementById('modal-close-btn').onclick = close;
+            document.getElementById('modal-backdrop').onclick = e => { if (e.target.id === 'modal-backdrop') close(); };
+            if (onConfirm) document.getElementById('modal-confirm').onclick = onConfirm;
+        };
+
+        window.closeModal = () => {
+            quillEditor = null;
+            document.getElementById('modal-container').innerHTML = '';
+        }
+
+        window.showDeletionConfirmModal = (onConfirmCallback) => {
+            const content = `<p class="mb-4 text-lg">لتأكيد عملية الحذف، الرجاء إدخال الرمز التالي:</p><div class="text-center mb-4"><code class="text-2xl font-bold bg-gray-100 p-2 rounded-lg text-orange-600 select-all">S22MARKET</code></div><input type="text" id="deletion-code-input" placeholder="أدخل الرمز هنا للتأكيد" class="w-full p-3 border rounded-lg text-center tracking-widest uppercase focus:ring-2 focus:ring-orange-400 focus:border-orange-400"><p id="deletion-error-msg" class="text-red-600 text-sm mt-2 text-center hidden">الرمز الذي أدخلته غير صحيح.</p>`;
+            showModal('تأكيد عملية الحذف', content, () => {
+                const codeInput = document.getElementById('deletion-code-input');
+                const errorMsg = document.getElementById('deletion-error-msg');
+                if (codeInput.value.trim().toUpperCase() === 'S22MARKET') { onConfirmCallback(); closeModal(); }
+                else { errorMsg.classList.remove('hidden'); codeInput.classList.add('border-red-500'); }
+            }, 'تأكيد الحذف', true);
+        };
+
+        window.showToast = (message, type = 'success') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+            toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        };
+
+        window.setButtonLoading = (btn, isLoading, text = 'حفظ') => {
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = `<div class="spinner"></div><span>جاري الحفظ...</span>`;
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = text;
+            }
+        };
+
+        async function compressImage(file, maxWidth = 1024) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = event => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const scaleSize = maxWidth / img.width;
+                        canvas.width = maxWidth;
+                        canvas.height = img.height * scaleSize;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        ctx.canvas.toBlob((blob) => {
+                            const compressedFile = new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() });
+                            resolve(compressedFile);
+                        }, 'image/jpeg', 0.8);
+                    };
+                    img.onerror = reject;
+                };
+                reader.onerror = reject;
+            });
+        }
+
+        async function uploadImageToImgBB(file) {
+            const apiKey = '10cb4fda942ce7147252dc316751b47c';
+            const formData = new FormData();
+            formData.append('image', file);
+            try {
+                const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, { method: 'POST', body: formData });
+                if (!response.ok) { return { success: false, error: `Upload Failed: ${response.statusText}` }; }
+                const result = await response.json();
+                if (result.success) { return { success: true, url: result.data.url }; }
+                else { return { success: false, error: result.error.message }; }
+            } catch (error) {
+                console.error('Image upload error:', error);
+                return { success: false, error: 'Network Error' };
+            }
+        }
+
+        function initializeDashboard() {
+            // Mobile menu
+            const overlay = document.createElement('div');
+            overlay.id = 'sidebar-overlay';
+            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden hidden';
+            document.body.appendChild(overlay);
+
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            // We need to wait for SidebarManager to inject sidebar to get element
+            // But simpler is to add event listener to document or wait slightly
+
+            // Actually SidebarManager renders synchronously but the element #sidebar comes from it.
+            // Let's assume standard IDs from sidebar manager: #sidebar-nav
+
+            setTimeout(() => {
+                const sidebar = document.querySelector('aside'); // SidebarManager creates an aside
+                if (sidebar && mobileMenuBtn) {
+                    mobileMenuBtn.onclick = () => { sidebar.classList.remove('translate-x-full'); overlay.classList.remove('hidden'); };
+                    overlay.onclick = () => { sidebar.classList.add('translate-x-full'); overlay.classList.add('hidden'); };
+                }
+            }, 500);
+
+            loadCategories();
+            loadMenuItems();
+        }
+
+        function loadCategories() {
+            const q = query(collection(db, "categories"), where("sellerId", "==", currentUser.uid));
+            onSnapshot(q, snapshot => {
+                categoriesCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            });
+        }
+
+        function loadMenuItems() {
+            document.getElementById('add-menu-item-btn').onclick = () => showMenuItemModal();
+            document.getElementById('menu-search-input').addEventListener('input', renderMenuItemsGrid);
+
+            const q = query(collection(db, "products"), where("sellerId", "==", currentUser.uid));
+
+            onSnapshot(q, snapshot => {
+                menuItemsCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                menuItemsCache.sort((a, b) => {
+                    const tA = a.createdAt ? a.createdAt.toMillis() : 0;
+                    const tB = b.createdAt ? b.createdAt.toMillis() : 0;
+                    return tB - tA;
+                });
+                renderMenuItemsGrid();
+            });
+        }
+
+        function renderMenuItemsGrid() {
+            const list = document.getElementById('menu-items-list');
+            const searchTerm = document.getElementById('menu-search-input')?.value.toLowerCase() || '';
+
+            const filteredItems = menuItemsCache.filter(item =>
+                (item.name?.ar && item.name.ar.toLowerCase().includes(searchTerm)) ||
+                (item.name?.fr && item.name.fr.toLowerCase().includes(searchTerm))
+            );
+
+            list.innerHTML = filteredItems.length === 0 ? '<div class="col-span-full text-center p-8 bg-white rounded-lg shadow-sm"><p>لا توجد منتجات تطابق بحثك.</p></div>' : '';
+
+            filteredItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = `bg-white p-4 rounded-xl shadow-md flex flex-col transition-opacity ${item.isAvailable === false ? 'opacity-50' : ''}`;
+
+                card.innerHTML = `
+                <img src="${(item.imageUrl) || 'https://via.placeholder.com/300x160.png?text=No+Image'}" class="w-full h-40 object-cover rounded-lg mb-4 bg-gray-100">
+                <div class="flex justify-between items-start">
+                    <h3 class="text-xl font-bold">${item.name?.ar || ''} <span class="text-base text-gray-500 font-normal">${item.name?.fr ? '/ ' + item.name.fr : ''}</span></h3>
+                    <div class="text-xs text-center">
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="availability-toggle" data-id="${item.id}" ${item.isAvailable !== false ? 'checked' : ''}>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="font-semibold">${item.isAvailable !== false ? 'متوفر' : 'نفذ'}</span>
+                    </div>
+                </div>
+                <div class="description-content text-gray-500 text-sm my-2 flex-grow">${item.description || ''}</div>
+                <p class="text-lg font-bold text-indigo-600">${formatCurrency(item.price)}</p>
+                <div class="border-t mt-4 pt-3 flex justify-end gap-3">
+                    <button class="edit-menu-item-btn text-indigo-500" data-id="${item.id}"><i class="fas fa-edit"></i> تعديل</button>
+                    <button class="delete-menu-item-btn text-red-500" data-id="${item.id}"><i class="fas fa-trash"></i> حذف</button>
+                </div>`;
+
+                list.appendChild(card);
+            });
+
+            attachMenuItemActionListeners();
+        }
+
+        function attachMenuItemActionListeners() {
+            document.querySelectorAll('.edit-menu-item-btn').forEach(btn => btn.onclick = e => showMenuItemModal(menuItemsCache.find(i => i.id === e.currentTarget.dataset.id)));
+
+            document.querySelectorAll('.delete-menu-item-btn').forEach(btn => btn.onclick = e => {
+                const docId = e.currentTarget.dataset.id;
+                showDeletionConfirmModal(async () => {
+                    await deleteDoc(doc(db, "products", docId));
+                    showToast('تم حذف المنتج بنجاح.', 'success');
+                });
+            });
+
+            document.querySelectorAll('.availability-toggle').forEach(toggle => toggle.onchange = async e => {
+                await updateDoc(doc(db, "products", e.currentTarget.dataset.id), { isAvailable: e.currentTarget.checked });
+                showToast('تم تحديث حالة المنتج.', 'success');
+            });
+        }
+
+        function showMenuItemModal(item = null) {
+            selectedFileStore.menuItem = null;
+
+            const categoryOptions = categoriesCache.map(c =>
+                `<option value="${c.id}" ${item && item.categoryId === c.id ? 'selected' : ''}>${c.name.ar}</option>`
+            ).join('');
+
+            const content = `
+            <div class="space-y-4">
+                <div><label class="font-semibold text-sm text-gray-700">اسم المنتج (بالعربية)</label><input type="text" id="item-name-ar" placeholder="مثال: قميص قطني" class="w-full p-2 border rounded mt-1" value="${item?.name?.ar || ''}" dir="rtl"></div>
+                <div><label class="font-semibold text-sm text-gray-700">اسم المنتج (بالأجنبية)</label><input type="text" id="item-name-fr" placeholder="Ex: Cotton Shirt" class="w-full p-2 border rounded mt-1" value="${item?.name?.fr || ''}" dir="ltr"></div>
+                <input type="number" id="item-price" placeholder="السعر (د.ج)" class="w-full p-2 border rounded" value="${item ? item.price : ''}" required>
+                <div><label class="font-semibold text-sm text-gray-700">الوصف</label><div id="item-description-editor" class="mt-1 bg-white"></div></div>
+                <select id="item-category" class="w-full p-2 border rounded bg-white"><option value="">اختر قسم...</option>${categoryOptions}</select>
+                <div class="border p-3 rounded-lg bg-gray-50">
+                    <label class="font-semibold text-sm">صورة المنتج</label>
+                    <div id="image-preview" class="mt-2"><img src="${item?.imageUrl || 'https://via.placeholder.com/150'}" class="w-32 h-32 object-cover rounded-md bg-gray-200"></div>
+                    <input type="file" id="item-image-file" class="mt-2 w-full text-sm">
+                </div>
+            </div>`;
+
+            showModal(item ? 'تعديل منتج' : 'إضافة منتج جديد', content, async () => {
+                const saveBtn = document.getElementById('modal-confirm');
+                const nameAr = document.getElementById('item-name-ar').value.trim();
+                const nameFr = document.getElementById('item-name-fr').value.trim();
+                const price = parseFloat(document.getElementById('item-price').value);
+                const categoryId = document.getElementById('item-category').value;
+                const description = quillEditor.root.innerHTML;
+                const imageFile = selectedFileStore.menuItem;
+
+                if (!nameAr || !price || !categoryId) {
+                    showToast('الرجاء ملء الحقول الإلزامية (الاسم، السعر، القسم)', 'error');
+                    return;
+                }
+
+                setButtonLoading(saveBtn, true);
+
+                try {
+                    let imageUrl = item?.imageUrl || '';
+
+                    if (imageFile) {
+                        const compressed = await compressImage(imageFile);
+                        const upload = await uploadImageToImgBB(compressed);
+                        if (upload.success) imageUrl = upload.url;
+                        else throw new Error(upload.error);
+                    }
+
+                    const productData = {
+                        name: { ar: nameAr, fr: nameFr },
+                        price,
+                        description: description === '<p><br></p>' ? '' : description,
+                        categoryId,
+                        imageUrl,
+                        sellerId: currentUser.uid,
+                        // Defaults for Retail
+                        storeName: currentUser.storeName,
+                        categoryName: categoriesCache.find(c => c.id === categoryId)?.name.ar || 'عام',
+                        type: 'retail', // Explicitly mark as retail
+                        updatedAt: serverTimestamp()
+                    };
+
+                    if (item) {
+                        await updateDoc(doc(db, "products", item.id), productData);
+                        showToast('تم تحديث المنتج', 'success');
+                    } else {
+                        productData.createdAt = serverTimestamp();
+                        productData.isAvailable = true;
+                        await addDoc(collection(db, "products"), productData);
+                        showToast('تم إضافة المنتج', 'success');
+                    }
+                    closeModal();
+
+                } catch (error) {
+                    console.error("Save error:", error);
+                    showToast('خطأ في الحفظ: ' + error.message, 'error');
+                    setButtonLoading(saveBtn, false);
+                }
+            });
+
+            // Init Quill
+            quillEditor = new Quill('#item-description-editor', {
+                theme: 'snow',
+                modules: { toolbar: [['bold', 'italic'], [{ 'list': 'bullet' }], ['clean']] }
+            });
+            if (item && item.description) quillEditor.root.innerHTML = item.description;
+
+            // Image Preview
+            document.getElementById('item-image-file').onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    selectedFileStore.menuItem = file;
+                    const reader = new FileReader();
+                    reader.onload = e => document.getElementById('image-preview').innerHTML = `<img src="${e.target.result}" class="w-32 h-32 object-cover rounded-md">`;
+                    reader.readAsDataURL(file);
+                }
+            };
+        }
+
+    </script>
+</body>
+
+</html>
