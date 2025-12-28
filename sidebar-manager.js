@@ -31,10 +31,10 @@ export class SidebarManager {
             },
             {
                 key: 'kitchen',
-                label: 'شاشة المطبخ',
-                icon: 'fa-desktop',
-                url: 'store-orders-screen.html',
-                roles: ['restaurant'], // Only restaurants need this
+                label: isRestaurant ? 'شاشة المطبخ' : 'شاشة التجهيز',
+                icon: isRestaurant ? 'fa-fire-burner' : 'fa-desktop',
+                url: isRestaurant ? 'restaurant-orders-screen.html' : 'store-orders-screen.html',
+                roles: ['all'],
                 target: '_blank',
                 specialClass: 'text-amber-500 hover:bg-gray-800 hover:text-amber-400 border border-amber-500/10 bg-amber-500/5',
                 iconClass: 'bg-amber-500/10 text-amber-500 group-hover:bg-amber-500 group-hover:text-amber-900'

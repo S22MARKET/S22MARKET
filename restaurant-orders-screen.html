@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S22 MARKET - شاشة التجهيز (Retail)</title>
+    <title>S22 RESTAURANT - شاشة المطبخ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -376,7 +376,7 @@
 
             <i class="fas fa-hand-holding-heart text-6xl text-orange-400 mb-6 animate-pulse"></i>
 
-            <h2 class="text-3xl font-bold text-white mb-4">مرحباً بك يا مدير المتجر</h2>
+            <h2 class="text-3xl font-bold text-white mb-4">مرحباً بك يا مدير المطعم</h2>
             <p class="text-gray-300 mb-8 text-lg leading-relaxed">
                 للبدء وتفعيل الأصوات، نطلب منك ذكر الله تعظيماً وشكراً:
             </p>
@@ -487,7 +487,7 @@
 
     <header class="bg-gray-900 shadow-md p-4 flex justify-between items-center sticky top-0 z-30">
         <div class="flex items-center gap-4">
-            <h1 class="text-xl font-bold">S22 <span class="text-orange-500">RETAIL</span> التجهيز والشحن </h1>
+            <h1 class="text-xl font-bold">S22 <span class="text-orange-500">KITCHEN</span> للمطاعم </h1>
             <div class="flex items-center gap-2" title="حالة الاتصال بالخادم">
                 <span id="connection-status" class="h-3 w-3 bg-green-500 rounded-full animate-pulse"></span>
                 <span id="connection-text" class="text-xs text-gray-400">متصل</span>
@@ -569,8 +569,7 @@
         import { getFirestore, collection, onSnapshot, query, orderBy, updateDoc, doc, where, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { SidebarManager } from './sidebar-manager.js';
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
+        
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
             authDomain: "s22market-4e3e6.firebaseapp.com",
