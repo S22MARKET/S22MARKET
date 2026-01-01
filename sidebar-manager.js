@@ -4,14 +4,15 @@ export class SidebarManager {
         const container = document.getElementById(containerId);
         if (!container) return;
 
-        // Get user role from local storage or wait for auth (simplified here using existing global currentUser or generic check)
-        // Ideally this runs after auth is ready.
-        // We will assume 'window.currentUser' is available or we default to a safe state until it loads.
-        // Actually, preventing flash of wrong content is important. 
-        // We'll rely on the calling page to call this AFTER auth.
+        // Get user role from local storage or wait for auth
+        // We prioritize window.currentUser set by the main script
+        // Fallback to checking localStorage if currentUser isn't ready yet (though unlikely if called correctly)
+        const user = window.currentUser || JSON.parse(localStorage.getItem('user_data') || '{}');
+        const role = user.role || 'vendor'; // Default to vendor
+        const isRestaurant = role === 'restaurant';
 
-        const user = window.currentUser || {};
-        const isRestaurant = user.role === 'restaurant';
+        // debug
+        console.log("SidebarManager rendering for role:", role);
 
         // Menu Items Definition
         const menuItems = [
@@ -26,38 +27,42 @@ export class SidebarManager {
                 key: 'orders',
                 label: 'الطلبات',
                 icon: 'fa-clipboard-list',
-                url: 'restaurant-orders.html',
+                url: isRestaurant ? 'restaurant-orders.html' : 'seller-dashboard.html#orders-section',
                 roles: ['all']
             },
             {
                 key: 'kitchen',
-                label: isRestaurant ? 'شاشة المطبخ' : 'شاشة التجهيز',
-                icon: isRestaurant ? 'fa-fire-burner' : 'fa-desktop',
+                label: isRestaurant ? 'شاشة المطبخ (KDS)' : 'شاشة التجهيز والشحن',
+                icon: isRestaurant ? 'fa-fire-burner' : 'fa-box-open',
                 url: isRestaurant ? 'restaurant-orders-screen.html' : 'store-orders-screen.html',
                 roles: ['all'],
-                target: '_blank',
-                specialClass: 'text-amber-500 hover:bg-gray-800 hover:text-amber-400 border border-amber-500/10 bg-amber-500/5',
-                iconClass: 'bg-amber-500/10 text-amber-500 group-hover:bg-amber-500 group-hover:text-amber-900'
+                target: '_blank', // Open in new tab/window for "Screen" mode
+                specialClass: isRestaurant
+                    ? 'text-orange-500 hover:bg-gray-800 hover:text-orange-400 border border-orange-500/10 bg-orange-500/5'
+                    : 'text-indigo-500 hover:bg-gray-800 hover:text-indigo-400 border border-indigo-500/10 bg-indigo-500/5',
+                iconClass: isRestaurant
+                    ? 'bg-orange-500/10 text-orange-500 group-hover:bg-orange-500 group-hover:text-amber-900'
+                    : 'bg-indigo-500/10 text-indigo-500 group-hover:bg-indigo-500 group-hover:text-white'
             },
             {
                 key: 'sound',
                 label: 'إعدادات الصوت',
                 icon: 'fa-music',
                 action: 'openSoundSettings()', // Special action
-                roles: ['all']
+                roles: ['restaurant'] // Mostly relevant for KDS/Restaurant
             },
             { separator: true },
             {
                 key: 'products',
                 label: isRestaurant ? 'قائمة الطعام' : 'إدارة المنتجات',
-                icon: isRestaurant ? 'fa-utensils' : 'fa-box-open',
+                icon: isRestaurant ? 'fa-utensils' : 'fa-tags',
                 url: isRestaurant ? 'restaurant-menu.html' : 'vendor-products.html',
                 roles: ['all']
             },
             {
                 key: 'sections',
-                label: isRestaurant ? 'إضافات المطعم' : 'أقسام المتجر',
-                icon: isRestaurant ? 'fa-layer-group' : 'fa-folder',
+                label: isRestaurant ? 'إضافات الطعام' : 'الأقسام والتصنيفات',
+                icon: isRestaurant ? 'fa-layer-group' : 'fa-folder-tree',
                 url: 'restaurant-sections.html',
                 roles: ['all']
             },
@@ -93,25 +98,24 @@ export class SidebarManager {
             },
             {
                 key: 'offers',
-                label: 'العروض',
+                label: 'العروض الترويجية',
                 icon: 'fa-percent',
                 url: 'restaurant-offers.html',
                 roles: ['all']
             },
             {
-                key: 'drivers',
-                label: 'السائقين',
-                icon: 'fa-motorcycle',
-                url: 'restaurant-drivers.html',
-                roles: ['restaurant', 'admin'] // Maybe vendors too? Sticking to 'restaurant'/admin logic or all? Let's say all for now as some vendors deliver.
-            },
-            { separator: true },
-            {
                 key: 'reviews',
                 label: 'التقييمات',
                 icon: 'fa-comment-alt',
                 url: isRestaurant ? 'restaurant-reviews.html' : 'vendor-reviews.html',
-
+                roles: ['all']
+            },
+            { separator: true },
+            {
+                key: 'settings',
+                label: 'الإعدادات',
+                icon: 'fa-cog',
+                url: 'restaurant-settings.html',
                 roles: ['all']
             },
             {
@@ -119,14 +123,6 @@ export class SidebarManager {
                 label: 'الشروط والأحكام',
                 icon: 'fa-file-contract',
                 url: 'terms.html',
-                roles: ['all']
-            },
-            {
-
-                key: 'settings',
-                label: 'الإعدادات',
-                icon: 'fa-cog',
-                url: 'restaurant-settings.html',
                 roles: ['all']
             }
         ];
@@ -136,40 +132,49 @@ export class SidebarManager {
         menuItems.forEach(item => {
             // Role Filter
             if (item.roles && !item.roles.includes('all')) {
-                // If user role is NOT in the allowed roles list, skip
-                // BUT, currently we only have 'restaurant' logic. 
-                // If item.roles = ['restaurant'] and user.role = 'vendor', skip.
-                if (item.roles.includes('restaurant') && user.role !== 'restaurant') return;
+                // Precise checking
+                if (!item.roles.includes(role)) return;
             }
 
             if (item.separator) {
-                html += '<div class="my-2 border-t border-gray-800"></div>';
+                html += '<div class="my-2 border-t border-gray-800/50"></div>';
                 return;
             }
 
-            const isActive = item.key === activePageKey || (item.url && window.location.pathname.endsWith(item.url));
+            // Active State Logic
+            // If activePageKey is provided, match it.
+            // Otherwise check URL end.
+            const isActive = activePageKey === item.key || (item.url && window.location.pathname.endsWith(item.url));
 
             // Classes
-            let baseClass = "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 nav-btn group";
-            let activeClass = "bg-gray-800 text-white shadow-inner";
-            let inactiveClass = "text-gray-400 hover:bg-gray-800 hover:text-white";
+            let baseClass = "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 nav-btn group mb-1";
+            let activeClass = "bg-gray-800 text-white shadow-lg";
+            let inactiveClass = "text-gray-400 hover:bg-gray-800/50 hover:text-white";
 
-            // Specific overrides
+            // Specific overrides for Special Buttons (Kitchen/Store Screens)
             if (item.specialClass) {
-                inactiveClass = item.specialClass; // Use special class entirely
-                activeClass = item.specialClass + " ring-2 ring-amber-500"; // Hacky active state for special btn
+                // Reset inactive class to special styling
+                inactiveClass = item.specialClass;
+                // Active needs to maintain the special color but indicate selection
+                activeClass = item.specialClass.replace('bg-', 'bg-opacity-20 bg-') + " ring-2 ring-opacity-50";
             }
 
             const finalClass = `${baseClass} ${isActive ? activeClass : inactiveClass}`;
 
             // Icon Container
-            let iconBaseClass = "w-8 h-8 rounded-lg flex items-center justify-center transition-colors";
-            let iconActiveClass = "bg-indigo-600 text-white";
-            let iconInactiveClass = "bg-gray-800 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white";
+            let iconBaseClass = "w-8 h-8 rounded-lg flex items-center justify-center transition-colors shadow-sm";
+            let iconActiveClass = "bg-indigo-600 text-white"; // Default active brand color
+
+            // Customize active icon color based on role for better branding
+            if (isRestaurant) {
+                iconActiveClass = "bg-orange-600 text-white";
+            }
+
+            let iconInactiveClass = "bg-gray-800 text-gray-400 group-hover:bg-gray-700 group-hover:text-white";
 
             if (item.iconClass) {
                 iconInactiveClass = item.iconClass;
-                iconActiveClass = item.iconClass; // Keep same for active if special
+                iconActiveClass = item.iconClass; // Keep special styling even when active
             }
 
             const finalIconClass = `${iconBaseClass} ${isActive ? iconActiveClass : iconInactiveClass}`;
@@ -184,6 +189,7 @@ export class SidebarManager {
                     <i class="fas ${item.icon}"></i>
                 </div>
                 <span class="font-medium ${item.key === 'kitchen' ? 'font-bold' : ''}">${item.label}</span>
+                ${item.target === '_blank' ? '<i class="fas fa-external-link-alt text-xs opacity-50 mr-auto"></i>' : ''}
             </a>
             `;
         });

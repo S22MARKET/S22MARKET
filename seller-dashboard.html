@@ -2706,9 +2706,61 @@
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { auth, db } from "./app-core.js";
+        import { SidebarManager } from "./sidebar-manager.js"; // Import SidebarManager
 
         // Global User State
         window.currentUser = null;
+
+        // --- 💡 Dynamic Theme Logic 💡 ---
+        function applyMerchantTheme(role) {
+            const isRestaurant = role === 'restaurant';
+            const sidebar = document.getElementById('sidebar');
+            const sidebarHeader = sidebar ? sidebar.querySelector('.relative.overflow-hidden') : null;
+            const sidebarTitle = sidebar ? sidebar.querySelector('h2') : null;
+            const sidebarGradient = sidebar ? sidebar.querySelector('.bg-gradient-to-r') : null;
+            const shopName = document.getElementById('shop-name');
+
+            if (isRestaurant) {
+                // Sidebar Background
+                if (sidebar) {
+                    sidebar.classList.remove('bg-slate-900');
+                    sidebar.classList.add('bg-neutral-900');
+                }
+
+                // Sidebar Header Gradient
+                if (sidebarGradient) {
+                    sidebarGradient.classList.remove('from-indigo-600', 'to-purple-600');
+                    sidebarGradient.classList.add('from-orange-600', 'to-red-600');
+                }
+
+                // Title
+                if (sidebarTitle) {
+                    sidebarTitle.innerHTML = 'S22 <span class="text-orange-500">KITCHEN</span>';
+                }
+
+                // Shop Name Badge
+                if (shopName) {
+                    shopName.classList.remove('bg-gray-800');
+                    shopName.classList.add('bg-orange-900/30', 'text-orange-200');
+                }
+
+                // Update various accents to Orange
+                document.documentElement.style.setProperty('--accent-color', '#f97316'); // Orange 500
+
+                // Change specific button styles via direct class manipulation (optional but good for polish)
+                const avatar = document.getElementById('user-avatar');
+                if (avatar) {
+                    avatar.classList.remove('bg-indigo-100', 'text-indigo-600', 'hover:bg-indigo-200');
+                    avatar.classList.add('bg-orange-100', 'text-orange-600', 'hover:bg-orange-200');
+                }
+
+            } else {
+                // Ensure Store Theme (Default)
+                if (sidebarTitle) {
+                    sidebarTitle.innerHTML = 'S22 <span class="text-indigo-400">PARTNER</span>';
+                }
+            }
+        }
 
         // --- Audio Manager ---
         window.audioManager = {
@@ -2838,6 +2890,10 @@
                 // Fetch full profile
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 window.currentUser = { ...user, ...(userDoc.exists() ? userDoc.data() : {}) };
+
+                // 💡 Initialize Sidebar & Apply Theme 💡
+                applyMerchantTheme(window.currentUser.role);
+                SidebarManager.render('sidebar-nav-container', 'overview');
 
                 // Update UI Identity
                 const nameDisplay = document.getElementById('shop-name');

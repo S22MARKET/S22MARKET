@@ -4,572 +4,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S22 RESTAURANT - شاشة المطبخ</title>
+    <title>S22 KITCHEN - شاشة المطبخ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --dark-bg: #111827;
-            --primary-bg: #1f2937;
-            --secondary-bg: #374151;
-            --border-color: #4b5563;
-            --text-primary: #f3f4f6;
-            --text-secondary: #9ca3af;
+            /* KDS Theme: Dark/Orange (High Contrast) */
+            --dark-bg: #1a1a1a;
+            --card-bg: #262626;
+            --primary-bg: #171717;
             --accent-color: #f97316;
-            --highlight-color: rgba(249, 115, 22, 0.3);
+            /* Orange 500 */
+            --text-primary: #ffffff;
+            --text-secondary: #d4d4d4;
+            --ticket-new-bg: #ef4444;
+            /* Red for new */
+            --ticket-cooking-bg: #f59e0b;
+            /* Amber for cooking */
+            --ticket-ready-bg: #22c55e;
+            /* Green for ready */
         }
 
-        /* 💡 --- الإضافة الجديدة: متغيرات الوضع النهاري --- 💡 */
         body.light-mode {
-            --dark-bg: #f3f4f6;
-            /* خلفية رمادية فاتحة جداً */
-            --primary-bg: #ffffff;
-            /* خلفية بيضاء */
-            --secondary-bg: #e5e7eb;
-            /* رمادي فاتح */
-            --border-color: #d1d5db;
-            /* حدود رمادية */
-            --text-primary: #111827;
-            /* نص أسود */
-            --text-secondary: #4b5563;
-            /* نص رمادي */
-            --highlight-color: rgba(249, 115, 22, 0.1);
-        }
-
-        /* 💡 --- إضافة انتقالات ناعمة --- 💡 */
-        body,
-        .filter-btn,
-        .responsive-table tr,
-        .responsive-table td {
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        header,
-        aside#sidebar {
-            transition: background-color 0.3s ease;
+            --dark-bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --primary-bg: #e5e5e5;
+            --text-primary: #171717;
+            --text-secondary: #525252;
         }
 
         body {
             font-family: 'Tajawal', sans-serif;
             background-color: var(--dark-bg);
             color: var(--text-primary);
+            transition: all 0.3s ease;
         }
 
-        .hidden {
-            display: none;
+        /* Ticket Card Styles */
+        .ticket-card {
+            background-color: var(--card-bg);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            border: 2px solid transparent;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 100%;
+            page-break-inside: avoid;
         }
 
-        .panel {
-            animation: fadeIn 0.5s ease-out;
+        .ticket-card.new {
+            border-color: var(--ticket-new-bg);
+            animation: pulse-border 2s infinite;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .ticket-card.preparing {
+            border-color: var(--ticket-cooking-bg);
         }
 
-        .refresh-spin {
-            animation: spin 0.7s ease-in-out;
+        .ticket-header {
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+        .ticket-header.new {
+            background-color: rgba(239, 68, 68, 0.2);
         }
 
-        .new-order-highlight {
-            animation: highlight-fade 5s ease-out;
+        .ticket-header.preparing {
+            background-color: rgba(245, 158, 11, 0.2);
         }
 
-        @keyframes highlight-fade {
+        .ticket-body {
+            padding: 1rem;
+            flex-grow: 1;
+            font-size: 1.1rem;
+            /* Larger font for kitchen */
+        }
+
+        .ticket-footer {
+            padding: 0.75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes pulse-border {
             0% {
-                background-color: var(--highlight-color);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
             }
 
             100% {
-                background-color: transparent;
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
             }
         }
 
-        .selected-order {
-            background-color: var(--secondary-bg) !important;
-            outline: 2px solid var(--accent-color);
+        /* Sidebar transitions */
+        aside#sidebar {
+            transition: transform 0.3s ease-in-out;
         }
 
+        /* Modal & Animations */
         .modal-content {
-            animation: scaleIn 0.3s ease-out;
+            animation: scaleIn 0.2s ease-out;
         }
 
         @keyframes scaleIn {
             from {
+                transform: scale(0.95);
                 opacity: 0;
-                transform: scale(0.9);
             }
 
             to {
-                opacity: 1;
                 transform: scale(1);
+                opacity: 1;
             }
         }
 
-        @media (max-width: 768px) {
-            .responsive-table thead {
-                display: none;
-            }
-
-            .responsive-table tr {
-                display: block;
-                background-color: var(--primary-bg);
-                border: 1px solid var(--border-color);
-                border-radius: 0.75rem;
-                padding: 1rem;
-                margin-bottom: 1rem;
-            }
-
-            .responsive-table td {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0.8rem 0.2rem;
-                border-bottom: 1px solid var(--secondary-bg);
-                font-size: 0.95rem;
-            }
-
-            .responsive-table td:last-child {
-                border-bottom: none;
-            }
-
-            .responsive-table td::before {
-                content: attr(data-label);
-                font-weight: 700;
-                color: var(--text-primary);
-                margin-left: 0.5rem;
-            }
+        /* Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
         }
 
-        .filter-btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background-color: var(--secondary-bg);
-            color: var(--text-primary);
-            transition: all 0.2s;
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
         }
 
-        .filter-btn.active {
-            background-color: var(--accent-color);
-            color: white;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 3px;
         }
 
-        .time-badge {
-            padding: 4px 12px;
-            border-radius: 9999px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            min-width: 70px;
-            text-align: center;
-        }
-
-        .time-badge.new {
-            background-color: #10b981;
-            color: white;
-        }
-
-        .time-badge.medium {
-            background-color: #f59e0b;
-            color: white;
-        }
-
-        .time-badge.old {
-            background-color: #ef4444;
-            color: white;
-            animation: blink 1.2s infinite ease-in-out;
-        }
-
-        @keyframes blink {
-            50% {
-                opacity: 0.6;
-            }
-        }
-
-        .spinner-dark {
-            width: 48px;
-            height: 48px;
-            border: 5px solid rgba(255, 255, 255, 0.2);
-            border-top-color: #f97316;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin-slow {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .animate-spin-slow {
-            animation: spin-slow 1.2s linear infinite;
-        }
-
-        #sidebar {
-            transition: transform 0.3s ease-in-out, background-color 0.3s ease;
-        }
-
-        #sidebar-overlay {
-            transition: opacity 0.3s ease-in-out;
-        }
-
-        /* 💡 --- تعديلات الوضع النهاري --- 💡 */
-        body.light-mode header {
-            background-color: var(--primary-bg);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        body.light-mode header h1,
-        body.light-mode #connection-text,
-        body.light-mode #menu-toggle-btn {
-            color: var(--text-primary);
-        }
-
-        body.light-mode aside#sidebar {
-            background-color: var(--primary-bg);
-            color: var(--text-primary);
-            border-right: 1px solid var(--border-color);
-        }
-
-        body.light-mode aside#sidebar h2,
-        body.light-mode aside#sidebar span,
-        body.light-mode aside#sidebar #menu-close-btn {
-            color: var(--text-primary);
-        }
-
-        body.light-mode aside#sidebar nav a,
-        body.light-mode aside#sidebar nav button {
-            color: var(--text-primary);
-        }
-
-        body.light-mode aside#sidebar nav a:hover,
-        body.light-mode aside#sidebar nav button:hover {
-            background-color: #f3f4f6;
-            /* hover فاتح */
-        }
-
-        body.light-mode .overflow-x-auto {
-            background-color: var(--primary-bg);
-            /* أبيض */
-        }
-
-        body.light-mode thead {
-            background-color: #f9fafb;
-            /* رمادي فاتح للهيدر */
-            color: var(--text-secondary);
-        }
-
-        body.light-mode .responsive-table tr {
-            background-color: var(--primary-bg);
-            border-color: var(--border-color);
-        }
-
-        body.light-mode .responsive-table td {
-            border-color: var(--secondary-bg);
-        }
-
-        body.light-mode .responsive-table tr:hover {
-            background-color: #f9fafb;
-            /* هوفر فاتح */
-        }
-
-        body.light-mode .responsive-table tr.bg-gray-800 {
-            background-color: #fef3c7;
-        }
-
-        /* هايلايت الطلب الجديد (أصفر فاتح) */
-        body.light-mode .responsive-table tr.bg-gray-900 {
-            background-color: var(--primary-bg);
-        }
-
-        body.light-mode .selected-order {
-            background-color: #feefea !important;
-            /* هايلايت برتقالي فاتح */
-            outline-color: var(--accent-color);
-        }
-
-        body.light-mode #order-status-filters {
-            background-color: var(--primary-bg);
-        }
-
-        body.light-mode .filter-btn {
-            background-color: var(--secondary-bg);
-            color: var(--text-primary);
-        }
-
-        body.light-mode .filter-btn.active {
-            background-color: var(--accent-color);
-            color: white;
-        }
-
-        body.light-mode #sound-activation-modal .modal-content,
-        body.light-mode #new-order-modal .modal-content {
-            background-color: #ffffff;
-            color: var(--text-primary);
-        }
-
-        body.light-mode #sound-activation-modal h2,
-        body.light-mode #new-order-modal h2,
-        body.light-mode #sound-activation-modal p {
-            color: var(--text-primary);
-        }
-
-        body.light-mode #modal-order-details {
-            background-color: #f9fafb;
-            border: 1px solid var(--border-color);
-        }
-
-        body.light-mode #modal-order-details .text-gray-400 {
-            color: #6b7280;
-        }
-
-        body.light-mode #modal-order-details .text-white {
-            color: #1f2937;
-        }
-
-        body.light-mode #modal-order-details .text-gray-200 {
-            color: #374151;
-        }
-
-        body.light-mode #modal-order-details .border-gray-700 {
-            border-color: var(--border-color);
-        }
-
-        body.light-mode .spinner-dark {
-            border-top-color: #f97316;
-            border-color: rgba(0, 0, 0, 0.1);
+        /* Grid Layout */
+        .kds-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding-bottom: 2rem;
         }
     </style>
 </head>
 
-<body class="relative">
+<body class="h-screen flex flex-col overflow-hidden">
 
+    <!-- Sound Activation Modal -->
     <div id="sound-activation-modal"
         class="hidden fixed inset-0 bg-black/95 flex items-center justify-center z-[10000] backdrop-blur-sm">
         <div
-            class="modal-content bg-gray-900/90 rounded-3xl shadow-2xl p-10 text-center max-w-xl w-full border border-gray-700 relative overflow-hidden">
-            <!-- Decorative background glow -->
-            <div
-                class="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-2 bg-gradient-to-r from-transparent via-orange-500 to-transparent">
-            </div>
-
-            <i class="fas fa-hand-holding-heart text-6xl text-orange-400 mb-6 animate-pulse"></i>
-
-            <h2 class="text-3xl font-bold text-white mb-4">مرحباً بك يا مدير المطعم</h2>
-            <p class="text-gray-300 mb-8 text-lg leading-relaxed">
-                للبدء وتفعيل الأصوات، نطلب منك ذكر الله تعظيماً وشكراً:
-            </p>
-
+            class="modal-content bg-neutral-900 rounded-2xl border border-orange-500/30 p-8 max-w-lg w-full text-center">
+            <i class="fas fa-fire-burner text-6xl text-orange-500 mb-6 animate-pulse"></i>
+            <h2 class="text-3xl font-bold text-white mb-2">تفعيل شاشة المطبخ</h2>
+            <p class="text-gray-400 mb-8">يرجى الضغط للتفعيل وبدء استقبال الطلبات</p>
             <button id="activate-sound-btn"
-                class="group relative bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700 text-white font-bold text-xl py-4 px-8 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg hover:shadow-emerald-500/30 focus:outline-none focus:ring-4 focus:ring-emerald-500/50 w-full">
-                <span class="flex flex-col items-center gap-2">
-                    <span class="text-2xl">أستغفر الله، والحمد لله، وسبحان الله</span>
-                    <span class="text-xs font-normal text-emerald-200">اضغط هنا للدخول وتفعيل التنبيهات</span>
-                </span>
-            </button>
-        </div>
-    </div>
-    <div id="new-order-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[9999]">
-        <div
-            class="modal-content bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 text-center max-w-lg w-full border-t-4 border-orange-500">
-            <i class="fas fa-bell text-5xl md:text-6xl text-orange-400 animate-bounce mb-5"></i>
-            <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-4">طلب جديــــــــد!</h2>
-            <div id="modal-order-details" class="bg-gray-900 p-4 rounded-lg mb-8 text-right space-y-2">
-            </div>
-            <button id="modal-confirm-btn"
-                class="bg-orange-600 hover:bg-orange-700 text-white font-bold text-lg md:text-xl py-3 px-10 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-orange-400">
-                <i class="fas fa-check-circle mr-2"></i>
-                تأكيــــــــد
+                class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 rounded-xl text-xl transition-all">
+                <i class="fas fa-power-off mr-2"></i> تشغيل النظام
             </button>
         </div>
     </div>
 
-    <!-- Sound Settings Modal -->
-    <div id="sound-settings-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[10000]">
-        <div class="modal-content bg-gray-800 rounded-2xl shadow-2xl p-6 w-full max-w-md border border-gray-700">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-white"><i class="fas fa-music text-orange-400 ml-2"></i>نغمة التنبيه
-                </h3>
-                <button onclick="document.getElementById('sound-settings-modal').classList.add('hidden')"
-                    class="text-gray-400 hover:text-white">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-
-            <div class="space-y-3 mb-8">
-                <!-- Tone Options -->
-                <label
-                    class="flex items-center justify-between p-4 bg-gray-900 rounded-xl border border-gray-700 cursor-pointer hover:border-orange-500 transition-colors group">
-                    <div class="flex items-center">
-                        <input type="radio" name="orderSound" value="alerta.mp3"
-                            class="w-5 h-5 text-orange-500 focus:ring-orange-500 bg-gray-800 border-gray-600">
-                        <span class="mr-3 text-white font-medium">الافتراضي (الجرس)</span>
-                    </div>
-                    <button type="button" onclick="previewSound('alerta.mp3')"
-                        class="w-10 h-10 rounded-full bg-gray-800 text-gray-400 group-hover:bg-orange-500 group-hover:text-white flex items-center justify-center transition-colors">
-                        <i class="fas fa-play"></i>
-                    </button>
-                </label>
-
-                <label
-                    class="flex items-center justify-between p-4 bg-gray-900 rounded-xl border border-gray-700 cursor-pointer hover:border-orange-500 transition-colors group">
-                    <div class="flex items-center">
-                        <input type="radio" name="orderSound" value="alerta_02.mp3"
-                            class="w-5 h-5 text-orange-500 focus:ring-orange-500 bg-gray-800 border-gray-600">
-                        <span class="mr-3 text-white font-medium">نغمة 2
-                            (قريبا)
-                        </span>
-                    </div>
-                    <button type="button" onclick="previewSound('alerta_02.mp3')"
-                        class="w-10 h-10 rounded-full bg-gray-800 text-gray-400 group-hover:bg-orange-500 group-hover:text-white flex items-center justify-center transition-colors">
-                        <i class="fas fa-play"></i>
-                    </button>
-                </label>
-
-                <label
-                    class="flex items-center justify-between p-4 bg-gray-900 rounded-xl border border-gray-700 cursor-pointer hover:border-orange-500 transition-colors group">
-                    <div class="flex items-center">
-                        <input type="radio" name="orderSound" value="alerta_03.mp3"
-                            class="w-5 h-5 text-orange-500 focus:ring-orange-500 bg-gray-800 border-gray-600">
-                        <span class="mr-3 text-white font-medium">نغمة 3
-                            (قريبا)
-                        </span>
-                    </div>
-                    <button type="button" onclick="previewSound('alerta_03.mp3')"
-                        class="w-10 h-10 rounded-full bg-gray-800 text-gray-400 group-hover:bg-orange-500 group-hover:text-white flex items-center justify-center transition-colors">
-                        <i class="fas fa-play"></i>
-                    </button>
-                </label>
-
-                <label
-                    class="flex items-center justify-between p-4 bg-gray-900 rounded-xl border border-gray-700 cursor-pointer hover:border-orange-500 transition-colors group">
-                    <div class="flex items-center">
-                        <input type="radio" name="orderSound" value="alerta_04.mp3"
-                            class="w-5 h-5 text-orange-500 focus:ring-orange-500 bg-gray-800 border-gray-600">
-                        <span class="mr-3 text-white font-medium">نغمة 4
-                            (قريبا)
-                        </span>
-                    </div>
-                    <button type="button" onclick="previewSound('alerta_04.mp3')"
-                        class="w-10 h-10 rounded-full bg-gray-800 text-gray-400 group-hover:bg-orange-500 group-hover:text-white flex items-center justify-center transition-colors">
-                        <i class="fas fa-play"></i>
-                    </button>
-                </label>
-            </div>
-
-            <button onclick="saveSoundSettings()"
-                class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-xl transition-colors">
-                حفظ الإعدادات
-            </button>
+    <!-- New Order Alert Modal (Fullscreen Splash) -->
+    <div id="new-order-modal"
+        class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-red-600/90 backdrop-blur-md cursor-pointer"
+        onclick="hideNewOrderAlert()">
+        <div class="text-center animate-bounce">
+            <i class="fas fa-bell text-9xl text-white mb-4 block"></i>
+            <h1 class="text-6xl font-black text-white border-4 border-white inline-block px-12 py-4 rounded-full">طلب
+                جديد</h1>
+            <p id="alert-order-info" class="text-2xl text-white mt-4 font-mono font-bold">...</p>
         </div>
     </div>
 
-    <header class="bg-gray-900 shadow-md p-4 flex justify-between items-center sticky top-0 z-30">
+    <!-- Header -->
+    <header class="bg-neutral-900 border-b border-neutral-800 p-3 flex justify-between items-center shadow-lg z-20">
         <div class="flex items-center gap-4">
-            <h1 class="text-xl font-bold">S22 <span class="text-orange-500">KITCHEN</span> للمطاعم </h1>
-            <div class="flex items-center gap-2" title="حالة الاتصال بالخادم">
-                <span id="connection-status" class="h-3 w-3 bg-green-500 rounded-full animate-pulse"></span>
-                <span id="connection-text" class="text-xs text-gray-400">متصل</span>
+            <h1 class="text-2xl font-black tracking-tight flex items-center gap-2">
+                <span class="bg-orange-600 text-white px-2 py-1 rounded text-lg">KDS</span>
+                <span>S22 KITCHEN</span>
+            </h1>
+            <div class="h-8 w-px bg-neutral-700 mx-2"></div>
+            <div class="flex items-center gap-2 bg-neutral-800 px-3 py-1 rounded-full border border-neutral-700">
+                <span id="connection-status" class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
+                <span id="connection-text" class="text-xs font-mono text-gray-400">ONLINE</span>
+            </div>
+            <div class="h-8 w-px bg-neutral-700 mx-2"></div>
+            <div id="stats-summary" class="flex gap-4 text-sm font-mono text-gray-400">
+                <span>انتظار: <b id="count-new" class="text-red-500">0</b></span>
+                <span>طبخ: <b id="count-cooking" class="text-amber-500">0</b></span>
             </div>
         </div>
 
-        <button id="menu-toggle-btn" class="text-gray-300 hover:text-white transition-colors text-xl p-2">
-            <i class="fas fa-bars"></i>
-        </button>
+        <div class="flex items-center gap-3">
+            <button onclick="toggleTheme()"
+                class="w-10 h-10 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-gray-400 transition-colors">
+                <i id="theme-icon" class="fas fa-sun"></i>
+            </button>
+            <button id="mute-btn"
+                class="w-10 h-10 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-gray-400 transition-colors">
+                <i id="mute-icon" class="fas fa-volume-up"></i>
+            </button>
+            <button id="menu-toggle-btn"
+                class="w-12 h-12 rounded-lg bg-orange-600 hover:bg-orange-500 text-white flex items-center justify-center text-xl shadow-lg transition-transform hover:scale-105">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
     </header>
 
+    <!-- Sidebar -->
     <aside id="sidebar"
-        class="fixed top-0 right-0 h-screen w-72 bg-gray-900 shadow-xl z-50 p-6 flex flex-col transform translate-x-full">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-lg font-bold">القائمة</h2>
-            <button id="menu-close-btn" class="text-gray-400 hover:text-white text-2xl">
-                <i class="fas fa-times"></i>
-            </button>
+        class="fixed top-0 right-0 h-screen w-80 bg-neutral-900 shadow-2xl z-50 transform translate-x-full border-l border-neutral-800 flex flex-col">
+        <div class="p-6 border-b border-neutral-800 flex justify-between items-center bg-neutral-950">
+            <h2 class="text-xl font-bold text-white">القائمة الرئيسية</h2>
+            <button id="menu-close-btn" class="text-gray-400 hover:text-white text-2xl"><i
+                    class="fas fa-times"></i></button>
         </div>
-
-        <nav id="sidebar-nav-container" class="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
-            <!-- Sidebar content will be injected by SidebarManager -->
-
+        <nav id="sidebar-nav-container" class="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar">
+            <!-- SidebarManager injects here -->
         </nav>
-
-        <div class="px-3 pb-3 space-y-2 border-t border-gray-800 pt-3">
-            <button id="mute-btn" title="كتم صوت الإشعارات"
-                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors w-full">
-                <i id="mute-icon" class="fas fa-volume-up text-lg w-6 text-center"></i>
-                <span class="text-base font-semibold">الصوت</span>
-            </button>
-
-            <button onclick="openSoundSettings()" title="إعدادات نغمة التنبيه"
-                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors w-full">
-                <i class="fas fa-music text-lg w-6 text-center text-purple-400"></i>
-                <span class="text-base font-semibold">نغمة التنبيه</span>
-            </button>
-
-            <button id="theme-toggle-btn" title="تغيير الوضع"
-                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors w-full">
-                <i id="theme-icon" class="fas fa-sun text-lg w-6 text-center text-yellow-400"></i>
-                <span id="theme-text" class="text-base font-semibold">وضع نهاري</span>
-            </button>
-
-            <button onclick="testNotification()" title="تجربة التنبيه"
-                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors bg-gray-800 border border-gray-600 w-full">
-                <i class="fas fa-bell text-lg w-6 text-center text-orange-400"></i>
-                <span class="text-base font-semibold">تجربة التنبيه</span>
-            </button>
-
-            <button id="manual-refresh-btn" title="تحديث يدوي للواجهة"
-                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors w-full">
-                <i class="fas fa-sync-alt text-lg w-6 text-center"></i>
-                <span class="text-base font-semibold">تحديث الواجهة</span>
-            </button>
-
-            <button id="refresh-btn" title="تحديث الصفحة كلياً" onclick="location.reload(true);"
-                class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors w-full">
-                <i class="fas fa-rotate-right text-lg w-6 text-center"></i>
-                <span class="text-base font-semibold">تحديث الصفحة</span>
+        <div class="p-4 border-t border-neutral-800 bg-neutral-950">
+            <button onclick="location.reload()"
+                class="w-full py-3 bg-neutral-800 hover:bg-neutral-700 rounded-lg text-gray-300 font-bold transition-colors">
+                <i class="fas fa-sync-alt mr-2"></i> تحديث النظام
             </button>
         </div>
     </aside>
+    <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/80 z-40 backdrop-blur-sm" onclick="closeMenu()">
+    </div>
 
-    <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/60 z-40"></div>
+    <!-- Main Board Area -->
+    <main class="flex-1 overflow-hidden flex flex-col bg-[#121212]">
+        <!-- Filter Tabs -->
+        <div class="p-4 flex gap-2 justify-center border-b border-neutral-800 bg-neutral-900 shadow-md">
+            <button
+                class="px-6 py-2 rounded-full font-bold text-sm bg-orange-600 text-white shadow-lg transition-transform hover:scale-105 filter-tab active"
+                data-filter="active">
+                نشط (KDS)
+            </button>
+            <button
+                class="px-6 py-2 rounded-full font-bold text-sm bg-neutral-800 text-gray-400 hover:bg-neutral-700 transition-colors filter-tab"
+                data-filter="completed">
+                سجل المكتملة
+            </button>
+        </div>
 
-
-    <main class="flex-1 p-3 md:p-6 lg:p-8">
-        <div id="orders-panel" class="panel"></div>
+        <!-- Scrollable Board -->
+        <div id="board-container" class="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <div id="orders-grid" class="kds-grid">
+                <!-- Tickets go here -->
+            </div>
+        </div>
     </main>
 
-
-    <audio id="notification-sound" src="alerta.mp3" preload="auto" loop>
-    </audio>
-
+    <audio id="notification-sound" src="alerta.mp3" preload="auto" loop></audio>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot, query, orderBy, updateDoc, doc, where, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { SidebarManager } from './sidebar-manager.js';
-        
+
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyDQwj4Sb7n40wey9UwsG_3fYPn7yg8KnrY",
             authDomain: "s22market-4e3e6.firebaseapp.com",
@@ -584,666 +284,297 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        // State
         let ordersCache = [];
-        let newlyAddedOrderIds = new Set();
-        let isInitialOrdersLoad = true;
-        let currentOrderStatusFilter = 'new';
-        let newOrderCount = 0;
-        let originalTitle = document.title;
-        let titleInterval = null;
+        let viewFilter = 'active'; // 'active' (new/preparing) or 'completed'
         let currentUser = null;
+        let newlyAddedIds = new Set();
+        let isInitialLoad = true;
 
-        // --- IMPROVED: Audio Manager ---
+        // Audio Manager
         const audioManager = {
             element: document.getElementById('notification-sound'),
             isMuted: false,
             isUnlocked: false,
-
             unlock() {
                 if (this.isUnlocked) return;
                 this.element.play().then(() => {
                     this.element.pause();
                     this.isUnlocked = true;
-                    console.log("Audio unlocked by user.");
-                }).catch(error => {
-                    console.warn("Audio unlock failed, will retry on next play attempt.", error);
-                });
+                    console.log("Audio Unlocked");
+                }).catch(e => console.warn(e));
             },
-
             play() {
                 if (this.isMuted || !this.isUnlocked) return;
-
-                // Load preferred sound
-                const savedSound = localStorage.getItem('notificationSoundFile') || 'alerta.mp3';
-                if (this.element.getAttribute('src') !== savedSound) {
-                    this.element.src = savedSound;
-                }
-
-                this.element.loop = true;
-                this.element.playbackRate = 1.0; // Reset rate
-                const promise = this.element.play();
-                if (promise !== undefined) {
-                    promise.catch(error => { console.error("Audio play failed:", error); });
-                }
+                this.element.currentTime = 0;
+                this.element.play().catch(e => console.error(e));
             },
-
             stop() {
                 this.element.pause();
                 this.element.currentTime = 0;
             },
-
             toggleMute() {
                 this.isMuted = !this.isMuted;
                 const icon = document.getElementById('mute-icon');
-                const muteBtn = document.getElementById('mute-btn');
-                icon.className = this.isMuted
-                    ? 'fas fa-volume-mute text-red-500 text-lg w-6 text-center'
-                    : 'fas fa-volume-up text-lg w-6 text-center';
-                muteBtn.title = this.isMuted ? 'تشغيل صوت الإشعارات' : 'كتم صوت الإشعارات';
-
-                if (this.isMuted) {
-                    this.stop();
-                }
+                icon.className = this.isMuted ? 'fas fa-volume-mute text-red-500' : 'fas fa-volume-up';
             }
         };
 
-        // --- NEW: Sound Activation Logic ---
-        function setupSoundActivation() {
-            const soundModal = document.getElementById('sound-activation-modal');
-            const activateBtn = document.getElementById('activate-sound-btn');
+        // UI Handlers
+        window.openMenu = () => {
+            document.getElementById('sidebar-overlay').classList.remove('hidden');
+            document.getElementById('sidebar').classList.remove('translate-x-full');
+        };
+        window.closeMenu = () => {
+            document.getElementById('sidebar').classList.add('translate-x-full');
+            setTimeout(() => document.getElementById('sidebar-overlay').classList.add('hidden'), 300);
+        };
+        document.getElementById('menu-toggle-btn').onclick = window.openMenu;
+        document.getElementById('menu-close-btn').onclick = window.closeMenu;
+        document.getElementById('mute-btn').onclick = () => audioManager.toggleMute();
 
-            if (localStorage.getItem('soundActivated') === 'true') {
-                audioManager.isUnlocked = true;
+        // Theme
+        window.toggleTheme = () => {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            localStorage.setItem('kdsTheme', isLight ? 'light' : 'dark');
+            document.getElementById('theme-icon').className = isLight ? 'fas fa-moon' : 'fas fa-sun';
+        };
+        if (localStorage.getItem('kdsTheme') === 'light') window.toggleTheme();
+
+        // New Order Alert
+        window.hideNewOrderAlert = () => {
+            document.getElementById('new-order-modal').classList.add('hidden');
+            audioManager.stop();
+        };
+
+        function showAlert(order) {
+            const el = document.getElementById('new-order-modal');
+            const info = document.getElementById('alert-order-info');
+            info.textContent = `#${order.id.slice(-4)} | ${order.customerName}`;
+            el.classList.remove('hidden');
+            audioManager.play();
+        }
+
+        // --- Core KDS Logic ---
+
+        function updateStats() {
+            const newCount = ordersCache.filter(o => o.status === 'new' || o.status === 'pending').length;
+            const cookCount = ordersCache.filter(o => o.status === 'preparing').length;
+            document.getElementById('count-new').textContent = newCount;
+            document.getElementById('count-cooking').textContent = cookCount;
+        }
+
+        function renderBoard() {
+            const grid = document.getElementById('orders-grid');
+            grid.innerHTML = '';
+
+            let filtered = [];
+            if (viewFilter === 'active') {
+                filtered = ordersCache.filter(o => ['new', 'pending', 'preparing'].includes(o.status));
+            } else {
+                filtered = ordersCache.filter(o => ['completed', 'picked_up', 'canceled', 'ready'].includes(o.status));
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full h-96 flex flex-col items-center justify-center text-gray-600">
+                    <i class="fas fa-clipboard-check text-8xl mb-4 opacity-20"></i>
+                    <p class="text-2xl font-bold opacity-50">لا توجد طلبات في هذه القائمة</p>
+                </div>`;
                 return;
             }
 
-            soundModal.classList.remove('hidden');
+            filtered.forEach(order => {
+                const isPreparing = order.status === 'preparing';
+                const isNew = order.status === 'new' || order.status === 'pending';
 
-            activateBtn.onclick = () => {
-                audioManager.unlock();
-                localStorage.setItem('soundActivated', 'true');
-                soundModal.classList.add('hidden');
-            };
-        }
+                // Time Calc
+                const created = order.createdAt?.toDate ? order.createdAt.toDate() : new Date();
+                const diffMs = new Date() - created;
+                const diffMins = Math.floor(diffMs / 60000);
 
-        const newOrderModal = document.getElementById('new-order-modal');
-        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
-        const modalOrderDetails = document.getElementById('modal-order-details');
+                let timeColor = 'text-gray-400';
+                if (diffMins > 10) timeColor = 'text-yellow-500';
+                if (diffMins > 20) timeColor = 'text-red-500 animate-pulse';
 
-        modalConfirmBtn.onclick = hideNewOrderAlert;
+                // Status Badge
+                let statusBadge = '';
+                let cardBorderClass = 'border-gray-700';
+                let headerClass = 'bg-neutral-800';
 
-        function flashTitle() {
-            if (newOrderCount > 0) {
-                document.title = document.title === originalTitle
-                    ? `(${newOrderCount}) طلب جديد! - S22 MARKET`
-                    : originalTitle;
-            } else {
-                document.title = originalTitle;
-                clearInterval(titleInterval);
-                titleInterval = null;
-            }
-        }
+                if (isNew) {
+                    statusBadge = '<span class="bg-red-600 text-white px-2 py-0.5 rounded text-sm font-bold">جديد</span>';
+                    cardBorderClass = 'ticket-card new';
+                    headerClass = 'ticket-header new';
+                } else if (isPreparing) {
+                    statusBadge = '<span class="bg-amber-500 text-black px-2 py-0.5 rounded text-sm font-bold">طبخ</span>';
+                    cardBorderClass = 'ticket-card preparing';
+                    headerClass = 'ticket-header preparing';
+                }
 
-        window.onfocus = () => {
-            clearInterval(titleInterval);
-            titleInterval = null;
-            newOrderCount = 0;
-            document.title = originalTitle;
-        };
+                // Items HTML
+                const itemsHtml = (order.items || []).map(item => {
+                    const addons = item.selectedAddons?.map(a => `<div class="text-sm text-gray-400 mr-4">+ ${a.name}</div>`).join('') || '';
+                    const instructions = item.cookingInstructions ? `<div class="text-sm text-red-400 mr-4 p-1 bg-red-900/20 rounded mt-1"><i class="fas fa-exclamation-circle"></i> ${item.cookingInstructions}</div>` : '';
+                    return `
+                        <div class="mb-3 pb-3 border-b border-gray-800 last:border-0 last:mb-0 last:pb-0">
+                            <div class="flex justify-between items-start">
+                                <span class="font-bold text-xl ${isNew ? 'text-white' : 'text-gray-200'}">${item.name}</span>
+                                <span class="bg-neutral-700 text-white font-mono text-lg px-2 rounded ml-2">${item.quantity}</span>
+                            </div>
+                            ${addons}
+                            ${instructions}
+                        </div>
+                    `;
+                }).join('');
 
-        function showNewOrderAlert(order) {
-            const formattedPrice = (order.totalPrice || 0).toLocaleString('fr-DZ');
-
-            const itemsHtml = (order.items || []).map(item => {
-                const addonsHtml = (item.selectedAddons && item.selectedAddons.length > 0)
-                    ? `<ul class="text-sm text-gray-400 mr-7 list-disc list-inside">${item.selectedAddons.map(addon => `<li>${addon.name}</li>`).join('')}</ul>`
-                    : '';
-                return `<div class="py-1">
-                            <span class="font-bold text-white text-lg">${item.quantity} x</span>
-                            <span class="text-gray-200 text-lg">${item.name}</span>
-                            ${addonsHtml}
-                        </div>`;
-            }).join('');
-
-            modalOrderDetails.innerHTML = `
-                <div class="flex justify-between items-center text-lg">
-                    <span class="text-gray-400">العميل:</span>
-                    <span class="font-bold text-white">${order.customerName}</span>
-                </div>
-                <div class="flex justify-between items-center text-lg mb-3">
-                    <span class="text-gray-400">الهاتف:</span>
-                    <span class="font-bold text-cyan-400" dir="ltr">${order.customerContact}</span>
-                </div>
-                
-                <div class="border-t border-b border-gray-700 py-3 my-3 text-right">
-                    <h4 class="text-xl font-bold text-orange-400 mb-2">محتوى الطلبية:</h4>
-                    <div class="space-y-1 pr-2">${itemsHtml}</div>
-                </div>
-
-                <div class="flex justify-between items-center text-2xl mt-4">
-                    <span class="text-gray-400">الإجمالي:</span>
-                    <span class="font-extrabold text-orange-400">${formattedPrice} د.ج</span>
-                </div>
-            `;
-            newOrderModal.classList.remove('hidden');
-
-            // Re-enabled audio playback for immediate alert
-            audioManager.play();
-
-            newOrderCount++;
-            if (!titleInterval) {
-                titleInterval = setInterval(flashTitle, 1000);
-            }
-
-            // Native notification
-            if (Notification.permission === 'granted') {
-                new Notification('طلب جديد!', {
-                    body: `طلب جديد من ${order.customerName} بقيمة ${formattedPrice} دج`,
-                    icon: '/LOGO.jpg' // Assuming Logo exists
-                });
-            } else if (Notification.permission !== 'denied') {
-                Notification.requestPermission();
-            }
-        }
-
-        function hideNewOrderAlert() {
-            newOrderModal.classList.add('hidden');
-            audioManager.stop();
-        }
-
-        // --- ***** كود القائمة الجانبية الجديد ***** ---
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
-        const openBtn = document.getElementById('menu-toggle-btn');
-        const closeBtn = document.getElementById('menu-close-btn');
-
-        function openMenu() {
-            overlay.classList.remove('hidden');
-            sidebar.classList.remove('translate-x-full');
-            overlay.style.opacity = '1';
-        }
-
-        function closeMenu() {
-            overlay.style.opacity = '0';
-            sidebar.classList.add('translate-x-full');
-            setTimeout(() => {
-                overlay.classList.add('hidden');
-            }, 300);
-        }
-
-        // --- 💡 كود الوضع النهاري/الليلي الجديد 💡 ---
-        const themeToggleBtn = document.getElementById('theme-toggle-btn');
-        const themeIcon = document.getElementById('theme-icon');
-        const themeText = document.getElementById('theme-text');
-
-        function applyTheme(theme) {
-            if (theme === 'light') {
-                document.body.classList.add('light-mode');
-                themeIcon.className = 'fas fa-moon text-lg w-6 text-center text-indigo-400';
-                themeText.textContent = 'وضع ليلي';
-                themeToggleBtn.title = 'تفعيل الوضع الليلي';
-            } else {
-                document.body.classList.remove('light-mode');
-                themeIcon.className = 'fas fa-sun text-lg w-6 text-center text-yellow-400';
-                themeText.textContent = 'وضع نهاري';
-                themeToggleBtn.title = 'تفعيل الوضع النهاري';
-            }
-        }
-
-        function toggleTheme() {
-            const currentTheme = localStorage.getItem('kitchenTheme') || 'dark';
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            localStorage.setItem('kitchenTheme', newTheme);
-            applyTheme(newTheme);
-            closeMenu();
-        }
-        // --- 💡 نهاية الكود الجديد 💡 ---
-
-
-        function initializeKitchenApp() {
-            const manualRefreshBtn = document.getElementById('manual-refresh-btn');
-            const muteBtn = document.getElementById('mute-btn');
-
-            manualRefreshBtn.onclick = () => {
-                forceUIRefresh();
-                closeMenu();
-            };
-            muteBtn.onclick = () => {
-                audioManager.toggleMute();
-                closeMenu();
-            };
-
-            // --- 💡 ربط زر الوضع الجديد 💡 ---
-            themeToggleBtn.onclick = toggleTheme;
-
-            // --- ربط مشغلات القائمة الجديدة ---
-            openBtn.onclick = openMenu;
-            closeBtn.onclick = closeMenu;
-            overlay.onclick = closeMenu;
-
-            // 💡 تطبيق الثيم المحفوظ عند التحميل
-            const savedTheme = localStorage.getItem('kitchenTheme') || 'dark';
-            applyTheme(savedTheme);
-
-            // Activate sound setup
-            setupSoundActivation();
-
-            // Handle Auth and Load logic
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    currentUser = user; // Basic auth user
-
-                    // Fetch full user data for role-based sidebar
-                    try {
-                        const userSnap = await getDoc(doc(db, "users", user.uid));
-                        if (userSnap.exists()) {
-                            const userData = userSnap.data();
-                            // Merge role into currentUser for global access
-                            window.currentUser = { ...user, ...userData };
-                        } else {
-                            window.currentUser = user;
-                        }
-                    } catch (e) {
-                        console.error("Error fetching user role:", e);
-                        window.currentUser = user;
-                    }
-
-                    SidebarManager.render('sidebar-nav-container', 'kitchen');
-
-                    loadOrders();
-
-                    // Request notification permission on load
-                    if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-                        Notification.requestPermission();
-                    }
+                // Action Buttons
+                let actionBtns = '';
+                if (isNew) {
+                    actionBtns = `
+                        <button onclick="window.updateStatus('${order.id}', 'preparing')" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-lg text-lg transition-colors shadow-lg">
+                            <i class="fas fa-fire mb-1"></i> ابدأ الطبخ
+                        </button>
+                    `;
+                } else if (isPreparing) {
+                    actionBtns = `
+                        <button onclick="window.updateStatus('${order.id}', 'ready')" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-lg transition-colors shadow-lg">
+                            <i class="fas fa-bell mb-1"></i> جاهز للتقديم
+                        </button>
+                    `;
                 } else {
-                    window.location.href = 'seller-login.html';
+                    actionBtns = `<div class="text-center text-gray-500 font-bold py-2">مكتمل</div>`;
                 }
-            });
 
-            setInterval(renderOrdersTable, 15000);
-
-            // 💡 Global Unlocker: Attempt to unlock audio on ANY first user interaction
-            document.addEventListener('click', () => {
-                if (!audioManager.isUnlocked) {
-                    audioManager.unlock();
-                }
-            }, { once: true });
-        }
-
-        function forceUIRefresh() {
-            const icon = document.querySelector('#manual-refresh-btn i');
-            icon.classList.add('refresh-spin');
-            renderOrdersTable();
-            setTimeout(() => icon.classList.remove('refresh-spin'), 700);
-        }
-
-        // --- Sound Settings Logic ---
-        window.openSoundSettings = function () {
-            const modal = document.getElementById('sound-settings-modal');
-            const savedSound = localStorage.getItem('notificationSoundFile') || 'alerta.mp3';
-
-            // Checking the current radio
-            const radios = document.getElementsByName('orderSound');
-            for (const radio of radios) {
-                if (radio.value === savedSound) radio.checked = true;
-            }
-
-            modal.classList.remove('hidden');
-        };
-
-        window.previewSound = function (filename) {
-            const audio = new Audio(filename);
-            audio.play().catch(e => console.error("Preview failed", e));
-        };
-
-        window.saveSoundSettings = function () {
-            const radios = document.getElementsByName('orderSound');
-            let selected = 'alerta.mp3';
-            for (const radio of radios) {
-                if (radio.checked) selected = radio.value;
-            }
-            localStorage.setItem('notificationSoundFile', selected);
-            document.getElementById('sound-settings-modal').classList.add('hidden');
-
-            // Update main audio element immediately
-            const mainAudio = document.getElementById('notification-sound');
-            if (mainAudio) mainAudio.src = selected;
-        };
-
-        window.testNotification = function () {
-            // Method 1: Try playing the DOM element
-            const audio = document.getElementById('notification-sound');
-            if (audio) {
-                audio.muted = false;
-                audio.volume = 1.0;
-                audio.play()
-                    .then(() => {
-                        console.log("DOM Audio played successfully");
-                        audioManager.isUnlocked = true;
-                    })
-                    .catch(e => {
-                        console.error("DOM Audio failed:", e);
-                        // Method 2: Fallback to new Audio object (CDN Backup if local fails)
-                        const testAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-                        testAudio.play()
-                            .then(() => console.log("Fallback Audio played successfully"))
-                            .catch(err => alert("عذراً، فشل تشغيل جميع مصادر الصوت. خطأ: " + err.message));
-                    });
-            }
-
-            const dummyOrder = {
-                customerName: "عميل تجريبي",
-                customerContact: "0000000",
-                totalPrice: 1500,
-                items: [
-                    { quantity: 2, name: "تجربة  ", selectedAddons: [{ name: "جبنة إضافية" }] },
-                    { quantity: 1, name: "تجربة " }
-                ]
-            };
-            showNewOrderAlert(dummyOrder);
-        };
-
-        function loadOrders() {
-            if (!currentUser) return;
-
-            const panel = document.getElementById('orders-panel');
-            panel.innerHTML = `
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-                    <h1 class="text-3xl font-bold">الطلبات الواردة</h1>
-                    <div class="flex items-center gap-2 p-1 bg-gray-800 rounded-lg flex-wrap justify-center" id="order-status-filters">
-                        <button class="filter-btn active" data-status="new">جديد</button>
-                        <button class="filter-btn" data-status="preparing">قيد التحضير</button>
-                        <button class="filter-btn" data-status="completed">مكتمل</button>
-                        <button class="filter-btn" data-status="canceled">ملغي</button>
-                        <button class="filter-btn" data-status="all">الكل</button>
+                const cardIdx = document.createElement('div');
+                cardIdx.className = cardBorderClass;
+                cardIdx.innerHTML = `
+                    <div class="${headerClass}">
+                        <div>
+                             <span class="font-mono font-bold text-gray-500 text-sm">#${order.id.slice(-4)}</span>
+                             <div class="font-bold text-lg truncate max-w-[150px]">${order.customerName || 'زائر'}</div>
+                        </div>
+                        <div class="text-left">
+                             ${statusBadge}
+                             <div class="font-mono text-xl font-bold mt-1 ${timeColor}" data-time="${created.getTime()}">${diffMins} د</div>
+                        </div>
                     </div>
-                </div>
-                <div class="overflow-x-auto bg-gray-900 rounded-xl shadow-lg">
-                    <table class="w-full min-w-full text-right responsive-table">
-                        <thead class="bg-gray-800 text-gray-300">
-                            <tr>
-                                <th class="p-4">العميل</th>
-                                <th class="p-4">الوقت المنقضي</th>
-                                <th class="p-4 w-1/3">الطلبية</th>
-                                <th class="p-4">الحالة</th>
-                                <th class="p-4">الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="orders-table-body">
-                           <tr><td colspan="5" class="p-16 text-center"><div class="spinner-dark mx-auto"></div><p class="mt-4 text-gray-400">جاري تحميل الطلبات...</p></td></tr>
-                        </tbody>
-                    </table>
-                </div>`;
-
-            document.querySelectorAll('#order-status-filters .filter-btn').forEach(btn => {
-                btn.onclick = (e) => {
-                    document.querySelector('#order-status-filters .filter-btn.active').classList.remove('active');
-                    e.currentTarget.classList.add('active');
-                    currentOrderStatusFilter = e.currentTarget.dataset.status;
-                    renderOrdersTable();
-                };
+                    <div class="ticket-body custom-scrollbar overflow-y-auto max-h-[400px]">
+                        ${itemsHtml}
+                    </div>
+                    <div class="ticket-footer">
+                        ${actionBtns}
+                        ${order.tableNumber ? `<div class="mt-2 text-center text-sm font-bold bg-neutral-800 rounded py-1">طاولة: ${order.tableNumber}</div>` : ''}
+                    </div>
+                `;
+                grid.appendChild(cardIdx);
             });
+        }
 
-            // Filter specific to current seller
+        // Actions
+        window.updateStatus = async (id, status) => {
+            try {
+                // If moving to ready/completed, simpler update
+                const finalStatus = status === 'ready' ? 'completed' : status; // using completed for now for simplicity, or could separate 'ready' if waiters exist
+                await updateDoc(doc(db, "orders", id), {
+                    status: finalStatus,
+                    updatedAt: new Date()
+                });
+            } catch (e) {
+                console.error(e);
+                alert("خطأ في التحديث");
+            }
+        };
+
+        // Live Timer Update
+        setInterval(() => {
+            document.querySelectorAll('[data-time]').forEach(el => {
+                const t = parseInt(el.dataset.time);
+                const diff = Math.floor((Date.now() - t) / 60000);
+                el.innerText = diff + ' د';
+                // Color update
+                if (diff > 20) el.className = "font-mono text-xl font-bold mt-1 text-red-500 animate-pulse";
+                else if (diff > 10) el.className = "font-mono text-xl font-bold mt-1 text-yellow-500";
+            });
+        }, 30000); // Every 30s
+
+        // Tab Switching
+        document.querySelectorAll('.filter-tab').forEach(btn => {
+            btn.onclick = (e) => {
+                document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active', 'bg-orange-600', 'text-white'));
+                e.target.classList.add('active', 'bg-orange-600', 'text-white');
+                e.target.classList.remove('bg-neutral-800', 'text-gray-400');
+
+                // Reset others style
+                document.querySelectorAll('.filter-tab:not(.active)').forEach(b => b.classList.add('bg-neutral-800', 'text-gray-400'));
+
+                viewFilter = e.target.dataset.filter;
+                renderBoard();
+            };
+        });
+
+        // Initialize
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                SidebarManager.render('sidebar-nav-container', 'kitchen');
+                setupListener(user.uid);
+
+                // Setup Sound Modal if not activated
+                if (localStorage.getItem('soundActivated') !== 'true') {
+                    document.getElementById('sound-activation-modal').classList.remove('hidden');
+                    document.getElementById('activate-sound-btn').onclick = () => {
+                        audioManager.unlock();
+                        localStorage.setItem('soundActivated', 'true');
+                        document.getElementById('sound-activation-modal').classList.add('hidden');
+                    };
+                } else {
+                    audioManager.isUnlocked = true;
+                    // Try auto unlock on first click anywhere just in case
+                    document.addEventListener('click', () => audioManager.unlock(), { once: true });
+                }
+
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        function setupListener(uid) {
+            // Usually filter by sellerId or merchantId
             const q = query(
                 collection(db, "orders"),
-                where("sellerId", "==", currentUser.uid),
-                orderBy("createdAt", "desc")
+                where("sellerId", "==", uid) // Assuming sellerId is used for restaurants
+                // orderBy("createdAt", "desc") // requires index usually
             );
 
-            const statusIndicator = document.getElementById('connection-status');
-            const statusText = document.getElementById('connection-text');
+            onSnapshot(q, (snapshot) => {
+                const orders = [];
+                snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
 
-            onSnapshot(q, snapshot => {
-                statusIndicator.classList.remove('bg-red-500');
-                statusIndicator.classList.add('bg-green-500', 'animate-pulse');
-                statusText.textContent = 'متصل';
+                // Sort locally to avoid index issues for now if possible
+                orders.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
 
-                snapshot.docChanges().forEach(change => {
-                    const newOrderData = { id: change.doc.id, ...change.doc.data() };
+                ordersCache = orders;
+                updateStats();
+                renderBoard();
 
-                    if (change.type === "added") {
-                        const existingOrder = ordersCache.find(o => o.id === newOrderData.id);
-                        if (!existingOrder) {
-                            // Logic for "new" order
-                            // Notify if newer than 5 mins, EVEN IF it is the initial load (so user sees it after refresh)
-                            if (newOrderData.createdAt && Date.now() - newOrderData.createdAt.toMillis() < 60000 * 5) {
-                                // Prevent duplicate alerts if already shown (though cache check handles most)
-                                if (!newlyAddedOrderIds.has(change.doc.id)) {
-                                    showNewOrderAlert(newOrderData);
-                                    newlyAddedOrderIds.add(change.doc.id);
-                                }
+                // New Order Alert Check
+                if (!isInitialLoad) {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            const data = change.doc.data();
+                            // Only alert if status is new and recent (< 10 mins)
+                            const isRecent = data.createdAt && (Date.now() - data.createdAt.toMillis() < 600000);
+                            if (data.status === 'new' && isRecent && !newlyAddedIds.has(change.doc.id)) {
+                                showAlert({ id: change.doc.id, ...data });
+                                newlyAddedIds.add(change.doc.id);
                             }
                         }
-                    }
-
-                    if (!isInitialOrdersLoad) { // Only handle modifications/removals after initial load to avoid UI jitter
-                        if (change.type === "modified") {
-                            const oldOrder = ordersCache.find(o => o.id === change.doc.id);
-                            const newOrder = change.doc.data();
-                            if (oldOrder && oldOrder.status === 'new' && newOrder.status !== 'new') {
-                                hideNewOrderAlert();
-                            }
-                        }
-
-                        if (change.type === "removed") {
-                            hideNewOrderAlert();
-                        }
-                    }
-                });
-
-                isInitialOrdersLoad = false;
-                ordersCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderOrdersTable();
-
-            }, (error) => {
-                console.error("Firestore snapshot error: ", error);
-                statusIndicator.classList.remove('bg-green-500', 'animate-pulse');
-                statusIndicator.classList.add('bg-red-500');
-                statusText.textContent = 'خطأ في الاتصال';
-
-                const tableBody = document.getElementById('orders-table-body');
-                const errMsg = error.message.includes('requires an index')
-                    ? 'النظام يحتاج لفهرسة البيانات. يرجى التواصل مع الدعم الفني.'
-                    : 'فشل تحميل الطلبات. تأكد من الاتصال بالإنترنت.';
-                if (tableBody) tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-400">${errMsg}</td></tr>`;
-            });
-        }
-
-        function calculateTimeSince(timestamp) {
-            if (!timestamp?.toDate) return { text: '...', class: 'new' };
-            const diffMinutes = Math.floor((new Date() - timestamp.toDate()) / 60000);
-            if (diffMinutes < 5) return { text: `منذ ${diffMinutes} د`, class: 'new' };
-            if (diffMinutes < 15) return { text: `منذ ${diffMinutes} د`, class: 'medium' };
-            return { text: `منذ ${diffMinutes} د`, class: 'old' };
-        }
-
-        function renderOrdersTable() {
-            try {
-                const tableBody = document.getElementById('orders-table-body');
-                if (!tableBody) return;
-
-                const filteredOrders = ordersCache.filter(order => {
-                    if (currentOrderStatusFilter === 'all') return true;
-                    return order.status === currentOrderStatusFilter;
-                });
-
-                if (filteredOrders.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-400 text-lg">لا توجد طلبات تطابق هذه الفئة.</td></tr>`;
-                    return;
+                    });
                 }
-
-                const fragment = document.createDocumentFragment();
-                filteredOrders.forEach(order => {
-                    const statusConfig = {
-                        new: { text: 'جديد', color: 'bg-blue-600' },
-                        preparing: { text: 'تحضير', color: 'bg-yellow-500' },
-                        completed: { text: 'مكتمل', color: 'bg-green-600' },
-                        canceled: { text: 'ملغي', color: 'bg-red-600' }
-                    };
-                    const currentStatus = statusConfig[order.status] || { text: order.status, color: 'bg-gray-600' };
-
-                    const itemsHtml = (order.items || []).map(item => {
-                        let itemText = `<div><span class="font-semibold">${item.quantity} x ${item.name}</span> <span class="text-orange-400 font-mono">${(item.price || 0).toLocaleString()} دج</span></div>`;
-                        if (item.selectedAddons && item.selectedAddons.length > 0) {
-                            itemText += item.selectedAddons.map(addon => `<div class="text-xs text-gray-400 mr-4">+ ${addon.name}</div>`).join('');
-                        }
-                        if (item.cookingInstructions) {
-                            itemText += `<div class="text-xs text-cyan-300 bg-cyan-900/50 p-1 rounded mt-1 mr-4"><i class="fas fa-comment-dots ml-1"></i> ${item.cookingInstructions}</div>`;
-                        }
-                        return itemText;
-                    }).join('');
-
-                    const formattedDate = order.createdAt?.toDate() ? order.createdAt.toDate().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '...';
-                    const timeSince = calculateTimeSince(order.createdAt);
-
-                    const row = document.createElement('tr');
-
-                    let rowClasses = `transition-colors cursor-pointer hover:bg-gray-700/50 ${order.status === 'new' ? 'bg-gray-800' : 'bg-gray-900'}`;
-                    if (newlyAddedOrderIds.has(order.id)) {
-                        rowClasses += ' new-order-highlight';
-                        setTimeout(() => newlyAddedOrderIds.delete(order.id), 5000);
-                    }
-                    row.className = rowClasses;
-                    row.id = `order-${order.id}`;
-                    row.dataset.orderId = order.id;
-
-                    row.innerHTML = `
-                        <td data-label="العميل" class="p-4 align-top">
-                            <div class="font-semibold text-lg">${order.customerName}</div>
-                            <div class="text-sm text-cyan-400 font-semibold" dir="ltr">${order.customerContact}</div>
-                            <div class="text-sm text-gray-400 mt-1">${formattedDate}</div>
-                            <div class="text-lg text-orange-400 font-bold mt-2">${(order.totalPrice || 0).toLocaleString()} د.ج</div>
-                        </td>
-                        <td data-label="الوقت" class="p-4 align-top text-center"><span class="time-badge ${timeSince.class}">${timeSince.text}</span></td>
-                        <td data-label="الطلبية" class="p-4 align-top text-sm">${itemsHtml}</td>
-                        <td data-label="الحالة" class="p-4 align-top">
-                            <select class="order-status-select p-2 rounded-lg border-0 font-bold w-full text-white ${currentStatus.color}" data-id="${order.id}">
-                                <option value="new" ${order.status === 'new' ? 'selected' : ''}>جديد</option>
-                                <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>قيد التحضير</option>
-                                <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>مكتمل</option>
-                                <option value="canceled" ${order.status === 'canceled' ? 'selected' : ''}>ملغي</option>
-                            </select>
-                        </td>
-                        <td data-label="الإجراءات" class="p-4 align-top text-center">
-                            <button class="print-order-btn text-xl text-gray-300 hover:text-white" data-id="${order.id}" title="طباعة الطلب">
-                                <i class="fas fa-print"></i>
-                            </button>
-                        </td>`;
-                    fragment.appendChild(row);
-                });
-
-                tableBody.innerHTML = '';
-                tableBody.appendChild(fragment);
-
-                attachOrderActionListeners();
-            } catch (error) {
-                console.error("Failed to render orders table:", error);
-                const tableBody = document.getElementById('orders-table-body');
-                if (tableBody) tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-400">حدث خطأ أثناء تحديث الواجهة. حاول التحديث اليدوي.</td></tr>`;
-            }
-        }
-
-        function attachOrderActionListeners() {
-            // 👇 [مفعّل] هذا السطر يفعّل زر تغيير الحالة
-            document.querySelectorAll('.order-status-select').forEach(sel => sel.onchange = e => updateDoc(doc(db, "orders", e.target.dataset.id), { status: e.target.value }));
-
-            document.querySelectorAll('.print-order-btn').forEach(btn => btn.onclick = e => {
-                e.stopPropagation();
-                printOrder(e.currentTarget.dataset.id);
-            });
-            document.querySelectorAll('#orders-table-body tr').forEach(row => {
-                row.onclick = () => {
-                    document.querySelectorAll('.selected-order').forEach(selected => selected.classList.remove('selected-order'));
-                    row.classList.add('selected-order');
-                };
+                isInitialLoad = false;
             });
         }
-
-        function printOrder(orderId) {
-            const order = ordersCache.find(o => o.id === orderId);
-            if (!order) return;
-
-            const printWindow = window.open('', '_blank');
-            const itemsHtml = (order.items || []).map(item => {
-                let addons = (item.selectedAddons || []).map(a => `<li class="addon-item">+ ${a.name}</li>`).join('');
-                if (addons) addons = `<ul class="addons-list">${addons}</ul>`;
-                let instructions = item.cookingInstructions ? `<div class="instructions">ملاحظة: ${item.cookingInstructions}</div>` : '';
-
-                return `<tr class="item-row">
-                            <td class="quantity">${item.quantity}x</td>
-                            <td class="item-details">
-                                <div class="item-name">${item.name}</div>
-                                ${addons}
-                                ${instructions}
-                            </td>
-                        </tr>`;
-            }).join('');
-
-            const locationLink = order.customerLocation ?
-                `<div class="info-item">
-                    <b>الموقع:</b> <a href="${order.customerLocation}" target="_blank">اضغط هنا للذهاب للخرائط</a>
-                </div>` : '';
-
-            printWindow.document.write(`
-                <html><head><title>Order #${order.id.substring(0, 5)}</title>
-                <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-                <style>
-                    body { 
-                        font-family: 'Tajawal', sans-serif; 
-                        direction: rtl; 
-                        margin: 0; 
-                        padding: 10px;
-                        width: 80mm; /* Standard receipt paper width */
-                        color: #000;
-                    }
-                    .receipt-container { width: 100%; }
-                    .header { text-align: center; margin-bottom: 15px; }
-                    .header h1 { margin: 0; font-size: 24px; }
-                    .header .order-id { font-size: 14px; }
-                    .header .date { font-size: 12px; color: #555; }
-                    .customer-info { margin-bottom: 15px; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 10px 0; font-size: 14px; }
-                    .info-item { margin-bottom: 5px; }
-                    .info-item b { min-width: 50px; display: inline-block; }
-                    .info-item a { color: #007bff; text-decoration: none; }
-                    .items-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-                    .items-table .table-header { text-align: right; font-weight: bold; border-bottom: 1px solid #000; padding-bottom: 5px; }
-                    .items-table .item-row td { padding: 8px 0; vertical-align: top; }
-                    .items-table .quantity { padding-left: 10px; font-weight: bold; font-size: 16px; }
-                    .items-table .item-details .item-name { font-weight: 500; font-size: 16px; }
-                    .items-table .addons-list { list-style: none; padding-right: 15px; margin: 5px 0 0; font-size: 12px; color: #333; }
-                    .items-table .instructions { font-size: 12px; color: #d9534f; background-color: #f2f2f2; padding: 4px; border-radius: 3px; margin-top: 5px; margin-right: 15px;}
-                    .total-section { text-align: left; font-size: 20px; font-weight: bold; margin-top: 15px; border-top: 2px solid #000; padding-top: 10px;}
-                </style></head><body>
-                    <div class="receipt-container">
-                        <div class="header">
-                            <h1>S22 MARKET</h1>
-                            <div class="order-id">طلب رقم: ...${order.id.substring(15)}</div>
-                            <div class="date">${new Date(order.createdAt.toDate()).toLocaleString('ar-DZ')}</div>
-                        </div>
-                        <div class="customer-info">
-                            <div class="info-item"><b>العميل:</b> ${order.customerName}</div>
-                            <div class="info-item"><b>الهاتف:</b> ${order.customerContact}</div>
-                            ${locationLink}
-                        </div>
-                        <table class="items-table">
-                           <thead><tr><th class="table-header" colspan="2">الطلبية</th></tr></thead>
-                           <tbody>${itemsHtml}</tbody>
-                        </table>
-                        <div class="total-section">
-                            الإجمالي: ${order.totalPrice.toLocaleString()} د.ج
-                        </div>
-                    </div>
-                </body></html>`
-            );
-
-            printWindow.document.close();
-            printWindow.focus();
-            setTimeout(() => { printWindow.print(); printWindow.close(); }, 300);
-        }
-
-        initializeKitchenApp();
 
     </script>
 </body>
